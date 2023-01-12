@@ -157,5 +157,5 @@ misc.7z :
 	# @7z a $@ history Project1/Audio Project1/Graphics Project1/RGSS103J.dll Project1/RGSS104E.dll Project1/RPGXP.chm Project1/RPGXP.chw resource vendors/lib Doxyfile
 	wget https://7niu.gxmatmars.com/p1/RGModern/misc.7z
 	
-misc : misc.7z	
-	@7z x $^
+misc : misc.7z
+	@7z x -y $^

@@ -1,25 +1,16 @@
-# Modern Ruby Game Engine (RGM)
+# Modern Ruby Game Engine (RGModernodern)
 
-|||
-|--|--|
-|Author|Xiaomi Guo|
-|Email|xiaomi.guo@outlook.com|
-|Version|0.3.3|
+当前版本：v0.9.0
+在线文档：[RGModernorden使用指南](https://docs.qq.com/doc/DUklCTWNvdmVEdVhY)
 
 ## 简介
-RGM 是极具现代化特色的 RMXP 新 runtime，主要使用 C++20 和 Ruby 3 编写。RGM 特点：
+RGModern 是极具现代化特色的 RMXP 新 runtime，主要使用 C++20 和 Ruby 3 编写。RGModern 特点：
 1. 使用 SDL2 作为底层，支持 Direct3D 和 OpenGL 绘制。
 2. 驱动多线程完成脚本逻辑、画面渲染等任务。
-3. 借助 C++ 模板元编程，RGM 能自由组合各种功能模块，并使用静态多态技巧提升执行效率。
+3. 借助 C++ 模板元编程，RGModern 能自由组合各种功能模块，并使用静态多态技巧提升执行效率。
 
 ## 编译
-目前支持 msys2 的 mingw64 或 ucrt64 环境编译。
-
-1. 下载 msys2 并安装 mingw 或 ucrt 工具链
-2. 进入对应环境，解压本项目代码
-4. 下载 opt.7z，解压到项目文件夹
-5. （可选）配置 ext/setting.txt 和 ext/config.h
-6. 执行 `mingw32-make`
+参见在线文档。
 
 ## 设计
 如 `main.cpp` 所示，引擎本身由多个 worker 组合而成，每个 worker 在不同的线程执行不同的任务。详细设计参见 `src/` 内文档。
@@ -56,4 +47,5 @@ RGM 是极具现代化特色的 RMXP 新 runtime，主要使用 C++20 和 Ruby 3
 6. [SDL2 + OPENGL GLSL 实践](https://blog.csdn.net/qq_40369162/article/details/122641658)
 7. [The Definitive Guide to Ruby's C API](https://silverhammermba.github.io/emberb/)
 
-创建Shader：`fxc /O3 /T ps_5_0 src\shader\<script>.hlsl /Fh <script>.h /Vn rgm_shader_<script>_data`，然后将 BYTE 改成 unsigned char
+## 小提示
+创建Shader：`fxc /O3 /T ps_5_0 src\shader\<script>.hlsl /Fh <script>.h /Vn RGModern_shader_<script>_data`，然后将 BYTE 改成 unsigned char

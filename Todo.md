@@ -1,4 +1,4 @@
-# rgm todo list
+# RGModern todo list
 
 ## 战斗测试
 战斗测试时，载入太快了，无渐变效果。但是在游戏内是有的。（FEATURE）
