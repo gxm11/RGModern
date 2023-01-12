@@ -1,0 +1,98 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "编译生成 Game.exe",
+            "command": "make",
+            "args": [
+                "Gamew.exe"
+            ],
+            "problemMatcher": "$gcc",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "options": {
+                "env": {}
+            }
+        },
+        {
+            "type": "shell",
+            "label": "编译并运行 main.exe",
+            "command": "make main.exe && ./main",
+            "args": [],
+            "problemMatcher": "$gcc",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "options": {
+                "env": {}
+            }
+        },
+        {
+            "type": "shell",
+            "label": "编译生成 debug.exe",
+            "command": "make",
+            "args": [
+                "debug.exe"
+            ],
+            "problemMatcher": "$gcc",
+            "group": {
+                "kind": "build"
+            },
+            "options": {
+                "env": {}
+            }
+        },
+        {
+            "type": "shell",
+            "label": "配置 RGM 编译环境",
+            "command": "make",
+            "args": [
+                "deps"
+            ],
+            "problemMatcher": "$gcc",
+            "group": {
+                "kind": "none"
+            },
+            "detail": "安装 msys2 依赖库（包括 SDL2），下载编译第三方库。"
+        },
+        {
+            "type": "shell",
+            "label": "RMXP Test",
+            "command": "./Game.exe",
+            "args": [
+                "debug"
+            ],
+            "options": {
+                "cwd": "Project1"
+            },
+            "group": {
+                "kind": "test"
+            },
+            "detail": "测试运行 RMXP（Debug模式开启）。"
+        },
+        {
+            "type": "shell",
+            "label": "RMXP Edit",
+            "command": "start Game.rxproj",
+            "options": {
+                "cwd": "Project1"
+            },
+            "detail": "打开 RMXP 工程",
+            "problemMatcher": []
+        },
+        {
+            "type": "shell",
+            "label": "RMXP Help",
+            "command": "start RPGXP.chm",
+            "options": {
+                "cwd": "Project1"
+            },
+            "detail": "打开 RMXP 帮助文档",
+            "problemMatcher": []
+        }
+    ],
+    "version": "2.0.0"
+}

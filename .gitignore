@@ -1,0 +1,63 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Ninja log
+.ninja_log
+
+# packages
+packages/*/*
+opt/**
+opt_*/**
+.vscode/c_cpp_properties.json
+.vscode/settings.json
+.vscodecounter/*
+*.zip
+*.7z
+*.log
+*.tar
+*.tar.gz
+*.upx
+/*.png
+
+doc/
+history/
+Project1/Audio/**
+Project1/Graphics/**
+Project1/config.ini
+Project1/RGSS103J.dll
+Project1/RGSS104E.dll
+Project1/RPGXP.chw
+Project1/RPGXP.chm
+resource/
+screenshot/
+Doxyfile

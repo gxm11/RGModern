@@ -1,0 +1,104 @@
+# Copyright (c) 2022 Xiaomi Guo
+# Modern Ruby Game Engine (RGM) is licensed under Mulan PSL v2.
+# You can use this software according to the terms and conditions of the Mulan PSL v2.
+# You may obtain a copy of Mulan PSL v2 at:
+#          http://license.coscl.org.cn/MulanPSL2
+# THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+# EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+# MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+# See the Mulan PSL v2 for more details.
+
+class Table
+  # The multidimensional array class. Each element takes up 2 signed bytes,
+  # ranging from -32,768 to 32,767. Ruby's Array class does not run efficiently
+  # when handling large amounts of data, hence the inclusion of this class.
+
+  # 在 C++ 层中数据存储在 std::vector<int16_t> 中，而所有的 vector 都存储在 Hash 中。
+  # 不会通过哈希表查找 Table 对应的 vector，而是通过 @data 里记录的 &vector.front()
+  # 位置，加上偏移进行数据访问。在 STL 的 vector 实现下只有 create 和 resize 可能会改
+  # 变 &vector.front() 的地址，这两个函数都会返回新的 @data 的值，从而合法访问数据。
+
+  attr_reader :id, :xsize, :ysize, :zsize
+
+  def self.create_finalizer
+    proc { |object_id| RGM::Base.table_dispose(object_id) }
+  end
+
+  def initialize(xsize, ysize = 1, zsize = 1)
+    # Creates a Table object.
+    # Specifies the size of each dimension in the multidimensional array.
+    # 1-, 2-, and 3-dimensional arrays are possible.
+    # Arrays with no parameters are also permitted.
+
+    @id = object_id
+    @xsize = xsize
+    @ysize = ysize
+    @zsize = zsize
+
+    @data = RGM::Base.table_create(@id, xsize, ysize, zsize)
+    ObjectSpace.define_finalizer(self, self.class.create_finalizer)
+  end
+
+  def resize(xsize, ysize = 1, zsize = 1)
+    # Change the size of the array. All data from before the size change is retained.
+
+    @xsize = xsize
+    @ysize = ysize
+    @zsize = zsize
+    @data = RGM::Base.table_resize(@id, xsize, ysize, zsize)
+  end
+
+  def [](x, y = 0, z = 0)
+    if invalid?(x, y, z)
+      nil
+    else
+      index = x + @xsize * (y + @ysize * z)
+      RGM::Base.table_get(@data, index)
+    end
+  end
+
+  def []=(x, y = 0, z = 0, value)
+    if invalid?(x, y, z)
+      raise 'Invalid element index of table'
+    else
+      index = x + @xsize * (y + @ysize * z)
+      RGM::Base.table_set(@data, index, value)
+    end
+  end
+
+  if RGM::BuildMode >= 3
+    def []=(x, y = 0, z = 0, value)
+      index = x + @xsize * (y + @ysize * z)
+      RGM::Base.table_set(@data, index, value)
+    end
+  end
+
+  def inspect
+    format('#<Table:%d> [%d x %d x %d] (0x%016x)', object_id, @xsize, @ysize, @zsize, @data)
+  end
+
+  def self._load(s)
+    obj = Table.new(*s[4...16].unpack('L3'))
+    size = obj.xsize * obj.ysize * obj.zsize
+    RGM::Base.table_load(obj.id, s)
+    obj
+  end
+
+  def _dump(_depth = 1)
+    size = @xsize * @ysize * @zsize
+    dimension = 3
+    dimension -= 1 if @zsize == 1
+    dimension -= 1 if @ysize == 1
+    str = [dimension, @xsize, @ysize, @zsize, size].pack('L5')
+    str << RGM::Base.table_dump(@id)
+    str
+  end
+
+  def clone
+    Marshal.load(Marshal.dump(self))
+  end
+
+  def invalid?(x, y, z)
+    x >= @xsize || y >= @ysize || z >= @zsize || x < 0 || y < 0 || z < 0
+  end
+end

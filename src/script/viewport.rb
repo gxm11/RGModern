@@ -1,0 +1,128 @@
+# Copyright (c) 2022 Xiaomi Guo
+# Modern Ruby Game Engine (RGM) is licensed under Mulan PSL v2.
+# You can use this software according to the terms and conditions of the Mulan PSL v2.
+# You may obtain a copy of Mulan PSL v2 at:
+#          http://license.coscl.org.cn/MulanPSL2
+# THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+# EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+# MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+# See the Mulan PSL v2 for more details.
+
+class Viewport
+  # ---------------------------------------------------------------------------
+  # The viewport class. Used when displaying sprites in one portion of the screen,
+  # with no overflow into other regions.
+  # ---------------------------------------------------------------------------
+
+  # Viewport 也是 Drawable 类型，但是这里不跟 Sprite 等类一起实现
+  # 在 C++ 层的构造也有区别，因为绑定到此 Viewport 的 Drawable 要
+  # 用容器管理，该容器在 C++ 层为 viewport 类的成员变量 m_data。
+  # Viewport 类没有实例变量 @viewport ，从而有独特的 API。
+  attr_reader :visible, :z, :ox, :oy, :rect
+  attr_accessor :color, :tone
+
+  def self.create_finalizer(id)
+    proc { RGM::Base.viewport_dispose(id) }
+  end
+
+  def initialize(x_or_rect, y = nil, width = nil, height = nil)
+    # builtin members
+    @id = RGM::Base.new_id
+    @z = 0
+    @disposed = false
+    @visible = true
+
+    # value type members
+    @ox = 0
+    @oy = 0
+
+    # object type members
+    @rect = y ? Rect.new(x_or_rect, y, width, height) : x_or_rect
+    @color = Color.new(0, 0, 0, 0)
+    @tone = Tone.new(0, 0, 0, 0)
+
+    # flash 相关
+    @flash_count = 0
+    @flash_type = 0
+    @flash_hidden = false
+    @flash_color = Color.new(0, 0, 0, 0)
+
+    # constructor / destructor
+    RGM::Base.viewport_create(self)
+    ObjectSpace.define_finalizer(self, self.class.create_finalizer(@id))
+  end
+
+  def disposed?
+    @disposed
+  end
+
+  # 注意，viewport 只在 initialize 时申请资源，只在 GC 时释放资源。
+  # dispose 方法只是将 visible 永久变为 false 以跳过绘制。
+  # 对其他类型的 drawable 也一样，参见 drawable_base.rb。
+  # 但是，drawable 的 @viewport 属性引用了其所在的 viewport，从而
+  # 只有在 viewport 内所有的对象都 GC 后，viewport 才可能执行 GC。
+  # 这样的设计也使得 C++ 层的 drawables 中的任何查询都不可能落空。
+  def dispose
+    @visible = false
+    @disposed = true
+    RGM::Base.viewport_dispose(@id)
+  end
+
+  def visible=(visible)
+    @visible = visible & (!@disposed)
+  end
+
+  # value type members setters
+  def z=(z)
+    return @z if @z == z
+
+    @z = RGM::Base.viewport_set_z(self, z)
+  end
+
+  def ox=(ox)
+    ox = ox.to_i
+    if @ox != ox
+      @ox = ox
+      RGM::Base.viewport_refresh_value(self, RGM::Word::Attribute_ox)
+    end
+    @ox
+  end
+
+  def oy=(oy)
+    ox = ox.to_i
+    if @oy != oy
+      @oy = oy
+      RGM::Base.viewport_refresh_value(self, RGM::Word::Attribute_oy)
+    end
+    @oy
+  end
+
+  def flash(color, duration)
+    if color
+      @flash_type = 0
+      @flash_count = duration
+      @flash_color = color
+      @flash_hidden = false
+    else
+      @flash_type = 1
+      @flash_count = duration
+      @flash_color.set(0, 0, 0, 0)
+      @flash_hidden = true
+    end
+    RGM::Base.viewport_refresh_value(self, RGM::Word::Attribute_flash_hidden)
+  end
+
+  def update
+    # 更新 flash 的状态
+    if @flash_count > 0
+      @flash_color.alpha -= @flash_color.alpha / (1 + @flash_count) if @flash_type == 0
+      @flash_count -= 1
+      if @flash_count == 0
+        @flash_type = 0
+        @flash_color.set(0, 0, 0, 0)
+        @flash_hidden = false
+        RGM::Base.viewport_refresh_value(self, RGM::Word::Attribute_flash_hidden)
+      end
+    end
+  end
+end
