@@ -41,7 +41,7 @@ cflags = -std=c++20 -pipe -fstack-protector-strong -MMD -MP -static -Wall -Wextr
 cflags += -DRGM_FULLVERSION="\"$(RGM_FULLVERSION)\""
 cflags += -DCC_VERSION="\"$(shell $(cc) --version | head -n1)\""
 ifeq ($(system), MINGW64_NT)
-	cflags += -march=skylake
+	cflags +=
 else
 	cflags += -m32 -mfma
 endif
