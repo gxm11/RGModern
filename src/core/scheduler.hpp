@@ -34,7 +34,7 @@ struct scheduler<> {
    * worker 在其 kernel 的 run 函数退出后会将其更新为假。
    * worker 的 run 函数在检测到 scheduler 为假时也会退出。
    */
-  bool running{true};
+  std::stop_source stop_source;
 };
 
 template <typename T_worker, typename... Rest>

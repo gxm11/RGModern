@@ -50,7 +50,8 @@ struct kernel_passive {
       }
     };
 
-    while (worker.running()) {
+    auto stoken = worker.p_scheduler->stop_source.get_token();
+    while (!stoken.stop_requested()) {
       T_variants item;
       m_queue.wait_dequeue_timed(item, std::chrono::milliseconds{1});
       std::visit(visitor, std::move(item));

@@ -73,13 +73,11 @@ struct worker {
     traits::for_each<T_tasks>::before(*this);
 
     m_kernel.run(*this);
-    if (p_scheduler->running) p_scheduler->running = false;
+
+    p_scheduler->stop_source.request_stop();
 
     traits::for_each<T_tasks>::after(*this);
   }
-
-  /** 获取 worker 的运行状况 */
-  bool running() { return p_scheduler->running; }
 
   /**
    * @brief 广播任务，可能会被某个 worker 接受。
