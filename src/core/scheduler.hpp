@@ -29,10 +29,10 @@ struct scheduler;
 template <>
 struct scheduler<> {
   /**
-   * @brief 标志当前 scheduler 是否在执行。
-   * @note 初始为真。worker 保存了基类的指针，可以访问到该变量。
-   * worker 在其 kernel 的 run 函数退出后会将其更新为假。
-   * worker 的 run 函数在检测到 scheduler 为假时也会退出。
+   * @brief 标志当前 scheduler 是否已停止执行。
+   * @note worker 保存了基类的指针，可以访问到该变量。
+   * worker 在其 kernel 的 run 函数退出后会调用 request_stop 函数。
+   * passive kernel 的 run 函数会循环检测 stop_token 以及时退出。
    */
   std::stop_source stop_source;
 };
