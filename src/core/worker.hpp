@@ -9,7 +9,6 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
-#include "data.hpp"
 #include "datalist.hpp"
 #include "kernel.hpp"
 #include "scheduler.hpp"
@@ -34,14 +33,20 @@ struct worker {
   /** 保存父类的指针地址用于向下转型为 scheduler<> 的派生类指针 */
   scheduler<>* p_scheduler;
   /** datalist 类，存储的变量可供所有的任务读写 */
-  using T_data = data<T_tasklist, worker>;
-  std::unique_ptr<T_data> p_data;
+  std::unique_ptr<T_datalist> p_datalist;
 
   /**
    * @brief 任务执行的逻辑
    * @tparam T_kernel_tasks 包含了所有可以执行的任务的 TypeList
    */
   T_kernel<T_kernel_tasks> m_kernel;
+
+  explicit worker() : p_datalist(), m_kernel() {}
+
+  ~worker() {
+    traits::for_each<T_tasks>::after(*this);
+    p_datalist.release();
+  }
 
   /**
    * @brief 根据不同的变量类型，获取相应的共享变量。
@@ -51,7 +56,7 @@ struct worker {
    */
   template <typename T>
   T& get() {
-    return p_data->datalist.template get<T>();
+    return p_datalist->template get<T>();
   }
 
   template <typename T>
@@ -76,21 +81,14 @@ struct worker {
       printf("blocksize = %d\n", size);
     }
 
-    // T_datalist data;
-    // this->p_data = &data;
-
-    // traits::for_each<T_tasks>::before(*this);
-
-    // m_kernel.run(*this);
-
-    // p_scheduler->stop_source.request_stop();
-
-    // traits::for_each<T_tasks>::after(*this);
-
-    // return kernel.fork(*this);
+    m_kernel.run(*this);
+    p_scheduler->stop_source.request_stop();
   }
 
-  void make_data() { this->p_data = std::make_unique<T_data>(this); }
+  void setup() {
+    p_datalist = std::make_unique<T_datalist>();
+    traits::for_each<T_tasks>::before(*this);
+  }
 
   /**
    * @brief 广播任务，可能会被某个 worker 接受。
@@ -122,11 +120,11 @@ struct worker {
   }
 
   /** 只有 kernel 为主动模式才生效，清空当前管道内积压的全部任务。 */
-  void step() {
+  void flush() {
     static_assert(std::is_base_of_v<kernel_active<T_kernel_tasks>,
                                     T_kernel<T_kernel_tasks>>);
 
-    m_kernel.step(*this);
+    m_kernel.flush(*this);
   }
 
   /** send 的别名 */

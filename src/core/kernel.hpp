@@ -38,14 +38,6 @@ struct kernel : kernel_base<T_tasks> {
     return *this;
   }
 
-  std::jthread fork(auto& worker) {
-    auto proc = [&worker, this] {
-      worker.make_data();
-      run(worker);
-    };
-    return std::jthread(proc);
-  }
-
   void flush(auto& worker) {
     auto stop_token = worker.template get<std::stop_token>();
 

@@ -35,6 +35,8 @@ struct scheduler<> {
    * passive kernel 的 run 函数会循环检测 stop_token 以及时退出。
    */
   std::stop_source stop_source;
+
+  void run(){};
 };
 
 template <typename T_worker, typename... Rest>
@@ -42,34 +44,19 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
   T_worker m_worker;
 
   /** 创建不同的线程，执行 worker 的 run 函数 */
-  // void run() {
-  //   m_worker.p_scheduler = this;
-  //   if constexpr (sizeof...(Rest) > 0) {
-  //     std::jthread t([this](auto) { m_worker.run(); },
-  //                    m_worker.template get<std::stop_token>());
-  //     scheduler<Rest...>::run();
-  //   } else {
-  //     m_worker.run();
-  //   }
-  // }
   void run() {
     m_worker.p_scheduler = this;
-    if constexpr (sizeof...(Rest) > 0) {
-      if constexpr (requires { m_worker.m_kernel.run(m_worker); }) {
-        // std::jthread j = m_worker.m_kernel.fork(m_worker);
-        std::jthread t(
-            [this](auto) {
-              m_worker.make_data();
-              m_worker.m_kernel.run(m_worker);
-            },
-            m_worker.template get<std::stop_token>());
-      } else {
-        m_worker.make_data();
-      }
+    if constexpr (requires { m_worker.m_kernel.run(m_worker); }) {
+      std::jthread t(
+          [this](auto) {
+            m_worker.setup();
+            m_worker.run();
+          },
+          m_worker.template get<std::stop_token>());
       scheduler<Rest...>::run();
     } else {
-      m_worker.make_data();
-      m_worker.m_kernel.run(m_worker);
+      m_worker.setup();
+      scheduler<Rest...>::run();
     }
   }
 
@@ -78,7 +65,6 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
   template <typename T_task>
   bool broadcast(T_task&& task) {
     if constexpr (traits::is_repeated_v<T_task, typename T_worker::T_tasks>) {
-      // m_worker.m_kernel.enqueue(std::forward<T_task>(task));
       m_worker >> std::forward<T_task>(task);
       return true;
     } else if constexpr (sizeof...(Rest) > 0) {
