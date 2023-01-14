@@ -11,31 +11,30 @@
 #pragma once
 #include <condition_variable>
 #include <functional>
+#include <mutex>
 
 namespace rgm::core {
 struct semaphore {
-  static std::mutex m;
-
+  std::mutex mutex;
   std::condition_variable cv;
   bool pause;
 
-  explicit semaphore() : cv(), pause(false) {}
+  explicit semaphore() : mutex(), cv(), pause(false) {}
 
   void acquire(std::function<void()> async_call) {
     pause = true;
     async_call();
 
-    std::unique_lock<std::mutex> lock(m);
+    std::unique_lock lock(mutex);
     cv.wait(lock, [this] { return !pause; });
   }
 
   void release() {
-    std::lock_guard<std::mutex> lock(m);
+    std::scoped_lock lock(mutex);
     pause = false;
     cv.notify_one();
   }
 };
-std::mutex semaphore::m;
 
 /** @brief 任务：使 ruby 线程恢复运行 */
 template <size_t>

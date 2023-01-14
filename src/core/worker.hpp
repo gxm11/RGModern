@@ -9,8 +9,9 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
+#include "data.hpp"
 #include "datalist.hpp"
-#include "kernel_active.hpp"
+#include "kernel.hpp"
 #include "scheduler.hpp"
 #include "semaphore.hpp"
 #include "tasklist.hpp"
@@ -33,7 +34,9 @@ struct worker {
   /** 保存父类的指针地址用于向下转型为 scheduler<> 的派生类指针 */
   scheduler<>* p_scheduler;
   /** datalist 类，存储的变量可供所有的任务读写 */
-  T_datalist* p_data;
+  using T_data = data<T_tasklist, worker>;
+  std::unique_ptr<T_data> p_data;
+
   /**
    * @brief 任务执行的逻辑
    * @tparam T_kernel_tasks 包含了所有可以执行的任务的 TypeList
@@ -48,7 +51,7 @@ struct worker {
    */
   template <typename T>
   T& get() {
-    return p_data->template get<T>();
+    return p_data->datalist.template get<T>();
   }
 
   template <typename T>
@@ -73,17 +76,21 @@ struct worker {
       printf("blocksize = %d\n", size);
     }
 
-    T_datalist data;
-    this->p_data = &data;
+    // T_datalist data;
+    // this->p_data = &data;
 
-    traits::for_each<T_tasks>::before(*this);
+    // traits::for_each<T_tasks>::before(*this);
 
-    m_kernel.run(*this);
+    // m_kernel.run(*this);
 
-    p_scheduler->stop_source.request_stop();
+    // p_scheduler->stop_source.request_stop();
 
-    traits::for_each<T_tasks>::after(*this);
+    // traits::for_each<T_tasks>::after(*this);
+
+    // return kernel.fork(*this);
   }
+
+  void make_data() { this->p_data = std::make_unique<T_data>(this); }
 
   /**
    * @brief 广播任务，可能会被某个 worker 接受。
@@ -125,7 +132,23 @@ struct worker {
   /** send 的别名 */
   template <typename T>
   void operator<<(T&& task) {
+    static_assert(std::is_rvalue_reference_v<T&&>,
+                  "Task must be send as R-value!");
+
     send(std::forward<T>(task));
+  }
+
+  template <typename T>
+  void operator>>(T&& task) {
+    static_assert(std::is_rvalue_reference_v<T&&>,
+                  "Task must be passed as R-value!");
+
+    if constexpr (requires { m_kernel << task; }) {
+      m_kernel << std::forward<T>(task);
+    } else {
+      std::scoped_lock lock(m_kernel.m_pause.mutex);
+      task.run(*this);
+    }
   }
 };
 }  // namespace rgm::core

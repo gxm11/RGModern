@@ -10,8 +10,9 @@
 
 #pragma once
 #include "datalist.hpp"
-#include "kernel_active.hpp"
-#include "kernel_passive.hpp"
+#include "kernel.hpp"
+// #include "kernel_active.hpp"
+// #include "kernel_passive.hpp"
 #include "scheduler.hpp"
 #include "semaphore.hpp"
 #include "stopwatch.hpp"
