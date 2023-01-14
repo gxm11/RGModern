@@ -55,7 +55,7 @@ struct init_drawable_base {
   using data = rgm::data<drawables, id2z>;
 
   static void before(auto& this_worker) {
-    static const decltype(this_worker) worker(this_worker);
+    static decltype(auto) worker = this_worker;
 
     struct wrapper {
       static VALUE dispose(VALUE, VALUE viewport_, VALUE id_) {
@@ -167,7 +167,7 @@ struct init_drawable_base {
 template <typename T_Drawable>
 struct init_drawable {
   static void before(auto& this_worker) {
-    static const decltype(this_worker) worker(this_worker);
+    static decltype(auto) worker = this_worker;
 
     struct wrapper {
       static VALUE create(VALUE, VALUE drawable_) {

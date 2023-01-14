@@ -24,7 +24,7 @@ core::stopwatch graphics_timer("graphics");
  */
 struct init_graphics {
   static void before(auto& this_worker) {
-    static const decltype(this_worker) worker(this_worker);
+    static decltype(auto) worker = this_worker;
 
     struct wrapper {
       static void update_tilemap(z_index zi, viewport* v_ptr = nullptr) {

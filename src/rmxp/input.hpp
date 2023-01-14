@@ -172,7 +172,7 @@ struct init_input {
   using data = rgm::data<keymap, keystate>;
 
   static void before(auto& this_worker) {
-    static const decltype(this_worker) worker(this_worker);
+    static decltype(auto) worker = this_worker;
 
     struct wrapper {
       static VALUE bind(VALUE, VALUE sdl_key_, VALUE input_key_) {

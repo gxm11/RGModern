@@ -448,7 +448,7 @@ struct bitmap_capture_screen {
  */
 struct init_bitmap {
   static void before(auto& this_worker) {
-    static const decltype(this_worker) worker(this_worker);
+    static decltype(auto) worker = this_worker;
 
     /** wrapper 类，创建静态方法供 ruby 的模块绑定 */
     struct wrapper {

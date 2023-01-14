@@ -160,7 +160,7 @@ struct init_zip {
   using data = rgm::data<zip_data_external, zip_data_embeded>;
 
   static void before(auto& this_worker) {
-    static const decltype(this_worker) worker(this_worker);
+    static decltype(auto) worker = this_worker;
 
     struct wrapper {
       static VALUE load_data(VALUE, VALUE path_) {

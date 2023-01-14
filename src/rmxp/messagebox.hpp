@@ -23,7 +23,7 @@ struct message_show {
 
 struct init_message {
   static void before(auto& this_worker) {
-    static const decltype(this_worker) worker(this_worker);
+    static decltype(auto) worker = this_worker;
 
     struct wrapper {
       static VALUE show(VALUE, VALUE text_) {

@@ -65,7 +65,7 @@ struct init_font {
   static void before(auto& this_worker)
     requires(owner)
   {
-    static const decltype(this_worker) worker(this_worker);
+    static decltype(auto) worker = this_worker;
 
     struct wrapper {
       static VALUE create(VALUE, VALUE path_) {
