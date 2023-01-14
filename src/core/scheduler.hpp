@@ -46,18 +46,9 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
   /** 创建不同的线程，执行 worker 的 run 函数 */
   void run() {
     m_worker.p_scheduler = this;
-    if constexpr (requires { m_worker.m_kernel.run(m_worker); }) {
-      std::jthread t(
-          [this](auto) {
-            m_worker.setup();
-            m_worker.run();
-          },
-          m_worker.template get<std::stop_token>());
-      scheduler<Rest...>::run();
-    } else {
-      m_worker.setup();
-      scheduler<Rest...>::run();
-    }
+    std::jthread t([this](auto) { m_worker.run(); },
+                   m_worker.template get<std::stop_token>());
+    scheduler<Rest...>::run();
   }
 
   /** 广播一个任务，如果该任务在某个 worker

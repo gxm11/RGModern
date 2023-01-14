@@ -18,14 +18,11 @@
 #include "type_traits.hpp"
 
 namespace rgm::core {
-template <typename T_tasks>
-struct kernel_base {
+template <typename T_tasks, bool active>
+struct kernel {
   /** 用于阻塞或解锁当前线程的信号量 */
   semaphore m_pause;
-};
 
-template <typename T_tasks, bool active>
-struct kernel : kernel_base<T_tasks> {
   using T_variants =
       typename traits::append_t<std::monostate, T_tasks>::to<std::variant>;
 

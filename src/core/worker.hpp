@@ -33,20 +33,13 @@ struct worker {
   /** 保存父类的指针地址用于向下转型为 scheduler<> 的派生类指针 */
   scheduler<>* p_scheduler;
   /** datalist 类，存储的变量可供所有的任务读写 */
-  std::unique_ptr<T_datalist> p_datalist;
+  T_datalist* p_datalist;
 
   /**
    * @brief 任务执行的逻辑
    * @tparam T_kernel_tasks 包含了所有可以执行的任务的 TypeList
    */
   T_kernel<T_kernel_tasks> m_kernel;
-
-  explicit worker() : p_datalist(), m_kernel() {}
-
-  ~worker() {
-    traits::for_each<T_tasks>::after(*this);
-    p_datalist.release();
-  }
 
   /**
    * @brief 根据不同的变量类型，获取相应的共享变量。
@@ -80,14 +73,12 @@ struct worker {
       int size = sizeof(typename T_kernel<T_kernel_tasks>::T_variants);
       printf("blocksize = %d\n", size);
     }
-
+    T_datalist datalist;
+    p_datalist = &datalist;
+    traits::for_each<T_tasks>::before(*this);
     m_kernel.run(*this);
     p_scheduler->stop_source.request_stop();
-  }
-
-  void setup() {
-    p_datalist = std::make_unique<T_datalist>();
-    traits::for_each<T_tasks>::before(*this);
+    traits::for_each<T_tasks>::after(*this);
   }
 
   /**
@@ -141,12 +132,7 @@ struct worker {
     static_assert(std::is_rvalue_reference_v<T&&>,
                   "Task must be passed as R-value!");
 
-    if constexpr (requires { m_kernel << task; }) {
-      m_kernel << std::forward<T>(task);
-    } else {
-      std::scoped_lock lock(m_kernel.m_pause.mutex);
-      task.run(*this);
-    }
+    m_kernel << std::forward<T>(task);
   }
 };
 }  // namespace rgm::core
