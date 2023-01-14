@@ -463,15 +463,15 @@ struct init_bitmap {
                             strlen(config::resource_prefix) - 1);
           if (ret == 0) {
             const char* path2 = path + strlen(config::resource_prefix);
-            worker << bitmap_create<4>{id, path2};
+            worker >> bitmap_create<4>{id, path2};
           } else {
-            worker << bitmap_create<1>{id, path};
+            worker >> bitmap_create<1>{id, path};
           }
         } else {
           RGMLOAD(width, int);
           RGMLOAD(height, int);
 
-          worker << bitmap_create<2>{id, width, height};
+          worker >> bitmap_create<2>{id, width, height};
         }
         return Qnil;
       }
@@ -480,7 +480,7 @@ struct init_bitmap {
       static VALUE dispose(VALUE, VALUE id_) {
         RGMLOAD(id, const uint64_t);
 
-        worker << bitmap_dispose{id};
+        worker >> bitmap_dispose{id};
         return Qnil;
       }
 
@@ -495,7 +495,7 @@ struct init_bitmap {
         rect r;
         r << rect_;
 
-        worker << bitmap_blt{r, id, src_id, x, y, opacity};
+        worker >> bitmap_blt{r, id, src_id, x, y, opacity};
         return Qnil;
       }
 
@@ -510,7 +510,7 @@ struct init_bitmap {
         rect src_r;
         src_r << src_rect_;
 
-        worker << bitmap_stretch_blt{dst_r, src_r, id, src_id, opacity};
+        worker >> bitmap_stretch_blt{dst_r, src_r, id, src_id, opacity};
         return Qnil;
       }
 
@@ -521,7 +521,7 @@ struct init_bitmap {
         r << rect_;
         color c;
         c << color_;
-        worker << bitmap_fill_rect{r, id, c};
+        worker >> bitmap_fill_rect{r, id, c};
         return Qnil;
       }
 
@@ -529,7 +529,7 @@ struct init_bitmap {
         RGMLOAD(id, const uint64_t);
         RGMLOAD(hue, int);
 
-        worker << bitmap_hue_change{id, hue};
+        worker >> bitmap_hue_change{id, hue};
         return Qnil;
       }
 
@@ -569,7 +569,7 @@ struct init_bitmap {
         bool font_strikethrough = detail::get<word::strikethrough, bool>(font_);
         bool font_solid = detail::get<word::solid, bool>(font_);
 
-        worker << bitmap_draw_text{r,
+        worker >> bitmap_draw_text{r,
                                    id,
                                    text,
                                    c,
@@ -588,14 +588,14 @@ struct init_bitmap {
         RGMLOAD(id, const uint64_t);
         RGMLOAD(path, const char*);
 
-        worker << bitmap_save_png{id, path};
+        worker >> bitmap_save_png{id, path};
         return Qnil;
       }
 
       static VALUE capture_screen(VALUE, VALUE id_) {
         RGMLOAD(id, const uint64_t);
 
-        worker << bitmap_capture_screen{id};
+        worker >> bitmap_capture_screen{id};
         return Qnil;
       }
     };

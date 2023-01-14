@@ -110,7 +110,7 @@ struct init_sdl2 {
   using data = rgm::data<cen_library>;
 
   static void before(auto& worker) {
-    worker << init_sound_manager{};
+    worker >> init_sound_manager{};
 
     cen::renderer& renderer = RGMDATA(cen_library).renderer;
 

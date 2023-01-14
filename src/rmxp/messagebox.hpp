@@ -28,7 +28,7 @@ struct init_message {
     struct wrapper {
       static VALUE show(VALUE, VALUE text_) {
         RGMLOAD(text, const char*);
-        worker << message_show{text};
+        worker >> message_show{text};
         RGMWAIT(1);
 
         return Qnil;

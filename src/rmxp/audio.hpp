@@ -25,7 +25,7 @@ struct init_music {
         RGMLOAD(volume, int);
         RGMLOAD(position, double);
 
-        worker << base::bgm_play{path, position, volume * MIX_MAX_VOLUME / 100};
+        worker >> base::bgm_play{path, position, volume * MIX_MAX_VOLUME / 100};
         return Qnil;
       }
 
@@ -33,27 +33,27 @@ struct init_music {
         RGMLOAD(path, const char*);
         RGMLOAD(volume, int);
 
-        worker << base::me_play{path, volume * MIX_MAX_VOLUME / 100};
+        worker >> base::me_play{path, volume * MIX_MAX_VOLUME / 100};
         return Qnil;
       }
 
       static VALUE bgm_stop(VALUE, VALUE fade_time_) {
         RGMLOAD(fade_time, int);
 
-        worker << base::bgm_stop{fade_time};
+        worker >> base::bgm_stop{fade_time};
         return Qnil;
       }
 
       static VALUE me_stop(VALUE, VALUE fade_time_) {
         RGMLOAD(fade_time, int);
 
-        worker << base::me_stop{fade_time};
+        worker >> base::me_stop{fade_time};
         return Qnil;
       }
 
       static VALUE bgm_pos(VALUE) {
         double position = -1;
-        worker << base::bgm_pos{&position};
+        worker >> base::bgm_pos{&position};
         RGMWAIT(2);
         return DBL2NUM(position);
       }
@@ -87,7 +87,7 @@ struct init_sound {
 
         float speed = pitch / 100.0;
 
-        worker << base::bgs_play{path, volume, speed};
+        worker >> base::bgs_play{path, volume, speed};
         return Qnil;
       }
 
@@ -98,19 +98,19 @@ struct init_sound {
 
         float speed = pitch / 100.0;
 
-        worker << base::se_play{path, volume, speed};
+        worker >> base::se_play{path, volume, speed};
         return Qnil;
       }
 
       static VALUE bgs_stop(VALUE, VALUE fade_time_) {
         RGMLOAD(fade_time, int);
 
-        worker << base::bgs_stop{fade_time};
+        worker >> base::bgs_stop{fade_time};
         return Qnil;
       }
 
       static VALUE se_stop(VALUE) {
-        worker << base::se_stop{};
+        worker >> base::se_stop{};
         return Qnil;
       }
     };

@@ -211,7 +211,7 @@ struct init_zip {
         RGMLOAD(password, const char*);
 
         // 等待渲染线程结束任务
-        worker << regist_external_data<1>{path, password};
+        worker >> regist_external_data<1>{path, password};
         RGMWAIT(1);
 
         zip_data_external& z = RGMDATA(zip_data_external);

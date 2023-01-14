@@ -35,8 +35,6 @@ struct scheduler<> {
    * passive kernel 的 run 函数会循环检测 stop_token 以及时退出。
    */
   std::stop_source stop_source;
-
-  void run(){};
 };
 
 template <typename T_worker, typename... Rest>
@@ -46,9 +44,23 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
   /** 创建不同的线程，执行 worker 的 run 函数 */
   void run() {
     m_worker.p_scheduler = this;
-    std::jthread t([this](auto) { m_worker.run(); },
-                   m_worker.template get<std::stop_token>());
-    scheduler<Rest...>::run();
+    auto stop_token = m_worker.template get<std::stop_token>();
+    std::jthread t([this](auto) { m_worker.run(); }, stop_token);
+    if constexpr (sizeof...(Rest) > 0) {
+      scheduler<Rest...>::run();
+    }
+  }
+
+  /** TODO:同步执行，最后一个 worker 必须有 active kernel */
+  void run_sync() {
+    m_worker.p_scheduler = this;
+    m_worker.before();
+    if constexpr (sizeof...(Rest) > 0) {
+      scheduler<Rest...>::run_sync();
+    } else {
+      m_worker.run_sync();
+    }
+    m_worker.after();
   }
 
   /** 广播一个任务，如果该任务在某个 worker
@@ -56,14 +68,14 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
   template <typename T_task>
   bool broadcast(T_task&& task) {
     if constexpr (traits::is_repeated_v<T_task, typename T_worker::T_tasks>) {
-      m_worker >> std::forward<T_task>(task);
+      m_worker << std::forward<T_task>(task);
       return true;
     } else if constexpr (sizeof...(Rest) > 0) {
       return scheduler<Rest...>::template broadcast(std::forward<T_task>(task));
     } else if constexpr (config::output_level > 0) {
       printf("There's ingored task, check your code.\n");
+      return false;
     }
-    return false;
   }
 };
 }  // namespace rgm::core

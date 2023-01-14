@@ -211,8 +211,8 @@ struct init_input {
       static VALUE update(VALUE) {
         RGMDATA(keystate).update();
         // 在 Graphics.update 里也有一次 poll_event，处理当前积压的事件
-        // 无论如何，由于执行了 step() 函数，Input 数据总会刷新。
-        worker << base::poll_event{};
+        // 由于执行了 flush() 函数清空任务队列，Input 数据总会适时刷新。
+        worker >> base::poll_event{};
         worker.flush();
         return Qnil;
       }

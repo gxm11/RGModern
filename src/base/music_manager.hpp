@@ -284,7 +284,7 @@ struct music_finish {
 
     static const decltype(worker) this_worker(worker);
     struct wrapper {
-      static void callback() { this_worker << music_finish{}; }
+      static void callback() { this_worker >> music_finish{}; }
     };
 
     if (s == music_manager::state::bgm_play) {
@@ -306,7 +306,7 @@ struct bgm_play {
 
     static const decltype(worker) this_worker(worker);
     struct wrapper {
-      static void callback() { this_worker << music_finish{}; }
+      static void callback() { this_worker >> music_finish{}; }
     };
 
     Mix_HookMusicFinished(wrapper::callback);
@@ -343,7 +343,7 @@ struct me_play {
 
     static const decltype(worker) this_worker(worker);
     struct wrapper {
-      static void callback() { this_worker << music_finish{}; }
+      static void callback() { this_worker >> music_finish{}; }
     };
 
     Mix_HookMusicFinished(wrapper::callback);

@@ -33,7 +33,7 @@ struct worker {
   /** 保存父类的指针地址用于向下转型为 scheduler<> 的派生类指针 */
   scheduler<>* p_scheduler;
   /** datalist 类，存储的变量可供所有的任务读写 */
-  T_datalist* p_datalist;
+  std::unique_ptr<T_datalist> p_datalist;
 
   /**
    * @brief 任务执行的逻辑
@@ -69,16 +69,24 @@ struct worker {
    * 6. 析构 datalist
    */
   void run() {
+    before();
+    m_kernel.run(*this);
+    after();
+  }
+
+  void before() {
     if constexpr (config::output_level > 0) {
       int size = sizeof(typename T_kernel<T_kernel_tasks>::T_variants);
       printf("blocksize = %d\n", size);
     }
-    T_datalist datalist;
-    p_datalist = &datalist;
+    p_datalist = std::make_unique<T_datalist>();
     traits::for_each<T_tasks>::before(*this);
-    m_kernel.run(*this);
+  }
+
+  void after() {
     p_scheduler->stop_source.request_stop();
     traits::for_each<T_tasks>::after(*this);
+    p_datalist.release();
   }
 
   /**
@@ -107,7 +115,7 @@ struct worker {
   // 向其他线程发送 T 指令，阻塞线程直到 T 指令异步执行完毕。
   template <typename T_cmd>
   void wait() {
-    m_kernel.m_pause.acquire([this]() { send(T_cmd{&(m_kernel.m_pause)}); });
+    m_kernel.m_pause.acquire([this] { send(T_cmd{&(m_kernel.m_pause)}); });
   }
 
   /** 只有 kernel 为主动模式才生效，清空当前管道内积压的全部任务。 */
@@ -120,7 +128,7 @@ struct worker {
 
   /** send 的别名 */
   template <typename T>
-  void operator<<(T&& task) {
+  void operator>>(T&& task) {
     static_assert(std::is_rvalue_reference_v<T&&>,
                   "Task must be send as R-value!");
 
@@ -128,7 +136,7 @@ struct worker {
   }
 
   template <typename T>
-  void operator>>(T&& task) {
+  void operator<<(T&& task) {
     static_assert(std::is_rvalue_reference_v<T&&>,
                   "Task must be passed as R-value!");
 

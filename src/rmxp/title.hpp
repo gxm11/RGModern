@@ -21,7 +21,7 @@ struct init_title {
       static VALUE set_title(VALUE, VALUE title_) {
         RGMLOAD(title, const char*);
 
-        worker << base::set_title{title};
+        worker >> base::set_title{title};
 
         return Qnil;
       }

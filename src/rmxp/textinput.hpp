@@ -94,12 +94,12 @@ struct init_textinput {
         RGMLOAD(width, int);
         RGMLOAD(height, int);
 
-        worker << textinput_start{x, y, width, height};
+        worker >> textinput_start{x, y, width, height};
         return Qnil;
       }
 
       static VALUE stop(VALUE) {
-        worker << textinput_stop{};
+        worker >> textinput_stop{};
 
         return Qnil;
       }

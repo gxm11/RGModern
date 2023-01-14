@@ -38,7 +38,7 @@ struct init_graphics {
           auto [p_info, index] = tm.next_layer(zi, depth);
           if (index == 0) break;
           if (!p_info->p_tilemap->skip()) {
-            worker << render<overlayer<tilemap>>{p_info, v_ptr, p_tables,
+            worker >> render<overlayer<tilemap>>{p_info, v_ptr, p_tables,
                                                  index};
           }
         }
@@ -63,9 +63,9 @@ struct init_graphics {
           if constexpr (std::same_as<T, tilemap>) {
             // 如果是 tilemap，继续刷新 autotiles 属性
             // 注意这里会修改render_target，需要还原。
-            item.autotiles << [](auto id) { worker << bitmap_create<3>{id}; };
+            item.autotiles << [](auto id) { worker >> bitmap_create<3>{id}; };
             // tilemap 在绘制时要传递 p_tables
-            worker << render<T>{&item, v_ptr, p_tables};
+            worker >> render<T>{&item, v_ptr, p_tables};
             // 刷新在 tm 中的存储的 tilemap_info
             z_index zi;
             zi << item.object;
@@ -73,17 +73,17 @@ struct init_graphics {
             tm.setup(zi, item, depth);
           } else {
             // 生成通用的绘制任务
-            worker << render<T>{&item, v_ptr};
+            worker >> render<T>{&item, v_ptr};
           }
         };
 
         graphics_timer.step(4);
         graphics_timer.start();
         // 处理一次输入事件
-        worker << base::poll_event{};
+        worker >> base::poll_event{};
         graphics_timer.step(1);
         // 绘制开始
-        worker << base::clear_screen{};
+        worker >> base::clear_screen{};
         // 遍历 drawables，如果是 Viewport，则再遍历一层
         drawables& data = RGMDATA(drawables);
         for (auto& [zi, item] : data) {
@@ -100,7 +100,7 @@ struct init_graphics {
           // 设置 v_ptr
           v_ptr = &v;
           v.refresh_object();
-          worker << before_render_viewport{v_ptr};
+          worker >> before_render_viewport{v_ptr};
           for (auto& [sub_zi, sub_item] : v.m_data) {
             if (std::visit(visitor_skip, sub_item)) continue;
             update_tilemap(sub_zi, v_ptr);
@@ -108,7 +108,7 @@ struct init_graphics {
             std::visit(visitor_render, sub_item);
           }
           update_tilemap(z_index{INT32_MAX, 0}, v_ptr);
-          worker << after_render_viewport{v_ptr};
+          worker >> after_render_viewport{v_ptr};
           // 清空 v_ptr
           v_ptr = nullptr;
         }
@@ -129,14 +129,14 @@ struct init_graphics {
         RGMLOAD(transition_id, const uint64_t);
         RGMLOAD(vague, int);
 
-        worker << base::poll_event{};
+        worker >> base::poll_event{};
         // 绘制开始
-        worker << base::clear_screen{};
+        worker >> base::clear_screen{};
 
         if (transition_id == 0) {
-          worker << render_transition<1>{freeze_id, current_id, rate};
+          worker >> render_transition<1>{freeze_id, current_id, rate};
         } else {
-          worker << render_transition<2>{freeze_id, current_id, rate,
+          worker >> render_transition<2>{freeze_id, current_id, rate,
                                          transition_id, vague};
         }
         // 绘制结束
@@ -147,7 +147,7 @@ struct init_graphics {
       static VALUE present(VALUE, VALUE scale_mode_) {
         RGMLOAD(scale_mode, int);
 
-        worker << base::present_window{scale_mode};
+        worker >> base::present_window{scale_mode};
         return Qnil;
       }
 
@@ -155,7 +155,7 @@ struct init_graphics {
         RGMLOAD(width, int);
         RGMLOAD(height, int);
 
-        worker << base::resize_screen{width, height};
+        worker >> base::resize_screen{width, height};
         return Qnil;
       }
 
@@ -163,14 +163,14 @@ struct init_graphics {
         RGMLOAD(width, int);
         RGMLOAD(height, int);
 
-        worker << base::resize_window{width, height};
+        worker >> base::resize_window{width, height};
         return Qnil;
       }
 
       static VALUE set_fullscreen(VALUE, VALUE mode_) {
         RGMLOAD(mode, int);
 
-        worker << base::set_fullscreen{mode};
+        worker >> base::set_fullscreen{mode};
         return Qnil;
       }
     };
