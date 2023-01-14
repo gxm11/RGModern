@@ -38,7 +38,7 @@ struct kernel {
   void flush(auto& worker) {
     auto stop_token = worker.template get<std::stop_token>();
 
-    auto visitor = [&worker]<typename T>(T&& item) {
+    auto visitor = [&worker]<typename T>(T& item) {
       if constexpr (!std::same_as<std::monostate, T>) {
         item.run(worker);
       }
@@ -53,7 +53,7 @@ struct kernel {
         m_queue.wait_dequeue_timed(item, std::chrono::milliseconds{1});
       }
 
-      std::visit(visitor, std::move(item));
+      std::visit(visitor, item);
     }
   }
 
