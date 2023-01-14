@@ -53,8 +53,7 @@ struct init_graphics {
         tilemap_manager& tm = RGMDATA(tilemap_manager);
 
         // 发送绘制任务的 lambda
-        auto visitor_render = [p_tables, &tm, &v_ptr](auto& item) {
-          using T = std::decay_t<decltype(item)>;
+        auto visitor_render = [p_tables, &tm, &v_ptr]<typename T>(T& item) {
           // 不处理 viewport
           if constexpr (std::same_as<T, viewport>) return;
           // 以 CRTP 形式继承自 drawable_object 的对象是数据的拥有者，刷新数据

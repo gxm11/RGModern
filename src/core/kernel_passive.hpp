@@ -43,14 +43,13 @@ struct kernel_passive {
 
   /** 持续读取并执行管道里的任务，直到 worker 不再处于 running 状态 */
   void run(auto& worker) {
-    auto visitor = [&worker](auto&& item) {
-      if constexpr (!std::same_as<std::monostate,
-                                  std::decay_t<decltype(item)>>) {
+    auto visitor = [&worker]<typename T>(T&& item) {
+      if constexpr (!std::same_as<std::monostate, T>) {
         item.run(worker);
       }
     };
 
-    auto stoken = worker.p_scheduler->stop_source.get_token();
+    auto stoken = worker.template get<std::stop_token>();
     while (!stoken.stop_requested()) {
       T_variants item;
       m_queue.wait_dequeue_timed(item, std::chrono::milliseconds{1});

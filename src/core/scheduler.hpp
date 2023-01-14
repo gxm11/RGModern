@@ -45,7 +45,8 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
   void run() {
     m_worker.p_scheduler = this;
     if constexpr (sizeof...(Rest) > 0) {
-      std::jthread t([this] { m_worker.run(); });
+      std::jthread t([this](auto) { m_worker.run(); },
+                     m_worker.template get<std::stop_token>());
       scheduler<Rest...>::run();
     } else {
       m_worker.run();

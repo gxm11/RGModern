@@ -47,8 +47,14 @@ struct worker {
    * @return auto& 返回 T 类型变量的引用
    */
   template <typename T>
-  auto& get() {
+  T& get() {
     return p_data->template get<T>();
+  }
+
+  template <typename T>
+    requires(std::same_as<T, std::stop_token>)
+  std::stop_token get() {
+    return p_scheduler->stop_source.get_token();
   }
 
   /**

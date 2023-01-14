@@ -130,8 +130,7 @@ struct init_drawable_base {
         Check_Type(type_, T_FIXNUM);
         auto type = static_cast<word>(FIX2INT(type_));
 
-        auto visitor_refresh = [=](auto& item) {
-          using T = std::decay_t<decltype(item)>;
+        auto visitor_refresh = [=]<typename T>(T& item) {
           if constexpr (std::is_base_of_v<drawable_object<T>, T>) {
             item.refresh_value(type);
           }
