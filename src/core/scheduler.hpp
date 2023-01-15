@@ -40,9 +40,15 @@ struct scheduler<> {
 template <typename T_worker, typename... Rest>
 struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
   T_worker m_worker;
-
-  /** 创建不同的线程，执行 worker 的 run 函数 */
   void run() {
+    if constexpr (config::asynchornized) {
+      run_async();
+    } else {
+      run_sync();
+    }
+  }
+  /** 创建不同的线程，执行 worker 的 run 函数 */
+  void run_async() {
     m_worker.p_scheduler = this;
     auto stop_token = m_worker.template get<std::stop_token>();
     std::jthread t([this](auto) { m_worker.run(); }, stop_token);
@@ -51,12 +57,32 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
     }
   }
 
+  void run_sync() {
+    m_worker.p_scheduler = this;
+    m_worker.before();
+    if constexpr (sizeof...(Rest) > 0) {
+      static_assert(
+          !m_worker.is_active,
+          "Workers other than the last one should have the passive kernel!");
+      scheduler<Rest...>::run();
+    } else {
+      static_assert(m_worker.is_active,
+                    "The last worker must have the active kernel!");
+      m_worker.kernel_run();
+    }
+    m_worker.after();
+  }
+
   /** 广播一个任务，如果该任务在某个 worker
    * 的可执行任务列表中，就放到其任务队列里 */
   template <typename T_task>
   bool broadcast(T_task&& task) {
     if constexpr (traits::is_repeated_v<T_task, typename T_worker::T_tasks>) {
-      m_worker << std::forward<T_task>(task);
+      if constexpr (config::asynchornized) {
+        m_worker << std::forward<T_task>(task);
+      } else {
+        task.run(m_worker);
+      }
       return true;
     } else if constexpr (sizeof...(Rest) > 0) {
       return scheduler<Rest...>::template broadcast(std::forward<T_task>(task));

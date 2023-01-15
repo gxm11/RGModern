@@ -38,6 +38,8 @@ int main(int argc, char* argv[]) {
       printf(" - SDL TTF %d.%d.%d\n", GETVERSION(TTF));
       printf(" - SDL Mixer %d.%d.%d\n", GETVERSION(MIXER));
 #undef GETVERSION
+      printf("Asynchronized Mode: %s\n",
+             rgm::config::asynchornized ? "ON" : "OFF");
       return 0;
     }
     // load configs from argv

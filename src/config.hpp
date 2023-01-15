@@ -7,6 +7,8 @@
 // KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 // NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE. See the
 // Mulan PSL v2 for more details.
+#pragma once
+
 namespace rgm::config {
 // configs
 bool btest = false;
@@ -34,7 +36,7 @@ constexpr int output_level = 1;
 
 constexpr int build_mode = RGM_BUILDMODE;
 
-constexpr bool synchornized = false;
+constexpr bool asynchornized = true;
 }  // namespace rgm::config
 
 #ifndef RGM_FULLVERSION
