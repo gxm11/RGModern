@@ -90,6 +90,7 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
       printf("There's ingored task, check your code.\n");
       return false;
     }
+    return false;
   }
 };
 }  // namespace rgm::core
