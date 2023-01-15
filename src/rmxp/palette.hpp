@@ -117,6 +117,22 @@ struct init_palette {
         s.save_as_png(path);
         return Qnil;
       }
+
+      static VALUE convert_to_bitmap(VALUE, VALUE id_, VALUE bitmap_id_,
+                                     VALUE rect_) {
+        RGMLOAD(id, const uint64_t);
+        RGMLOAD(bitmap_id, const uint64_t);
+
+        rect r;
+        r << rect_;
+
+        base::surfaces& surfaces = RGMDATA(base::surfaces);
+        cen::surface& s = surfaces.at(id);
+
+        worker >> bitmap_capture_palette{r, bitmap_id, &s};
+        RGMWAIT(1);
+        return Qnil;
+      }
     };
 
     VALUE rb_mRGM = rb_define_module("RGM");
@@ -131,6 +147,8 @@ struct init_palette {
                               wrapper::set_pixel, 4);
     rb_define_module_function(rb_mRGM_BASE, "palette_save_png",
                               wrapper::save_png, 2);
+    rb_define_module_function(rb_mRGM_BASE, "palette_convert_to_bitmap",
+                              wrapper::convert_to_bitmap, 3);
   }
 };
 }  // namespace rgm::rmxp

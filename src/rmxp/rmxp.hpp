@@ -61,10 +61,11 @@ using tasks_render = core::tasklist<
     bitmap_create<2>, bitmap_create<3>, bitmap_create<4>, bitmap_dispose,
     bitmap_save_png, bitmap_capture_screen, bitmap_blt, bitmap_stretch_blt,
     bitmap_fill_rect, bitmap_hue_change, bitmap_draw_text, bitmap_get_pixel,
-    before_render_viewport, after_render_viewport, render<sprite>,
-    render<plane>, render<window>, render<overlayer<window>>, render<tilemap>,
-    render<overlayer<tilemap>>, render_transition<1>, render_transition<2>,
-    textinput_start, textinput_stop, regist_external_data<1>, message_show>;
+    bitmap_capture_palette, before_render_viewport, after_render_viewport,
+    render<sprite>, render<plane>, render<window>, render<overlayer<window>>,
+    render<tilemap>, render<overlayer<tilemap>>, render_transition<1>,
+    render_transition<2>, textinput_start, textinput_stop,
+    regist_external_data<1>, message_show>;
 
 using tasks_audio = core::tasklist<>;
 }  // namespace rgm::rmxp

@@ -462,6 +462,25 @@ struct bitmap_capture_screen {
     renderer.set_target(stack.current());
   }
 };
+
+struct bitmap_capture_palette {
+  rect r;
+  uint64_t id;
+  cen::surface* s;
+
+  void run(auto& worker) {
+    cen::texture& bitmap = RGMDATA(base::textures).at(id);
+    cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
+
+    cen::texture texture = renderer.make_texture(*s);
+
+    renderer.set_target(bitmap);
+    texture.set_blend_mode(cen::blend_mode::none);
+    renderer.render(texture, cen::ipoint(-r.x, -r.y));
+    renderer.reset_target();
+  }
+};
+
 /**
  * @brief 在 ruby 中定义操作 Bitmap 的相关函数。
  */

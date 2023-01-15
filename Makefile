@@ -109,7 +109,7 @@ all : main.exe
 
 main.exe : ./src/main.cpp Makefile icon.o
 	@echo "compile $@"
-	@$(cc) $< -o $@ $(cflags) $(clibs) $(cflags_develop)
+	@time $(cc) $< -o $@ $(cflags) $(clibs) $(cflags_develop)
 
 debug.exe : ./src/main.cpp Makefile icon.o
 	@echo "compile $@"

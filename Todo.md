@@ -21,7 +21,7 @@ https://wanghenshui.github.io/2019/04/28/allocator.html
 https://wiki.libsdl.org/SDL_RenderReadPixels 实现Bitmap#get_pixel。注意这是一个同步方法，所以需要等待渲染线程完成这个指令。（已完成）
 
 对于image，Finder会缓存长和宽，避免多次读取。（已完成）
-向palette添加convert_to_bitmap方法。与Graphics的snap_to_bitmap方法一样，添加默认的rect参数，表示截取的矩形部分，默认是nil，表示截取全部。
+向palette添加convert_to_bitmap方法。与Graphics的snap_to_bitmap方法一样，添加默认的rect参数，表示截取的矩形部分，默认是nil，表示截取全部。（已完成）
 
 新增同步的passive kernel，修改了 << 方法使其立刻执行，并且在 scheduler 的 run 里也不会开独立线程。（已解决，增加了 scheduler_synchornized）
 

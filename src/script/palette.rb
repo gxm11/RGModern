@@ -57,4 +57,11 @@ class Palette
   def save_png(path)
     RGM::Base.palette_save_png(@id, path)
   end
+
+  def convert_to_bitmap(rect = nil)
+    rect ||= Rect.new(0, 0, @width, @height)
+    b = Bitmap.new(rect.width, rect.height)
+    RGM::Base.palette_convert_to_bitmap(@id, b.id, rect)
+    b
+  end
 end
