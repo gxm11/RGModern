@@ -32,7 +32,7 @@ using data = core::traits::TypeList<Args...>;
 #define RGMDATA(type) worker.template get<type>()
 
 /** 宏 RGMWAIT 调用 worker 的 wait 方法，等待指定线程的同步信号 */
-#define RGMWAIT(id) worker.template wait<core::synchronize_signal<id>>()
+#define RGMWAIT(id) worker.template wait<id>()
 
 /** 宏 RGMENGINE 特化 traits::magic_cast，以将基类指针 scheduler<>* 转型成派生类
  * T* */

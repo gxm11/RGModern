@@ -9,32 +9,49 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
+namespace rgm::core {
+#if 1
+#include <atomic>
+
+struct semaphore {
+  std::atomic<int> count;
+
+  explicit semaphore() : count(0) {}
+
+  void acquire() {
+    count.fetch_add(1);
+    count.wait(1);
+  }
+
+  void release() {
+    count.fetch_add(-1);
+    count.notify_one();
+  }
+};
+#else
 #include <condition_variable>
-#include <functional>
 #include <mutex>
 
-namespace rgm::core {
 struct semaphore {
   std::mutex mutex;
   std::condition_variable cv;
-  bool pause;
+  int count;
 
-  explicit semaphore() : mutex(), cv(), pause(false) {}
+  explicit semaphore() : mutex(), cv(), count(0) {}
 
-  void acquire(std::function<void()> async_call) {
-    pause = true;
-    async_call();
-
+  void acquire() {
     std::unique_lock lock(mutex);
-    cv.wait(lock, [this] { return !pause; });
+    ++count;
+    cv.wait(lock, [this] { return count == 0; });
   }
 
   void release() {
     std::scoped_lock lock(mutex);
-    pause = false;
+    --count;
     cv.notify_one();
   }
 };
+#endif
 
 /** @brief 任务：使 ruby 线程恢复运行 */
 template <size_t>

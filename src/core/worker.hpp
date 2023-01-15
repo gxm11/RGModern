@@ -113,9 +113,10 @@ struct worker {
   }
 
   // 向其他线程发送 T 指令，阻塞线程直到 T 指令异步执行完毕。
-  template <typename T_cmd>
+  template <size_t id>
   void wait() {
-    m_kernel.m_pause.acquire([this] { send(T_cmd{&(m_kernel.m_pause)}); });
+    send(synchronize_signal<id>{&(m_kernel.m_pause)});
+    m_kernel.m_pause.acquire();
   }
 
   /** 只有 kernel 为主动模式才生效，清空当前管道内积压的全部任务。 */
