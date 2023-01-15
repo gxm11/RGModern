@@ -89,8 +89,9 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
     } else if constexpr (config::output_level > 0) {
       printf("There's ingored task, check your code.\n");
       return false;
+    } else {
+      return false;
     }
-    return false;
   }
 };
 }  // namespace rgm::core
