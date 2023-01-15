@@ -394,6 +394,25 @@ struct bitmap_draw_text {
   }
 };
 
+struct bitmap_get_pixel {
+  uint64_t id;
+  int x;
+  int y;
+  uint8_t* p_pixel;
+
+  void run(auto& worker) {
+    cen::texture& bitmap = RGMDATA(base::textures).at(id);
+    cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
+
+    renderer.set_target(bitmap);
+    SDL_Rect rect(x, y, 1, 1);
+    SDL_RenderReadPixels(renderer.get(), &rect,
+                         static_cast<uint32_t>(cen::pixel_format::bgra32),
+                         p_pixel, bitmap.width() * 4);
+    renderer.reset_target();
+  }
+};
+
 struct bitmap_save_png {
   uint64_t id;
   const char* path;
@@ -584,6 +603,21 @@ struct init_bitmap {
         return Qnil;
       }
 
+      static VALUE get_pixel(VALUE, VALUE id_, VALUE x_, VALUE y_) {
+        RGMLOAD(id, const uint64_t);
+        RGMLOAD(x, int);
+        RGMLOAD(y, int);
+
+        std::array<uint8_t, 4> pixels;
+        worker >> bitmap_get_pixel{id, x, y, pixels.data()};
+        RGMWAIT(1);
+        printf("get pixel = %d, %d, %d, %d\n", pixels[0], pixels[1], pixels[2],
+               pixels[3]);
+        uint32_t color = (pixels[3] << 24) + (pixels[2]) + (pixels[1] << 8) +
+                         (pixels[0] << 16);
+        return UINT2NUM(color);
+      }
+
       static VALUE save_png(VALUE, VALUE id_, VALUE path_) {
         RGMLOAD(id, const uint64_t);
         RGMLOAD(path, const char*);
@@ -619,6 +653,8 @@ struct init_bitmap {
                               wrapper::text_size, 2);
     rb_define_module_function(rb_mRGM_BASE, "bitmap_save_png",
                               wrapper::save_png, 2);
+    rb_define_module_function(rb_mRGM_BASE, "bitmap_get_pixel",
+                              wrapper::get_pixel, 3);
     rb_define_module_function(rb_mRGM_BASE, "bitmap_capture_screen",
                               wrapper::capture_screen, 1);
   }

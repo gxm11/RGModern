@@ -158,15 +158,16 @@ class Bitmap
 
   # get_pixel(x, y)
   # Gets the color (Color) at the specified pixel (x, y).
-  # 原则上 get_pixel 必须立刻返回特定位置的像素的颜色，但存在以下困难：
+  # get_pixel 运行较慢的原因如下：
   # 1. 该 Bitmap 可能有绘制任务等待异步执行，必须等待绘制完毕才能获得正确的颜色；
   # 2. 获取 texture 中的颜色需要从 GPU 中读取数据，效率极低；
   # 3. RGSS 里没有调用过该方法。
-  # 故这个方法被弃用，为了兼容性，该方法永远返回透明像素。
+  # 故这个方法不建议经常使用。
   # RGM 实现了 Palette 类来方便像素操作，Palette 的数据操作都是同步的。
-  def get_pixel(_x, _y)
-    puts '[Warning] Bitmap#get_pixel always return empty color, use Palette instead.'
-    Color.new(0, 0, 0, 0)
+  def get_pixel(x, y)
+    puts '[Warning] Bitmap#get_pixel is a very slow operation, and should not be used frequently.'
+    c = RGM::Base.bitmap_get_pixel(@id, x, y)
+    Color.new(c & 255, (c >> 8) & 255, (c >> 16) & 255, c >> 24)
   end
 
   # set_pixel(x, y, color)
