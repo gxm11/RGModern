@@ -20,7 +20,7 @@ using worker_render = rgm::base::worker_render<rgm::rmxp::tasks_render>;
 using worker_audio = rgm::base::worker_audio<rgm::rmxp::tasks_audio>;
 
 /** @brief 最终引擎由多个 worker 组合而来 */
-using engine_t = rgm::core::scheduler<worker_main, worker_audio, worker_render>;
+using engine_t = rgm::core::scheduler<worker_audio, worker_render, worker_main>;
 
 // magic_cast 的特化处理
 RGMENGINE(engine_t);

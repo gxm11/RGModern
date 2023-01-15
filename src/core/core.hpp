@@ -12,6 +12,7 @@
 #include "datalist.hpp"
 #include "kernel.hpp"
 #include "scheduler.hpp"
+#include "scheduler_synchronized.hpp"
 #include "semaphore.hpp"
 #include "stopwatch.hpp"
 #include "tasklist.hpp"

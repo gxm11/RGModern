@@ -33,6 +33,8 @@ constexpr int output_level = 1;
 #endif
 
 constexpr int build_mode = RGM_BUILDMODE;
+
+constexpr bool synchornized = false;
 }  // namespace rgm::config
 
 #ifndef RGM_FULLVERSION

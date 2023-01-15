@@ -41,6 +41,10 @@ struct worker {
    */
   T_kernel<T_kernel_tasks> m_kernel;
 
+  static constexpr bool is_active =
+      std::is_base_of_v<kernel_active<T_kernel_tasks>,
+                        T_kernel<T_kernel_tasks>>;
+
   /**
    * @brief 根据不同的变量类型，获取相应的共享变量。
    *
@@ -70,7 +74,7 @@ struct worker {
    */
   void run() {
     before();
-    m_kernel.run(*this);
+    kernel_run();
     after();
   }
 
@@ -82,6 +86,8 @@ struct worker {
     p_datalist = std::make_unique<T_datalist>();
     traits::for_each<T_tasks>::before(*this);
   }
+
+  void kernel_run() { m_kernel.run(*this); }
 
   void after() {
     p_scheduler->stop_source.request_stop();
@@ -121,8 +127,7 @@ struct worker {
 
   /** 只有 kernel 为主动模式才生效，清空当前管道内积压的全部任务。 */
   void flush() {
-    static_assert(std::is_base_of_v<kernel_active<T_kernel_tasks>,
-                                    T_kernel<T_kernel_tasks>>);
+    static_assert(is_active);
 
     m_kernel.flush(*this);
   }
@@ -140,6 +145,8 @@ struct worker {
   void operator<<(T&& task) {
     static_assert(std::is_rvalue_reference_v<T&&>,
                   "Task must be passed as R-value!");
+
+    static_assert(traits::is_repeated_v<T, T_kernel_tasks>);
 
     m_kernel << std::forward<T>(task);
   }
