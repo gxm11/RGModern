@@ -53,7 +53,7 @@ module Graphics
     end
     # toggle fps
     if Input.trigger?(Input::FPS_TOGGLE)
-      p @@title.encoding, RGM::Default_Title.encoding
+      # p @@title.encoding, RGM::Default_Title.encoding
       if @@show_fps
         @@show_fps = false
         RGM::Base.set_title(@@title)

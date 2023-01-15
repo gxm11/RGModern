@@ -170,7 +170,5 @@ struct se_stop {
 
 struct init_sound_manager {
   using data = rgm::data<sound_manager>;
-
-  void run(auto&) { sound_pitch::setup(); }
 };
 }  // namespace rgm::base

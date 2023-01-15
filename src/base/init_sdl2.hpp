@@ -58,6 +58,7 @@ struct cen_library {
     renderer.clear_with(cen::colors::transparent);
     renderer.present();
     window.show();
+    sound_pitch::setup();
 #if RGM_BUILDMODE <= 0
     cen::set_priority(cen::log_priority::debug);
 #elif RGM_BUILDMODE == 1
@@ -110,8 +111,6 @@ struct init_sdl2 {
   using data = rgm::data<cen_library>;
 
   static void before(auto& worker) {
-    worker >> init_sound_manager{};
-
     cen::renderer& renderer = RGMDATA(cen_library).renderer;
 
     SDL_RendererInfo info;

@@ -16,7 +16,7 @@ module Audio
 
     puts 'ignoring the pitch setting for bgm.' if pitch != 100
     path = Finder.find(filename, :music)
-    RGM::Base.audio_bgm_play(path, volume, pos)
+    RGM::Base.audio_bgm_play(path, volume.to_i, pos.to_i)
   end
 
   def bgm_stop
@@ -24,7 +24,7 @@ module Audio
   end
 
   def bgm_fade(time)
-    RGM::Base.audio_bgm_stop(time)
+    RGM::Base.audio_bgm_stop(time.to_i)
   end
 
   def bgm_pos
@@ -37,7 +37,7 @@ module Audio
     puts 'ignoring the pitch setting for me.' if pitch != 100
 
     path = Finder.find(filename, :music)
-    RGM::Base.audio_me_play(path, volume)
+    RGM::Base.audio_me_play(path, volume.to_i)
   end
 
   def me_stop
@@ -45,14 +45,14 @@ module Audio
   end
 
   def me_fade(time)
-    RGM::Base.audio_me_stop(time)
+    RGM::Base.audio_me_stop(time.to_i)
   end
 
   def bgs_play(filename, volume = 80, pitch = 100)
     return if @@disable_sound
 
     path = Finder.find(filename, :sound)
-    RGM::Base.audio_bgs_play(path, volume, pitch)
+    RGM::Base.audio_bgs_play(path, volume.to_i, pitch.to_i)
   end
 
   def bgs_stop
@@ -60,7 +60,7 @@ module Audio
   end
 
   def bgs_fade(time)
-    RGM::Base.audio_bgs_stop(time)
+    RGM::Base.audio_bgs_stop(time.to_i)
   end
 
   def se_play(filename, volume = 80, pitch = 100)
@@ -68,7 +68,7 @@ module Audio
     return if volume <= 0
 
     path = Finder.find(filename, :sound)
-    RGM::Base.audio_se_play(path, volume, pitch)
+    RGM::Base.audio_se_play(path, volume.to_i, pitch.to_i)
   end
 
   def se_stop
