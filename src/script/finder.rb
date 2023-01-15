@@ -41,6 +41,8 @@ module Finder
 
   FontName2Path = {}
 
+  PictureShapes = {}
+
   def find(filename, key = :none)
     return Cache[filename] if Cache[filename]
 
@@ -78,5 +80,17 @@ module Finder
 
   def regist(path, password)
     RGM::Ext.external_regist(path, password)
+  end
+
+  def get_picture_shape(path)
+    unless PictureShapes[path]
+      if path.start_with?(RGM::Resource_Prefix)
+        content = RGM::Ext.external_load(path)
+        PictureShapes[path] = Imagesize.load_raw(content)
+      else
+        PictureShapes[path] = Imagesize.load(path)
+      end
+    end
+    PictureShapes[path]
   end
 end

@@ -60,15 +60,11 @@ class Bitmap
       path = Finder.find(width_or_path, :image)
       # 保存图片位置的字符串 path（内蕴含的 char*）会被传递给渲染线程，
       # 需要保证在渲染线程使用之前 path 不被 GC。
-      # 由于 Finder 会缓存寻址结果，path 永远不被 GC。故不需要调用 RGM::Base.keep_alive。
+      # 但由于 Finder 会缓存寻址结果，path 永远不被 GC。故不需要调用 RGM::Base.keep_alive。
       # RGM::Base.keep_alive(path)
       RGM::Base.bitmap_create(@id, path, nil)
-      if path.start_with?(RGM::Resource_Prefix)
-        content = RGM::Ext.external_load(path)
-        @width, @height = Imagesize.load_raw(content)
-      else
-        @width, @height = Imagesize.load(path)
-      end
+      # 以路径指定的图片素材，通常不会在游戏过程中改变尺寸，所以缓存尺寸提升性能。
+      @width, @height = Finder.get_picture_shape(path)
     end
     @font = Font.new
 

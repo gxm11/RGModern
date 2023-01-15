@@ -31,12 +31,7 @@ class Palette
     else
       path = Finder.find(width_or_path, :image)
       RGM::Base.palette_create(@id, path, nil)
-      if path.start_with?(RGM::Resource_Prefix)
-        content = RGM::Ext.external_load(path)
-        @width, @height = Imagesize.load_raw(content)
-      else
-        @width, @height = Imagesize.load(path)
-      end
+      @width, @height = Finder.get_picture_shape(path)
     end
     ObjectSpace.define_finalizer(self, self.class.create_finalizer)
   end
