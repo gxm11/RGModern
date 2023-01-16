@@ -47,6 +47,7 @@ struct resize_window {
     window.set_size(cen::iarea(width, height));
   }
 };
+
 /**
  * @brief 任务：渲染之前的处理，清空 renderstack 栈底 texture 的内容
  */

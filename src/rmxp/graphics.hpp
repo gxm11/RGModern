@@ -19,6 +19,7 @@
 
 namespace rgm::rmxp {
 core::stopwatch graphics_timer("graphics");
+
 /**
  * @brief 创建 Graphics 相关的 ruby 方法
  */
@@ -38,8 +39,8 @@ struct init_graphics {
           auto [p_info, index] = tm.next_layer(zi, depth);
           if (index == 0) break;
           if (!p_info->p_tilemap->skip()) {
-            worker >> render<overlayer<tilemap>>{p_info, v_ptr, p_tables,
-                                                 index};
+            worker >>
+                render<overlayer<tilemap>>{p_info, v_ptr, p_tables, index};
           }
         }
       }

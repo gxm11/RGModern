@@ -9,6 +9,7 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
+#include "builtin.hpp"
 #include "shader/gray.h"
 #include "shader/hue.h"
 #include "shader/tone.h"

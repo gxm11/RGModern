@@ -62,7 +62,6 @@ struct bitmap_create<1> {
  *
  * @tparam size_t=2 第 2 种特化
  */
-
 template <>
 struct bitmap_create<2> {
   /** @brief Bitmap 的 ID */
@@ -351,7 +350,7 @@ struct bitmap_draw_text {
       ptr = std::make_unique<cen::surface>(font.render_blended_utf8(
           text, cen::color(c.red, c.green, c.blue, c.alpha)));
     }
-    cen::surface& s = *ptr;
+    const cen::surface& s = *ptr;
 
     int _height = s.height();
     int _width = s.width();

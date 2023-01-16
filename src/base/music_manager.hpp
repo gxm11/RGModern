@@ -110,166 +110,198 @@ struct music_manager {
   music_manager() : bgm(), bgm_wait(), me(), current_state(state::stop) {}
 
   template <event music_manager_event>
-  state update(const char* path, int volume, double position = 0) {
+  state update(const char* path, int volume, double position = 0)
+    requires(music_manager_event == event::bgm_play)
+  {
     using enum state;
-    if constexpr (music_manager_event == event::bgm_play) {
-      switch (current_state) {
-        case stop:
-          bgm << path;
-          bgm.data->fade_in(default_fade_time, -1);
-          cen::music::set_volume(volume);
-          current_state = bgm_play;
-          break;
-        case bgm_play:
-          if (bgm.path != path) {
-            bgm.save_state();
-            bgm_wait << path;
-            bgm_wait.volume = volume;
-            bgm_wait.position = position;
-            cen::music::fade_out(default_fade_time);
-            current_state = bgm_fade;
-          } else {
-            cen::music::set_position(position);
-            cen::music::set_volume(volume);
-          }
-          break;
-        default:
-        case bgm_fade:
-        case me_fade:
-        case me_play:
+
+    switch (current_state) {
+      case stop:
+        bgm << path;
+        bgm.data->fade_in(default_fade_time, -1);
+        cen::music::set_volume(volume);
+        current_state = bgm_play;
+        break;
+      case bgm_play:
+        if (bgm.path != path) {
+          bgm.save_state();
           bgm_wait << path;
           bgm_wait.volume = volume;
           bgm_wait.position = position;
-          break;
-      }
-    }
-
-    if constexpr (music_manager_event == event::me_play) {
-      if (me.path != path) {
-        cen::music::pause();
-        me << path;
-        me.data->fade_in(default_fade_time, 1);
-      }
-      me.volume = volume;
-      cen::music::set_volume(volume);
-      switch (current_state) {
-        case bgm_play:
-          bgm_wait.clear();
-          bgm.save_state();
-          std::swap(bgm, bgm_wait);
-          break;
-        default:
-        case stop:
-        case bgm_fade:
-        case me_fade:
-        case me_play:
-          break;
-      }
-      current_state = me_play;
+          cen::music::fade_out(default_fade_time);
+          current_state = bgm_fade;
+        } else {
+          cen::music::set_position(position);
+          cen::music::set_volume(volume);
+        }
+        break;
+      default:
+      case bgm_fade:
+      case me_fade:
+      case me_play:
+        bgm_wait << path;
+        bgm_wait.volume = volume;
+        bgm_wait.position = position;
+        break;
     }
 
     return current_state;
   }
 
   template <event music_manager_event>
-  state update(int fade_time) {
+  state update(const char* path, int volume,
+               [[maybe_unused]] double position = 0)
+    requires(music_manager_event == event::me_play)
+  {
     using enum state;
-    if constexpr (music_manager_event == event::bgm_fade) {
-      switch (current_state) {
-        case bgm_play:
-          cen::music::fade_out(cen::music::ms_type{fade_time});
-          bgm_wait.clear();
-          current_state = bgm_fade;
-          break;
-        default:
-          break;
-      }
-    }
 
-    if constexpr (music_manager_event == event::me_fade) {
-      switch (current_state) {
-        case me_play:
-          cen::music::fade_out(cen::music::ms_type{fade_time});
-          current_state = me_fade;
-          break;
-        default:
-        case stop:
-        case bgm_fade:
-        case bgm_play:
-        case me_fade:
-          break;
-      }
+    if (me.path != path) {
+      cen::music::pause();
+      me << path;
+      me.data->fade_in(default_fade_time, 1);
+    }
+    me.volume = volume;
+    cen::music::set_volume(volume);
+    switch (current_state) {
+      case bgm_play:
+        bgm_wait.clear();
+        bgm.save_state();
+        std::swap(bgm, bgm_wait);
+        break;
+      default:
+      case stop:
+      case bgm_fade:
+      case me_fade:
+      case me_play:
+        break;
+    }
+    current_state = me_play;
+
+    return current_state;
+  }
+
+  template <event music_manager_event>
+  state update(int fade_time)
+    requires(music_manager_event == event::bgm_fade)
+  {
+    using enum state;
+
+    switch (current_state) {
+      case bgm_play:
+        cen::music::fade_out(cen::music::ms_type{fade_time});
+        bgm_wait.clear();
+        current_state = bgm_fade;
+        break;
+      default:
+        break;
     }
 
     return current_state;
   }
 
   template <event music_manager_event>
-  state update() {
+  state update(int fade_time)
+    requires(music_manager_event == event::me_fade)
+  {
     using enum state;
-    if constexpr (music_manager_event == event::bgm_stop) {
-      switch (current_state) {
-        case bgm_fade:
-          cen::music::halt();
-          current_state = stop;
-          break;
-        case bgm_play:
-          cen::music::halt();
-          bgm_wait.clear();
-          current_state = bgm_fade;
-          break;
-        default:
-        case stop:
-        case me_fade:
-        case me_play:
-          break;
-      }
-      bgm_wait.clear();
+
+    switch (current_state) {
+      case me_play:
+        cen::music::fade_out(cen::music::ms_type{fade_time});
+        current_state = me_fade;
+        break;
+      default:
+      case stop:
+      case bgm_fade:
+      case bgm_play:
+      case me_fade:
+        break;
     }
 
-    if constexpr (music_manager_event == event::me_stop) {
-      switch (current_state) {
-        case me_fade:
-          cen::music::halt();
+    return current_state;
+  }
+
+  template <event music_manager_event>
+  state update()
+    requires(music_manager_event == event::bgm_stop)
+  {
+    using enum state;
+
+    switch (current_state) {
+      case bgm_fade:
+        cen::music::halt();
+        current_state = stop;
+        break;
+      case bgm_play:
+        cen::music::halt();
+        bgm_wait.clear();
+        current_state = bgm_fade;
+        break;
+      default:
+      case stop:
+      case me_fade:
+      case me_play:
+        break;
+    }
+    bgm_wait.clear();
+
+    return current_state;
+  }
+
+  template <event music_manager_event>
+  state update()
+    requires(music_manager_event == event::me_stop)
+  {
+    using enum state;
+
+    switch (current_state) {
+      case me_fade:
+        cen::music::halt();
+        me.clear();
+        break;
+      case me_play:
+        cen::music::halt();
+        current_state = me_fade;
+        break;
+      default:
+      case stop:
+      case bgm_fade:
+      case bgm_play:
+        break;
+    }
+
+    return current_state;
+  }
+
+  template <event music_manager_event>
+  state update()
+    requires(music_manager_event == event::music_finish)
+  {
+    using enum state;
+
+    switch (current_state) {
+      case bgm_fade:
+      case me_fade:
+      case me_play:
+        if (bgm_wait.data && !cen::music::is_playing()) {
+          cen::music::pause();
           me.clear();
-          break;
-        case me_play:
-          cen::music::halt();
-          current_state = me_fade;
-          break;
-        default:
-        case stop:
-        case bgm_fade:
-        case bgm_play:
-          break;
-      }
-    }
+          bgm.clear();
+          std::swap(bgm, bgm_wait);
 
-    if constexpr (music_manager_event == event::music_finish) {
-      switch (current_state) {
-        case bgm_fade:
-        case me_fade:
-        case me_play:
-          if (bgm_wait.data && !cen::music::is_playing()) {
-            cen::music::pause();
-            me.clear();
-            bgm.clear();
-            std::swap(bgm, bgm_wait);
-
-            bgm.data->fade_in(default_fade_time, -1);
-            cen::music::set_position(bgm.position);
-            cen::music::set_volume(bgm.volume);
-            current_state = bgm_play;
-          } else {
-            me.clear();
-            current_state = stop;
-          }
-          break;
-        default:
-        case stop:
-        case bgm_play:
-          break;
-      }
+          bgm.data->fade_in(default_fade_time, -1);
+          cen::music::set_position(bgm.position);
+          cen::music::set_volume(bgm.volume);
+          current_state = bgm_play;
+        } else {
+          me.clear();
+          current_state = stop;
+        }
+        break;
+      default:
+      case stop:
+      case bgm_play:
+        break;
     }
 
     return current_state;

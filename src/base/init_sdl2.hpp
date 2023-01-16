@@ -22,6 +22,7 @@ struct sdl_hint {
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
   }
 };
+
 /** @brief 利用 RAII 机制管理 SDL2 初始化和退出的类 */
 struct cen_library {
   cen::sdl sdl;

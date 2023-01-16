@@ -82,6 +82,7 @@ struct detail : base::detail {
 
 #undef DO_DEFINE_IV
 };
+
 /**
  * @brief 建立实例变量对应的 symbol，定义相关常量
  */

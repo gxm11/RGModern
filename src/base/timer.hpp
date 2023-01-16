@@ -24,25 +24,22 @@ struct timer {
   }
 
   void tick(double interval) {
-    uint64_t current_counter;
     uint64_t next_counter;
 
-    current_counter = SDL_GetPerformanceCounter();
     next_counter = counter + static_cast<uint64_t>(frequency * interval);
+    counter = SDL_GetPerformanceCounter();
 
-    if (current_counter < next_counter) {
-      uint32_t delay_ms = (next_counter - current_counter) * 1000 / frequency;
+    if (counter < next_counter) {
+      uint32_t delay_ms = (next_counter - counter) * 1000 / frequency;
       if (delay_ms >= 2) {
         Sleep(delay_ms - 1);
       }
 
-      while (current_counter < next_counter) {
+      while (counter < next_counter) {
         Sleep(0);
-        current_counter = SDL_GetPerformanceCounter();
+        counter = SDL_GetPerformanceCounter();
       }
     }
-
-    counter = current_counter;
   }
 
   void reset() { counter = SDL_GetPerformanceCounter(); }

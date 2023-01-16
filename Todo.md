@@ -18,8 +18,10 @@ https://wanghenshui.github.io/2019/04/28/allocator.html
 
 仔细检查32位系统的兼容性设置，可以将xorstr需要的AVXXXX宏，在makefile里实现，尝试linux下编译（假设已经安装了SDL和ruby，或者ruby可以静态编译）
 
-添加load data和save data的第二个参数为密码，这样就会用加密的zip格式保存文件。由于zip格式和marshal格式的开头是不一样的，如果读取时发现是marshal格式，就无视密码的效果，做到向前兼容。
+添加load data和save data的第二个参数为密码，这样就会用加密的zip格式保存文件。由于zip格式和marshal格式的开头是不一样的，如果读取时发现是marshal格式，就无视密码的效果，做到向前兼容。（交给用户自行解决）
 
 范例工程和文档。
 
-添加鼠标、joystick等控制，但是这些应该位于rgm::ext下。包括Movie，加入视频播放功能
+添加鼠标、joystick等控制，但是这些应该位于rgm::ext下。包括Movie，加入视频播放功能。
+
+添加Window、Sprite的额外invisible条件：在viewport或者屏幕之外。从而减少绘制指令。

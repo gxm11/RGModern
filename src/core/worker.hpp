@@ -65,12 +65,12 @@ struct worker {
   /**
    * @brief worker 主要执行的内容，会在单独的线程里执行。
    * @note 按照以下顺序执行：
-   * 1. 创建 datalist
-   * 2. 按顺序执行任务列表的静态 before 函数
-   * 3. 执行 kernel 的 run 函数
-   * 4. 设置 running = false
-   * 5. 按倒序执行任务列表的静态 after 函数
-   * 6. 析构 datalist
+   * 1. 创建 datalist (before)
+   * 2. 按顺序执行任务列表的静态 before 函数 (before)
+   * 3. 执行 kernel 的 run 函数 (kernel_run)
+   * 4. 设置 running = false (after)
+   * 5. 按倒序执行任务列表的静态 after 函数 (after)
+   * 6. 析构 datalist (after)
    */
   void run() {
     before();

@@ -45,6 +45,7 @@ struct shader_static : shader_base {
     device->CreatePixelShader(T::code, T::code_size, NULL, &current_shader);
   }
 };
+
 template <typename T>
 ID3D11PixelShader* shader_static<T>::current_shader;
 
@@ -96,6 +97,7 @@ struct shader_dynamic : shader_base {
     device->CreateBuffer(&cbDesc, &InitData, &p_buffer);
   }
 };
+
 template <typename T>
 ID3D11PixelShader* shader_dynamic<T>::current_shader;
 

@@ -15,7 +15,7 @@
 namespace rgm::rmxp {
 // 这是一个全局变量，存储了所有字体的路径。
 // 只有标记为 owner 的线程才能读写，其他线程只能读。
-std::array<std::string, 32> font_paths = {};
+std::array<std::string, 128> font_paths = {};
 
 template <bool owner>
 struct font_manager {
@@ -40,7 +40,7 @@ struct font_manager {
     }
     if (id == static_cast<int>(font_paths.size())) {
       throw std::invalid_argument(
-          "Number of different fonts must less than 32!");
+          "Number of different fonts must less than 128!");
     }
 
     return id;

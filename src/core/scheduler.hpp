@@ -40,6 +40,7 @@ struct scheduler<> {
 template <typename T_worker, typename... Rest>
 struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
   T_worker m_worker;
+
   void run() {
     if constexpr (config::asynchornized) {
       run_async();
@@ -47,6 +48,7 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
       run_sync();
     }
   }
+
   /** 创建不同的线程，执行 worker 的 run 函数 */
   void run_async() {
     m_worker.p_scheduler = this;
