@@ -9,9 +9,45 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
+#include "init_sdl2.hpp"
 #include "windows.h"
 
 namespace rgm::base {
+#if 1
+struct timer {
+  uint64_t counter;
+  uint64_t frequency;
+
+  timer() {
+    counter = SDL_GetPerformanceCounter();
+    frequency = SDL_GetPerformanceFrequency();
+  }
+
+  void tick(double interval) {
+    uint64_t current_counter;
+    uint64_t next_counter;
+
+    current_counter = SDL_GetPerformanceCounter();
+    next_counter = counter + static_cast<uint64_t>(frequency * interval);
+
+    if (current_counter < next_counter) {
+      uint32_t delay_ms = (next_counter - current_counter) * 1000 / frequency;
+      if (delay_ms >= 2) {
+        Sleep(delay_ms - 1);
+      }
+
+      while (current_counter < next_counter) {
+        Sleep(0);
+        current_counter = SDL_GetPerformanceCounter();
+      }
+    }
+
+    counter = current_counter;
+  }
+
+  void reset() { counter = SDL_GetPerformanceCounter(); }
+};
+#else
 // Author: Ryan M. Geiss
 // http://www.geisswerks.com/ryan/FAQS/timing.html
 struct timer {
@@ -74,4 +110,5 @@ struct timer {
   LARGE_INTEGER freq_;
   LARGE_INTEGER time_;
 };
+#endif
 }  // namespace rgm::base
