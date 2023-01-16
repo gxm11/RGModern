@@ -39,7 +39,7 @@ module Finder
 
   Cache = {}
 
-  FontName2Path = {}
+  FontPaths = {}
 
   PictureShapes = {}
 
@@ -57,7 +57,7 @@ module Finder
       end
     end
 
-    filename = FontName2Path[filename] || filename if key == :font
+    filename = FontPaths[filename] || filename if key == :font
 
     Load_Path[key].each do |directory|
       Suffix[key].each do |extname|

@@ -56,12 +56,8 @@ class Viewport
     @disposed
   end
 
-  # 注意，viewport 只在 initialize 时申请资源，只在 GC 时释放资源。
-  # dispose 方法只是将 visible 永久变为 false 以跳过绘制。
-  # 对其他类型的 drawable 也一样，参见 drawable_base.rb。
-  # 但是，drawable 的 @viewport 属性引用了其所在的 viewport，从而
-  # 只有在 viewport 内所有的对象都 GC 后，viewport 才可能执行 GC。
-  # 这样的设计也使得 C++ 层的 drawables 中的任何查询都不可能落空。
+  # 注意，dispose 方法会将 Viewport 内的 Drawable 全部释放。
+  # 释放后仍然可以试图操作 Drawable 的属性，但是没有效果。
   def dispose
     @visible = false
     @disposed = true

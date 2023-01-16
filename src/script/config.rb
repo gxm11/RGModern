@@ -67,6 +67,6 @@ File.open(RGM::Default_Config, 'r') do |f|
 
     fontname = Regexp.last_match(1)
     path = Regexp.last_match(2)
-    Finder::FontName2Path[fontname] = path
+    Finder::FontPaths[fontname] = path
   end
 end
