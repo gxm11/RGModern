@@ -16,6 +16,7 @@ namespace rgm::rmxp {
 struct init_palette {
   static void before(auto& this_worker) {
     static decltype(auto) worker = this_worker;
+
     /** wrapper 类，创建静态方法供 ruby 的模块绑定 */
     struct wrapper {
       static VALUE create(VALUE, VALUE id_, VALUE width_, VALUE height_) {
@@ -129,7 +130,12 @@ struct init_palette {
         base::surfaces& surfaces = RGMDATA(base::surfaces);
         cen::surface& s = surfaces.at(id);
 
-        worker >> bitmap_capture_palette{r, bitmap_id, &s};
+        cen::surface temp({r.width, r.height}, cen::pixel_format::rgba32);
+        SDL_Rect src{r.x, r.y, r.width, r.height};
+        SDL_Rect dst{0, 0, r.width, r.height};
+        SDL_BlitSurface(s.get(), &src, temp.get(), &dst);
+
+        worker >> bitmap_capture_palette{bitmap_id, &temp};
         RGMWAIT(1);
         return Qnil;
       }

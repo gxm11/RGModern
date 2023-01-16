@@ -38,6 +38,7 @@ struct detail : base::detail {
    */
   template <word w>
   static VALUE get(VALUE object) {
+    Check_Type(object, T_OBJECT);
     return rb_ivar_get(object, id_table[static_cast<size_t>(w)]);
   }
 

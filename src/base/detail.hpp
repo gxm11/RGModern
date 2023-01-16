@@ -67,6 +67,11 @@ uint64_t detail::from_ruby<uint64_t>(const VALUE value_) {
   }
 }
 
+/**
+ * @brief const uint64_t 类型变量的特化处理。
+ * @note 该类型是整数转const uint64_t，与上面的 uint64_t 做一个区分处理。
+ * 通常用来获取传入的 object id，或者其他无符号大整数。
+ */
 template <>
 uint64_t detail::from_ruby<const uint64_t>(const VALUE value_) {
   return NUM2ULL(value_);

@@ -464,7 +464,6 @@ struct bitmap_capture_screen {
 };
 
 struct bitmap_capture_palette {
-  rect r;
   uint64_t id;
   cen::surface* s;
 
@@ -476,7 +475,7 @@ struct bitmap_capture_palette {
 
     renderer.set_target(bitmap);
     texture.set_blend_mode(cen::blend_mode::none);
-    renderer.render(texture, cen::ipoint(-r.x, -r.y));
+    renderer.render(texture, cen::ipoint(0, 0));
     renderer.reset_target();
   }
 };
