@@ -9,10 +9,12 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
+
 namespace rgm::core {
 #if 1
-#include <atomic>
-
 struct semaphore {
   std::atomic<int> count;
 
@@ -29,9 +31,6 @@ struct semaphore {
   }
 };
 #else
-#include <condition_variable>
-#include <mutex>
-
 struct semaphore {
   std::mutex mutex;
   std::condition_variable cv;
