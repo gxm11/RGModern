@@ -3,10 +3,10 @@
 ## 战斗测试
 战斗测试时，载入太快了，无渐变效果。但是在游戏内是有的。（FEATURE）
 
-32位下render的stopwatch精度有问题，无法计时。
+32位下render的stopwatch精度有问题，无法计时。（32位的兼容交给有需求的开发者）
 
 ## 发布前的TODO
-shader_tone可以简化写法。
+shader_tone可以简化写法。（已经不知道为什么有这个TODO，疑似改好了）
 
 考虑到创建drawable和texture的开销，应该在每个线程使用一个资源池：https://zhuanlan.zhihu.com/p/359409607。使用std::pmr下的unsynchronized_pool_resource
 https://en.cppreference.com/w/cpp/memory/polymorphic_allocator
@@ -22,6 +22,6 @@ https://wanghenshui.github.io/2019/04/28/allocator.html
 
 范例工程和文档。
 
-添加鼠标、joystick等控制，但是这些应该位于rgm::ext下。包括Movie，加入视频播放功能。
+添加鼠标、joystick等控制，但是这些应该位于rgm::ext下。包括Movie，加入视频播放功能。joystick优先，鼠标和Movie待定。
 
 添加Window、Sprite的额外invisible条件：在viewport或者屏幕之外。从而减少绘制指令。

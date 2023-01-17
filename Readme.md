@@ -2,7 +2,9 @@
 
 当前版本：v0.9.0
 
-在线文档：[RGModernorden使用指南](https://docs.qq.com/doc/DUklCTWNvdmVEdVhY)
+在线文档：[RGModern使用指南](https://docs.qq.com/doc/DUklCTWNvdmVEdVhY)
+
+如果不方便使用Issue，可以在此文档反馈需求和缺陷：[RGModern用户反馈](https://docs.qq.com/doc/DUmJoemN5TXN5a0dE)
 
 ## 简介
 RGModern 是极具现代化特色的 RMXP 新 runtime，主要使用 C++20 和 Ruby 3 编写。RGModern 特点：
