@@ -23,10 +23,9 @@ namespace rgm::base {
 /** @brief 利用 RAII 机制管理 ruby 初始化和退出的类 */
 struct ruby_library {
   /** @brief ruby 的状态，0 表示无错误 */
-  int ruby_state;
 
   /** @brief 初始化 ruby 运行环境 */
-  explicit ruby_library() : ruby_state(0) {
+  explicit ruby_library() {
     int argc = 0;
     char* argv = nullptr;
     char** pArgv = &argv;
@@ -36,20 +35,6 @@ struct ruby_library {
     ruby_init();
     ruby_init_loadpath();
     rb_call_builtin_inits();
-  }
-
-  /** @brief 清理 ruby 运行环境 */
-  ~ruby_library() {
-    printf("ruby state = %d\n", ruby_state);
-    if (ruby_state) {
-      VALUE rbError = rb_funcall(rb_gv_get("$!"), rb_intern("message"), 0);
-
-      std::ofstream log;
-      log.open("./error.log");
-      log << rb_string_value_ptr(&rbError);
-      log.close();
-    };
-    ruby_cleanup(ruby_state);
   }
 };
 

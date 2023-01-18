@@ -27,9 +27,19 @@ struct kernel_ruby : rgm::core::kernel_active<T_tasks> {
     rb_funcall(rb_mRGM_Base, rb_intern("load_script"), 1,
                rb_str_new_cstr("script/load.rb"));
 #else
-    int* p_state = &RGMDATA(ruby_library).ruby_state;
+    int ruby_state = 0;
     rb_ary_push(rb_gv_get("$LOAD_PATH"), rb_str_new_cstr("./src/script"));
-    rb_load_protect(rb_str_new_cstr("load.rb"), 0, p_state);
+    rb_load_protect(rb_str_new_cstr("load.rb"), 0, &ruby_state);
+    // 清理 ruby 运行环境
+    if (ruby_state) {
+      VALUE rbError = rb_funcall(rb_errinfo(), rb_intern("message"), 0);
+
+      std::ofstream log;
+      log.open("./error.log");
+      log << rb_string_value_ptr(&rbError);
+      log.close();
+    };
+    ruby_cleanup(ruby_state);
 #endif
   }
 };
