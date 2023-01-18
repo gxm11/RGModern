@@ -23,10 +23,14 @@ def rgss_main
       puts 'The interrupt signal is catched, program stops safely.'
       return
     rescue Exception => e
-      puts 'Error occurs when load Data/Scripts.rxdata.'
-      puts e
-      e.backtrace.each do |msg|
-        puts ' - ' + msg
+      msg = ['Error occurs when load Data/Scripts.rxdata.']
+      msg << e.to_s
+      msg += e.backtrace.collect { |x| ' - ' + x }
+
+      puts msg.join("\n")
+      File.open('error.log', 'w') do |f|
+        f << Time.now << "\n"
+        f << msg.join("\n")
       end
       return
     end

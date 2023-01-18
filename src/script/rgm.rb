@@ -92,5 +92,5 @@ if RGM::BuildMode >= 2
 end
 
 def msgbox(text)
-  RGM::Base.message_box_show(text)
+  RGM::Base.message_show(text)
 end
