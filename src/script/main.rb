@@ -19,12 +19,15 @@ def rgss_main
     force_utf8_encode(script)
     begin
       eval script, nil, title
-    rescue LoadError
-      puts $!
-      puts 'Please check your scripts.'
-      return
-    rescue Interrupt
+    rescue SignalException
       puts 'The interrupt signal is catched, program stops safely.'
+      return
+    rescue Exception => e
+      puts 'Error occurs when load Data/Scripts.rxdata.'
+      puts e
+      e.backtrace.each do |msg|
+        puts ' - ' + msg
+      end
       return
     end
   end

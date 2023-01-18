@@ -21,26 +21,17 @@ namespace rgm::base {
 template <typename T_tasks>
 struct kernel_ruby : rgm::core::kernel_active<T_tasks> {
   void run([[maybe_unused]] auto& worker) {
+    int ruby_state = 0;
 #ifdef RGM_EMBEDED_ZIP
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
     rb_funcall(rb_mRGM_Base, rb_intern("load_script"), 1,
                rb_str_new_cstr("script/load.rb"));
 #else
-    int ruby_state = 0;
     rb_ary_push(rb_gv_get("$LOAD_PATH"), rb_str_new_cstr("./src/script"));
     rb_load_protect(rb_str_new_cstr("load.rb"), 0, &ruby_state);
-    // 清理 ruby 运行环境
-    if (ruby_state) {
-      VALUE rbError = rb_funcall(rb_errinfo(), rb_intern("message"), 0);
-
-      std::ofstream log;
-      log.open("./error.log");
-      log << rb_string_value_ptr(&rbError);
-      log.close();
-    };
-    ruby_cleanup(ruby_state);
 #endif
+    ruby_cleanup(ruby_state);
   }
 };
 }  // namespace rgm::base
