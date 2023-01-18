@@ -19,8 +19,12 @@ def rgss_main
     force_utf8_encode(script)
     begin
       eval script, nil, title
+    rescue LoadError
+      puts $!
+      puts 'Please check your scripts.'
+      return
     rescue Interrupt
-      puts 'Interrupt signal is catched, program stops safely.'
+      puts 'The interrupt signal is catched, program stops safely.'
       return
     end
   end

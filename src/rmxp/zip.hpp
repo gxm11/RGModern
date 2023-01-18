@@ -156,6 +156,10 @@ struct regist_external_data {
 /**
  * @brief 创建读取内嵌 zip 的 ruby 方法
  */
+
+extern "C" VALUE rb_eArgError;
+extern "C" VALUE rb_eLoadError;
+
 struct init_zip {
   using data = rgm::data<zip_data_external, zip_data_embeded>;
 
@@ -180,14 +184,21 @@ struct init_zip {
         zip_data_embeded& z = RGMDATA(zip_data_embeded);
 
         const std::string buf = z.load_string(path);
-        if (buf.empty()) return Qnil;
+        if (buf.empty()) {
+          rb_raise(rb_eArgError, "Cannot find embeded script `%s'.\n", path);
+          return Qnil;
+        }
 
         int ruby_state;
         VALUE object = rb_eval_string_protect(buf.data(), &ruby_state);
         if (ruby_state) {
-          VALUE rbError = rb_funcall(rb_gv_get("$!"), rb_intern("message"), 0);
-          cen::log_debug(rb_string_value_ptr(&rbError));
-        };
+          VALUE rbError = rb_funcall(rb_errinfo(), rb_intern("message"), 0);
+          cen::log_error(rb_string_value_ptr(&rbError));
+
+          rb_raise(rb_eLoadError,
+                   "ERROR: Failed to load embeded script `%s'.\n", path);
+          return Qnil;
+        }
 
         return object;
       }
