@@ -40,6 +40,7 @@ struct ruby_library {
 
   /** @brief 清理 ruby 运行环境 */
   ~ruby_library() {
+    printf("ruby state = %d\n", ruby_state);
     if (ruby_state) {
       VALUE rbError = rb_funcall(rb_gv_get("$!"), rb_intern("message"), 0);
 

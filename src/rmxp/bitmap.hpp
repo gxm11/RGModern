@@ -464,13 +464,13 @@ struct bitmap_capture_screen {
 
 struct bitmap_capture_palette {
   uint64_t id;
-  cen::surface* s;
+  std::unique_ptr<cen::surface> ptr;
 
   void run(auto& worker) {
     cen::texture& bitmap = RGMDATA(base::textures).at(id);
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
 
-    cen::texture texture = renderer.make_texture(*s);
+    cen::texture texture = renderer.make_texture(*ptr);
 
     renderer.set_target(bitmap);
     texture.set_blend_mode(cen::blend_mode::none);

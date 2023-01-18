@@ -130,13 +130,14 @@ struct init_palette {
         base::surfaces& surfaces = RGMDATA(base::surfaces);
         cen::surface& s = surfaces.at(id);
 
-        cen::surface temp({r.width, r.height}, cen::pixel_format::rgba32);
+        auto ptr = std::make_unique<cen::surface>(cen::iarea{r.width, r.height},
+                                                  cen::pixel_format::rgba32);
         SDL_Rect src{r.x, r.y, r.width, r.height};
         SDL_Rect dst{0, 0, r.width, r.height};
-        SDL_BlitSurface(s.get(), &src, temp.get(), &dst);
+        SDL_BlitSurface(s.get(), &src, ptr->get(), &dst);
 
-        worker >> bitmap_capture_palette{bitmap_id, &temp};
-        RGMWAIT(1);
+        worker >> bitmap_capture_palette{bitmap_id, std::move(ptr)};
+        // RGMWAIT(1);
         return Qnil;
       }
     };
