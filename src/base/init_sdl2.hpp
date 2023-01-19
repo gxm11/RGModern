@@ -66,11 +66,6 @@ struct cen_library {
 #endif
         renderer(window.make_renderer()),
         event_dispatcher() {
-    renderer.reset_target();
-    renderer.clear_with(cen::colors::transparent);
-    renderer.present();
-    window.show();
-    sound_pitch::setup();
 #if RGM_BUILDMODE <= 0
     cen::set_priority(cen::log_priority::debug);
 #elif RGM_BUILDMODE == 1
@@ -79,6 +74,15 @@ struct cen_library {
     cen::set_priority(config::debug ? cen::log_priority::info
                                     : cen::log_priority::warn);
 #endif
+    renderer.reset_target();
+    renderer.clear_with(cen::colors::transparent);
+    renderer.present();
+
+    window.show();
+
+    sound_pitch::setup();
+
+    event_dispatcher.poll();
   }
 };
 

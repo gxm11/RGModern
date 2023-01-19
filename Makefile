@@ -46,15 +46,14 @@ endif
 
 cflags += -DRGM_FULLVERSION="\"$(RGM_FULLVERSION)\""
 cflags += -DCC_VERSION="\"$(shell $(cc) --version | head -n1)\""
-cflags += -DRGM_SHADER_OPENGL
-# cflags += -DRGM_SHADER_D3D11
+cflags += -DRGM_SHADER_D3D11
 
 # build mode
 # 0 = debug    -> debug.exe
 # 1 = develop  -> main.exe
 # 2 = standard -> Game.exe
 # 3 = encrypt  -> Gamew.exe
-cflags_debug    = -DRGM_BUILDMODE=0 -s -Og -g -DDEBUG
+cflags_debug    = -DRGM_BUILDMODE=0 -Og -g -DDEBUG
 cflags_develop  = -DRGM_BUILDMODE=1 -s -O3
 cflags_standard = -DRGM_BUILDMODE=2 -s -O3 -DPASSWORD="\"$(PASSWORD)\""
 cflags_encrypt  = -DRGM_BUILDMODE=3 -s -O3 -DPASSWORD="\"$(PASSWORD)\"" -mwindows
@@ -91,7 +90,7 @@ libs += SDL2_mixer flac mpg123 vorbisfile opusfile winmm ogg vorbis opus opusfil
 # -----------------------------------------------
 # opengl
 # -----------------------------------------------
-# cflags += -DRGM_SHADER_OPENGL
+# cflags += -URGM_SHADER_D3D11 -DRGM_SHADER_OPENGL
 # libs += opengl32
 
 # -----------------------------------------------
