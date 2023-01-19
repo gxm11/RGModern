@@ -40,6 +40,7 @@ cc = $(MSYSTEM_PREFIX)/bin/g++
 cflags = -std=c++20 -pipe -fstack-protector-strong -MMD -MP -static -Wall -Wextra
 cflags += -DRGM_FULLVERSION="\"$(RGM_FULLVERSION)\""
 cflags += -DCC_VERSION="\"$(shell $(cc) --version | head -n1)\""
+cflags += -DRGM_SHADER_EMPTY
 ifeq ($(system), MINGW64_NT)
 	cflags +=
 else

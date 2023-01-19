@@ -18,7 +18,13 @@
 namespace rgm::base {
 struct sdl_hint {
   sdl_hint() {
+#ifndef RGM_SHADER_EMPTY
+#ifdef RGM_SHADER_OPENGL
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+#else
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d11");
+#endif
+#endif
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
   }
 };
@@ -51,8 +57,14 @@ struct cen_library {
         img(),
         ttf(),
         mix(),
+#ifdef RGM_SHADER_OPENGL
+        window(config::game_title,
+               cen::iarea(config::window_width, config::window_height),
+               cen::window::window_flags::opengl),
+#else
         window(config::game_title,
                cen::iarea(config::window_width, config::window_height)),
+#endif
         renderer(window.make_renderer()),
         event_dispatcher() {
     renderer.reset_target();
@@ -116,10 +128,10 @@ struct init_sdl2 {
 
     SDL_RendererInfo info;
     SDL_GetRendererInfo(renderer.get(), &info);
-    cen::log_debug(cen::log_category::video, "[Driver] use %s for rendering\n",
-                   info.name);
-    cen::log_debug(cen::log_category::video, "[Driver] max texture %d x %d\n",
-                   info.max_texture_width, info.max_texture_height);
+    cen::log_info(cen::log_category::video, "[Driver] use %s for rendering\n",
+                  info.name);
+    cen::log_info(cen::log_category::video, "[Driver] max texture %d x %d\n",
+                  info.max_texture_width, info.max_texture_height);
   }
 
   static void after(auto& worker) { RGMDATA(cen_library).window.hide(); }

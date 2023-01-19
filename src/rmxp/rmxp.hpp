@@ -35,7 +35,6 @@
 #include "render_viewport.hpp"
 #include "render_window.hpp"
 #include "shader.hpp"
-#include "shader_base.hpp"
 #include "table.hpp"
 #include "textinput.hpp"
 #include "tilemap_manager.hpp"
