@@ -9,4 +9,5 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
+#include "GL/glew.h"
 #include "shader_empty.hpp"
