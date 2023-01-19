@@ -12,7 +12,6 @@
 #include "builtin.hpp"
 
 namespace rgm::rmxp {
-struct shader_base {};
 struct shader_gray {};
 struct shader_hue {
   shader_hue(int) {}

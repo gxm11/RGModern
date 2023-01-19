@@ -53,7 +53,7 @@ cflags += -DRGM_SHADER_OPENGL
 # 1 = develop  -> main.exe
 # 2 = standard -> Game.exe
 # 3 = encrypt  -> Gamew.exe
-cflags_debug    = -DRGM_BUILDMODE=0 -g -DDEBUG
+cflags_debug    = -DRGM_BUILDMODE=0 -s -Og -g -DDEBUG
 cflags_develop  = -DRGM_BUILDMODE=1 -s -O3
 cflags_standard = -DRGM_BUILDMODE=2 -s -O3 -DPASSWORD="\"$(PASSWORD)\""
 cflags_encrypt  = -DRGM_BUILDMODE=3 -s -O3 -DPASSWORD="\"$(PASSWORD)\"" -mwindows
@@ -86,6 +86,12 @@ libs += SDL2 dinput8 shell32 setupapi advapi32 uuid version oleaut32 ole32 imm32
 libs += SDL2_ttf harfbuzz freetype bz2 brotlidec png z graphite2 intl gdi32 rpcrt4 brotlicommon dwrite usp10
 libs += SDL2_image png z tiff webp jpeg jbig lzma deflate zstd lerc jxl hwy
 libs += SDL2_mixer flac mpg123 vorbisfile opusfile winmm ogg vorbis opus opusfile ogg shlwapi
+
+# -----------------------------------------------
+# opengl
+# -----------------------------------------------
+# cflags += -DRGM_SHADER_OPENGL
+# libs += opengl32
 
 # -----------------------------------------------
 # ruby ext

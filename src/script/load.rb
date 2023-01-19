@@ -23,7 +23,10 @@ BEGIN {
   puts "build mode = #{RGM::BuildMode}"
 }
 
-at_exit { puts 'exit ruby.' }
+at_exit do
+  RGM::Base.synchronize(3)
+  puts 'exit ruby.'
+end
 
 load_script 'rgm.rb'
 load_script 'win32api.rb'
