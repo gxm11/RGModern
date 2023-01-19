@@ -112,4 +112,19 @@ ID3D11Buffer* shader_dynamic<T>::p_buffer;
 
 template <typename T>
 ID3D11PixelShader* shader_dynamic<T>::previous_shader;
+
+template <typename T>
+struct init_shader {
+  static void before(auto& worker) {
+    cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
+    shader_base::setup(renderer.get());
+    T::setup();
+  }
+
+  static void after(auto&) {
+    if constexpr (requires { T::p_buffer; }) {
+      T::p_buffer->Release();
+    }
+  }
+};
 }  // namespace rgm::rmxp

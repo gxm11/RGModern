@@ -18,20 +18,3 @@
 #include "shader_empty.hpp"
 #endif
 #endif
-
-namespace rgm::rmxp {
-template <typename T>
-struct init_shader {
-  static void before(auto& worker) {
-    cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
-    shader_base::setup(renderer.get());
-    T::setup();
-  }
-
-  static void after(auto&) {
-    if constexpr (requires { T::p_buffer; }) {
-      T::p_buffer->Release();
-    }
-  }
-};
-}  // namespace rgm::rmxp

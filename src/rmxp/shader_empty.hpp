@@ -12,22 +12,18 @@
 #include "builtin.hpp"
 
 namespace rgm::rmxp {
-struct shader_base {
-  static void setup(SDL_Renderer*) {}
-};
-struct shader_gray {
-  static void setup() {}
-};
+struct shader_base {};
+struct shader_gray {};
 struct shader_hue {
   shader_hue(int) {}
-  static void setup() {}
 };
 struct shader_tone {
   shader_tone(tone) {}
-  static void setup() {}
 };
 struct shader_transition {
   shader_transition(double, int) {}
-  static void setup() {}
 };
-}
+
+template <typename T>
+struct init_shader {};
+}  // namespace rgm::rmxp
