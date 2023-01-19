@@ -38,14 +38,15 @@ path_lib += $(path_vendors)/lib
 
 cc = $(MSYSTEM_PREFIX)/bin/g++
 cflags = -std=c++20 -pipe -fstack-protector-strong -MMD -MP -static -Wall -Wextra
-cflags += -DRGM_FULLVERSION="\"$(RGM_FULLVERSION)\""
-cflags += -DCC_VERSION="\"$(shell $(cc) --version | head -n1)\""
-cflags += -DRGM_SHADER_EMPTY
 ifeq ($(system), MINGW64_NT)
 	cflags +=
 else
 	cflags += -m32 -mfma
 endif
+
+cflags += -DRGM_FULLVERSION="\"$(RGM_FULLVERSION)\""
+cflags += -DCC_VERSION="\"$(shell $(cc) --version | head -n1)\""
+cflags += -DRGM_SHADER_D3D11
 
 # build mode
 # 0 = debug    -> debug.exe

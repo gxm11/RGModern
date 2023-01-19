@@ -9,13 +9,13 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
+#ifdef RGM_SHADER_D3D11
+#include "shader_d3d11.hpp"
+#else
 #ifdef RGM_SHADER_OPENGL
 #include "shader_opengl.hpp"
 #else
-#ifdef RGM_SHADER_EMPTY
 #include "shader_empty.hpp"
-#else
-#include "shader_d3d11.hpp"
 #endif
 #endif
 

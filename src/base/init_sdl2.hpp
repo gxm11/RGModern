@@ -18,12 +18,11 @@
 namespace rgm::base {
 struct sdl_hint {
   sdl_hint() {
-#ifndef RGM_SHADER_EMPTY
 #ifdef RGM_SHADER_OPENGL
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
-#else
-    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d11");
 #endif
+#ifdef RGM_SHADER_D3D11
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d11");
 #endif
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
   }
