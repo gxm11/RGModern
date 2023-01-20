@@ -84,7 +84,7 @@ path_include += $(MSYSTEM_PREFIX)/include/SDL2
 libs += mingw32 SDL2main
 libs += SDL2 dinput8 shell32 setupapi advapi32 uuid version oleaut32 ole32 imm32 winmm gdi32 user32 m
 libs += SDL2_ttf harfbuzz freetype bz2 brotlidec png z graphite2 intl gdi32 rpcrt4 brotlicommon dwrite usp10
-libs += SDL2_image png z tiff webp jpeg jbig lzma deflate zstd lerc jxl hwy
+libs += SDL2_image png z tiff webp jpeg jbig lzma deflate zstd lerc jxl hwy sharpyuv
 libs += SDL2_mixer flac mpg123 vorbisfile opusfile winmm ogg vorbis opus opusfile ogg shlwapi
 
 # -----------------------------------------------
