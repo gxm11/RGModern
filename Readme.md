@@ -48,7 +48,8 @@ RGModern 是极具现代化特色的 RMXP 新 runtime，主要使用 C++20 和 R
 4. [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines)
 5. [sdlrenderer-hlsl](https://github.com/felipetavares/sdlrenderer-hlsl)
 6. [SDL2 + OPENGL GLSL 实践](https://blog.csdn.net/qq_40369162/article/details/122641658)
-7. [The Definitive Guide to Ruby's C API](https://silverhammermba.github.io/emberb/)
+7. [sdl2glsl](https://github.com/AugustoRuiz/sdl2glsl/)
+8. [The Definitive Guide to Ruby's C API](https://silverhammermba.github.io/emberb/)
 
 ## 小提示
 创建Shader：`fxc /O3 /T ps_5_0 src\shader\<script>.hlsl /Fh <script>.h /Vn RGModern_shader_<script>_data`，然后将 BYTE 改成 unsigned char

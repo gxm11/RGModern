@@ -54,10 +54,11 @@ struct stopwatch_normal {
    * @brief stopwatch 的析构函数。会打印出相关的调试信息。
    */
   ~stopwatch_normal() {
-    if (counts <= 0) return;
-
     printf("===       StopWatch [%lld] <%s>      ===\n", total_index - index,
            name);
+
+    if (counts <= 0) return;
+
     double total = 0.0;
     for (size_t i = 1; i < max_size; ++i) {
       total += data[i].total_time;

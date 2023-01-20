@@ -91,7 +91,7 @@ libs += SDL2_mixer flac mpg123 vorbisfile opusfile winmm ogg vorbis opus opusfil
 # opengl
 # -----------------------------------------------
 cflags += -URGM_SHADER_D3D11 -DRGM_SHADER_OPENGL
-libs += opengl32 glew32
+libs += opengl32 glew32.dll
 
 # -----------------------------------------------
 # ruby ext

@@ -10,4 +10,137 @@
 
 #pragma once
 #include "GL/glew.h"
-#include "shader_empty.hpp"
+#include "builtin.hpp"
+// #include "shader_empty.hpp"
+#include "base/base.hpp"
+
+INCTXT(shader_test_f, "./src/shader/opengl/f.glsl");
+INCTXT(shader_test_v, "./src/shader/opengl/v.glsl");
+
+namespace rgm::rmxp {
+
+struct shader_gray {};
+
+struct shader_tone {
+  shader_tone(tone) {}
+};
+struct shader_transition {
+  shader_transition(double, int) {}
+};
+
+template <typename T>
+struct init_shader {};
+// ----------------------------------------------------------------
+// TESTING
+// ----------------------------------------------------------------
+struct shader_hue {
+  shader_hue(int) {}
+};
+template <>
+struct init_shader<shader_hue> {
+#if 0
+  static GLuint compileShader(const char* source, GLuint shaderType) {
+    std::cout << "Compilando shader:" << std::endl << source << std::endl;
+    // Create ID for shader
+    GLuint result = glCreateShader(shaderType);
+    // Define shader text
+    glShaderSource(result, 1, &source, NULL);
+    // Compile shader
+    glCompileShader(result);
+
+    // Check vertex shader for errors
+    GLint shaderCompiled = GL_FALSE;
+    glGetShaderiv(result, GL_COMPILE_STATUS, &shaderCompiled);
+    if (shaderCompiled != GL_TRUE) {
+      std::cout << "Error en la compilación: " << result << "!" << std::endl;
+      GLint logLength;
+      glGetShaderiv(result, GL_INFO_LOG_LENGTH, &logLength);
+      if (logLength > 0) {
+        GLchar* log = (GLchar*)malloc(logLength);
+        glGetShaderInfoLog(result, logLength, &logLength, log);
+        std::cout << "Shader compile log:" << log << std::endl;
+        free(log);
+      }
+      glDeleteShader(result);
+      result = 0;
+    } else {
+      std::cout << "Shader compilado correctamente. Id = " << result
+                << std::endl;
+    }
+    return result;
+  }
+
+  static GLuint compileProgram(const char* vtxFile, const char* fragFile) {
+    GLuint programId = 0;
+    GLuint vtxShaderId, fragShaderId;
+
+    programId = glCreateProgram();
+
+    std::ifstream f(vtxFile);
+    std::string source((std::istreambuf_iterator<char>(f)),
+                       std::istreambuf_iterator<char>());
+    vtxShaderId = compileShader(source.c_str(), GL_VERTEX_SHADER);
+
+    f = std::ifstream(fragFile);
+    source = std::string((std::istreambuf_iterator<char>(f)),
+                         std::istreambuf_iterator<char>());
+    fragShaderId = compileShader(source.c_str(), GL_FRAGMENT_SHADER);
+
+    if (vtxShaderId && fragShaderId) {
+      // Associate shader with program
+      glAttachShader(programId, vtxShaderId);
+      glAttachShader(programId, fragShaderId);
+      glLinkProgram(programId);
+      glValidateProgram(programId);
+
+      // Check the status of the compile/link
+      GLint logLen;
+      glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &logLen);
+      if (logLen > 0) {
+        char* log = (char*)malloc(logLen * sizeof(char));
+        // Show any errors as appropriate
+        glGetProgramInfoLog(programId, logLen, &logLen, log);
+        std::cout << "Prog Info Log: " << std::endl << log << std::endl;
+        free(log);
+      }
+    }
+    if (vtxShaderId) {
+      glDeleteShader(vtxShaderId);
+    }
+    if (fragShaderId) {
+      glDeleteShader(fragShaderId);
+    }
+    return programId;
+  }
+#endif
+  static GLuint loadShader(GLenum shaderType, const GLchar* source) {
+    GLuint shaderID = glCreateShader(shaderType);
+    glShaderSource(shaderID, 1, &source, NULL);
+    glCompileShader(shaderID);
+    GLint result = GL_FALSE;
+    glGetShaderiv(result, GL_COMPILE_STATUS, &result);
+    if (!result) {
+      printf("Error in compiling shader.\n");
+    }
+    return shaderID;
+  }
+
+  static GLuint compileProgram(GLuint vertexShaderID, GLuint fragmentShaderId) {
+    GLuint programId = glCreateProgram();
+    glAttachShader(programId, vertexShaderID);
+    glAttachShader(programId, fragmentShaderId);
+    glLinkProgram(programId);
+    return programId;
+  }
+
+  static void before(auto&) {
+    printf("before\n");
+    glewInit();
+    auto vertexShaderID = loadShader(GL_VERTEX_SHADER, rgm_shader_test_v_data);
+    auto fragmentShaderID =
+        loadShader(GL_FRAGMENT_SHADER, rgm_shader_test_f_data);
+    auto programID = compileProgram(vertexShaderID, fragmentShaderID);
+    printf("compile program, id = %d\n.", programID);
+  }
+};
+}  // namespace rgm::rmxp
