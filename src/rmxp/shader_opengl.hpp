@@ -118,9 +118,22 @@ struct init_shader<shader_hue> {
     glShaderSource(shaderID, 1, &source, NULL);
     glCompileShader(shaderID);
     GLint result = GL_FALSE;
-    glGetShaderiv(result, GL_COMPILE_STATUS, &result);
-    if (!result) {
+    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &result);
+    if (result) {
+      printf("Successfully compiling shader.\n");
+    } else {
       printf("Error in compiling shader.\n");
+      GLint logLength;
+      glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logLength);
+      if (logLength > 0) {
+        std::string log;
+        log.resize(logLength);
+        // GLchar* log = (GLchar*)malloc(logLength);
+        glGetShaderInfoLog(shaderID, logLength, &logLength, log.data());
+        std::cout << "Shader compile log:" << log.data() << std::endl;
+      }
+      glDeleteShader(shaderID);
+      return 0;
     }
     return shaderID;
   }
@@ -134,7 +147,6 @@ struct init_shader<shader_hue> {
   }
 
   static void before(auto&) {
-    printf("before\n");
     glewInit();
     auto vertexShaderID = loadShader(GL_VERTEX_SHADER, rgm_shader_test_v_data);
     auto fragmentShaderID =

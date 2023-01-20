@@ -119,6 +119,10 @@ struct for_each<TypeList<Head, Rest...>> : for_each<TypeList<Rest...>> {
     if constexpr (requires { Head::before(worker); }) {
       Head::before(worker);
     }
+    static_assert(
+        !(requires { Head::before(); }),
+        "The static function before() without parameters will be ignored. "
+        "Please use `auto&' as the first parameter.");
     for_each<TypeList<Rest...>>::before(worker);
   }
 
@@ -127,6 +131,10 @@ struct for_each<TypeList<Head, Rest...>> : for_each<TypeList<Rest...>> {
     if constexpr (requires { Head::after(worker); }) {
       Head::after(worker);
     }
+    static_assert(
+        !(requires { Head::after(); }),
+        "The static function after() without parameters will be ignored. "
+        "Please use `auto&' as the first parameter.");
   }
 };
 
