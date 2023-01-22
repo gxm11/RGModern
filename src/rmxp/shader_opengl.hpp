@@ -34,8 +34,10 @@ struct init_shader {};
 // TESTING
 // ----------------------------------------------------------------
 struct shader_hue {
-  shader_hue(int) {}
+  static GLuint programId;
+  shader_hue(int) { glUseProgram(programId); }
 };
+GLuint shader_hue::programId = 0;
 template <>
 struct init_shader<shader_hue> {
 #if 0
@@ -143,6 +145,8 @@ struct init_shader<shader_hue> {
     glAttachShader(programId, vertexShaderID);
     glAttachShader(programId, fragmentShaderId);
     glLinkProgram(programId);
+    glDeleteShader(vertexShaderID);
+    glDeleteShader(fragmentShaderId);
     return programId;
   }
 
@@ -153,6 +157,7 @@ struct init_shader<shader_hue> {
         loadShader(GL_FRAGMENT_SHADER, rgm_shader_test_f_data);
     auto programID = compileProgram(vertexShaderID, fragmentShaderID);
     printf("compile program, id = %d\n.", programID);
+    shader_hue::programId = programID;
   }
 };
 }  // namespace rgm::rmxp

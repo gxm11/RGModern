@@ -308,8 +308,22 @@ struct bitmap_hue_change {
     renderer.render(bitmap, cen::ipoint(0, 0));
 
     renderer.set_target(bitmap);
+#ifdef RGM_SHADER_OPENGL
+    glViewport(0, 0, empty.width(), empty.height());
+    glEnable(GL_TEXTURE_2D);
+    glActiveTexture(GL_TEXTURE0);
+    SDL_GL_BindTexture(empty.get(), NULL, NULL);
+    glUseProgram(shader_hue::programId);
+#else
     shader_hue shader(hue);
+#endif
     renderer.render(empty, cen::ipoint(0, 0));
+
+#ifdef RGM_SHADER_OPENGL
+    SDL_GL_UnbindTexture(empty.get());
+    glUseProgram(0);
+    glDisable(GL_TEXTURE_2D);
+#endif
 
     renderer.set_target(stack.current());
   }

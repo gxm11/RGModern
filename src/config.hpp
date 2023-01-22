@@ -46,3 +46,7 @@ constexpr bool asynchornized = true;
 #ifndef CC_VERSION
 #define CC_VERSION "CC_VERSION"
 #endif
+
+#ifndef RGM_SHADER_OPENGL
+#define RGM_SHADER_OPENGL
+#endif
