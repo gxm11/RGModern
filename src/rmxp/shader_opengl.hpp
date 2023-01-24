@@ -35,7 +35,7 @@ struct init_shader {};
 // ----------------------------------------------------------------
 struct shader_hue {
   static GLuint programId;
-  shader_hue(int) { glUseProgram(programId); }
+  shader_hue(int) {}
 };
 GLuint shader_hue::programId = 0;
 template <>
