@@ -62,16 +62,7 @@ struct shader_static : shader_base {
 
   shader_static() {
     glGetIntegerv(GL_CURRENT_PROGRAM, &last_program_id);
-    printf("program: %d, last program: %d\n", program_id, last_program_id);
     glUseProgram(program_id);
-    if (T::fragment == rgm_shader_hue_fs_data) {
-      // auto v_data = glGetUniformLocation(program_id, "k");
-      // printf("v_data = %d\n", v_data);
-      // if (v_data > 0) {
-      //   float data[4] = {0.0, 1.0, 0.0, 1.0};
-      //   glUniform4f(v_data, data[0], data[1], data[2], data[3]);
-      // }
-    }
   }
 
   ~shader_static() { glUseProgram(last_program_id); }
@@ -104,18 +95,23 @@ struct shader_hue : shader_static<shader_hue> {
     float k3;
   };
 
-  static buffer_t data;
+  shader_hue(int hue) {
+    buffer_t data;
 
-  shader_hue(int) {
-    auto v_data = glGetUniformLocation(program_id, "k");
-    printf("v_data = %d\n", v_data);
-    if (v_data > 0) {
-      float data[4] = {0.0, 1.0, 0.0, 1.0};
-      glUniform4f(v_data, data[0], data[1], data[2], data[3]);
+    constexpr double pi = 3.141592653589793;
+    constexpr double r3 = 1.7320508075688772;
+    double angle = (pi / 180.0f) * hue;
+
+    data.k1 = (1.0 - cos(angle) - r3 * sin(angle)) / 3.0;
+    data.k2 = (1.0 - cos(angle) + r3 * sin(angle)) / 3.0;
+    data.k0 = 1.0 - data.k1 - data.k2;
+
+    auto location = glGetUniformLocation(program_id, "k");
+    if (location > 0) {
+      glUniform4f(location, data.k0, data.k1, data.k2, 0);
     }
   }
 };
-shader_hue::buffer_t shader_hue::data;
 
 struct shader_tone {
   shader_tone(tone) {}

@@ -1,7 +1,5 @@
 b = Bitmap.new('6.webp')
 b.hue_change(120)
-b.hue_change(120)
-# Graphics.present2
 b.save_png('7.png')
 
 RGM::Base.synchronize(3)
