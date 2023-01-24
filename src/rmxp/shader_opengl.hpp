@@ -15,6 +15,7 @@
 
 INCTXT(shader_default_vs, "./src/shader/opengl/default.vs");
 INCTXT(shader_gray_fs, "./src/shader/opengl/gray.fs");
+INCTXT(shader_hue_fs, "./src/shader/opengl/hue.fs");
 
 namespace rgm::rmxp {
 struct shader_base {
@@ -84,6 +85,27 @@ struct shader_gray : shader_static<shader_gray> {
   static constexpr const char* fragment = rgm_shader_gray_fs_data;
 };
 
+struct shader_hue : shader_static<shader_hue> {
+  static constexpr const char* fragment = rgm_shader_hue_fs_data;
+
+  struct buffer_t {
+    float k0;
+    float k1;
+    float k2;
+    float k3;
+  };
+
+  static buffer_t data;
+
+  shader_hue(int) {
+    auto v_k = glGetUniformLocation(program_id, "k");
+    printf("v_k = %d\n", v_k);
+    data = {1.0, 0.0, 0.0, 0.0};
+    glUniform1fv(v_k, 4, (float*)&shader_hue::data);
+  }
+};
+shader_hue::buffer_t shader_hue::data;
+
 struct shader_tone {
   shader_tone(tone) {}
 };
@@ -94,18 +116,13 @@ struct shader_transition {
 
 template <typename T>
 struct init_shader {};
-// ----------------------------------------------------------------
-// TESTING
-// ----------------------------------------------------------------
-struct shader_hue {
-  shader_hue(int) {}
-};
 
 template <>
 struct init_shader<shader_gray> {
   static void before(auto&) {
     glewInit();
     shader_gray::setup();
+    shader_hue::setup();
   }
 };
 }  // namespace rgm::rmxp

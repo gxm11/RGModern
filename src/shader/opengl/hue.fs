@@ -8,12 +8,18 @@
 // MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 // See the Mulan PSL v2 for more details.
 
-varying vec4 v_color;
 varying vec2 v_texCoord;
+uniform sampler2D tex0;
+
+uniform vec4 k;
 
 void main()
 {
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-	v_color = gl_Color;
-	v_texCoord = vec2(gl_MultiTexCoord0);
+	vec4 color = texture2D(tex0, v_texCoord);
+	vec3 c = color.rgb;
+	color.r = c.r * k.x + c.g * k.y + c.b * k.z;
+    color.g = c.g * k.x + c.b * k.y + c.r * k.z;
+    color.b = c.b * k.x + c.r * k.y + c.g * k.z;
+	// Return the final color
+	gl_FragColor = color;
 }
