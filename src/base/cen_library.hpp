@@ -14,6 +14,5 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #define CENTURION_NO_VULKAN
-#define CENTURION_NO_OPENGL
 #include "centurion.hpp"
 #pragma GCC diagnostic pop

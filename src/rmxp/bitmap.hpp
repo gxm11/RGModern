@@ -309,47 +309,16 @@ struct bitmap_hue_change {
 
     renderer.set_target(bitmap);
 #ifdef RGM_SHADER_OPENGL
-    // glViewport(0, 0, empty.width(), empty.height());
-    glEnable(GL_TEXTURE_2D);
-    glActiveTexture(GL_TEXTURE0);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
-                          (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    SDL_GL_BindTexture(empty.get(), NULL, NULL);
     glUseProgram(shader_hue::programId);
-
-    // Coordenadas de la ventana donde pintar.
-    float minx = 0.0f;
-    float miny = 0.0f;
-    float maxx = empty.width();
-    float maxy = empty.height();
-
-    float minu = 0.0f;
-    float maxu = 1.0f;
-    float minv = 0.0f;
-    float maxv = 1.0f;
-
-    glBegin(GL_TRIANGLE_STRIP);
-    glTexCoord2f(minu, minv);
-    glVertex2f(minx, miny);
-    glTexCoord2f(maxu, minv);
-    glVertex2f(maxx, miny);
-    glTexCoord2f(minu, maxv);
-    glVertex2f(minx, maxy);
-    glTexCoord2f(maxu, maxv);
-    glVertex2f(maxx, maxy);
-    glEnd();
-
+    SDL_GL_BindTexture(empty.get(), 0, 0);
 #else
     shader_hue shader(hue);
 #endif
     renderer.render(empty, cen::ipoint(0, 0));
 
 #ifdef RGM_SHADER_OPENGL
-    SDL_GL_UnbindTexture(empty.get());
     glUseProgram(0);
-    glDisable(GL_TEXTURE_2D);
+    SDL_GL_UnbindTexture(empty.get());
 #endif
 
     renderer.set_target(stack.current());
@@ -474,6 +443,7 @@ struct bitmap_save_png {
     renderer.set_target(target);
     bitmap.set_blend_mode(cen::blend_mode::none);
     renderer.render(bitmap, cen::ipoint(0, 0));
+
     renderer.capture(cen::pixel_format::bgra32).save_as_png(path);
     renderer.set_target(stack.current());
   }
