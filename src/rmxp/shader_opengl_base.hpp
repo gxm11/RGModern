@@ -87,13 +87,4 @@ struct init_shader {
     }
   }
 };
-
-struct gl_bind {
-  cen::texture_handle handle;
-
-  explicit gl_bind(cen::texture& t) : handle(t) {
-    SDL_GL_BindTexture(handle.get(), nullptr, nullptr);
-  }
-  ~gl_bind() { SDL_GL_UnbindTexture(handle.get()); }
-};
 }  // namespace rgm::rmxp

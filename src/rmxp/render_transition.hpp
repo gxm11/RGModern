@@ -63,7 +63,6 @@ struct render_transition<2> {
     transition.set_scale_mode(cen::scale_mode::linear);
     {
       shader_transition shader(rate, vague);
-      gl_bind t(transition);
       renderer.render(transition,
                       cen::irect(0, 0, transition.width(), transition.height()),
                       cen::irect(0, 0, freeze.width(), freeze.height()));
