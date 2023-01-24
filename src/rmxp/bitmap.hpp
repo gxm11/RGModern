@@ -310,7 +310,7 @@ struct bitmap_hue_change {
     renderer.set_target(bitmap);
 
     shader_hue shader(hue);
-    gl_texture t(empty);
+    gl_bind t(empty);
 
     renderer.render(empty, cen::ipoint(0, 0));
     renderer.set_target(stack.current());

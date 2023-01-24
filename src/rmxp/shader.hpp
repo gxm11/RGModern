@@ -12,8 +12,8 @@
 #ifdef RGM_USE_D3D11
 #include "shader_d3d11.hpp"
 
-struct gl_texture {
-  explicit gl_texture(const cen::texture& t) {}
+struct gl_bind {
+  explicit gl_bind(const cen::texture& t) {}
 };
 #else
 #ifdef RGM_USE_OPENGL

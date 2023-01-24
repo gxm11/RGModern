@@ -31,3 +31,4 @@ https://wanghenshui.github.io/2019/04/28/allocator.html
 
 [openGL着色器 (shader)](https://blog.csdn.net/xueangfu/article/details/117084647)
 
+opengl可以不链接到glew，见 https://github.com/AugustoRuiz/sdl2glsl/blob/master/src/main.cpp
