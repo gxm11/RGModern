@@ -62,7 +62,16 @@ struct shader_static : shader_base {
 
   shader_static() {
     glGetIntegerv(GL_CURRENT_PROGRAM, &last_program_id);
+    printf("program: %d, last program: %d\n", program_id, last_program_id);
     glUseProgram(program_id);
+    if (T::fragment == rgm_shader_hue_fs_data) {
+      // auto v_data = glGetUniformLocation(program_id, "k");
+      // printf("v_data = %d\n", v_data);
+      // if (v_data > 0) {
+      //   float data[4] = {0.0, 1.0, 0.0, 1.0};
+      //   glUniform4f(v_data, data[0], data[1], data[2], data[3]);
+      // }
+    }
   }
 
   ~shader_static() { glUseProgram(last_program_id); }
@@ -98,10 +107,12 @@ struct shader_hue : shader_static<shader_hue> {
   static buffer_t data;
 
   shader_hue(int) {
-    auto v_k = glGetUniformLocation(program_id, "k");
-    printf("v_k = %d\n", v_k);
-    data = {1.0, 0.0, 0.0, 0.0};
-    glUniform1fv(v_k, 4, (float*)&shader_hue::data);
+    auto v_data = glGetUniformLocation(program_id, "k");
+    printf("v_data = %d\n", v_data);
+    if (v_data > 0) {
+      float data[4] = {0.0, 1.0, 0.0, 1.0};
+      glUniform4f(v_data, data[0], data[1], data[2], data[3]);
+    }
   }
 };
 shader_hue::buffer_t shader_hue::data;

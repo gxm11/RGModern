@@ -309,7 +309,7 @@ struct bitmap_hue_change {
 
     renderer.set_target(bitmap);
 
-#if 0
+#if 1
     shader_hue shader(hue);
 #else
     shader_gray shader;
