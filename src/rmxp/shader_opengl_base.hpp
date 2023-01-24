@@ -132,6 +132,7 @@ struct shader_static : shader_base {
     }
     GLint fragment_shader = load_shader(GL_FRAGMENT_SHADER, T::fragment);
     program_id = compile_program(vertex_shader, fragment_shader);
+    printf("program id = %d\n", program_id);
   }
 };
 template <typename T>
@@ -141,6 +142,7 @@ template <typename T>
 struct init_shader {
   static void before(auto&) {
     if (!shader_base::init) {
+      shader_base::init = true;
       shader_base::initGLExtensions();
     }
     if constexpr (requires { T::setup(); }) {

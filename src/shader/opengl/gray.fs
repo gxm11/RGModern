@@ -10,7 +10,6 @@
 
 varying vec2 v_texCoord;
 uniform sampler2D tex0;
-uniform vec4 data;
 
 void main()
 {
