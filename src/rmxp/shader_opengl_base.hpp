@@ -9,13 +9,71 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
-#include "GL/glew.h"
+#include <SDL_opengl.h>
+#include <SDL_opengl_glext.h>
+
 #include "base/base.hpp"
 
 INCTXT(shader_default_vs, "./src/shader/opengl/default.vs");
 
+PFNGLCREATESHADERPROC glCreateShader;
+PFNGLSHADERSOURCEPROC glShaderSource;
+PFNGLCOMPILESHADERPROC glCompileShader;
+PFNGLGETSHADERIVPROC glGetShaderiv;
+PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
+PFNGLDELETESHADERPROC glDeleteShader;
+PFNGLATTACHSHADERPROC glAttachShader;
+PFNGLCREATEPROGRAMPROC glCreateProgram;
+PFNGLLINKPROGRAMPROC glLinkProgram;
+PFNGLVALIDATEPROGRAMPROC glValidateProgram;
+PFNGLGETPROGRAMIVPROC glGetProgramiv;
+PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
+PFNGLUSEPROGRAMPROC glUseProgram;
+PFNGLGETUNIFORMLOCATIONARBPROC glGetUniformLocation;
+PFNGLUNIFORM4FPROC glUniform4f;
+
 namespace rgm::rmxp {
 struct shader_base {
+  static bool init;
+
+  static bool initGLExtensions() {
+    glCreateShader =
+        (PFNGLCREATESHADERPROC)SDL_GL_GetProcAddress("glCreateShader");
+    glShaderSource =
+        (PFNGLSHADERSOURCEPROC)SDL_GL_GetProcAddress("glShaderSource");
+    glCompileShader =
+        (PFNGLCOMPILESHADERPROC)SDL_GL_GetProcAddress("glCompileShader");
+    glGetShaderiv =
+        (PFNGLGETSHADERIVPROC)SDL_GL_GetProcAddress("glGetShaderiv");
+    glGetShaderInfoLog =
+        (PFNGLGETSHADERINFOLOGPROC)SDL_GL_GetProcAddress("glGetShaderInfoLog");
+    glDeleteShader =
+        (PFNGLDELETESHADERPROC)SDL_GL_GetProcAddress("glDeleteShader");
+    glAttachShader =
+        (PFNGLATTACHSHADERPROC)SDL_GL_GetProcAddress("glAttachShader");
+    glCreateProgram =
+        (PFNGLCREATEPROGRAMPROC)SDL_GL_GetProcAddress("glCreateProgram");
+    glLinkProgram =
+        (PFNGLLINKPROGRAMPROC)SDL_GL_GetProcAddress("glLinkProgram");
+    glValidateProgram =
+        (PFNGLVALIDATEPROGRAMPROC)SDL_GL_GetProcAddress("glValidateProgram");
+    glGetProgramiv =
+        (PFNGLGETPROGRAMIVPROC)SDL_GL_GetProcAddress("glGetProgramiv");
+    glGetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC)SDL_GL_GetProcAddress(
+        "glGetProgramInfoLog");
+    glUseProgram = (PFNGLUSEPROGRAMPROC)SDL_GL_GetProcAddress("glUseProgram");
+    glGetUniformLocation =
+        (PFNGLGETUNIFORMLOCATIONARBPROC)SDL_GL_GetProcAddress(
+            "glGetUniformLocation");
+    glUniform4f = (PFNGLUNIFORM4FPROC)SDL_GL_GetProcAddress("glUniform4f");
+
+    return glCreateShader && glShaderSource && glCompileShader &&
+           glGetShaderiv && glGetShaderInfoLog && glDeleteShader &&
+           glAttachShader && glCreateProgram && glLinkProgram &&
+           glValidateProgram && glGetProgramiv && glGetProgramInfoLog &&
+           glUseProgram && glGetUniformLocation && glUniform4f;
+  }
+
   static GLuint load_shader(GLenum shaderType, const GLchar* source) {
     GLuint shaderID = glCreateShader(shaderType);
     glShaderSource(shaderID, 1, &source, NULL);
@@ -23,7 +81,7 @@ struct shader_base {
     GLint result = GL_FALSE;
     glGetShaderiv(shaderID, GL_COMPILE_STATUS, &result);
     if (result) {
-      // printf("Successfully compiling shader.\n");
+      printf("Successfully compiling shader.\n");
     } else {
       printf("Error in compiling shader.\n");
       GLint logLength;
@@ -51,6 +109,7 @@ struct shader_base {
     return programId;
   }
 };
+bool shader_base::init = false;
 
 template <typename T>
 struct shader_static : shader_base {
@@ -81,7 +140,9 @@ GLint shader_static<T>::program_id = 0;
 template <typename T>
 struct init_shader {
   static void before(auto&) {
-    glewInit();
+    if (!shader_base::init) {
+      shader_base::initGLExtensions();
+    }
     if constexpr (requires { T::setup(); }) {
       T::setup();
     }

@@ -14,7 +14,7 @@ https://www.cppstories.com/2020/06/pmr-hacking.html/
 https://zhuanlan.zhihu.com/p/96089089
 https://wanghenshui.github.io/2019/04/28/allocator.html
 
-考虑到进一步的兼容性，可以把SDL2和ruby都用动态链接，并且可以设置默认的渲染器。添加对opengl，d3d9的支持，增加相应的shader，对于software，禁用shader。（实际上动态链接就可以在win7上跑了，也支持动态链接加密数据，虽然意义不大）
+考虑到进一步的兼容性，可以把SDL2和ruby都用动态链接，并且可以设置默认的渲染器。添加对opengl，d3d9的支持，增加相应的shader，对于software，禁用shader。（实际上动态链接就可以在win7上跑了，也支持动态链接加密数据，虽然意义不大）（opengl shader已经完成）
 
 仔细检查32位系统的兼容性设置，可以将xorstr需要的AVXXXX宏，在makefile里实现，尝试linux下编译（假设已经安装了SDL和ruby，或者ruby可以静态编译）
 

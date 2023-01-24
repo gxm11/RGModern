@@ -70,7 +70,7 @@ configure_ruby = --disable-install-doc --disable-rubygems --with-static-linked-e
 # -----------------------------------------------
 # msys2 packages (including SDL2 library)
 # -----------------------------------------------
-pkgs = SDL2 SDL2_ttf SDL2_image SDL2_mixer SDL2_gfx SDL2_net zlib libzip glew
+pkgs = SDL2 SDL2_ttf SDL2_image SDL2_mixer SDL2_gfx SDL2_net zlib libzip
 pkgs_msys2 = $(addprefix $(MINGW_PACKAGE_PREFIX)-,$(pkgs))
 pkgs_msys2 += bison libffi gmp upx p7zip vim unzip
 
