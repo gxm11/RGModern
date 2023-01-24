@@ -20,12 +20,9 @@ void rb_call_builtin_inits();
 }
 
 namespace rgm::base {
-/** @brief 利用 RAII 机制管理 ruby 初始化和退出的类 */
-struct ruby_library {
-  /** @brief ruby 的状态，0 表示无错误 */
-
-  /** @brief 初始化 ruby 运行环境 */
-  explicit ruby_library() {
+/** @brief 将 ruby_library 类型的变量添加到 worker 的 datalist 中 */
+struct init_ruby {
+  static void before(auto&) {
     int argc = 0;
     char* argv = nullptr;
     char** pArgv = &argv;
@@ -36,10 +33,5 @@ struct ruby_library {
     ruby_init_loadpath();
     rb_call_builtin_inits();
   }
-};
-
-/** @brief 将 ruby_library 类型的变量添加到 worker 的 datalist 中 */
-struct init_ruby {
-  using data = rgm::data<ruby_library>;
 };
 }  // namespace rgm::base
