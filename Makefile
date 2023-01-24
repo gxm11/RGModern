@@ -46,7 +46,7 @@ endif
 
 cflags += -DRGM_FULLVERSION="\"$(RGM_FULLVERSION)\""
 cflags += -DCC_VERSION="\"$(shell $(cc) --version | head -n1)\""
-cflags += -DRGM_SHADER_D3D11
+cflags += -DRGM_USE_D3D11
 
 # build mode
 # 0 = debug    -> debug.exe
@@ -90,7 +90,7 @@ libs += SDL2_mixer flac mpg123 vorbisfile opusfile winmm ogg vorbis opus opusfil
 # -----------------------------------------------
 # opengl
 # -----------------------------------------------
-cflags += -URGM_SHADER_D3D11 -DRGM_SHADER_OPENGL
+cflags += -URGM_USE_D3D11 -DRGM_USE_OPENGL
 libs += opengl32 glew32.dll
 
 # -----------------------------------------------

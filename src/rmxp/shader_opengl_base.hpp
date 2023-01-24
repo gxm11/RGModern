@@ -23,7 +23,7 @@ struct shader_base {
     GLint result = GL_FALSE;
     glGetShaderiv(shaderID, GL_COMPILE_STATUS, &result);
     if (result) {
-      printf("Successfully compiling shader.\n");
+      // printf("Successfully compiling shader.\n");
     } else {
       printf("Error in compiling shader.\n");
       GLint logLength;
@@ -57,7 +57,7 @@ struct shader_static : shader_base {
   static GLint program_id;
   GLint last_program_id;
 
-  shader_static() {
+  explicit shader_static() {
     glGetIntegerv(GL_CURRENT_PROGRAM, &last_program_id);
     glUseProgram(program_id);
   }
@@ -86,5 +86,14 @@ struct init_shader {
       T::setup();
     }
   }
+};
+
+struct gl_texture {
+  cen::texture_handle handle;
+
+  explicit gl_texture(cen::texture& t) : handle(t) {
+    SDL_GL_BindTexture(handle.get(), nullptr, nullptr);
+  }
+  ~gl_texture() { SDL_GL_UnbindTexture(handle.get()); }
 };
 }  // namespace rgm::rmxp

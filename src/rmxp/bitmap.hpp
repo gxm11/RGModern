@@ -310,17 +310,9 @@ struct bitmap_hue_change {
     renderer.set_target(bitmap);
 
     shader_hue shader(hue);
-
-#ifdef RGM_SHADER_OPENGL
-    SDL_GL_BindTexture(empty.get(), 0, 0);
-#endif
+    gl_texture t(empty);
 
     renderer.render(empty, cen::ipoint(0, 0));
-
-#ifdef RGM_SHADER_OPENGL
-    SDL_GL_UnbindTexture(empty.get());
-#endif
-
     renderer.set_target(stack.current());
   }
 };

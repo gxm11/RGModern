@@ -9,10 +9,14 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
-#ifdef RGM_SHADER_D3D11
+#ifdef RGM_USE_D3D11
 #include "shader_d3d11.hpp"
+
+struct gl_texture {
+  explicit gl_texture(const cen::texture& t) {}
+};
 #else
-#ifdef RGM_SHADER_OPENGL
+#ifdef RGM_USE_OPENGL
 #include "shader_opengl.hpp"
 #else
 #include "shader_empty.hpp"
