@@ -141,6 +141,14 @@ struct window : drawable_object<window> {
     if (width == 0 || height == 0) return false;
     return true;
   }
+
+  bool visible(const rect& r) const {
+    if (x + width < r.x) return false;
+    if (x > r.x + r.width) return false;
+    if (y + height < r.y) return false;
+    if (y > r.y + r.height) return false;
+    return true;
+  }
 };
 
 template <>
@@ -272,6 +280,14 @@ struct viewport : drawable_object<viewport> {
   bool visible() const {
     if (rect.width <= 0 || rect.height <= 0) return false;
     if (flash_hidden) return false;
+    return true;
+  }
+
+  bool visible(const rmxp::rect& r) const {
+    if (rect.x + rect.width < r.x) return false;
+    if (rect.x > r.x + r.width) return false;
+    if (rect.y + rect.height < r.y) return false;
+    if (rect.y > r.y + r.height) return false;
     return true;
   }
 };

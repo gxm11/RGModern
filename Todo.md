@@ -24,7 +24,7 @@ https://wanghenshui.github.io/2019/04/28/allocator.html
 
 添加鼠标、joystick等控制，但是这些应该位于rgm::ext下。包括Movie，加入视频播放功能。joystick优先，鼠标和Movie待定。
 
-添加Window、Sprite的额外invisible条件：在viewport或者屏幕之外。从而减少绘制指令。
+添加Window、Sprite的额外invisible条件：在viewport或者屏幕之外。从而减少绘制指令。（给window和viewport添加了，但是Sprite的Bitmap的宽和高的数据，保存在渲染线程，这里计划提供一个辅助函数RGM::Ext.sprite_in_box?来处理）
 
 ## opengl参考资料
 [OpenGL笔记（二）Shader及纹理](https://zhuanlan.zhihu.com/p/447584535?utm_id=0)

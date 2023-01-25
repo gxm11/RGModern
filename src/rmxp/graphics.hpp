@@ -45,14 +45,28 @@ struct init_graphics {
         }
       }
 
-      static VALUE update(VALUE) {
-        // 跳过绘制的 lambda
-        auto visitor_skip = [](auto& item) -> bool { return item.skip(); };
+      static VALUE update(VALUE, VALUE screen_width_, VALUE screen_height_) {
         // 当前绘制任务对应的 viewport 对象的指针
         viewport* v_ptr = nullptr;
         tables* p_tables = &(RGMDATA(tables));
         tilemap_manager& tm = RGMDATA(tilemap_manager);
-
+        RGMLOAD(screen_width, int);
+        RGMLOAD(screen_height, int);
+        // 跳过绘制的 lambda
+        auto visitor_skip = [&v_ptr, screen_width,
+                             screen_height](auto& item) -> bool {
+          // 此分支目前只对 window 和 viewport 有效
+          // Plane 和 Tilemap 是平铺的
+          // Tilemap 虽然可以不平铺，但是其宽和高不确定
+          // Sprite 因为有旋转，判断比较复杂，不在这里实现
+          if constexpr (requires { item.visible(rect{}); }) {
+            const rect& r =
+                v_ptr ? v_ptr->rect : rect{0, 0, screen_width, screen_height};
+            return item.skip() || !item.visible(r);
+          } else {
+            return item.skip();
+          }
+        };
         // 发送绘制任务的 lambda
         auto visitor_render = [p_tables, &tm, &v_ptr]<typename T>(T& item) {
           // 不处理 viewport
@@ -101,6 +115,7 @@ struct init_graphics {
           // 设置 v_ptr
           v_ptr = &v;
           v.refresh_object();
+
           worker >> before_render_viewport{v_ptr};
           for (auto& [sub_zi, sub_item] : v.m_data) {
             if (std::visit(visitor_skip, sub_item)) continue;
@@ -110,6 +125,7 @@ struct init_graphics {
           }
           update_tilemap(z_index{INT32_MAX, 0}, v_ptr);
           worker >> after_render_viewport{v_ptr};
+
           // 清空 v_ptr
           v_ptr = nullptr;
         }
@@ -179,7 +195,7 @@ struct init_graphics {
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
     rb_define_module_function(rb_mRGM_Base, "graphics_update", wrapper::update,
-                              0);
+                              2);
     rb_define_module_function(rb_mRGM_Base, "graphics_present",
                               wrapper::present, 1);
     rb_define_module_function(rb_mRGM_Base, "graphics_resize_screen",
