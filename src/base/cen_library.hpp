@@ -13,6 +13,9 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #pragma GCC diagnostic ignored "-Wsign-compare"
+#ifndef RGM_USE_OPENGL
+#define CENTURION_NO_OPENGL
+#endif
 #define CENTURION_NO_VULKAN
 #include "centurion.hpp"
 #pragma GCC diagnostic pop

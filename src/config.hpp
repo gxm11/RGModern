@@ -46,7 +46,3 @@ constexpr bool asynchornized = true;
 #ifndef CC_VERSION
 #define CC_VERSION "CC_VERSION"
 #endif
-
-#ifndef RGM_USE_OPENGL
-#define RGM_USE_OPENGL
-#endif

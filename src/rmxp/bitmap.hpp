@@ -311,6 +311,8 @@ struct bitmap_hue_change {
 
     shader_hue shader(hue);
 #ifdef RGM_USE_OPENGL
+    // 如果不添加 GL_bind 和 unbind，对画面绘制没有影响，
+    // 但在 hue_change 后立刻 save_png 会出现问题。
     SDL_GL_BindTexture(empty.get(), nullptr, nullptr);
 #endif
     renderer.render(empty, cen::ipoint(0, 0));
