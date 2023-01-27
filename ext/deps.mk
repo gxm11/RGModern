@@ -65,7 +65,7 @@ else
 endif
 
 lib_ruby := $(path_vendors)/lib/ruby-$(RUBY_VERSION)
-configure_ruby = --disable-install-doc --disable-rubygems --with-static-linked-ext --with-out-ext=openssl --without-gmp
+configure_ruby = --disable-install-doc --disable-rubygems --disable-mjit-support --with-static-linked-ext --with-out-ext=openssl --without-gmp
 
 # -----------------------------------------------
 # msys2 packages (including SDL2 library)
