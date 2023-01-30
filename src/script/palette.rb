@@ -25,8 +25,8 @@ class Palette
     @disposed = false
 
     if height
-      @width = width_or_path
-      @height = height
+      @width = width_or_path.to_i
+      @height = height.to_i
       RGM::Base.palette_create(@id, @width, @height)
     else
       path = Finder.find(width_or_path, :image)
@@ -46,16 +46,16 @@ class Palette
   end
 
   def get_pixel(x, y)
-    c = RGM::Base.palette_get_pixel(@id, x, y)
+    c = RGM::Base.palette_get_pixel(@id, x.to_i, y.to_i)
     Color.new(c & 255, (c >> 8) & 255, (c >> 16) & 255, c >> 24)
   end
 
   def set_pixel(x, y, color)
-    RGM::Base.palette_set_pixel(@id, x, y, color)
+    RGM::Base.palette_set_pixel(@id, x.to_i, y.to_i, color)
   end
 
   def save_png(path)
-    RGM::Base.palette_save_png(@id, path)
+    RGM::Base.palette_save_png(@id, path.to_s)
   end
 
   def convert_to_bitmap(rect = nil)

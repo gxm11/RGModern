@@ -126,14 +126,14 @@ module Graphics
   end
 
   def resize_window(width, height, scale_mode = 0)
-    @@scale_mode = scale_mode
+    @@scale_mode = scale_mode.to_i
     RGM::Base.graphics_resize_window(width.to_i, height.to_i)
   end
 
   def resize_screen(width, height)
     @@screen_width = width.to_i
     @@screen_height = height.to_i
-    RGM::Base.graphics_resize_screen(width, height)
+    RGM::Base.graphics_resize_screen(@@screen_width, @@screen_height)
   end
 
   def snap_to_bitmap

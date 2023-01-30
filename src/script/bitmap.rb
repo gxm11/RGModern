@@ -53,8 +53,8 @@ class Bitmap
     @disposed = false
 
     if height
-      @width = width_or_path
-      @height = height
+      @width = width_or_path.to_i
+      @height = height.to_i
       RGM::Base.bitmap_create(@id, @width, @height)
     else
       path = Finder.find(width_or_path, :image)
@@ -92,7 +92,7 @@ class Bitmap
     if str.empty?
       Rect.new(0, 0, 0, 0)
     else
-      value = RGM::Base.bitmap_text_size(@font, str)
+      value = RGM::Base.bitmap_text_size(@font, str.to_s)
       Rect.new(0, 0, value & 0xffff, value >> 16)
     end
   end
@@ -100,13 +100,13 @@ class Bitmap
   # Performs a block transfer from the src_bitmap box src_rect (Rect) to the specified bitmap coordinates (x, y).
   # opacity can be set from 0 to 255.
   def blt(x, y, src_bitmap, rect, opacity = 255)
-    RGM::Base.bitmap_blt(@id, x, y, src_bitmap.id, rect, opacity)
+    RGM::Base.bitmap_blt(@id, x.to_i, y.to_i, src_bitmap.id, rect, opacity.to_i)
   end
 
   # Performs a block transfer from the src_bitmap box src_rect (Rect) to the specified bitmap box dest_rect (Rect).
   # opacity can be set from 0 to 255.
   def stretch_blt(dest_rect, src_bitmap, src_rect, opacity = 255)
-    RGM::Base.bitmap_stretch_blt(@id, dest_rect, src_bitmap.id, src_rect, opacity)
+    RGM::Base.bitmap_stretch_blt(@id, dest_rect, src_bitmap.id, src_rect, opacity.to_i)
   end
 
   # fill_rect(x, y, width, height, color)
@@ -142,6 +142,7 @@ class Bitmap
       x, y, w, h, text, align = args
       rect = Rect.new(x, y, w, h)
     end
+    text = text.to_s
     RGM::Base.keep_alive(text)
     RGM::Base.bitmap_draw_text(@id, @font, rect, text, align || 0)
   end
@@ -149,7 +150,7 @@ class Bitmap
   # Changes the bitmap's hue within 360 degrees of displacement.
   # This process is time-consuming. Furthermore, due to conversion errors, repeated hue changes may result in color loss.
   def hue_change(hue)
-    RGM::Base.bitmap_hue_change(@id, hue)
+    RGM::Base.bitmap_hue_change(@id, hue.to_i)
   end
 
   # get_pixel(x, y)
@@ -162,14 +163,14 @@ class Bitmap
   # RGM 实现了 Palette 类来方便像素操作，Palette 的数据操作都是同步的。
   def get_pixel(x, y)
     puts '[Warning] Bitmap#get_pixel is a very slow operation, and should not be used frequently.'
-    c = RGM::Base.bitmap_get_pixel(@id, x, y)
+    c = RGM::Base.bitmap_get_pixel(@id, x.to_i, y.to_i)
     Color.new(c & 255, (c >> 8) & 255, (c >> 16) & 255, c >> 24)
   end
 
   # set_pixel(x, y, color)
   # Sets the specified pixel (x, y) to color (Color).
   def set_pixel(x, y, color)
-    fill_rect(x, y, 1, 1, color)
+    fill_rect(x.to_i, y.to_i, 1, 1, color)
   end
 
   def clone
@@ -179,6 +180,7 @@ class Bitmap
   end
 
   def save_png(path)
+    path = path.to_s
     RGM::Base.keep_alive(path)
     RGM::Base.bitmap_save_png(@id, path)
   end

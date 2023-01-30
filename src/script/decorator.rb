@@ -104,7 +104,7 @@ module RGM::Base
       def z=(z)
         return @z if @z == z
 
-        @z = RGM::Base.drawable_set_z(self, @viewport, z) unless @disposed
+        @z = RGM::Base.drawable_set_z(self, @viewport, z.to_i) unless @disposed
       end
     end
   end

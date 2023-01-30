@@ -72,7 +72,7 @@ class Viewport
   def z=(z)
     return @z if @z == z
 
-    @z = RGM::Base.viewport_set_z(self, z)
+    @z = RGM::Base.viewport_set_z(self, z.to_i)
   end
 
   def ox=(ox)
