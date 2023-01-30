@@ -97,7 +97,7 @@ module Graphics
       transition_bitmap = Bitmap.new(filename)
       duration.times do |i|
         RGM::Base.graphics_transition(
-          @@freeze_bitmap.id, @@current_bitmap.id, i / duration.to_f, transition_bitmap.id, vague
+          @@freeze_bitmap.id, @@current_bitmap.id, i / duration.to_f, transition_bitmap.id, vague.to_i
         )
         present
       end
@@ -127,12 +127,12 @@ module Graphics
 
   def resize_window(width, height, scale_mode = 0)
     @@scale_mode = scale_mode
-    RGM::Base.graphics_resize_window(width, height)
+    RGM::Base.graphics_resize_window(width.to_i, height.to_i)
   end
 
   def resize_screen(width, height)
-    @@screen_width = width
-    @@screen_height = height
+    @@screen_width = width.to_i
+    @@screen_height = height.to_i
     RGM::Base.graphics_resize_screen(width, height)
   end
 
@@ -173,7 +173,7 @@ module Graphics
   end
 
   def set_fullscreen(mode)
-    RGM::Base.graphics_set_fullscreen(mode)
+    RGM::Base.graphics_set_fullscreen(mode.to_i)
   end
   # The screen's refresh rate count. Set this property to 0 at game start and
   # the game play time (in seconds) can be calculated by dividing this value by
