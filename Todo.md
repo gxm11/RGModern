@@ -24,7 +24,11 @@ https://wanghenshui.github.io/2019/04/28/allocator.html
 
 添加鼠标、joystick等控制，但是这些应该位于rgm::ext下。包括Movie，加入视频播放功能。joystick优先，鼠标和Movie待定。
 
-添加Window、Sprite的额外invisible条件：在viewport或者屏幕之外。从而减少绘制指令。（给window和viewport添加了，但是Sprite的Bitmap的宽和高的数据，保存在渲染线程，这里计划提供一个辅助函数RGM::Ext.sprite_in_box?来处理）
+添加Window、Sprite的额外invisible条件：在viewport或者屏幕之外。从而减少绘制指令。（给window和viewport添加了，但是Sprite的Bitmap的宽和高的数据，保存在渲染线程，这里计划提供一个辅助函数RGM::Ext.sprite_in_screen?来处理）
+
+将d3d和opengl的切换，以及是否使用异步模型的切换放到运行时判断，直接读取config.ini。如果文件不存在则使用默认。
+
+transition，尝试移除alpha blend，而是改用默认的color模式。尽量移除其他的自定义blend mode。
 
 ## opengl参考资料
 [OpenGL笔记（二）Shader及纹理](https://zhuanlan.zhihu.com/p/447584535?utm_id=0)
@@ -32,3 +36,33 @@ https://wanghenshui.github.io/2019/04/28/allocator.html
 [openGL着色器 (shader)](https://blog.csdn.net/xueangfu/article/details/117084647)
 
 opengl可以不链接到glew，见 https://github.com/AugustoRuiz/sdl2glsl/blob/master/src/main.cpp
+
+## 单元测试
+音乐部分
+1. BGM播放、切换、停止
+2. ME播放、切换、停止
+3. BGM播放，插播ME，切换BGM、停止
+4. BGS播放、切换、停止、音调
+5. SE播放、停止、音调
+6. BGM+BGS+SE混合播放
+
+画面部分
+1. 画面、窗口分辨率修改
+2. freeze测试，transition测试
+3. Sprite测试
+4. Viewport测试
+5. Window测试
+6. Plane测试
+7. Tilemap测试
+8. Animation测试
+9. Weather测试
+
+功能部分
+1. 帧率显示、帧率修改
+2. 读取config，切换按键
+3. 输入法
+4. 右上角关闭按钮和Alt+F4
+5. embeded文件读取
+6. 外部resource读取
+7. snap_to_bitmap，save_png
+8. Palette测试

@@ -24,7 +24,7 @@ RGModern 是极具现代化特色的 RMXP 新 runtime，主要使用 C++20 和 R
 2. [SDL2](https://github.com/libsdl-org/SDL)
 3. [centurion](https://github.com/albin-johansson/centurion)
 4. [concurrentqueue](https://github.com/cameron314/concurrentqueue)
-5. [readerwriterqueue](https://github.com/cameron314/eaderwriterqueue)
+5. [readerwriterqueue](https://github.com/cameron314/readerwriterqueue)
 6. [incbin](https://github.com/graphitemaster/incbin)
 7. [xorstr](https://github.com/JustasMasiulis/xorstr)
 8. [libzip](https://libzip.org)
