@@ -30,6 +30,8 @@ https://wanghenshui.github.io/2019/04/28/allocator.html
 
 transition，尝试移除alpha blend，而是改用默认的color模式。尽量移除其他的自定义blend mode。
 
+提供software模式，此模式下所有的shader无效，且无法使用自定义的blend mode。需要修改add和sub的实现方式，可以不完全跟XP一样（参照screen和multiply）。只能说勉强可以玩，提高兼容性。
+
 ## opengl参考资料
 [OpenGL笔记（二）Shader及纹理](https://zhuanlan.zhihu.com/p/447584535?utm_id=0)
 
