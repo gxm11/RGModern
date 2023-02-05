@@ -412,7 +412,7 @@ struct bitmap_get_pixel {
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
 
     renderer.set_target(bitmap);
-    SDL_Rect rect(x, y, 1, 1);
+    SDL_Rect rect{ x, y, 1, 1 };
     SDL_RenderReadPixels(renderer.get(), &rect,
                          static_cast<uint32_t>(cen::pixel_format::bgra32),
                          p_pixel, bitmap.width() * 4);

@@ -80,7 +80,7 @@ struct renderstack {
   }
 
   cen::texture make_empty_texture(int width, int height) {
-    cen::texture empty = renderer.make_texture(cen::iarea(width, height),
+    cen::texture empty = renderer.make_texture(cen::iarea{ width, height },
                                                cen::pixel_format::bgra32,
                                                cen::texture_access::target);
     empty.set_blend_mode(cen::blend_mode::none);

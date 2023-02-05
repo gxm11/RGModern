@@ -26,9 +26,9 @@ namespace rgm::core {
 template <template <typename> class T_kernel, typename... Args>
 struct worker {
   using T_tasklist = tasklist<Args...>;
-  using T_tasks = T_tasklist::tasks;
+  using T_tasks = typename T_tasklist::tasks;
   using T_kernel_tasks = traits::remove_dummy_t<T_tasks, worker>;
-  using T_datalist = typename T_tasklist::data::to<datalist>;
+  using T_datalist = typename T_tasklist::data::template to<datalist>;
 
   /** 保存父类的指针地址用于向下转型为 scheduler<> 的派生类指针 */
   scheduler<>* p_scheduler;
@@ -115,7 +115,7 @@ struct worker {
                   "Failed to downcast scheduler<>* !");
 
     return static_cast<derived_t>(p_scheduler)
-        ->template broadcast(std::move(task));
+        ->broadcast(std::move(task));
   }
 
   // 向其他线程发送 T 指令，阻塞线程直到 T 指令异步执行完毕。
