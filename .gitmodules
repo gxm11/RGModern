@@ -1,0 +1,16 @@
+[submodule "third_party/centurion"]
+	path = third_party/centurion
+	url = https://gitee.com/Anty168/centurion.git
+	branch = stable
+[submodule "third_party/concurrentqueue"]
+	path = third_party/concurrentqueue
+	url = https://gitee.com/Anty168/concurrentqueue.git
+[submodule "third_party/readerwriterqueue"]
+	path = third_party/readerwriterqueue
+	url = https://gitee.com/Anty168/readerwriterqueue.git
+[submodule "third_party/incbin"]
+	path = third_party/incbin
+	url = https://gitee.com/Anty168/incbin.git
+[submodule "third_party/xorstr"]
+	path = third_party/xorstr
+	url = https://gitee.com/Anty168/xorstr.git

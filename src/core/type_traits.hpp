@@ -52,7 +52,7 @@ struct append<First, TypeList<Second...>> {
 };
 
 template <typename First, typename Second>
-using append_t = append<First, Second>::type;
+using append_t = typename append<First, Second>::type;
 
 template <typename>
 struct unique;
@@ -78,11 +78,11 @@ struct merge;
 
 template <typename... First, typename... Second>
 struct merge<TypeList<First...>, TypeList<Second...>> {
-  using type = unique<TypeList<First..., Second...>>::type;
+  using type = typename unique<TypeList<First..., Second...>>::type;
 };
 
 template <typename First, typename Second>
-using merge_t = merge<First, Second>::type;
+using merge_t = typename merge<First, Second>::type;
 
 template <typename>
 struct merge_data;
@@ -142,7 +142,7 @@ template <typename, typename>
 struct remove_dummy;
 
 template <typename T, typename U>
-using remove_dummy_t = remove_dummy<T, U>::type;
+using remove_dummy_t = typename remove_dummy<T, U>::type;
 
 template <typename U>
 struct remove_dummy<TypeList<>, U> {
@@ -152,7 +152,7 @@ struct remove_dummy<TypeList<>, U> {
 template <typename U, typename Head, typename... Args>
 struct remove_dummy<TypeList<Head, Args...>, U>
     : remove_dummy<TypeList<Args...>, U> {
-  using type = remove_dummy<TypeList<Args...>, U>::type;
+  using type = typename remove_dummy<TypeList<Args...>, U>::type;
 };
 
 template <typename U, typename Head, typename... Args>

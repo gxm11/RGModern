@@ -62,7 +62,7 @@ struct cen_library {
                cen::window::window_flags::opengl),
 #else
         window(config::game_title,
-               cen::iarea(config::window_width, config::window_height)),
+               cen::iarea{ config::window_width, config::window_height }),
 #endif
         renderer(window.make_renderer()),
         event_dispatcher() {
