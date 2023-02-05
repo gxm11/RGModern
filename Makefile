@@ -17,6 +17,12 @@ ifeq ($(system), MINGW64_NT)
 else
 	path_vendors := $(subst \,/,$(shell cygpath -aw ./))/vendors_mingw32
 endif
+path_thirdparty := \
+	./third_party/centurion/src \
+	./third_party/concurrentqueue \
+	./third_party/incbin \
+	./third_party/readerwriterqueue \
+	./third_party/xorstr/include
 
 path_script := ./src/script
 deps := ./ext/deps.mk
@@ -33,7 +39,7 @@ zip_publish_add := 7z a -tzip $(zip_publish) $(slient)
 # -----------------------------------------------
 path_include = $(MSYSTEM_PREFIX)/include
 path_lib = $(MSYSTEM_PREFIX)/lib
-path_include += $(path_vendors)/include ./src
+path_include += $(path_vendors)/include $(path_thirdparty) ./src
 path_lib += $(path_vendors)/lib
 
 cc = $(MSYSTEM_PREFIX)/bin/g++

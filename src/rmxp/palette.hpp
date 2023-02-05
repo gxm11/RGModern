@@ -52,7 +52,7 @@ struct init_palette {
                          "[Palette] id = %lld, is created with area %d x %d",
                          id, width, height);
 
-          cen::surface s(cen::iarea(width, height), cen::pixel_format::rgba32);
+          cen::surface s(cen::iarea{ width, height }, cen::pixel_format::rgba32);
           surfaces.emplace(id, std::move(s));
         }
         return Qnil;

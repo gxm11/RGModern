@@ -44,7 +44,7 @@ struct resize_window {
     cen::window& window = RGMDATA(base::cen_library).window;
     window.set_x(window.x() + (window.width() - width) / 2);
     window.set_y(window.y() + (window.height() - height) / 2);
-    window.set_size(cen::iarea(width, height));
+    window.set_size(cen::iarea{ width, height });
   }
 };
 
