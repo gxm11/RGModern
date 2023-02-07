@@ -10,7 +10,9 @@
 
 #pragma once
 #include <thread>
-
+#ifdef __clang__
+#include "clang-patch/jthread.hpp"
+#endif
 #include "type_traits.hpp"
 
 namespace rgm::core {

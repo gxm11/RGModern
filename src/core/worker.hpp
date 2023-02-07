@@ -107,15 +107,14 @@ struct worker {
   template <typename T, typename U = scheduler<>*>
   bool send(T&& task) {
     using base_t = U;
-    using derived_t = traits::magic_cast<U>::type;
+    using derived_t = typename traits::magic_cast<U>::type;
 
     static_assert(std::is_rvalue_reference_v<T&&>,
                   "Task must be passed as R-value!");
     static_assert(!std::same_as<base_t, derived_t>,
                   "Failed to downcast scheduler<>* !");
 
-    return static_cast<derived_t>(p_scheduler)
-        ->broadcast(std::move(task));
+    return static_cast<derived_t>(p_scheduler)->broadcast(std::move(task));
   }
 
   // 向其他线程发送 T 指令，阻塞线程直到 T 指令异步执行完毕。

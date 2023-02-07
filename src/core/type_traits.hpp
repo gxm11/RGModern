@@ -70,7 +70,7 @@ struct unique<TypeList<Head, Args...>> : unique<TypeList<Args...>> {
 template <typename Head, typename... Args>
   requires(is_repeated_v<Head, TypeList<Args...>>)
 struct unique<TypeList<Head, Args...>> : unique<TypeList<Args...>> {
-  using type = unique<TypeList<Args...>>::type;
+  using type = typename unique<TypeList<Args...>>::type;
 };
 
 template <typename, typename>
@@ -101,7 +101,7 @@ struct merge_data<TypeList<T_task, Rest...>> : merge_data<TypeList<Rest...>> {
 template <typename T_task, typename... Rest>
   requires(!requires { typename T_task::data; })
 struct merge_data<TypeList<T_task, Rest...>> : merge_data<TypeList<Rest...>> {
-  using type = merge_data<TypeList<Rest...>>::type;
+  using type = typename merge_data<TypeList<Rest...>>::type;
 };
 
 template <typename>

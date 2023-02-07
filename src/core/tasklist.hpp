@@ -39,14 +39,14 @@ template <typename T_task, typename... Rest>
   requires(!requires { typename T_task::data; })
 struct tasklist<T_task, Rest...> : tasklist<Rest...> {
   using tasks = traits::append_t<T_task, typename tasklist<Rest...>::tasks>;
-  using data = tasklist<Rest...>::data;
+  using data = typename tasklist<Rest...>::data;
 };
 
 template <typename T_task, typename... Rest>
   requires(traits::is_repeated_v<T_task, traits::TypeList<Rest...>>)
 struct tasklist<T_task, Rest...> : tasklist<Rest...> {
-  using tasks = tasklist<Rest...>::tasks;
-  using data = tasklist<Rest...>::data;
+  using tasks = typename tasklist<Rest...>::tasks;
+  using data = typename tasklist<Rest...>::data;
 };
 
 template <typename T_list, typename... Rest>
