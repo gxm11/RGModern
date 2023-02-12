@@ -61,7 +61,7 @@ class Color
   end
 
   def ==(other)
-    @red == other.red && @green == other.green && @blue == other.blue && @alpha == other.alpha
+    other.is_a?(Color) && @red == other.red && @green == other.green && @blue == other.blue && @alpha == other.alpha
   end
 end
 
@@ -126,7 +126,7 @@ class Tone
   end
 
   def ==(other)
-    @red == other.red && @green == other.green && @blue == other.blue && @gray == other.gray
+    other.is_a?(Tone) && @red == other.red && @green == other.green && @blue == other.blue && @gray == other.gray
   end
 end
 
@@ -195,6 +195,6 @@ class Rect
   end
 
   def ==(other)
-    @x == other.x && @y == other.y && @width == other.width && @height == other.height
+    other.is_a?(Rect) && @x == other.x && @y == other.y && @width == other.width && @height == other.height
   end
 end
