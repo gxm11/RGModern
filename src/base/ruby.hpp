@@ -10,10 +10,14 @@
 
 #pragma once
 // 移除在 ruby 源码中的 unused-paramerter 警告
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif // __GNUC__
 #include "ruby.h"
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
+#endif // __GNUC__
 
 // 宏 access 与 centurion 库冲突
 #undef access
