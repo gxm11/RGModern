@@ -17,9 +17,9 @@ string(TIMESTAMP RGM_REVISION_DATE "%Y-%m-%d")
 set(RGM_FULLVERSION "${RGM_VERSION_STRING} (${RGM_REVISION_DATE} revision ${RGM_REVISION_STRING})")
 
 # RGM
-add_executable(main)
+add_executable(Game)
 aux_source_directory(src SRC_LIST)
-target_sources(main PRIVATE
+target_sources(Game PRIVATE
     ${SRC_LIST} # 源代码
     ext/icon.rc # 资源文件
 )
@@ -27,15 +27,15 @@ enable_language(RC)
 set_property(SOURCE ext/icon.rc
     PROPERTY LANGUAGE RC    # 设置资源文件属性
 )
-set_property(TARGET main
+set_property(TARGET Game
     PROPERTY CXX_STANDARD 20    # 使用C++20
 )
-target_compile_options(main PRIVATE
+target_compile_options(Game PRIVATE
     "$<$<CXX_COMPILER_ID:MSVC>:-utf-8>"        # MSVC需要显式指定源文件使用utf8
     "$<$<CXX_COMPILER_ID:GNU>:-Wa,-mbig-obj>"  # 用的模板太多+header only=报错
     "$<$<CXX_COMPILER_ID:MSVC>:-bigobj>"       # 同上
 )
-target_compile_definitions(main PRIVATE
+target_compile_definitions(Game PRIVATE
     "NOMINMAX" # 使std::max和std::min生效
     "RGM_FULLVERSION=\"${RGM_FULLVERSION}\""
     "CC_VERSION=\"${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}\""
@@ -51,6 +51,7 @@ if(Ruby_EXT_LIBRARY_DIR)
             PATHS $ENV{Ruby_EXT_LIBRARY_DIR} ${Ruby_EXT_LIBRARY_DIR}
             PATH_SUFFIXES lib
             NO_CACHE
+            REQUIRED
         )
         set(${OUTVAR} ${Ruby_EXT_LIBRARY} PARENT_SCOPE)
     endfunction()
@@ -58,11 +59,11 @@ if(Ruby_EXT_LIBRARY_DIR)
     # Ruby fiddle
     unset(Ruby_EXT_FIDDLE_LIBRARIES)
     _RUBY_FIND_EXT(Ruby_EXT_FIDDLE_LIBRARIES "fiddle;fiddle.a")
-    target_link_libraries(main ${Ruby_EXT_FIDDLE_LIBRARIES})
+    target_link_libraries(Game ${Ruby_EXT_FIDDLE_LIBRARIES})
     # Ruby zlib
     unset(Ruby_EXT_ZLIB_LIBRARIES)
     _RUBY_FIND_EXT(Ruby_EXT_ZLIB_LIBRARIES "zlib;zlib.a")
-    target_link_libraries(main ${Ruby_EXT_ZLIB_LIBRARIES})
+    target_link_libraries(Game ${Ruby_EXT_ZLIB_LIBRARIES})
 else()
     # message(SEND_ERROR "Could NOT find Ruby EXT: ${_Ruby_EXT_LIBRARIES_NAME} (missing Ruby_EXT_LIBRARY_DIR)")
 endif()
@@ -80,7 +81,7 @@ find_package(ZLIB REQUIRED)
 find_package(LibZip REQUIRED)
 find_package(libffi REQUIRED)
 # INCLUDE
-target_include_directories(main PRIVATE
+target_include_directories(Game PRIVATE
     "./src"
     ${Ruby_INCLUDE_DIRS}
     ${Ruby_CONFIG_INCLUDE_DIR}
@@ -98,7 +99,7 @@ target_include_directories(main PRIVATE
     "./third_party/xorstr/include"
 )
 # LIB
-target_link_libraries(main
+target_link_libraries(Game
     ${Ruby_LIBRARIES}
     SDL2::Core
     SDL2::Main
@@ -114,15 +115,65 @@ target_link_libraries(main
 if(WIN32)
     # windows 静态链接特有选项
     if(MINGW)
-        target_link_libraries(main
+        target_link_libraries(Game
             "m;harfbuzz;freetype;bz2;brotlidec;graphite2;intl;brotlicommon;"
             "png;tiff;webp;jpeg;jbig;lzma;deflate;zstd;lerc;jxl;hwy;sharpyuv"
             "flac;mpg123;vorbisfile;opusfile;ogg;vorbis;opus"
         )
     endif()
-    target_link_libraries(main
+    target_link_libraries(Game
         "dinput8;dwrite;gdi32"
         "shell32;ws2_32;iphlpapi;imagehlp;shlwapi;bcrypt"
         "setupapi;advapi32;uuid;version;oleaut32;ole32;imm32;winmm;user32;rpcrt4;usp10"
+    )
+endif()
+
+if(RGM_BUILDMODE)
+    target_compile_definitions(Game PRIVATE
+        "RGM_BUILDMODE=${RGM_BUILDMODE}"
+    )
+    find_program(7ZIP_EXECUTABLE
+        NAMES "7z" "7za" "7zz"
+        HINTS $ENV{7ZIP_HOME} ${7ZIP_HOME}
+        PATH_SUFFIXES bin
+    )
+    if(7ZIP_EXECUTABLE)
+        # 内嵌包
+        set(ZIP_EMBEDED "embeded")
+        string(RANDOM LENGTH 64 _PASSWORD256) # 生成密码
+        add_custom_target(${ZIP_EMBEDED}
+            BYPRODUCTS ${ZIP_EMBEDED}.zip
+            COMMAND ${7ZIP_EXECUTABLE} d -tzip -r -p'${_PASSWORD256}' ${CMAKE_CURRENT_BINARY_DIR}/${ZIP_EMBEDED}.zip *
+            VERBATIM
+        )
+        if(${RGM_BUILDMODE} GREATER_EQUAL "2")
+            # 打包 RGM 脚本
+            add_custom_command(TARGET ${ZIP_EMBEDED}
+                POST_BUILD
+                BYPRODUCTS ${ZIP_EMBEDED}.zip
+                COMMAND ${7ZIP_EXECUTABLE} a -tzip -mx9 -p'${_PASSWORD256}' ${CMAKE_CURRENT_BINARY_DIR}/${ZIP_EMBEDED}.zip ${CMAKE_CURRENT_SOURCE_DIR}/src/script ${CMAKE_CURRENT_SOURCE_DIR}/src/config.ini
+                VERBATIM
+            )
+        endif()
+        if(${RGM_BUILDMODE} GREATER_EQUAL "3")
+            # 打包工程脚本
+            add_custom_command(TARGET ${ZIP_EMBEDED}
+                POST_BUILD
+                BYPRODUCTS ${ZIP_EMBEDED}.zip
+                COMMAND ${7ZIP_EXECUTABLE} a -tzip -mx9 -p'${_PASSWORD256}' ${CMAKE_CURRENT_BINARY_DIR}/${ZIP_EMBEDED}.zip ${CMAKE_CURRENT_SOURCE_DIR}/Project1/Data
+                VERBATIM
+            )
+            # 设置入口函数
+            set_target_properties(Game PROPERTIES WIN32_EXECUTABLE true)
+        endif()
+        target_compile_definitions(Game PRIVATE
+            "PASSWORD=\"${_PASSWORD256}\""
+        )
+        unset(_PASSWORD256 CACHE)
+        add_dependencies(Game ${ZIP_EMBEDED})
+    endif()
+else()
+    target_compile_definitions(Game PRIVATE
+        "RGM_BUILDMODE=$<IF:$<CONFIG:Debug>,0,1>"
     )
 endif()
