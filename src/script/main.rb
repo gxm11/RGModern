@@ -22,6 +22,9 @@ def rgss_main
     rescue SignalException
       puts 'The interrupt signal is catched, program stops safely.'
       return
+    rescue SystemExit
+      puts 'The exit() method is catched, program stops safely.'
+      return
     rescue Exception => e
       msg = ['Error occurs when load Data/Scripts.rxdata.']
       msg << e.to_s
