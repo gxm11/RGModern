@@ -114,8 +114,7 @@ struct worker {
     static_assert(!std::same_as<base_t, derived_t>,
                   "Failed to downcast scheduler<>* !");
 
-    return static_cast<derived_t>(p_scheduler)
-        ->broadcast(std::move(task));
+    return static_cast<derived_t>(p_scheduler)->broadcast(std::move(task));
   }
 
   // 向其他线程发送 T 指令，阻塞线程直到 T 指令异步执行完毕。
@@ -150,7 +149,11 @@ struct worker {
 
     static_assert(traits::is_repeated_v<T, T_kernel_tasks>);
 
-    m_kernel << std::forward<T>(task);
+    if constexpr (config::asynchornized) {
+      m_kernel << std::forward<T>(task);
+    } else {
+      task.run(*this);
+    }
   }
 };
 }  // namespace rgm::core

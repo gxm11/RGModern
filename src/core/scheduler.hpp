@@ -55,22 +55,36 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
     auto stop_token = m_worker.template get<std::stop_token>();
     std::jthread t([this](auto) { m_worker.run(); }, stop_token);
     if constexpr (sizeof...(Rest) > 0) {
-      scheduler<Rest...>::run();
+      scheduler<Rest...>::run_async();
     }
   }
 
   void run_sync() {
+    run_sync_before();
+    run_sync_kernel();
+    run_sync_after();
+  }
+
+  void run_sync_before() {
     m_worker.p_scheduler = this;
     m_worker.before();
     if constexpr (sizeof...(Rest) > 0) {
-      static_assert(
-          !m_worker.is_active,
-          "Workers other than the last one should have the passive kernel!");
-      scheduler<Rest...>::run();
-    } else {
-      static_assert(m_worker.is_active,
-                    "The last worker must have the active kernel!");
+      scheduler<Rest...>::run_sync_before();
+    }
+  }
+
+  void run_sync_kernel() {
+    if (m_worker.is_active) {
       m_worker.kernel_run();
+    }
+    if constexpr (sizeof...(Rest) > 0) {
+      scheduler<Rest...>::run_sync_kernel();
+    }
+  }
+
+  void run_sync_after() {
+    if constexpr (sizeof...(Rest) > 0) {
+      scheduler<Rest...>::run_sync_after();
     }
     m_worker.after();
   }
@@ -80,11 +94,7 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
   template <typename T_task>
   bool broadcast(T_task&& task) {
     if constexpr (traits::is_repeated_v<T_task, typename T_worker::T_tasks>) {
-      if constexpr (config::asynchornized) {
-        m_worker << std::forward<T_task>(task);
-      } else {
-        task.run(m_worker);
-      }
+      m_worker << std::forward<T_task>(task);
       return true;
     } else if constexpr (sizeof...(Rest) > 0) {
       return scheduler<Rest...>::template broadcast(std::forward<T_task>(task));
