@@ -410,13 +410,14 @@ struct bitmap_get_pixel {
   void run(auto& worker) {
     cen::texture& bitmap = RGMDATA(base::textures).at(id);
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
+    base::renderstack& stack = RGMDATA(base::renderstack);
 
     renderer.set_target(bitmap);
-    SDL_Rect rect{ x, y, 1, 1 };
+    SDL_Rect rect{x, y, 1, 1};
     SDL_RenderReadPixels(renderer.get(), &rect,
                          static_cast<uint32_t>(cen::pixel_format::bgra32),
                          p_pixel, bitmap.width() * 4);
-    renderer.reset_target();
+    renderer.set_target(stack.current());
   }
 };
 
@@ -478,13 +479,15 @@ struct bitmap_capture_palette {
   void run(auto& worker) {
     cen::texture& bitmap = RGMDATA(base::textures).at(id);
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
+    base::renderstack& stack = RGMDATA(base::renderstack);
 
     cen::texture texture = renderer.make_texture(*ptr);
 
     renderer.set_target(bitmap);
     texture.set_blend_mode(cen::blend_mode::none);
     renderer.render(texture, cen::ipoint(0, 0));
-    renderer.reset_target();
+    // renderer.reset_target();
+    renderer.set_target(stack.current());
   }
 };
 
@@ -629,6 +632,13 @@ struct init_bitmap {
         return Qnil;
       }
 
+#ifdef RGM_USE_D3D11
+      static VALUE get_pixel(VALUE, VALUE, VALUE, VALUE) {
+        // 参见：https://github.com/libsdl-org/SDL/issues/4782
+        // 实际测试 d3d11 问题仍然存在，好在 opengl 测试通过。
+        return UINT2NUM(0);
+      }
+#else
       static VALUE get_pixel(VALUE, VALUE id_, VALUE x_, VALUE y_) {
         RGMLOAD(id, const uint64_t);
         RGMLOAD(x, int);
@@ -643,6 +653,7 @@ struct init_bitmap {
                          (pixels[0] << 16);
         return UINT2NUM(color);
       }
+#endif
 
       static VALUE save_png(VALUE, VALUE id_, VALUE path_) {
         RGMLOAD(id, const uint64_t);
