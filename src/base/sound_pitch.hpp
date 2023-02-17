@@ -146,12 +146,10 @@ struct sound_pitch {
             position -= duration;
           }
         }
-      }
-      // if we already played the whole sound but finished earlier than expected
-      // by SDL_mixer (due to faster playback speed)
-      else {
-        // set silence on the buffer since Mix_HaltChannel() poops out some of
-        // it for a few ms.
+        // if we already played the whole sound but finished earlier than
+        // expected by SDL_mixer (due to faster playback speed) set silence on
+      } else {
+        // the buffer since Mix_HaltChannel() poops out some of it for a few ms.
         for (int i = 0; i < bufferSize; i++) {
           buffer[i] = 0;
         }

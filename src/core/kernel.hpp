@@ -24,7 +24,8 @@ struct kernel {
   semaphore m_pause;
 
   using T_variants =
-      typename traits::append_t<std::monostate, T_tasks>::template to<std::variant>;
+      typename traits::append_t<std::monostate,
+                                T_tasks>::template to<std::variant>;
 
   /** 存放所有待执行任务的管道，这是一个多读多写的无锁管道 */
   moodycamel::BlockingConcurrentQueue<T_variants> m_queue;
@@ -57,7 +58,7 @@ struct kernel {
     }
   }
 
-  void run(auto& worker) { flush(worker); };
+  void run(auto& worker) { flush(worker); }
 };
 
 template <typename T_tasks>
