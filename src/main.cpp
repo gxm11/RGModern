@@ -50,6 +50,8 @@ int main(int argc, char* argv[]) {
       rgm::config::debug = true;
     }
   }
+  rgm::config::load();
+
   engine_t engine;
   cen::log_info(cen::log_category::system, "rgm start running...");
   engine.run();

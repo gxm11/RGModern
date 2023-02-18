@@ -236,7 +236,7 @@ struct init_zip {
         RGMLOAD(path, const char*);
         zip_data_external& z = RGMDATA(zip_data_external);
 
-        const char* path2 = path + strlen(config::resource_prefix);
+        const char* path2 = path + config::resource_prefix.size();
         const std::string buf = z.load_string(path2);
         if (buf.empty()) return Qnil;
 

@@ -35,9 +35,9 @@ struct init_extension {
     rb_const_set(rb_mRGM, rb_intern("Default_Title"),
                  rb_utf8_str_new_cstr(config::game_title));
     rb_const_set(rb_mRGM, rb_intern("Default_Config"),
-                 rb_utf8_str_new_cstr(config::game_config));
+                 rb_utf8_str_new_cstr(config::config_path));
     rb_const_set(rb_mRGM, rb_intern("Resource_Prefix"),
-                 rb_utf8_str_new_cstr(config::resource_prefix));
+                 rb_utf8_str_new_cstr(config::resource_prefix.data()));
     rb_const_set(rb_mRGM, rb_intern("BuildMode"), INT2FIX(config::build_mode));
   }
 };

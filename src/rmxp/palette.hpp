@@ -26,11 +26,11 @@ struct init_palette {
         if (height_ == Qnil) {
           RGMLOAD2(path, const char*, width_);
 
-          int ret = strncmp(config::resource_prefix, path,
-                            strlen(config::resource_prefix) - 1);
+          int ret = strncmp(config::resource_prefix.data(), path,
+                            config::resource_prefix.size());
           std::unique_ptr<cen::surface> ptr;
           if (ret == 0) {
-            const char* path2 = path + strlen(config::resource_prefix);
+            const char* path2 = path + config::resource_prefix.size();
             zip_data_external& z = RGMDATA(zip_data_external);
             SDL_Surface* ptr2 = z.load_surface(path2);
             ptr = std::make_unique<cen::surface>(ptr2);
@@ -52,7 +52,7 @@ struct init_palette {
                          "[Palette] id = %lld, is created with area %d x %d",
                          id, width, height);
 
-          cen::surface s(cen::iarea{ width, height }, cen::pixel_format::rgba32);
+          cen::surface s(cen::iarea{width, height}, cen::pixel_format::rgba32);
           surfaces.emplace(id, std::move(s));
         }
         return Qnil;

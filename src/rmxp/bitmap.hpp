@@ -507,10 +507,11 @@ struct init_bitmap {
         if (height_ == Qnil) {
           RGMLOAD2(path, const char*, width_);
 
-          int ret = strncmp(config::resource_prefix, path,
-                            strlen(config::resource_prefix) - 1);
+          int ret = strncmp(config::resource_prefix.data(), path,
+                            config::resource_prefix.size());
           if (ret == 0) {
-            const char* path2 = path + strlen(config::resource_prefix);
+            // 增加指针的值，相当于截取字符串的后半部分。
+            const char* path2 = path + config::resource_prefix.size();
             worker >> bitmap_create<4>{id, path2};
           } else {
             worker >> bitmap_create<1>{id, path};
