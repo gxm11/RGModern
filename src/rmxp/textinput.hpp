@@ -37,8 +37,6 @@ struct textinput_stop {
   }
 };
 
-extern "C" VALUE rb_cObject;
-
 struct textinput_state {
   std::string text;
   int position;

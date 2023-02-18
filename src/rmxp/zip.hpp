@@ -9,7 +9,6 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
-#define ZIP_STATIC
 #include <zip.h>
 
 #include <string>
@@ -151,9 +150,6 @@ struct regist_external_data {
 /**
  * @brief 创建读取内嵌 zip 的 ruby 方法
  */
-
-extern "C" VALUE rb_eArgError;
-extern "C" VALUE rb_eLoadError;
 
 struct init_zip {
   using data = rgm::data<zip_data_external, zip_data_embeded>;

@@ -15,8 +15,6 @@
 #include "timer.hpp"
 
 namespace rgm::base {
-// It seems that the declaration must be inside the namespace.
-extern "C" VALUE rb_eInterrupt;
 
 /** @brief 任务：使 ruby 线程抛出 Interrupt 异常 */
 struct interrupt_signal {

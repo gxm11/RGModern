@@ -53,6 +53,7 @@ endif
 cflags += -DRGM_FULLVERSION="\"$(RGM_FULLVERSION)\""
 cflags += -DCC_VERSION="\"$(shell $(cc) --version | head -n1)\""
 cflags += -DRGM_USE_D3D11
+cflags += -DRUBY_EXPORT -DZIP_STATIC
 
 # build mode
 # 0 = debug    -> debug.exe
