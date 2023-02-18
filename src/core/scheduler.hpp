@@ -96,7 +96,6 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
     if constexpr (!config::asynchornized) {
       if constexpr (requires { &T_task::pause; }) {
         if constexpr (std::same_as<decltype(task.pause), semaphore*>) {
-          printf("I ignored the sync signal!\n");
           return false;
         }
       }
