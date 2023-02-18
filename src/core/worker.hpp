@@ -120,10 +120,8 @@ struct worker {
   // 向其他线程发送 T 指令，阻塞线程直到 T 指令异步执行完毕。
   template <size_t id>
   void wait() {
-    if constexpr (config::asynchornized) {
-      send(synchronize_signal<id>{&(m_kernel.m_pause)});
-      m_kernel.m_pause.acquire();
-    }
+    bool ret = send(synchronize_signal<id>{&(m_kernel.m_pause)});
+    if (ret) m_kernel.m_pause.acquire();
   }
 
   /** 只有 kernel 为主动模式才生效，清空当前管道内积压的全部任务。 */
@@ -149,11 +147,7 @@ struct worker {
 
     static_assert(traits::is_repeated_v<T, T_kernel_tasks>);
 
-    if constexpr (config::asynchornized) {
-      m_kernel << std::forward<T>(task);
-    } else {
-      task.run(*this);
-    }
+    m_kernel << std::forward<T>(task);
   }
 };
 }  // namespace rgm::core

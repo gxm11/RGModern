@@ -93,8 +93,21 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
    * 的可执行任务列表中，就放到其任务队列里 */
   template <typename T_task>
   bool broadcast(T_task&& task) {
+    if constexpr (!config::asynchornized) {
+      if constexpr (requires { &T_task::pause; }) {
+        if constexpr (std::same_as<decltype(task.pause), semaphore*>) {
+          printf("I ignored the sync signal!\n");
+          return false;
+        }
+      }
+    }
+
     if constexpr (traits::is_repeated_v<T_task, typename T_worker::T_tasks>) {
-      m_worker << std::forward<T_task>(task);
+      if constexpr (config::asynchornized) {
+        m_worker << std::forward<T_task>(task);
+      } else {
+        task.run(m_worker);
+      }
       return true;
     } else if constexpr (sizeof...(Rest) > 0) {
       return scheduler<Rest...>::template broadcast(std::forward<T_task>(task));
