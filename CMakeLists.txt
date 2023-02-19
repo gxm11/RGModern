@@ -8,11 +8,13 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ext/settings.txt")
     string(REGEX REPLACE "^RGM_VERSION=(([0-9]+\.*)+)$" "\\1" RGM_VERSION_STRING "${RGM_VERSION_LINE}")
     unset(RGM_VERSION_LINE)
 endif()
-execute_process(COMMAND git rev-parse --short=10 HEAD
-    RESULT_VARIABLE _Ruby_SUCCESS
-    OUTPUT_VARIABLE RGM_REVISION_STRING
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+find_package(Git)
+if(Git_FOUND)
+    execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short=10 HEAD
+        OUTPUT_VARIABLE RGM_REVISION_STRING
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+endif()
 string(TIMESTAMP RGM_REVISION_DATE "%Y-%m-%d")
 set(RGM_FULLVERSION "${RGM_VERSION_STRING} (${RGM_REVISION_DATE} revision ${RGM_REVISION_STRING})")
 
@@ -28,7 +30,8 @@ set_property(SOURCE ext/icon.rc
     PROPERTY LANGUAGE RC    # 设置资源文件属性
 )
 set_property(TARGET Game
-    PROPERTY CXX_STANDARD 20    # 使用C++20
+    PROPERTY 
+    CXX_STANDARD 20         # 使用C++20
 )
 target_compile_options(Game PRIVATE
     "$<$<CXX_COMPILER_ID:MSVC>:-utf-8>"        # MSVC需要显式指定源文件使用utf8
@@ -42,6 +45,13 @@ target_compile_definitions(Game PRIVATE
     "$<$<STREQUAL:${RGM_RENDER_BACKEND},D3D11>:RGM_USE_D3D11>"
     "$<$<STREQUAL:${RGM_RENDER_BACKEND},OPENGL>:RGM_USE_OPENGL>"
 )
+if(WIN32)
+    # 静态链接声明所需宏
+    target_compile_definitions(Game PRIVATE
+        "RUBY_EXPORT"
+        "ZIP_STATIC"
+    )
+endif()
 # 搜索 ruby 标准库路径
 if(Ruby_EXT_LIBRARY_DIR)
     function(_RUBY_FIND_EXT OUTVAR RBVAR)
@@ -69,7 +79,7 @@ else()
 endif()
 # 搜索基础三方库路径
 if(WIN32)
-set(CMAKE_FIND_LIBRARY_SUFFIXES ".a;.lib")
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a;.lib")
 endif()
 find_package(Ruby REQUIRED)
 find_package(SDL2 REQUIRED)
@@ -90,7 +100,6 @@ target_include_directories(Game PRIVATE
     ${SDL2_TTF_INCLUDE_DIRS}
     ${SDL2_MIXER_INCLUDE_DIRS}
     ${SDL2_NET_INCLUDE_DIRS}
-    ${ZLIB_INCLUDE_DIRS}
     ${LIBZIP_INCLUDE_DIR}
     "./third_party/centurion/src"
     "./third_party/concurrentqueue"
@@ -110,6 +119,7 @@ target_link_libraries(Game
     ZLIB::ZLIB
     ${LIBZIP_LIBRARY}
     libffi::libffi
+    "$<$<BOOL:${MINGW}>:mingw32>"
 )
 
 if(WIN32)
@@ -136,6 +146,7 @@ if(RGM_BUILDMODE)
         NAMES "7z" "7za" "7zz"
         HINTS $ENV{7ZIP_HOME} ${7ZIP_HOME}
         PATH_SUFFIXES bin
+        REQUIRED
     )
     if(7ZIP_EXECUTABLE)
         # 内嵌包
@@ -143,7 +154,7 @@ if(RGM_BUILDMODE)
         string(RANDOM LENGTH 64 _PASSWORD256) # 生成密码
         add_custom_target(${ZIP_EMBEDED}
             BYPRODUCTS ${ZIP_EMBEDED}.zip
-            COMMAND ${7ZIP_EXECUTABLE} d -tzip -r -p'${_PASSWORD256}' ${CMAKE_CURRENT_BINARY_DIR}/${ZIP_EMBEDED}.zip *
+            COMMAND ${7ZIP_EXECUTABLE} d -tzip -r -p${_PASSWORD256} ${CMAKE_CURRENT_BINARY_DIR}/${ZIP_EMBEDED}.zip *
             VERBATIM
         )
         if(${RGM_BUILDMODE} GREATER_EQUAL "2")
@@ -151,7 +162,7 @@ if(RGM_BUILDMODE)
             add_custom_command(TARGET ${ZIP_EMBEDED}
                 POST_BUILD
                 BYPRODUCTS ${ZIP_EMBEDED}.zip
-                COMMAND ${7ZIP_EXECUTABLE} a -tzip -mx9 -p'${_PASSWORD256}' ${CMAKE_CURRENT_BINARY_DIR}/${ZIP_EMBEDED}.zip ${CMAKE_CURRENT_SOURCE_DIR}/src/script ${CMAKE_CURRENT_SOURCE_DIR}/src/config.ini
+                COMMAND ${7ZIP_EXECUTABLE} a -tzip -mx9 -p${_PASSWORD256} ${CMAKE_CURRENT_BINARY_DIR}/${ZIP_EMBEDED}.zip ${CMAKE_CURRENT_SOURCE_DIR}/src/script ${CMAKE_CURRENT_SOURCE_DIR}/src/config.ini
                 VERBATIM
             )
         endif()
@@ -160,7 +171,7 @@ if(RGM_BUILDMODE)
             add_custom_command(TARGET ${ZIP_EMBEDED}
                 POST_BUILD
                 BYPRODUCTS ${ZIP_EMBEDED}.zip
-                COMMAND ${7ZIP_EXECUTABLE} a -tzip -mx9 -p'${_PASSWORD256}' ${CMAKE_CURRENT_BINARY_DIR}/${ZIP_EMBEDED}.zip ${CMAKE_CURRENT_SOURCE_DIR}/Project1/Data
+                COMMAND ${7ZIP_EXECUTABLE} a -tzip -mx9 -p${_PASSWORD256} ${CMAKE_CURRENT_BINARY_DIR}/${ZIP_EMBEDED}.zip ${CMAKE_CURRENT_SOURCE_DIR}/Project1/Data
                 VERBATIM
             )
             # 设置入口函数
