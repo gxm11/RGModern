@@ -11,6 +11,7 @@
 #pragma once
 #include <atomic>
 #include <condition_variable>
+#include <future>
 #include <mutex>
 
 namespace rgm::core {
@@ -55,6 +56,8 @@ struct semaphore {
 /** @brief 任务：使 ruby 线程恢复运行 */
 template <size_t>
 struct synchronize_signal {
+  static constexpr auto launch_flag = std::launch::async;
+
   semaphore* pause;
   void run(auto&) { pause->release(); }
 };

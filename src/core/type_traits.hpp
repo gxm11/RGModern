@@ -10,6 +10,7 @@
 
 #pragma once
 #include <concepts>
+#include <future>
 #include <type_traits>
 #include <variant>
 
@@ -161,6 +162,21 @@ struct remove_dummy<TypeList<Head, Args...>, U>
     : remove_dummy<TypeList<Args...>, U> {
   using type =
       append_t<Head, typename remove_dummy<TypeList<Args...>, U>::type>;
+};
+
+template <typename...>
+struct is_asynchronized : std::false_type {};
+
+template <typename Head, typename... Args>
+struct is_asynchronized<Head, Args...> : is_asynchronized<Args...> {
+  static constexpr bool value = is_asynchronized<Args...>::value;
+};
+
+template <typename Head, typename... Args>
+  requires(requires { Head::launch_flag; })
+struct is_asynchronized<Head, Args...> : is_asynchronized<Args...> {
+  static constexpr bool value = (Head::launch_flag == std::launch::async) ||
+                                is_asynchronized<Args...>::value;
 };
 
 template <typename T>

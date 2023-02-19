@@ -40,7 +40,7 @@ constexpr bool check_renderstack = true;
 
 constexpr int build_mode = RGM_BUILDMODE;
 // TODO:(guoxiaomi)待移除
-constexpr bool asynchornized = true;
+// constexpr bool asynchornized = true;
 
 static bool synchronization = false;
 static std::string resource_prefix = "resource://";

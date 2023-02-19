@@ -29,7 +29,8 @@ struct worker {
   using T_tasks = typename T_tasklist::tasks;
   using T_kernel_tasks = traits::remove_dummy_t<T_tasks, worker>;
   using T_datalist = typename T_tasklist::data::template to<datalist>;
-
+  static constexpr bool asynchronized =
+      traits::is_asynchronized<T_kernel_tasks>::value;
   /** 保存父类的指针地址用于向下转型为 scheduler<> 的派生类指针 */
   scheduler<>* p_scheduler;
   /** datalist 类，存储的变量可供所有的任务读写 */
@@ -120,8 +121,10 @@ struct worker {
   // 向其他线程发送 T 指令，阻塞线程直到 T 指令异步执行完毕。
   template <size_t id>
   void wait() {
-    bool ret = send(synchronize_signal<id>{&(m_kernel.m_pause)});
-    if (ret) m_kernel.m_pause.acquire();
+    if constexpr (asynchronized) {
+      bool ret = send(synchronize_signal<id>{&(m_kernel.m_pause)});
+      if (ret) m_kernel.m_pause.acquire();
+    }
   }
 
   /** 只有 kernel 为主动模式才生效，清空当前管道内积压的全部任务。 */
@@ -146,8 +149,11 @@ struct worker {
                   "Task must be passed as R-value!");
 
     static_assert(traits::is_repeated_v<T, T_kernel_tasks>);
-
-    m_kernel << std::forward<T>(task);
+    if constexpr (asynchronized) {
+      m_kernel << std::forward<T>(task);
+    } else {
+      task.run(*this);
+    }
   }
 };
 }  // namespace rgm::core
