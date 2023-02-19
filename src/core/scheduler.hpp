@@ -41,16 +41,10 @@ template <typename T_worker, typename... Rest>
 struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
   T_worker m_worker;
 
-  void run() {
-    if constexpr (m_worker.asynchronized) {
-      run_async();
-    } else {
-      run_sync();
-    }
-  }
-
   /** 创建不同的线程，执行 worker 的 run 函数 */
   void run_async() {
+    static_assert(m_worker.asynchronized);
+
     m_worker.p_scheduler = this;
     auto stop_token = m_worker.template get<std::stop_token>();
     std::jthread t([this](auto) { m_worker.run(); }, stop_token);
@@ -74,7 +68,9 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
   }
 
   void run_sync_kernel() {
-    if (m_worker.is_active) {
+    static_assert(!m_worker.asynchronized);
+
+    if constexpr (m_worker.is_active) {
       m_worker.kernel_run();
     }
     if constexpr (sizeof...(Rest) > 0) {
@@ -105,5 +101,15 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
       return false;
     }
   }
+};
+
+template <typename Head, typename... Rest>
+struct scheduler<std::true_type, Head, Rest...> : scheduler<Head, Rest...> {
+  void run() { scheduler<Head, Rest...>::run_async(); }
+};
+
+template <typename Head, typename... Rest>
+struct scheduler<std::false_type, Head, Rest...> : scheduler<Head, Rest...> {
+  void run() { scheduler<Head, Rest...>::run_sync(); }
 };
 }  // namespace rgm::core

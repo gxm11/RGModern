@@ -42,7 +42,7 @@ constexpr int build_mode = RGM_BUILDMODE;
 // TODO:(guoxiaomi)待移除
 // constexpr bool asynchornized = true;
 
-static bool synchronization = false;
+static bool asynchronized = false;
 static std::string resource_prefix = "resource://";
 
 enum class drivers {
@@ -98,7 +98,7 @@ void load() {
     if (t == root::kernel) {
       // synchronization
       if (p_value = GET_ITEM(Synchronization), p_value) {
-        synchronization = CHECK_ITEM(p_value, "ON");
+        asynchronized = CHECK_ITEM(p_value, "OFF");
       }
       // render driver
       if (p_value = GET_ITEM(RenderDriver), p_value) {

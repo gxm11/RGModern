@@ -165,7 +165,10 @@ struct remove_dummy<TypeList<Head, Args...>, U>
 };
 
 template <typename...>
-struct is_asynchronized : std::false_type {};
+struct is_asynchronized;
+
+template <>
+struct is_asynchronized<> : std::false_type {};
 
 template <typename Head, typename... Args>
 struct is_asynchronized<Head, Args...> : is_asynchronized<Args...> {
@@ -174,12 +177,12 @@ struct is_asynchronized<Head, Args...> : is_asynchronized<Args...> {
 
 template <typename Head, typename... Args>
   requires(requires { Head::launch_flag; })
-struct is_asynchronized<Head, Args...> : is_asynchronized<Args...> {
+struct is_asynchronized<TypeList<Head, Args...>> : is_asynchronized<TypeList<Args...>> {
   static constexpr bool value = (Head::launch_flag == std::launch::async) ||
-                                is_asynchronized<Args...>::value;
+                                is_asynchronized<TypeList<Args...>>::value;
 };
 
-template <typename T>
+template <typename T, bool>
 struct magic_cast {
   using type = T;
 };

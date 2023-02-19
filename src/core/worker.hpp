@@ -29,8 +29,7 @@ struct worker {
   using T_tasks = typename T_tasklist::tasks;
   using T_kernel_tasks = traits::remove_dummy_t<T_tasks, worker>;
   using T_datalist = typename T_tasklist::data::template to<datalist>;
-  static constexpr bool asynchronized =
-      traits::is_asynchronized<T_kernel_tasks>::value;
+
   /** 保存父类的指针地址用于向下转型为 scheduler<> 的派生类指针 */
   scheduler<>* p_scheduler;
   /** datalist 类，存储的变量可供所有的任务读写 */
@@ -45,7 +44,8 @@ struct worker {
   static constexpr bool is_active =
       std::is_base_of_v<kernel_active<T_kernel_tasks>,
                         T_kernel<T_kernel_tasks>>;
-
+  static constexpr bool asynchronized =
+      traits::is_asynchronized<T_kernel_tasks>::value;
   /**
    * @brief 根据不同的变量类型，获取相应的共享变量。
    *
@@ -108,7 +108,7 @@ struct worker {
   template <typename T, typename U = scheduler<>*>
   bool send(T&& task) {
     using base_t = U;
-    using derived_t = traits::magic_cast<U>::type;
+    using derived_t = traits::magic_cast<U, asynchronized>::type;
 
     static_assert(std::is_rvalue_reference_v<T&&>,
                   "Task must be passed as R-value!");

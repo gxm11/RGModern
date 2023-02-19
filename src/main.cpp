@@ -10,6 +10,8 @@
 
 #include "main.hpp"
 
+#include <any>
+
 /**
  * @brief SDL_Main 函数，程序的实际入口。
  *
@@ -48,11 +50,17 @@ int main(int argc, char* argv[]) {
       rgm::config::debug = true;
     }
   }
+
   rgm::config::load();
 
-  engine_t engine;
   cen::log_info(cen::log_category::system, "rgm start running...");
-  engine.run();
+  if (rgm::config::asynchronized) {
+    rgm::engine_async_t engine;
+    engine.run();
+  } else {
+    rgm::engine_sync_t engine;
+    engine.run();
+  }
   cen::log_info(cen::log_category::system, "rgm terminated.");
   return 0;
 }
