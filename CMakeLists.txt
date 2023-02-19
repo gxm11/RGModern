@@ -32,7 +32,6 @@ set_property(SOURCE ext/icon.rc
 set_property(TARGET Game
     PROPERTY 
     CXX_STANDARD 20         # 使用C++20
-    WIN32_EXECUTABLE false  # 设置函数入口
 )
 target_compile_options(Game PRIVATE
     "$<$<CXX_COMPILER_ID:MSVC>:-utf-8>"        # MSVC需要显式指定源文件使用utf8
@@ -120,6 +119,7 @@ target_link_libraries(Game
     ZLIB::ZLIB
     ${LIBZIP_LIBRARY}
     libffi::libffi
+    "$<$<BOOL:${MINGW}>:mingw32>"
 )
 
 if(WIN32)
@@ -146,6 +146,7 @@ if(RGM_BUILDMODE)
         NAMES "7z" "7za" "7zz"
         HINTS $ENV{7ZIP_HOME} ${7ZIP_HOME}
         PATH_SUFFIXES bin
+        REQUIRED
     )
     if(7ZIP_EXECUTABLE)
         # 内嵌包

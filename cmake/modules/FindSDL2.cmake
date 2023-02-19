@@ -251,12 +251,6 @@ if(NOT APPLE)
   endif()
 endif()
 
-# MinGW needs an additional link flag, -mwindows
-# It's total link flags should look like -lmingw32 -lSDL2main -lSDL2 -mwindows
-if(MINGW)
-  set(MINGW32_LIBRARY mingw32 "-mwindows" CACHE STRING "link flags for MinGW")
-endif()
-
 if(SDL2_LIBRARY)
   # For SDL2main
   if(SDL2MAIN_LIBRARY AND NOT SDL2_BUILDING_LIBRARY)
@@ -373,12 +367,6 @@ if(SDL2_FOUND)
                    INTERFACE_LINK_LIBRARIES SDL2::Core)
 
       add_library(SDL2::Main INTERFACE IMPORTED)
-
-      if(MINGW)
-        # MinGW needs an additional link flag '-mwindows' and link to mingw32
-        set_property(TARGET SDL2::Main PROPERTY
-                     INTERFACE_LINK_LIBRARIES "mingw32" "-mwindows")
-      endif()
 
       set_property(TARGET SDL2::Main APPEND PROPERTY
                    INTERFACE_LINK_LIBRARIES SDL2::MainInternal)
