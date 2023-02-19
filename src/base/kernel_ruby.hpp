@@ -9,6 +9,7 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
+#include <iostream> // cerr
 #include "core/core.hpp"
 #include "init_ruby.hpp"
 
@@ -20,18 +21,41 @@ namespace rgm::base {
  */
 template <typename T_tasks>
 struct kernel_ruby : rgm::core::kernel_active<T_tasks> {
-  void run([[maybe_unused]] auto& worker) {
-    int ruby_state = 0;
+
+/// @param[in]  data  rb_rescue2 传入参数，未使用。
+/// @return     任意，rb_rescue2 会返回此值。
+  static VALUE script_run(VALUE) {
 #ifdef RGM_EMBEDED_ZIP
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
     rb_funcall(rb_mRGM_Base, rb_intern("load_script"), 1,
-               rb_str_new_cstr("script/load.rb"));
+               rb_str_new_literal("script/load.rb"));
 #else
     rb_ary_push(rb_gv_get("$LOAD_PATH"), rb_str_new_cstr("./src/script"));
-    rb_load_protect(rb_str_new_cstr("load.rb"), 0, &ruby_state);
+    rb_load(rb_str_new_literal("load.rb"), 0);
 #endif
-    ruby_cleanup(ruby_state);
+    return Qnil;
+  }
+
+/// @param[in]  data  rb_rescue2 传入参数，未使用。
+/// @param[in]  exc   rb_rescue2 捕获的 ruby 异常。
+/// @return     任意，rb_rescue2 会返回此值。
+  static VALUE script_rescue(VALUE, VALUE exc) {
+    VALUE backtrace = rb_ary_to_ary(rb_funcall(exc, rb_intern("backtrace"), 0));
+    VALUE message = rb_str_to_str(rb_funcall(exc, rb_intern("message"), 0));
+    std::cerr << StringValueCStr(message) << std::endl;
+    for (long i = 0; i < RARRAY_LEN(backtrace); ++i) {
+      VALUE lp = rb_str_to_str(rb_ary_entry(backtrace, i));
+      std::cerr << StringValueCStr(lp) << std::endl;
+    }
+    return Qnil;
+  }
+
+  void run([[maybe_unused]] auto& worker) {
+    // rb_rescue2 的说明参见 include/ruby/backward/cxxanyargs.hpp
+    rb_rescue2(script_run, Qnil,
+               script_rescue, Qnil, rb_eException, static_cast<VALUE>(0));
+    ruby_finalize();
   }
 };
 }  // namespace rgm::base
