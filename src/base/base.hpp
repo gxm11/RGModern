@@ -29,33 +29,15 @@
 #include "timer.hpp"
 
 namespace rgm::base {
-/** @brief 执行逻辑流程的 worker，运行 ruby 脚本 */
-// template <typename... Args>
-// using worker_main = core::worker<kernel_ruby, core::synchronize_signal<0>,
-//                                  init_ruby, init_synchronize, init_counter,
-//                                  init_surfaces, interrupt_signal, Args...>;
+/** @brief 执行逻辑流程的 task，运行 ruby 脚本 */
 using tasks_main = core::tasklist<init_ruby, init_synchronize, init_counter,
                                   init_surfaces, interrupt_signal>;
-/** @brief 执行渲染流程的 worker，使用 SDL2 创建窗口，绘制画面 */
-// template <typename... Args>
-// using worker_render =
-//     core::worker<core::kernel_passive, core::synchronize_signal<1>,
-//     init_sdl2,
-//                  init_renderstack, init_textures, poll_event, clear_screen,
-//                  present_window, resize_window, resize_screen, set_title,
-//                  set_fullscreen, Args...>;
+/** @brief 执行渲染流程的 task，使用 SDL2 创建窗口，绘制画面 */
 using tasks_render =
     core::tasklist<init_sdl2, init_renderstack, init_textures, poll_event,
                    clear_screen, present_window, resize_window, resize_screen,
                    set_title, set_fullscreen>;
-/** @brief 执行音乐播放的 worker，使用 SDL2 Mixer 播放音乐和音效 */
-// template <typename... Args>
-// using worker_audio =
-//     core::worker<core::kernel_passive, core::synchronize_signal<2>,
-//                  init_music_manager, init_sound_manager, bgm_play, bgm_stop,
-//                  me_play, me_stop, music_finish, bgm_pos, bgs_play, bgs_stop,
-//                  se_play, se_stop, Args...>;
-
+/** @brief 执行音乐播放的 task，使用 SDL2 Mixer 播放音乐和音效 */
 using tasks_audio =
     core::tasklist<init_music_manager, init_sound_manager, bgm_play, bgm_stop,
                    me_play, me_stop, music_finish, bgm_pos, bgs_play, bgs_stop,

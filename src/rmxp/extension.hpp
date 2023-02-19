@@ -33,7 +33,7 @@ struct init_extension {
     rb_gv_set("$BTEST", config::btest ? Qtrue : Qfalse);
 
     rb_const_set(rb_mRGM, rb_intern("Default_Title"),
-                 rb_utf8_str_new_cstr(config::game_title));
+                 rb_utf8_str_new_cstr(config::game_title.data()));
     rb_const_set(rb_mRGM, rb_intern("Default_Config"),
                  rb_utf8_str_new_cstr(config::config_path));
     rb_const_set(rb_mRGM, rb_intern("Resource_Prefix"),

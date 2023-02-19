@@ -14,20 +14,13 @@
 #include <fstream>
 
 namespace rgm::config {
-// configs
-bool btest = false;
-bool debug = false;
-
-const char* game_title = "RGModern";
+// const and constexprs
 const char* config_path = "./config.ini";
-
-// constexprs
-constexpr int window_width = 640;
-constexpr int window_height = 480;
-
 #ifndef RGM_BUILDMODE
 #define RGM_BUILDMODE 1
 #endif
+
+constexpr int build_mode = RGM_BUILDMODE;
 
 #if RGM_BUILDMODE >= 2
 constexpr int output_level = 0;
@@ -38,9 +31,11 @@ constexpr int output_level = 1;
 constexpr bool check_renderstack = true;
 #endif
 
-constexpr int build_mode = RGM_BUILDMODE;
-static bool asynchronized = false;
-static std::string resource_prefix = "resource://";
+// configs
+bool btest = false;
+bool debug = false;
+
+std::string game_title = "RGModern";
 
 enum class drivers {
   software,
@@ -48,6 +43,12 @@ enum class drivers {
   direct3d9,
   direct3d11,
 };
+
+drivers driver_type = drivers::direct3d11;
+bool asynchronized = false;
+std::string resource_prefix = "resource://";
+int window_width = 640;
+int window_height = 480;
 
 const char* to_string(drivers d) {
   switch (d) {
@@ -62,8 +63,6 @@ const char* to_string(drivers d) {
       return "direct3d11";
   }
 }
-
-static drivers driver_type = drivers::direct3d11;
 
 void load(int argc, char* argv[]) {
   // load configs from argv
@@ -103,8 +102,14 @@ void load(int argc, char* argv[]) {
     if (CHECK_ROOT(Font)) t = root::font;
     if (CHECK_ROOT(Kernel)) t = root::kernel;
 
+    if (t == root::game) {
+      if (p_value = GET_ITEM(Title), p_value) {
+        game_title = p_value;
+      }
+    }
+
     if (t == root::kernel) {
-      // synchronization
+      // synchronization / asynchronization
       if (p_value = GET_ITEM(Synchronization), p_value) {
         asynchronized = CHECK_ITEM(p_value, "OFF");
       }
@@ -126,6 +131,13 @@ void load(int argc, char* argv[]) {
       // resource prefix
       if (p_value = GET_ITEM(ResourcePrefix), p_value) {
         resource_prefix = p_value;
+      }
+      // window width and height
+      if (p_value = GET_ITEM(WindowWidth), p_value) {
+        window_width = std::atoi(p_value);
+      }
+      if (p_value = GET_ITEM(WindowHeight), p_value) {
+        window_height = std::atoi(p_value);
       }
     }
   }
