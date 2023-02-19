@@ -9,7 +9,8 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
-#include <iostream> // cerr
+#include <iostream>  // cerr
+
 #include "core/core.hpp"
 #include "init_ruby.hpp"
 
@@ -21,9 +22,8 @@ namespace rgm::base {
  */
 template <typename T_tasks>
 struct kernel_ruby : rgm::core::kernel_active<T_tasks> {
-
-/// @param[in]  data  rb_rescue2 传入参数，未使用。
-/// @return     任意，rb_rescue2 会返回此值。
+  /// @param[in]  data  rb_rescue2 传入参数，未使用。
+  /// @return     任意，rb_rescue2 会返回此值。
   static VALUE script_run(VALUE) {
 #ifdef RGM_EMBEDED_ZIP
     VALUE rb_mRGM = rb_define_module("RGM");
@@ -37,9 +37,9 @@ struct kernel_ruby : rgm::core::kernel_active<T_tasks> {
     return Qnil;
   }
 
-/// @param[in]  data  rb_rescue2 传入参数，未使用。
-/// @param[in]  exc   rb_rescue2 捕获的 ruby 异常。
-/// @return     任意，rb_rescue2 会返回此值。
+  /// @param[in]  data  rb_rescue2 传入参数，未使用。
+  /// @param[in]  exc   rb_rescue2 捕获的 ruby 异常。
+  /// @return     任意，rb_rescue2 会返回此值。
   static VALUE script_rescue(VALUE, VALUE exc) {
     VALUE backtrace = rb_ary_to_ary(rb_funcall(exc, rb_intern("backtrace"), 0));
     VALUE message = rb_str_to_str(rb_funcall(exc, rb_intern("message"), 0));
@@ -51,10 +51,10 @@ struct kernel_ruby : rgm::core::kernel_active<T_tasks> {
     return Qnil;
   }
 
-  void run([[maybe_unused]] auto& worker) {
+  void run(auto&) {
     // rb_rescue2 的说明参见 include/ruby/backward/cxxanyargs.hpp
-    rb_rescue2(script_run, Qnil,
-               script_rescue, Qnil, rb_eException, static_cast<VALUE>(0));
+    rb_rescue2(script_run, Qnil, script_rescue, Qnil, rb_eException,
+               static_cast<VALUE>(0));
     ruby_finalize();
   }
 };
