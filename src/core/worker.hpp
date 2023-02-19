@@ -93,7 +93,10 @@ struct worker {
   void after() {
     p_scheduler->stop_source.request_stop();
     traits::for_each<T_tasks>::after(*this);
-    p_datalist.reset();
+    // 同步模式下，不需要主动销毁变量
+    if constexpr (is_asynchronized) {
+      p_datalist.reset();
+    }
   }
 
   /**
