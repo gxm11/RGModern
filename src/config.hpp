@@ -39,9 +39,6 @@ constexpr bool check_renderstack = true;
 #endif
 
 constexpr int build_mode = RGM_BUILDMODE;
-// TODO:(guoxiaomi)待移除
-// constexpr bool asynchornized = true;
-
 static bool asynchronized = false;
 static std::string resource_prefix = "resource://";
 
@@ -68,7 +65,18 @@ const char* to_string(drivers d) {
 
 static drivers driver_type = drivers::direct3d11;
 
-void load() {
+void load(int argc, char* argv[]) {
+  // load configs from argv
+  for (int i = 0; i < argc; ++i) {
+    if (strncmp(argv[i], "btest", 6) == 0) {
+      rgm::config::btest = true;
+    }
+    if (strncmp(argv[i], "debug", 6) == 0) {
+      rgm::config::debug = true;
+    }
+  }
+
+  // load config from ini
   enum class root { game, system, keymap, font, kernel };
 
 #define CHECK_ROOT(key) \

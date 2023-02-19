@@ -42,16 +42,9 @@ int main(int argc, char* argv[]) {
 #undef GETVERSION
       return 0;
     }
-    // load configs from argv
-    if (strncmp(argv[i], "btest", 6) == 0) {
-      rgm::config::btest = true;
-    }
-    if (strncmp(argv[i], "debug", 6) == 0) {
-      rgm::config::debug = true;
-    }
   }
 
-  rgm::config::load();
+  rgm::config::load(argc, argv);
 
   cen::log_info(cen::log_category::system, "rgm start running...");
   if (rgm::config::asynchronized) {

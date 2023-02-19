@@ -44,7 +44,7 @@ struct worker {
   static constexpr bool is_active =
       std::is_base_of_v<kernel_active<T_kernel_tasks>,
                         T_kernel<T_kernel_tasks>>;
-  static constexpr bool asynchronized =
+  static constexpr bool is_asynchronized =
       traits::is_asynchronized<T_kernel_tasks>::value;
   /**
    * @brief 根据不同的变量类型，获取相应的共享变量。
@@ -108,7 +108,7 @@ struct worker {
   template <typename T, typename U = scheduler<>*>
   bool send(T&& task) {
     using base_t = U;
-    using derived_t = traits::magic_cast<U, asynchronized>::type;
+    using derived_t = traits::magic_cast<U, is_asynchronized>::type;
 
     static_assert(std::is_rvalue_reference_v<T&&>,
                   "Task must be passed as R-value!");
@@ -121,7 +121,7 @@ struct worker {
   // 向其他线程发送 T 指令，阻塞线程直到 T 指令异步执行完毕。
   template <size_t id>
   void wait() {
-    if constexpr (asynchronized) {
+    if constexpr (is_asynchronized) {
       bool ret = send(synchronize_signal<id>{&(m_kernel.m_pause)});
       if (ret) m_kernel.m_pause.acquire();
     }
@@ -149,7 +149,7 @@ struct worker {
                   "Task must be passed as R-value!");
 
     static_assert(traits::is_repeated_v<T, T_kernel_tasks>);
-    if constexpr (asynchronized) {
+    if constexpr (is_asynchronized) {
       m_kernel << std::forward<T>(task);
     } else {
       task.run(*this);

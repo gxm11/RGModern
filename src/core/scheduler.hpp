@@ -43,7 +43,7 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
 
   /** 创建不同的线程，执行 worker 的 run 函数 */
   void run_async() {
-    static_assert(m_worker.asynchronized);
+    static_assert(m_worker.is_asynchronized);
 
     m_worker.p_scheduler = this;
     auto stop_token = m_worker.template get<std::stop_token>();
@@ -68,7 +68,7 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
   }
 
   void run_sync_kernel() {
-    static_assert(!m_worker.asynchronized);
+    static_assert(!m_worker.is_asynchronized);
 
     if constexpr (m_worker.is_active) {
       m_worker.kernel_run();
