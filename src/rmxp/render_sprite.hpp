@@ -108,6 +108,8 @@ struct render<sprite> {
     const bool use_color =
         (c.red != 0) | (c.green != 0) | (c.blue != 0) | (c.alpha != 0);
     const bool use_bush = (s->bush_depth > 0);
+    const bool use_tone =
+        (t.red != 0) | (t.green != 0) | (t.blue != 0) | (t.gray != 0);
 
     // 设置图形的缩放和位置
     // viewport ox, oy
@@ -133,7 +135,7 @@ struct render<sprite> {
     // 设置了 color 和 bush_depth 时，需要一个额外的层缓存并修改 bitmap
     // 未设置时，可以将 bitmap 直接绘制
     // shader_tone 有 raii 机制，使得接下来的 render 附带色调改变的效果
-    if (use_color | use_bush) {
+    if (use_color | use_bush | use_tone) {
       stack.push_empty_layer(width, height);
       bitmap.set_blend_mode(cen::blend_mode::none);
 
@@ -154,15 +156,7 @@ struct render<sprite> {
       src_rect.set_position(0, 0);
       stack.merge(process);
     } else {
-      const bool use_tone =
-          (t.red != 0) | (t.green != 0) | (t.blue != 0) | (t.gray != 0);
-
-      if (use_tone) {
-        shader_tone shader(t);
-        stack.merge(process, bitmap);
-      } else {
-        stack.merge(process, bitmap);
-      }
+      stack.merge(process, bitmap);
     }
   }
 };
