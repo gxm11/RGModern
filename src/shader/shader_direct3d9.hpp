@@ -103,12 +103,12 @@ struct shader_hue<direct3d9> : shader_dynamic<direct3d9, shader_hue> {
   explicit shader_hue(int hue) {
     constexpr double pi = 3.141592653589793;
     constexpr double r3 = 1.7320508075688772;
-    double angle = (pi / 180.0) * (hue % 360);
+    double angle = (pi / 180.0f) * hue;
 
     float k[3];
-    k[1] = (1 - cos(angle) + r3 * sin(angle)) / 3.0;
-    k[2] = (1 - cos(angle) - r3 * sin(angle)) / 3.0;
-    k[0] = 1 - k[1] - k[2];
+    k[1] = (1.0 - cos(angle) - r3 * sin(angle)) / 3.0;
+    k[2] = (1.0 - cos(angle) + r3 * sin(angle)) / 3.0;
+    k[0] = 1.0 - k[1] - k[2];
 
     auto handle = constant_table->GetConstantByName(0, "k");
     constant_table->SetFloatArray(device, handle, k, 3);

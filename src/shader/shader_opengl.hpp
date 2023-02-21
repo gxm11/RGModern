@@ -151,8 +151,6 @@ GLint shader_dynamic<opengl, T_shader>::program_id = 0;
 template <>
 struct shader_gray<opengl> : shader_dynamic<opengl, shader_gray> {
   static constexpr const char* fragment = rgm_shader_gray_fs_data;
-
-  explicit shader_gray() {}
 };
 
 template <>
@@ -160,7 +158,6 @@ struct shader_hue<opengl> : shader_dynamic<opengl, shader_hue> {
   static constexpr const char* fragment = rgm_shader_hue_fs_data;
 
   explicit shader_hue(int hue) {
-    printf("hue = %d\n", hue);
     constexpr double pi = 3.141592653589793;
     constexpr double r3 = 1.7320508075688772;
     double angle = (pi / 180.0f) * hue;
