@@ -52,7 +52,7 @@ endif
 
 cflags += -DRGM_FULLVERSION="\"$(RGM_FULLVERSION)\""
 cflags += -DCC_VERSION="\"$(shell $(cc) --version | head -n1)\""
-cflags += -DRGM_USE_D3D11
+# cflags += -DRGM_USE_D3D11
 cflags += -DRUBY_EXPORT -DZIP_STATIC
 
 # build mode
@@ -98,7 +98,7 @@ libs += SDL2_mixer flac mpg123 vorbisfile opusfile winmm ogg vorbis opus opusfil
 # opengl
 # -----------------------------------------------
 # cflags += -URGM_USE_D3D11 -DRGM_USE_OPENGL
-# libs += opengl32
+libs += opengl32
 
 # -----------------------------------------------
 # ruby ext

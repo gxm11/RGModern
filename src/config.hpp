@@ -13,6 +13,8 @@
 #include <filesystem>
 #include <fstream>
 
+#include "shader/driver.hpp"
+
 namespace rgm::config {
 // const and constexprs
 const char* config_path = "./config.ini";
@@ -37,32 +39,32 @@ bool debug = false;
 
 std::string game_title = "RGModern";
 
-enum class drivers {
-  software,
-  opengl,
-  direct3d9,
-  direct3d11,
-};
+// enum class drivers {
+//   software,
+//   opengl,
+//   direct3d9,
+//   direct3d11,
+// };
 
-drivers driver_type = drivers::direct3d11;
+// drivers driver_type = drivers::direct3d11;
 bool asynchronized = false;
 std::string resource_prefix = "resource://";
 int window_width = 640;
 int window_height = 480;
 
-const char* to_string(drivers d) {
-  switch (d) {
-    default:
-    case drivers::software:
-      return "software";
-    case drivers::opengl:
-      return "opengl";
-    case drivers::direct3d9:
-      return "direct3d9";
-    case drivers::direct3d11:
-      return "direct3d11";
-  }
-}
+// const char* to_string(drivers d) {
+//   switch (d) {
+//     default:
+//     case drivers::software:
+//       return "software";
+//     case drivers::opengl:
+//       return "opengl";
+//     case drivers::direct3d9:
+//       return "direct3d9";
+//     case drivers::direct3d11:
+//       return "direct3d11";
+//   }
+// }
 
 void load(int argc, char* argv[]) {
   // load configs from argv
@@ -116,16 +118,16 @@ void load(int argc, char* argv[]) {
       // render driver
       if (p_value = GET_ITEM(RenderDriver), p_value) {
         if (CHECK_ITEM(p_value, "software")) {
-          driver_type = drivers::software;
+          shader::driver = shader::software;
         }
         if (CHECK_ITEM(p_value, "opengl")) {
-          driver_type = drivers::opengl;
+          shader::driver = shader::opengl;
         }
         if (CHECK_ITEM(p_value, "direct3d9")) {
-          driver_type = drivers::direct3d9;
+          shader::driver = shader::direct3d9;
         }
         if (CHECK_ITEM(p_value, "direct3d11")) {
-          driver_type = drivers::direct3d11;
+          shader::driver = shader::direct3d11;
         }
       }
       // resource prefix

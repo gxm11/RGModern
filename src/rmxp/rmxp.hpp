@@ -34,7 +34,7 @@
 #include "render_transition.hpp"
 #include "render_viewport.hpp"
 #include "render_window.hpp"
-#include "shader.hpp"
+#include "shader/shader.hpp"
 #include "table.hpp"
 #include "textinput.hpp"
 #include "tilemap_manager.hpp"
@@ -55,16 +55,14 @@ using tasks_main = core::tasklist<
 
 /** @brief 渲染流程的 worker 的可执行任务列表 */
 using tasks_render = core::tasklist<
-    init_event, init_blend_type, init_shader<shader_tone>,
-    init_shader<shader_hue>, init_shader<shader_gray>,
-    init_shader<shader_transition>, init_font<false>, bitmap_create<1>,
-    bitmap_create<2>, bitmap_create<3>, bitmap_create<4>, bitmap_dispose,
-    bitmap_save_png, bitmap_capture_screen, bitmap_blt, bitmap_stretch_blt,
-    bitmap_fill_rect, bitmap_hue_change, bitmap_draw_text, bitmap_get_pixel,
-    bitmap_capture_palette, before_render_viewport, after_render_viewport,
-    render<sprite>, render<plane>, render<window>, render<overlayer<window>>,
-    render<tilemap>, render<overlayer<tilemap>>, render_transition<1>,
-    render_transition<2>, textinput_start, textinput_stop,
+    shader::init_shader, init_event, init_blend_type, init_font<false>,
+    bitmap_create<1>, bitmap_create<2>, bitmap_create<3>, bitmap_create<4>,
+    bitmap_dispose, bitmap_save_png, bitmap_capture_screen, bitmap_blt,
+    bitmap_stretch_blt, bitmap_fill_rect, bitmap_hue_change, bitmap_draw_text,
+    bitmap_get_pixel, bitmap_capture_palette, before_render_viewport,
+    after_render_viewport, render<sprite>, render<plane>, render<window>,
+    render<overlayer<window>>, render<tilemap>, render<overlayer<tilemap>>,
+    render_transition<1>, render_transition<2>, textinput_start, textinput_stop,
     regist_external_data<1>, message_show>;
 
 using tasks_audio = core::tasklist<>;

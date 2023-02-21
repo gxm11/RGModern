@@ -18,12 +18,26 @@
 namespace rgm::base {
 struct sdl_hint {
   sdl_hint() {
-#ifdef RGM_USE_OPENGL
-    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
-#endif
-#ifdef RGM_USE_D3D11
-    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d11");
-#endif
+    // #ifdef RGM_USE_OPENGL
+    //     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+    // #endif
+    // #ifdef RGM_USE_D3D11
+    //     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d11");
+    // #endif
+    switch (shader::driver) {
+      default:
+        break;
+      case shader::opengl:
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+        break;
+      case shader::direct3d9:
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d9");
+        break;
+      case shader::direct3d11:
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d11");
+        break;
+    }
+
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
   }
 };
@@ -56,14 +70,17 @@ struct cen_library {
         img(),
         ttf(),
         mix(),
-#ifdef RGM_USE_OPENGL
+        // #ifdef RGM_USE_OPENGL
+        // window(config::game_title,
+        //        cen::iarea(config::window_width, config::window_height),
+        //        cen::window::window_flags::opengl),
+        // #else
         window(config::game_title,
-               cen::iarea(config::window_width, config::window_height),
-               cen::window::window_flags::opengl),
-#else
-        window(config::game_title,
-               cen::iarea{ config::window_width, config::window_height }),
-#endif
+               cen::iarea{config::window_width, config::window_height},
+               shader::driver == shader::opengl
+                   ? cen::window::window_flags::opengl
+                   : 0),
+        // #endif
         renderer(window.make_renderer()),
         event_dispatcher() {
 #if RGM_BUILDMODE <= 0

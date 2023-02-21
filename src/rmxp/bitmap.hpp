@@ -13,7 +13,8 @@
 #include "blend_type.hpp"
 #include "builtin.hpp"
 #include "font.hpp"
-#include "shader.hpp"
+// #include "shader.hpp"
+#include "shader/shader.hpp"
 #include "zip.hpp"
 
 namespace rgm::rmxp {
@@ -310,15 +311,19 @@ struct bitmap_hue_change {
     renderer.set_target(bitmap);
 
     shader_hue shader(hue);
-#ifdef RGM_USE_OPENGL
+    // #ifdef RGM_USE_OPENGL
     // 如果不添加 GL_bind 和 unbind，对画面绘制没有影响，
     // 但在 hue_change 后立刻 save_png 会出现问题。
-    SDL_GL_BindTexture(empty.get(), nullptr, nullptr);
-#endif
+    if (shader::driver == shader::opengl) {
+      SDL_GL_BindTexture(empty.get(), nullptr, nullptr);
+    }
+    // #endif
     renderer.render(empty, cen::ipoint(0, 0));
-#ifdef RGM_USE_OPENGL
-    SDL_GL_UnbindTexture(empty.get());
-#endif
+    // #ifdef RGM_USE_OPENGL
+    if (shader::driver == shader::opengl) {
+      SDL_GL_UnbindTexture(empty.get());
+    }
+    // #endif
     renderer.set_target(stack.current());
   }
 };
@@ -633,13 +638,13 @@ struct init_bitmap {
         return Qnil;
       }
 
-#ifdef RGM_USE_D3D11
-      static VALUE get_pixel(VALUE, VALUE, VALUE, VALUE) {
-        // 参见：https://github.com/libsdl-org/SDL/issues/4782
-        // 实际测试 d3d11 问题仍然存在，好在 opengl 测试通过。
-        return UINT2NUM(0);
-      }
-#else
+      // #ifdef RGM_USE_D3D11
+      //       static VALUE get_pixel(VALUE, VALUE, VALUE, VALUE) {
+      //         // 参见：https://github.com/libsdl-org/SDL/issues/4782
+      //         // 实际测试 d3d11 问题仍然存在，好在 opengl 测试通过。
+      //         return UINT2NUM(0);
+      //       }
+      // #else
       static VALUE get_pixel(VALUE, VALUE id_, VALUE x_, VALUE y_) {
         RGMLOAD(id, const uint64_t);
         RGMLOAD(x, int);
@@ -654,7 +659,7 @@ struct init_bitmap {
                          (pixels[0] << 16);
         return UINT2NUM(color);
       }
-#endif
+      // #endif
 
       static VALUE save_png(VALUE, VALUE id_, VALUE path_) {
         RGMLOAD(id, const uint64_t);
