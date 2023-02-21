@@ -52,4 +52,9 @@ RGModern 是极具现代化特色的 RMXP 新 runtime，主要使用 C++20 和 R
 8. [The Definitive Guide to Ruby's C API](https://silverhammermba.github.io/emberb/)
 
 ## 小提示
-创建Shader：`fxc /O3 /T ps_5_0 src\shader\<script>.hlsl /Fh <script>.h /Vn RGModern_shader_<script>_data`，然后将 BYTE 改成 unsigned char
+创建d3d11 Shader：`fxc /O3 /T ps_5_0 src\shader\direct3d11\gray.hlsl /Fh src\shader\direct3d11\gray.h /Vn rgm_shader_gray_data`，然后将 `const BYTE` 改成 `extern constexpr unsigned char`。
+
+对于d3d9，使用ps_2_a：
+```bash
+fxc /O3 /T ps_2_a src\shader\direct3d11\gray.hlsl /Fh src\shader\direct3d9\gray.h /Vn rgm_shader_gray_dx9_data
+```
