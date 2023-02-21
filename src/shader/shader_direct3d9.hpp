@@ -14,6 +14,7 @@
 #include "direct3d9/hue.h"
 #include "direct3d9/tone.h"
 #include "direct3d9/transition.h"
+#include "shader_base.hpp"
 
 namespace rgm::shader {
 template <>
@@ -53,7 +54,7 @@ struct shader_static<direct3d9, T_shader> : shader_base<direct3d9> {
                                        &current_shader);
   }
 
-  //   static void clear() { IDirect3DPixelShader9_Release(current_shader); }
+  static void clear() { IDirect3DPixelShader9_Release(current_shader); }
 };
 template <template <size_t> class T_shader>
 IDirect3DPixelShader9* shader_static<direct3d9, T_shader>::current_shader =
@@ -84,7 +85,7 @@ struct shader_dynamic<direct3d9, T_shader> : shader_base<direct3d9> {
                                &constant_table);
   }
 
-  //   static void clear() { IDirect3DPixelShader9_Release(current_shader); }
+  static void clear() { IDirect3DPixelShader9_Release(current_shader); }
 };
 template <template <size_t> class T_shader>
 IDirect3DPixelShader9* shader_dynamic<direct3d9, T_shader>::current_shader;
