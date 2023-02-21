@@ -14,7 +14,6 @@
 #include "direct3d11/hue.h"
 #include "direct3d11/tone.h"
 #include "direct3d11/transition.h"
-#include "rmxp/builtin.hpp"
 #include "shader_base.hpp"
 
 namespace rgm::shader {
