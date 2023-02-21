@@ -39,32 +39,10 @@ bool debug = false;
 
 std::string game_title = "RGModern";
 
-// enum class drivers {
-//   software,
-//   opengl,
-//   direct3d9,
-//   direct3d11,
-// };
-
-// drivers driver_type = drivers::direct3d11;
 bool asynchronized = false;
 std::string resource_prefix = "resource://";
 int window_width = 640;
 int window_height = 480;
-
-// const char* to_string(drivers d) {
-//   switch (d) {
-//     default:
-//     case drivers::software:
-//       return "software";
-//     case drivers::opengl:
-//       return "opengl";
-//     case drivers::direct3d9:
-//       return "direct3d9";
-//     case drivers::direct3d11:
-//       return "direct3d11";
-//   }
-// }
 
 void load(int argc, char* argv[]) {
   // load configs from argv

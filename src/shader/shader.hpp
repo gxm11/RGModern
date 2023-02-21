@@ -16,34 +16,37 @@
 #endif
 #include "shader_opengl.hpp"
 
-// TODO(guoxiaomi): shader应该有独立的namespace rgm::shader
-// driver_types作为普通枚举类型，进入 namespace rgm::shader 里
 namespace rgm::shader {
-template <template <driver_types> class T>
+template <template <size_t> class T_shader>
 struct shader_instance {
-  using shader_t =
-      std::variant<std::monostate, T<opengl>, T<direct3d9>, T<direct3d11>>;
+  using T_variant = std::variant<std::monostate, T_shader<opengl>,
+                                 T_shader<direct3d9>, T_shader<direct3d11>>;
 
-  shader_t t;
+  T_variant var;
 
   template <typename... Args>
-  shader_instance(Args... args) {
+  shader_instance(Args... args) : var{} {
     switch (driver) {
       default:
         break;
       case opengl:
-        t.template emplace<T<opengl>>(args...);
+        var.template emplace<T_shader<opengl>>(args...);
         break;
 
       case direct3d9:
-        t.template emplace<T<direct3d9>>(args...);
+        var.template emplace<T_shader<direct3d9>>(args...);
         break;
 
       case direct3d11:
-        t.template emplace<T<direct3d11>>(args...);
+        var.template emplace<T_shader<direct3d11>>(args...);
         break;
     }
   }
+
+  shader_instance(const shader_instance&) = delete;
+  shader_instance(shader_instance&&) = delete;
+  shader_instance& operator=(const shader_instance&) = delete;
+  shader_instance& operator=(shader_instance&&) = delete;
 };
 
 struct init_shader {
@@ -84,4 +87,4 @@ using shader_gray = shader::shader_instance<shader::shader_gray>;
 using shader_hue = shader::shader_instance<shader::shader_hue>;
 using shader_tone = shader::shader_instance<shader::shader_tone>;
 using shader_transition = shader::shader_instance<shader::shader_transition>;
-}
+}  // namespace rgm

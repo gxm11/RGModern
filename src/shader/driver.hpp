@@ -11,7 +11,7 @@
 #pragma once
 
 namespace rgm::shader {
-enum driver_types { software, opengl, direct3d9, direct3d11 };
+enum driver_type { software, opengl, direct3d9, direct3d11 };
 
-driver_types driver;
+driver_type driver;
 }  // namespace rgm::shader

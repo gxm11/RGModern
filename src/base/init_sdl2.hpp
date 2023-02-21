@@ -17,18 +17,18 @@
 
 namespace rgm::base {
 struct sdl_hint {
-  sdl_hint() {
-    // #ifdef RGM_USE_OPENGL
-    //     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
-    // #endif
-    // #ifdef RGM_USE_D3D11
-    //     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d11");
-    // #endif
+  cen::window::window_flags window_flag;
+
+  sdl_hint() : window_flag{cen::window::window_flags::hidden} {
     switch (shader::driver) {
       default:
         break;
       case shader::opengl:
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+
+        window_flag = static_cast<cen::window::window_flags>(
+            static_cast<size_t>(window_flag) |
+            static_cast<size_t>(cen::window::window_flags::opengl));
         break;
       case shader::direct3d9:
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d9");
@@ -70,17 +70,9 @@ struct cen_library {
         img(),
         ttf(),
         mix(),
-        // #ifdef RGM_USE_OPENGL
-        // window(config::game_title,
-        //        cen::iarea(config::window_width, config::window_height),
-        //        cen::window::window_flags::opengl),
-        // #else
         window(config::game_title,
                cen::iarea{config::window_width, config::window_height},
-               shader::driver == shader::opengl
-                   ? cen::window::window_flags::opengl
-                   : 0),
-        // #endif
+               hint.window_flag),
         renderer(window.make_renderer()),
         event_dispatcher() {
 #if RGM_BUILDMODE <= 0

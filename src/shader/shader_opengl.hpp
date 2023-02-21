@@ -119,7 +119,7 @@ struct shader_base<opengl> {
 };
 
 // opengl 的 static 和 dynamic 一样，不需要特化，也不会用上。
-template <template <driver_types> class T_shader>
+template <template <size_t> class T_shader>
 struct shader_dynamic<opengl, T_shader> : shader_base<opengl> {
   using T = T_shader<opengl>;
 
@@ -145,7 +145,7 @@ struct shader_dynamic<opengl, T_shader> : shader_base<opengl> {
 
   ~shader_dynamic() { glUseProgram(last_program_id); }
 };
-template <template <driver_types> class T_shader>
+template <template <size_t> class T_shader>
 GLint shader_dynamic<opengl, T_shader>::program_id = 0;
 
 template <>
