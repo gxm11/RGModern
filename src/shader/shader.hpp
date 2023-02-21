@@ -57,7 +57,6 @@ struct init_shader {
         return;
       case opengl:
         shader_base<opengl>::setup(renderer);
-        // shader_static<opengl, shader_gray>::setup(renderer);
         shader_dynamic<opengl, shader_gray>::setup(renderer);
         shader_dynamic<opengl, shader_hue>::setup(renderer);
         shader_dynamic<opengl, shader_tone>::setup(renderer);
@@ -87,4 +86,5 @@ using shader_gray = shader::shader_instance<shader::shader_gray>;
 using shader_hue = shader::shader_instance<shader::shader_hue>;
 using shader_tone = shader::shader_instance<shader::shader_tone>;
 using shader_transition = shader::shader_instance<shader::shader_transition>;
+using init_shader = shader::init_shader;
 }  // namespace rgm

@@ -55,7 +55,7 @@ using tasks_main = core::tasklist<
 
 /** @brief 渲染流程的 worker 的可执行任务列表 */
 using tasks_render = core::tasklist<
-    shader::init_shader, init_event, init_blend_type, init_font<false>,
+    init_shader, init_event, init_blend_type, init_font<false>,
     bitmap_create<1>, bitmap_create<2>, bitmap_create<3>, bitmap_create<4>,
     bitmap_dispose, bitmap_save_png, bitmap_capture_screen, bitmap_blt,
     bitmap_stretch_blt, bitmap_fill_rect, bitmap_hue_change, bitmap_draw_text,

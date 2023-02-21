@@ -13,7 +13,6 @@
 #include "blend_type.hpp"
 #include "builtin.hpp"
 #include "font.hpp"
-// #include "shader.hpp"
 #include "shader/shader.hpp"
 #include "zip.hpp"
 

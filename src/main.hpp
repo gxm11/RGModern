@@ -21,8 +21,8 @@ using worker_render_sync =
 using worker_audio_sync =
     core::worker<core::kernel_passive, base::tasks_audio, rmxp::tasks_audio>;
 /** @brief 最终引擎由多个 worker 组合而来 */
-using engine_sync_t = core::scheduler<std::false_type, worker_main_sync,
-                                      worker_render_sync, worker_audio_sync>;
+using engine_sync_t = core::scheduler<std::false_type, worker_render_sync,
+                                      worker_audio_sync, worker_main_sync>;
 // magic_cast 的特化处理
 RGMENGINE(engine_sync_t, false);
 
@@ -37,8 +37,8 @@ using worker_audio_async =
     core::worker<core::kernel_passive, core::synchronize_signal<2>,
                  base::tasks_audio, rmxp::tasks_audio>;
 
-using engine_async_t = core::scheduler<std::true_type, worker_main_async,
-                                       worker_render_async, worker_audio_async>;
+using engine_async_t = core::scheduler<std::true_type, worker_render_async,
+                                       worker_audio_async, worker_main_async>;
 
 RGMENGINE(engine_async_t, true);
 }  // namespace rgm
