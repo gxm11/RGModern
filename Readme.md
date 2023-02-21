@@ -56,5 +56,5 @@ RGModern 是极具现代化特色的 RMXP 新 runtime，主要使用 C++20 和 R
 
 对于d3d9，使用ps_2_a：
 ```bash
-fxc /O3 /T ps_2_a src\shader\direct3d11\gray.hlsl /Fh src\shader\direct3d9\gray.h /Vn rgm_shader_gray_dx9_data
+fxc /O3 /T ps_2_a src\shader\direct3d9\gray.hlsl /Fh src\shader\direct3d9\gray.h /Vn rgm_shader_gray_dx9_data
 ```
