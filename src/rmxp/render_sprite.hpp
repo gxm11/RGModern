@@ -135,7 +135,7 @@ struct render<sprite> {
     // 设置了 color 和 bush_depth 时，需要一个额外的层缓存并修改 bitmap
     // 未设置时，可以将 bitmap 直接绘制
     // shader_tone 有 raii 机制，使得接下来的 render 附带色调改变的效果
-    if (use_color | use_bush | use_tone) {
+    if (use_color | use_bush) {
       stack.push_empty_layer(width, height);
       bitmap.set_blend_mode(cen::blend_mode::none);
 
@@ -156,7 +156,12 @@ struct render<sprite> {
       src_rect.set_position(0, 0);
       stack.merge(process);
     } else {
-      stack.merge(process, bitmap);
+      if (use_tone) {
+        shader_tone shader(t);
+        stack.merge(process, bitmap);
+      } else {
+        stack.merge(process, bitmap);
+      }
     }
   }
 };
