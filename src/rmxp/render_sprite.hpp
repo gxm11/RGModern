@@ -57,8 +57,18 @@ struct render<sprite> {
         up.set_blend_mode(blend_type::add);
         break;
       case 2:
+        // opengl的情况下，使用reverse代替sub（第1步）
+
         up.set_blend_mode(blend_type::sub);
+
         break;
+    }
+    // opengl的情况下，使用reverse代替sub（第1步）
+    const bool opengl_sub =
+        (s->blend_type == 2) && (shader::driver == shader::opengl);
+    if (opengl_sub) {
+      up.set_blend_mode(blend_type::add);
+      renderer.set_blend_mode(blend_type::reverse);
     }
     // 设置缩放模式
     switch (s->scale_mode) {
@@ -82,10 +92,18 @@ struct render<sprite> {
     } else {
       renderer.reset_clip();
     }
+    // opengl的情况下，使用reverse代替sub（第2步）
+    if (opengl_sub) {
+      renderer.fill_with(cen::colors::white);
+    }
     // 绘制画面
     renderer.render(
         up, src_rect, dst_rect, -s->angle, cen::fpoint(s->ox, s->oy),
         s->mirror ? cen::renderer_flip::horizontal : cen::renderer_flip::none);
+    // opengl的情况下，使用reverse代替sub（第3步）
+    if (opengl_sub) {
+      renderer.fill_with(cen::colors::white);
+    }
     // reset renderer and source bitmap (up)
     up.set_alpha_mod(255);
   }

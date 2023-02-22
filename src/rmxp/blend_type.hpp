@@ -28,6 +28,7 @@ namespace rgm::rmxp {
 struct blend_type {
   static cen::blend_mode add;
   static cen::blend_mode sub;
+  static cen::blend_mode reverse;
   static cen::blend_mode alpha;
   static cen::blend_mode color;
   static cen::blend_mode blend2;
@@ -46,6 +47,18 @@ struct blend_type {
     sub = cen::compose_blend_mode(
         cen::blend_task{cen::blend_factor::src_alpha, cen::blend_factor::one,
                         cen::blend_op::reverse_sub},
+        cen::blend_task{cen::blend_factor::zero, cen::blend_factor::one,
+                        cen::blend_op::add});
+
+    // 反色：(1 - d.rgb) * s.rgb = [1 - d, +, 0] [0, +, 1]
+    // 这里用来实现减法，取 s.rgb 恒为 1，从而操作一次后会变成 1 - d，透明度 d.a
+    // 比如已知 u, v，要获得 u - v
+    // 首先获得 1 - u                     | 透明度 u.a
+    // 然后获得 v + (1 - u)               | 透明度 u.a
+    // 最后获得 1 - (v + (1 - u)) = u - v | 透明度 u.a
+    reverse = cen::compose_blend_mode(
+        cen::blend_task{cen::blend_factor::one_minus_dst_color,
+                        cen::blend_factor::zero, cen::blend_op::add},
         cen::blend_task{cen::blend_factor::zero, cen::blend_factor::one,
                         cen::blend_op::add});
 
@@ -78,6 +91,7 @@ struct blend_type {
 };
 cen::blend_mode blend_type::add;
 cen::blend_mode blend_type::sub;
+cen::blend_mode blend_type::reverse;
 cen::blend_mode blend_type::color;
 cen::blend_mode blend_type::alpha;
 cen::blend_mode blend_type::blend2;

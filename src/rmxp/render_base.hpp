@@ -35,7 +35,7 @@ struct render_tone_helper {
       : t(t), r(r) {}
 
   void process(cen::renderer& renderer, std::function<void()> proc) {
-    if (t.gray) {
+    if (t.gray || (shader::driver == shader::opengl)) {
       shader_tone shader(t);
       proc();
     } else if ((t.red != 0) | (t.green != 0) | (t.blue != 0)) {

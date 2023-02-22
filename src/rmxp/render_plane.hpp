@@ -61,7 +61,17 @@ struct render<plane> {
         up.set_blend_mode(blend_type::sub);
         break;
     }
-
+    // opengl的情况下，使用reverse代替sub（第1步）
+    const bool opengl_sub =
+        (p->blend_type == 2) && (shader::driver == shader::opengl);
+    if (opengl_sub) {
+      up.set_blend_mode(blend_type::add);
+      renderer.set_blend_mode(blend_type::reverse);
+    }
+    // opengl的情况下，使用reverse代替sub（第2步）
+    if (opengl_sub) {
+      renderer.fill_with(cen::colors::white);
+    }
     cen::irect dst_rect(0, 0, step_x, step_y);
     for (int i = start_x; i < total_x; i += step_x) {
       for (int j = start_y; j < total_y; j += step_y) {
@@ -69,7 +79,10 @@ struct render<plane> {
         renderer.render(up, src_rect, dst_rect);
       }
     }
-
+    // opengl的情况下，使用reverse代替sub（第3步）
+    if (opengl_sub) {
+      renderer.fill_with(cen::colors::white);
+    }
     up.set_alpha_mod(255);
   }
 
