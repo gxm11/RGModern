@@ -146,7 +146,7 @@ struct shader_dynamic<opengl, T_shader> : shader_base<opengl> {
   ~shader_dynamic() { glUseProgram(last_program_id); }
 };
 template <template <size_t> class T_shader>
-GLint shader_dynamic<opengl, T_shader>::program_id = 0;
+GLint shader_dynamic<opengl, T_shader>::program_id;
 
 template <>
 struct shader_gray<opengl> : shader_dynamic<opengl, shader_gray> {
@@ -167,7 +167,7 @@ struct shader_hue<opengl> : shader_dynamic<opengl, shader_hue> {
     float k0 = 1.0 - k1 - k2;
 
     static const auto location = glGetUniformLocation(program_id, "k");
-    if (location > 0) {
+    if (location >= 0) {
       glUniform4f(location, k0, k1, k2, 0);
     }
   }
@@ -184,7 +184,7 @@ struct shader_tone<opengl> : shader_dynamic<opengl, shader_tone> {
     float gray = t.gray / 255.0f;
 
     static const auto location = glGetUniformLocation(program_id, "tone");
-    if (location > 0) {
+    if (location >= 0) {
       glUniform4f(location, red, green, blue, gray);
     }
   }
@@ -210,7 +210,7 @@ struct shader_transition<opengl> : shader_dynamic<opengl, shader_transition> {
     }
 
     static const auto location = glGetUniformLocation(program_id, "k");
-    if (location > 0) {
+    if (location >= 0) {
       glUniform4f(location, k0, k1, k2, k3);
     }
   }
