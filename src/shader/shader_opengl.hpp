@@ -14,11 +14,11 @@
 
 #include "shader_base.hpp"
 
-INCTXT(shader_default_vs, "./src/shader/opengl/default.vs");
-INCTXT(shader_gray_fs, "./src/shader/opengl/gray.fs");
-INCTXT(shader_hue_fs, "./src/shader/opengl/hue.fs");
-INCTXT(shader_tone_fs, "./src/shader/opengl/tone.fs");
-INCTXT(shader_transition_fs, "./src/shader/opengl/transition.fs");
+INCBIN(shader_default_vs, "./src/shader/opengl/default.vs");
+INCBIN(shader_gray_fs, "./src/shader/opengl/gray.fs");
+INCBIN(shader_hue_fs, "./src/shader/opengl/hue.fs");
+INCBIN(shader_tone_fs, "./src/shader/opengl/tone.fs");
+INCBIN(shader_transition_fs, "./src/shader/opengl/transition.fs");
 
 PFNGLCREATESHADERPROC glCreateShader;
 PFNGLSHADERSOURCEPROC glShaderSource;
@@ -39,10 +39,7 @@ PFNGLUNIFORM4FPROC glUniform4f;
 namespace rgm::shader {
 template <>
 struct shader_base<opengl> {
-  static void setup(cen::renderer&) {
-    bool ret = initGLExtensions();
-    printf("gl init: %d\n", ret);
-  }
+  static void setup(cen::renderer&) { initGLExtensions(); }
 
   static bool initGLExtensions() {
     glCreateShader =
@@ -82,9 +79,10 @@ struct shader_base<opengl> {
            glUseProgram && glGetUniformLocation && glUniform4f;
   }
 
-  static GLuint load_shader(GLenum shaderType, const GLchar* source) {
+  static GLuint load_shader(GLenum shaderType, const GLchar* source,
+                            const GLint source_size) {
     GLuint shaderID = glCreateShader(shaderType);
-    glShaderSource(shaderID, 1, &source, NULL);
+    glShaderSource(shaderID, 1, &source, &source_size);
     glCompileShader(shaderID);
     GLint result = GL_FALSE;
     glGetShaderiv(shaderID, GL_COMPILE_STATUS, &result);
@@ -129,11 +127,18 @@ struct shader_dynamic<opengl, T_shader> : shader_base<opengl> {
   static void setup(cen::renderer&) {
     GLint vertex_shader;
     if constexpr (requires { T::vertex; }) {
-      vertex_shader = load_shader(GL_VERTEX_SHADER, T::vertex);
+      vertex_shader =
+          load_shader(GL_VERTEX_SHADER,
+                      reinterpret_cast<const char*>(T::vertex), T::vertex_size);
     } else {
-      vertex_shader = load_shader(GL_VERTEX_SHADER, rgm_shader_default_vs_data);
+      vertex_shader =
+          load_shader(GL_VERTEX_SHADER,
+                      reinterpret_cast<const char*>(rgm_shader_default_vs_data),
+                      rgm_shader_default_vs_size);
     }
-    GLint fragment_shader = load_shader(GL_FRAGMENT_SHADER, T::fragment);
+    GLint fragment_shader = load_shader(
+        GL_FRAGMENT_SHADER, reinterpret_cast<const char*>(T::fragment),
+        T::fragment_size);
     program_id = compile_program(vertex_shader, fragment_shader);
     printf("program id = %d\n", program_id);
   }
@@ -150,12 +155,15 @@ GLint shader_dynamic<opengl, T_shader>::program_id;
 
 template <>
 struct shader_gray<opengl> : shader_dynamic<opengl, shader_gray> {
-  static constexpr const char* fragment = rgm_shader_gray_fs_data;
+  static constexpr const unsigned char* fragment = rgm_shader_gray_fs_data;
+  static const int fragment_size;
 };
+const int shader_gray<opengl>::fragment_size = rgm_shader_gray_fs_size;
 
 template <>
 struct shader_hue<opengl> : shader_dynamic<opengl, shader_hue> {
-  static constexpr const char* fragment = rgm_shader_hue_fs_data;
+  static constexpr const unsigned char* fragment = rgm_shader_hue_fs_data;
+  static const int fragment_size;
 
   explicit shader_hue(int hue) {
     constexpr double pi = 3.141592653589793;
@@ -170,10 +178,12 @@ struct shader_hue<opengl> : shader_dynamic<opengl, shader_hue> {
     glUniform4f(location, k0, k1, k2, 0);
   }
 };
+const int shader_hue<opengl>::fragment_size = rgm_shader_hue_fs_size;
 
 template <>
 struct shader_tone<opengl> : shader_dynamic<opengl, shader_tone> {
-  static constexpr const char* fragment = rgm_shader_tone_fs_data;
+  static constexpr const unsigned char* fragment = rgm_shader_tone_fs_data;
+  static const int fragment_size;
 
   explicit shader_tone(rmxp::tone t) {
     float red = t.red / 255.0f;
@@ -185,10 +195,13 @@ struct shader_tone<opengl> : shader_dynamic<opengl, shader_tone> {
     glUniform4f(location, red, green, blue, gray);
   }
 };
+const int shader_tone<opengl>::fragment_size = rgm_shader_tone_fs_size;
 
 template <>
 struct shader_transition<opengl> : shader_dynamic<opengl, shader_transition> {
-  static constexpr const char* fragment = rgm_shader_transition_fs_data;
+  static constexpr const unsigned char* fragment =
+      rgm_shader_transition_fs_data;
+  static const int fragment_size;
 
   explicit shader_transition(double rate, int vague) {
     float k0, k1, k2, k3;
@@ -209,4 +222,7 @@ struct shader_transition<opengl> : shader_dynamic<opengl, shader_transition> {
     glUniform4f(location, k0, k1, k2, k3);
   }
 };
+const int shader_transition<opengl>::fragment_size =
+    rgm_shader_transition_fs_size;
+
 }  // namespace rgm::shader
