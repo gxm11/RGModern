@@ -68,3 +68,8 @@ opengl可以不链接到glew，见 https://github.com/AugustoRuiz/sdl2glsl/blob/
 6. 外部resource读取
 7. snap_to_bitmap，save_png
 8. Palette测试
+
+## 核心内容修改
+std::apply和std::tuple 参见：https://godbolt.org/z/8K3WrEzd4
+
+高级参数包编程：https://www.scs.stanford.edu/~dm/blog/param-pack.html#recursing-over-argument-lists

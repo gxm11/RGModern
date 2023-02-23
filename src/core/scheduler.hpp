@@ -79,10 +79,10 @@ struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
   }
 
   void run_sync_after() {
+    m_worker.after();
     if constexpr (sizeof...(Rest) > 0) {
       scheduler<Rest...>::run_sync_after();
     }
-    m_worker.after();
   }
 
   /** 广播一个任务，如果该任务在某个 worker
