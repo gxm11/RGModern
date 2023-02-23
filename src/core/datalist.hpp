@@ -9,6 +9,8 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
+#include <tuple>
+
 #include "type_traits.hpp"
 
 namespace rgm::core {
@@ -21,25 +23,29 @@ namespace rgm::core {
  * 而 datalist 是通过变量的类型来区分，所以 datalist
  * 存储的变量，其类型各不相同。
  */
-template <typename...>
-struct datalist;
 
-template <>
-struct datalist<> {
-  void get();
-};
+template <typename... Ts>
+struct datalist {
+  std::tuple<Ts...> data;
 
-template <typename Head, typename... Rest>
-struct datalist<Head, Rest...> : datalist<Rest...> {
-  Head data;
+  template <typename T>
+  T& get() {
+    static_assert((std::same_as<T, Ts> || ... || false));
 
-  template <typename T_container>
-  auto& get() {
-    if constexpr (std::same_as<Head, T_container>) {
-      return data;
-    } else {
-      return datalist<Rest...>::template get<T_container>();
-    }
+    auto get_ptr = [](auto&... args) -> T* {
+      T* ptr = nullptr;
+
+      auto set_ptr = [&ptr]<typename U>(U& u) {
+        if constexpr (std::same_as<std::decay_t<U>, T>) {
+          ptr = &u;
+        }
+      };
+
+      (set_ptr(args), ...);
+      return ptr;
+    };
+
+    return *std::apply(get_ptr, data);
   }
 };
 }  // namespace rgm::core
