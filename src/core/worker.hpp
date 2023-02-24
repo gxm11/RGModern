@@ -46,6 +46,7 @@ struct worker {
                         T_kernel<T_kernel_tasks>>;
   static constexpr bool is_asynchronized =
       traits::is_asynchronized<T_kernel_tasks>::value;
+
   /**
    * @brief 根据不同的变量类型，获取相应的共享变量。
    *
@@ -88,7 +89,11 @@ struct worker {
     traits::for_each<T_tasks>::before(*this);
   }
 
-  void kernel_run() { m_kernel.run(*this); }
+  void kernel_run() {
+    if constexpr (is_active || is_asynchronized) {
+      m_kernel.run(*this);
+    }
+  }
 
   void after() {
     p_scheduler->stop_source.request_stop();
