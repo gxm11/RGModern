@@ -105,37 +105,35 @@ struct merge_data<TypeList<T_task, Rest...>> : merge_data<TypeList<Rest...>> {
   using type = merge_data<TypeList<Rest...>>::type;
 };
 
-template <typename>
+template <typename...>
 struct for_each;
 
-template <>
-struct for_each<TypeList<>> {
-  static void before(auto&) {}
-  static void after(auto&) {}
-};
-
-template <typename Head, typename... Rest>
-struct for_each<TypeList<Head, Rest...>> : for_each<TypeList<Rest...>> {
+template <typename... Args>
+struct for_each<TypeList<Args...>> {
   static void before(auto& worker) {
-    if constexpr (requires { Head::before(worker); }) {
-      Head::before(worker);
-    }
-    static_assert(
-        !(requires { Head::before(); }),
-        "The static function before() without parameters will be ignored. "
-        "Please use `auto&' as the first parameter.");
-    for_each<TypeList<Rest...>>::before(worker);
+    auto proc = [&worker]<typename T>(T*) {
+      if constexpr (requires { T::before(worker); }) {
+        T::before(worker);
+      }
+      static_assert(
+          !(requires { T::before(); }),
+          "The static function before() without parameters will be ignored. "
+          "Please use `auto&' as the first parameter.");
+    };
+    (proc(static_cast<Args*>(nullptr)), ...);
   }
 
   static void after(auto& worker) {
-    for_each<TypeList<Rest...>>::after(worker);
-    if constexpr (requires { Head::after(worker); }) {
-      Head::after(worker);
-    }
-    static_assert(
-        !(requires { Head::after(); }),
-        "The static function after() without parameters will be ignored. "
-        "Please use `auto&' as the first parameter.");
+    auto proc = [&worker]<typename T>(T*) {
+      if constexpr (requires { T::after(worker); }) {
+        T::after(worker);
+      }
+      static_assert(
+          !(requires { T::after(); }),
+          "The static function after() without parameters will be ignored. "
+          "Please use `auto&' as the first parameter.");
+    };
+    (proc(static_cast<Args*>(nullptr)), ...);
   }
 };
 

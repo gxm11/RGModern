@@ -71,7 +71,7 @@ struct scheduler<T_async, T_workers...> : scheduler<> {
         }
       };
 
-      return (get_task(worker, task) || ...);
+      return (get_task(worker, task) || ... || false);
     };
 
     bool ret = std::apply(set_task, workers);
