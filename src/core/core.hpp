@@ -36,8 +36,8 @@ using data = core::traits::TypeList<Args...>;
 
 /** 宏 RGMENGINE 特化 traits::magic_cast，以将基类指针 scheduler<>* 转型成派生类
  * T* */
-#define RGMENGINE(T, U)                                    \
-  template <>                                              \
-  struct core::traits::magic_cast<core::scheduler<>*, U> { \
-    using type = T*;                                       \
+#define RGMENGINE(T, b)                                  \
+  template <>                                            \
+  struct core::traits::magic_cast<core::scheduler<>*, b> { \
+    using type = T*;                                     \
   }

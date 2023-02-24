@@ -22,14 +22,10 @@ struct scheduler<> {
   std::stop_source stop_source;
 };
 
-template <>
-struct scheduler<std::true_type> : scheduler<> {};
-
-template <>
-struct scheduler<std::false_type> : scheduler<> {};
-
 template <typename T_async, typename... T_workers>
-struct scheduler<T_async, T_workers...> : scheduler<T_async> {
+struct scheduler<T_async, T_workers...> : scheduler<> {
+  static constexpr bool is_asynchronized = T_async::value;
+
   std::tuple<T_workers...> workers;
   void run() {
     std::apply([this](auto&... worker) { ((worker.p_scheduler = this), ...); },
@@ -37,10 +33,12 @@ struct scheduler<T_async, T_workers...> : scheduler<T_async> {
 
     if constexpr (T_async::value) {
       static_assert((T_workers::is_asynchronized && ...));
+      static_assert(std::same_as<T_async, std::true_type>);
 
       run_async();
     } else {
       static_assert((!T_workers::is_asynchronized && ...));
+      static_assert(std::same_as<T_async, std::false_type>);
 
       run_sync();
     }
@@ -63,11 +61,10 @@ struct scheduler<T_async, T_workers...> : scheduler<T_async> {
   template <typename T_task>
   bool broadcast(T_task&& task) {
     auto set_task = [&task](auto&... worker) {
-      auto get_task = []<typename T_worker>(T_worker& worker,
-                                            const T_task& task) {
+      auto get_task = []<typename T_worker>(T_worker& worker, T_task& task) {
         if constexpr (traits::is_repeated_v<
                           T_task, typename T_worker::T_kernel_tasks>) {
-          worker << std::move(const_cast<T_task&>(task));
+          worker << std::move(task);
           return true;
         } else {
           return false;
