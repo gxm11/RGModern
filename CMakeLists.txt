@@ -20,11 +20,13 @@ set(RGM_FULLVERSION "${RGM_VERSION_STRING} (${RGM_REVISION_DATE} revision ${RGM_
 
 # 目录连接
 set(SRC_DIR "src")
-file(CREATE_LINK
-    "${CMAKE_CURRENT_SOURCE_DIR}/${SRC_DIR}"
-    "${CMAKE_CURRENT_BINARY_DIR}/${SRC_DIR}"
-    SYMBOLIC
-)
+if(NOT EXISTS ${SRC_DIR})
+    file(CREATE_LINK
+        "${CMAKE_CURRENT_SOURCE_DIR}/${SRC_DIR}"
+        "${CMAKE_CURRENT_BINARY_DIR}/${SRC_DIR}"
+        SYMBOLIC
+    )
+endif()
 # RGM
 add_executable(Game)
 aux_source_directory(${SRC_DIR} SRC_LIST)
