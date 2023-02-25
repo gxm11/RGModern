@@ -14,37 +14,38 @@
 #include "type_traits.hpp"
 
 namespace rgm::core {
-template <typename...>
+enum class cooperation { asynchronous, exclusive, concurrent };
+
+template <cooperation, typename...>
 struct scheduler;
 
-template <>
-struct scheduler<> {
+template <cooperation c>
+struct scheduler<c> {
   std::stop_source stop_source;
 };
 
-template <typename T_async, typename... T_workers>
-struct scheduler<T_async, T_workers...> : scheduler<> {
-  static constexpr bool is_asynchronized = T_async::value;
+template <cooperation c, typename... T_workers>
+  requires(sizeof...(T_workers) > 0)
+struct scheduler<c, T_workers...> : scheduler<c> {
+  static constexpr cooperation co_type = c;
 
   std::tuple<T_workers...> workers;
   void run() {
     std::apply([this](auto&... worker) { ((worker.p_scheduler = this), ...); },
                workers);
 
-    if constexpr (T_async::value) {
+    if constexpr (co_type == cooperation::asynchronous) {
       static_assert((T_workers::is_asynchronized && ...));
-      static_assert(std::same_as<T_async, std::true_type>);
 
-      run_async();
-    } else {
+      run_asynchronous();
+    } else if constexpr (co_type == cooperation::exclusive) {
       static_assert((!T_workers::is_asynchronized && ...));
-      static_assert(std::same_as<T_async, std::false_type>);
 
-      run_sync();
+      run_exclusive();
     }
   }
 
-  void run_async() {
+  void run_asynchronous() {
     auto jthread_tuple = std::apply(
         [](auto&... worker) {
           return std::make_tuple(std::jthread([&worker] { worker.run(); })...);
@@ -52,7 +53,7 @@ struct scheduler<T_async, T_workers...> : scheduler<> {
         workers);
   }
 
-  void run_sync() {
+  void run_exclusive() {
     std::apply([](auto&... worker) { (worker.before(), ...); }, workers);
     std::apply([](auto&... worker) { (worker.kernel_run(), ...); }, workers);
     std::apply([](auto&... worker) { (worker.after(), ...); }, workers);
@@ -83,4 +84,5 @@ struct scheduler<T_async, T_workers...> : scheduler<> {
     return ret;
   }
 };
+
 }  // namespace rgm::core

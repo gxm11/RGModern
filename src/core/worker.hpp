@@ -30,11 +30,6 @@ struct worker {
   using T_kernel_tasks = traits::remove_dummy_t<T_tasks, worker>;
   using T_datalist = typename T_tasklist::data::template to<datalist>;
 
-  /** 保存父类的指针地址用于向下转型为 scheduler<> 的派生类指针 */
-  scheduler<>* p_scheduler;
-  /** datalist 类，存储的变量可供所有的任务读写 */
-  std::unique_ptr<T_datalist> p_datalist;
-
   /**
    * @brief 任务执行的逻辑
    * @tparam T_kernel_tasks 包含了所有可以执行的任务的 TypeList
@@ -46,6 +41,14 @@ struct worker {
                         T_kernel<T_kernel_tasks>>;
   static constexpr bool is_asynchronized =
       traits::is_asynchronized<T_kernel_tasks>::value;
+
+  /** 保存父类的指针地址用于向下转型为 scheduler<> 的派生类指针 */
+  using base_scheduler_t =
+      std::conditional_t<is_asynchronized, scheduler<cooperation::asynchronous>,
+                         scheduler<cooperation::exclusive>>;
+  base_scheduler_t* p_scheduler;
+  /** datalist 类，存储的变量可供所有的任务读写 */
+  std::unique_ptr<T_datalist> p_datalist;
 
   /**
    * @brief 根据不同的变量类型，获取相应的共享变量。
@@ -109,15 +112,15 @@ struct worker {
    * @brief 广播任务，可能会被某个 worker 接受。
    *
    * @tparam T 被广播的任务类型。
-   * @tparam U 辅助 scheduler<>* 向下转型，延迟到 magic_cast 的特化之后。
+   * @tparam U 辅助 base_scheduler_t* 向下转型，延迟到 magic_cast 的特化之后。
    * @param task 被广播的任务，必须是右值，表示该任务已经离开作用域。
    * @return true 某个 worker 接受了该任务。
    * @return false 没有任何 worker 接受了该任务。
    */
-  template <typename T, typename U = scheduler<>*>
+  template <typename T, typename U = base_scheduler_t*>
   bool send(T&& task) {
     using base_t = U;
-    using derived_t = traits::magic_cast<U, is_asynchronized>::type;
+    using derived_t = traits::magic_cast<U>::type;
 
     static_assert(std::is_rvalue_reference_v<T&&>,
                   "Task must be passed as R-value!");

@@ -181,7 +181,7 @@ struct is_asynchronized<TypeList<Head, Args...>>
                                 is_asynchronized<TypeList<Args...>>::value;
 };
 
-template <typename T, bool>
+template <typename T>
 struct magic_cast {
   using type = T;
 };
