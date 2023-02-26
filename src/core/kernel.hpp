@@ -23,10 +23,11 @@ struct kernel {
   /** 用于阻塞或解锁当前线程的信号量 */
   semaphore m_pause;
 
+  // using T_variants =
+  //     typename traits::append_t<std::monostate,
+  //                               T_tasks>::template to<std::variant>;
   using T_variants =
-      typename traits::append_t<std::monostate,
-                                T_tasks>::template to<std::variant>;
-
+      decltype(traits::tuple_to_variant(T_tasks{}));
   /** 存放所有待执行任务的管道，这是一个多读多写的无锁管道 */
   moodycamel::BlockingConcurrentQueue<T_variants> m_queue;
 

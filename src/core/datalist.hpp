@@ -24,8 +24,11 @@ namespace rgm::core {
  * 存储的变量，其类型各不相同。
  */
 
+template <typename T>
+struct datalist;
+
 template <typename... Ts>
-struct datalist {
+struct datalist<std::tuple<Ts...>> {
   std::tuple<Ts...> data;
 
   template <typename T>

@@ -11,8 +11,10 @@
 #pragma once
 #include <atomic>
 #include <condition_variable>
-#include <future>
+// #include <future>
 #include <mutex>
+
+#include "cooperation.hpp"
 
 namespace rgm::core {
 #if 1
@@ -56,7 +58,7 @@ struct semaphore {
 /** @brief 任务：使 ruby 线程恢复运行 */
 template <size_t>
 struct synchronize_signal {
-  static constexpr auto launch_flag = std::launch::async;
+  static constexpr auto cooperation_flag = cooperation::asynchronous;
 
   semaphore* pause;
   void run(auto&) { pause->release(); }

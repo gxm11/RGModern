@@ -25,11 +25,17 @@ namespace rgm::core {
  */
 template <template <typename> class T_kernel, typename... Args>
 struct worker {
-  using T_tasklist = tasklist<Args...>;
-  using T_tasks = typename T_tasklist::tasks;
-  using T_kernel_tasks = traits::remove_dummy_t<T_tasks, worker>;
-  using T_datalist = typename T_tasklist::data::template to<datalist>;
-
+  // using T_tasklist = tasklist<Args...>;
+  // using T_tasks = typename T_tasklist::tasks;
+  // using T_kernel_tasks = traits::remove_dummy_t<T_tasks, worker>;
+  // using T_datalist = typename T_tasklist::data::template to<datalist>;
+  using T_tasks = decltype(traits::unique_tuple<decltype(traits::expand_tuples(
+                               std::declval<Args>()...))>());
+  using T_kernel_tasks =
+      decltype(traits::remove_dummy_tuple((worker*)0, T_tasks{}));
+  using T_data = decltype(traits::unique_tuple<decltype(traits::make_data_tuple(
+                              T_tasks{}))>());
+  using T_datalist = datalist<T_data>;
   /**
    * @brief 任务执行的逻辑
    * @tparam T_kernel_tasks 包含了所有可以执行的任务的 TypeList
@@ -120,7 +126,7 @@ struct worker {
   template <typename T, typename U = base_scheduler_t*>
   bool send(T&& task) {
     using base_t = U;
-    using derived_t = traits::magic_cast<U>::type;
+    using derived_t = scheduler_cast<U>::type;
 
     static_assert(std::is_rvalue_reference_v<T&&>,
                   "Task must be passed as R-value!");
@@ -160,7 +166,7 @@ struct worker {
     static_assert(std::is_rvalue_reference_v<T&&>,
                   "Task must be passed as R-value!");
 
-    static_assert(traits::is_repeated_v<T, T_kernel_tasks>);
+    static_assert(traits::is_in_tuple<T, T_kernel_tasks>());
     if constexpr (is_asynchronized) {
       m_kernel << std::forward<T>(task);
     } else {

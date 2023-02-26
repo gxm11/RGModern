@@ -11,10 +11,15 @@
 #pragma once
 #include <thread>
 
+#include "cooperation.hpp"
 #include "type_traits.hpp"
 
 namespace rgm::core {
-enum class cooperation { asynchronous, exclusive, concurrent };
+
+template <typename T>
+struct scheduler_cast {
+  using type = T;
+};
 
 template <cooperation, typename...>
 struct scheduler;
@@ -63,8 +68,8 @@ struct scheduler<c, T_workers...> : scheduler<c> {
   bool broadcast(T_task&& task) {
     auto set_task = [&task](auto&... worker) {
       auto get_task = []<typename T_worker>(T_worker& worker, T_task& task) {
-        if constexpr (traits::is_repeated_v<
-                          T_task, typename T_worker::T_kernel_tasks>) {
+        if constexpr (traits::is_in_tuple<
+                          T_task, typename T_worker::T_kernel_tasks>()) {
           worker << std::move(task);
           return true;
         } else {

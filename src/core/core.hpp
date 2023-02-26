@@ -25,7 +25,8 @@ namespace rgm {
  * @tparam Args... 可变参数列表，通常是不同的数据类型
  */
 template <typename... Args>
-using data = core::traits::TypeList<Args...>;
+// using data = core::traits::TypeList<Args...>;
+using data = std::tuple<Args...>;
 }  // namespace rgm
 
 /** 宏 RGMDATA 调用 worker 的 get 方法，以取出特定类型的数据 */
@@ -36,8 +37,8 @@ using data = core::traits::TypeList<Args...>;
 
 /** 宏 RGMENGINE 特化 traits::magic_cast，以将基类指针 scheduler<>* 转型成派生类
  * T* */
-#define RGMENGINE(T)                                           \
+#define RGMENGINE(T)                                              \
   template <>                                                     \
-  struct core::traits::magic_cast<core::scheduler<T::co_type>*> { \
+  struct core::scheduler_cast<core::scheduler<T::co_type>*> { \
     using type = T*;                                              \
   }
