@@ -10,35 +10,40 @@
 
 #pragma once
 #include "init_sdl2.hpp"
-#include "windows.h"
+#include <chrono>
+#include <thread>
 
 namespace rgm::base {
 #if 1
 struct timer {
   uint64_t counter;
   uint64_t frequency;
+  int64_t error_counter;
 
   timer() {
     counter = SDL_GetPerformanceCounter();
     frequency = SDL_GetPerformanceFrequency();
+    error_counter = 0;
   }
 
   void tick(double interval) {
     uint64_t next_counter;
 
-    next_counter = counter + static_cast<uint64_t>(frequency * interval);
+    next_counter = counter + round(frequency * interval);
     counter = SDL_GetPerformanceCounter();
 
     if (counter < next_counter) {
-      uint32_t delay_ms = (next_counter - counter) * 1000 / frequency;
-      if (delay_ms >= 2) {
-        Sleep(delay_ms - 1);
-      }
-
-      while (counter < next_counter) {
-        Sleep(0);
-        counter = SDL_GetPerformanceCounter();
-      }
+      long double delta_counter = (next_counter - counter) - error_counter;
+      long long delay_ns = static_cast<long long>(delta_counter * (1E9 / frequency));
+      std::this_thread::sleep_for(std::chrono::nanoseconds(delay_ns));
+      
+      long double before_counter = counter;
+      counter = SDL_GetPerformanceCounter();
+      error_counter = static_cast<int64_t>((counter - before_counter) - delta_counter);
+    }
+    else {
+      counter = SDL_GetPerformanceCounter();
+      error_counter = 0;
     }
   }
 
