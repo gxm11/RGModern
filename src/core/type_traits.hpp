@@ -23,7 +23,7 @@ template <typename... Ts>
 consteval auto expand_tuples(Ts... tuples) {
   static_assert((requires { std::tuple_size<Ts>(); } && ...));
 
-  return std::tuple_cat(tuples...);
+  return std::tuple_cat(std::forward<Ts>(tuples)...);
 }
 
 template <typename First, typename... Rest>

@@ -644,11 +644,9 @@ struct init_bitmap {
         RGMLOAD(x, int);
         RGMLOAD(y, int);
 
-        std::array<uint8_t, 4> pixels;
+        std::array<uint8_t, 4> pixels{};
         worker >> bitmap_get_pixel{id, x, y, pixels.data()};
         RGMWAIT(1);
-        printf("get pixel = %d, %d, %d, %d\n", pixels[0], pixels[1], pixels[2],
-               pixels[3]);
         uint32_t color = (pixels[3] << 24) + (pixels[2]) + (pixels[1] << 8) +
                          (pixels[0] << 16);
         return UINT2NUM(color);
