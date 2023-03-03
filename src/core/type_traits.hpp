@@ -21,7 +21,7 @@
 namespace rgm::core::traits {
 template <typename... Ts>
 consteval auto expand_tuples(Ts... tuples) {
-  static_assert((requires { std::tuple_size<Ts>(); } && ...));
+  static_assert((requires { std::tuple_size_v<Ts>; } && ...));
 
   return std::tuple_cat(std::forward<Ts>(tuples)...);
 }
@@ -53,7 +53,7 @@ consteval auto unique_tuple(std::tuple<First, Rest...>) {
 
 template <typename T_worker, typename T_task>
 consteval bool is_dummy_task() {
-  return !(requires(T_worker w, T_task t) { t().run(w); });
+  return !(requires(T_worker w, T_task t) { t.run(w); });
 }
 
 template <typename T_worker, typename T_task, typename... Rest>
@@ -85,7 +85,7 @@ consteval auto make_data_tuple(std::tuple<T_task, Rest...>) {
   if constexpr (is_storage_task<T_task>()) {
     // 这里的 data 都是 tuple
     using T_data = typename T_task::data;
-    static_assert((requires { std::tuple_size<T_data>(); }));
+    static_assert((requires { std::tuple_size_v<T_data>; }));
 
     if constexpr (sizeof...(Rest) == 0) {
       return T_data{};

@@ -117,6 +117,7 @@ struct worker {
     if constexpr (config::output_level > 0) {
       int size = sizeof(typename T_kernel<T_kernel_tasks>::T_variants);
       printf("blocksize = %d\n", size);
+      printf("task size = %lld\n", std::tuple_size_v<T_kernel_tasks>);
     }
     // p_datalist = std::make_unique<T_datalist>();
     p_data = std::make_unique<T_data>();
