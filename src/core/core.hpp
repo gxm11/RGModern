@@ -9,12 +9,11 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
-#include "datalist.hpp"
+#include "cooperation.hpp"
 #include "kernel.hpp"
 #include "scheduler.hpp"
 #include "semaphore.hpp"
 #include "stopwatch.hpp"
-#include "tasklist.hpp"
 #include "type_traits.hpp"
 #include "worker.hpp"
 
@@ -37,8 +36,8 @@ using data = std::tuple<Args...>;
 
 /** 宏 RGMENGINE 特化 traits::magic_cast，以将基类指针 scheduler<>* 转型成派生类
  * T* */
-#define RGMENGINE(T)                                              \
-  template <>                                                     \
+#define RGMENGINE(T)                                          \
+  template <>                                                 \
   struct core::scheduler_cast<core::scheduler<T::co_type>*> { \
-    using type = T*;                                              \
+    using type = T*;                                          \
   }

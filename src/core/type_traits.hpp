@@ -106,25 +106,6 @@ consteval auto tuple_to_variant(std::tuple<Ts...>) {
   return std::variant<std::monostate, Ts...>{};
 }
 
-// template <typename...>
-// struct is_asynchronized;
-
-// template <>
-// struct is_asynchronized<> : std::false_type {};
-
-// template <typename Head, typename... Args>
-// struct is_asynchronized<Head, Args...> : is_asynchronized<Args...> {
-//   static constexpr bool value = is_asynchronized<Args...>::value;
-// };
-
-// template <typename Head, typename... Args>
-//   requires(requires { Head::cooperation_flag; })
-// struct is_asynchronized<std::tuple<Head, Args...>>
-//     : is_asynchronized<std::tuple<Args...>> {
-//   static constexpr bool value =
-//       (Head::cooperation_flag == cooperation::asynchronous) ||
-//       is_asynchronized<std::tuple<Args...>>::value;
-// };
 template <typename>
 struct get_co_type {
   static constexpr cooperation value = cooperation::exclusive;
