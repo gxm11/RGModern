@@ -49,7 +49,7 @@ struct scheduler<c, T_workers...> : scheduler<c> {
   }
 
   void run_asynchronous() {
-    auto _ = std::apply(
+    std::apply(
         [](auto&... worker) {
           return std::make_tuple(std::jthread([&worker] {
             worker.before();
