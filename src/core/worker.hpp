@@ -25,11 +25,11 @@ namespace rgm::core {
 template <template <typename> class T_kernel, typename... Args>
 struct worker {
   using T_all_tasks = decltype(traits::expand_tuples(std::declval<Args>()...));
-  using T_tasks = decltype(traits::unique_tuple(T_all_tasks{}));
-  using T_kernel_tasks =
-      decltype(traits::remove_dummy_tuple((worker*)0, T_tasks{}));
-  using T_all_data = decltype(traits::make_data_tuple(T_tasks{}));
-  using T_data = decltype(traits::unique_tuple(T_all_data{}));
+  using T_tasks = decltype(traits::unique_tuple(std::declval<T_all_tasks>()));
+  using T_kernel_tasks = decltype(traits::remove_dummy_tuple(
+      static_cast<worker*>(nullptr), std::declval<T_tasks>()));
+  using T_all_data = decltype(traits::make_data_tuple(std::declval<T_tasks>()));
+  using T_data = decltype(traits::unique_tuple(std::declval<T_all_data>()));
   /**
    * @brief 任务执行的逻辑
    * @tparam T_kernel_tasks 包含了所有可以执行的任务的 TypeList
@@ -78,9 +78,7 @@ struct worker {
     return *std::apply(get_ptr, *p_data);
   }
 
-  template <typename T>
-    requires(std::same_as<T, std::stop_token>)
-  std::stop_token get() {
+  std::stop_token get_stop_token() {
     return p_scheduler->stop_source.get_token();
   }
 

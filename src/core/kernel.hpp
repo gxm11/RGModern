@@ -23,12 +23,9 @@ struct kernel {
   /** 用于阻塞或解锁当前线程的信号量 */
   semaphore m_pause;
 
-  // using T_variants =
-  //     typename traits::append_t<std::monostate,
-  //                               T_tasks>::template to<std::variant>;
-  using T_variants =
-      decltype(traits::tuple_to_variant(T_tasks{}));
   /** 存放所有待执行任务的管道，这是一个多读多写的无锁管道 */
+  using T_variants =
+      decltype(traits::tuple_to_variant(std::declval<T_tasks>()));
   moodycamel::BlockingConcurrentQueue<T_variants> m_queue;
 
   template <typename T>
@@ -38,7 +35,7 @@ struct kernel {
   }
 
   void flush(auto& worker) {
-    auto stop_token = worker.template get<std::stop_token>();
+    auto stop_token = worker.template get_stop_token();
 
     auto visitor = [&worker]<typename T>(T& item) {
       if constexpr (!std::same_as<std::monostate, T>) {

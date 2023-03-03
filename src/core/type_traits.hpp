@@ -62,15 +62,16 @@ consteval auto remove_dummy_tuple(T_worker*, std::tuple<T_task, Rest...>) {
     if constexpr (sizeof...(Rest) == 0) {
       return std::tuple<>();
     } else {
-      return remove_dummy_tuple((T_worker*)0, std::tuple<Rest...>());
+      return remove_dummy_tuple(static_cast<T_worker*>(nullptr),
+                                std::tuple<Rest...>());
     }
   } else {
     if constexpr (sizeof...(Rest) == 0) {
       return std::tuple<T_task>();
     } else {
-      return std::tuple_cat(
-          std::tuple<T_task>(),
-          remove_dummy_tuple((T_worker*)0, std::tuple<Rest...>()));
+      return std::tuple_cat(std::tuple<T_task>(),
+                            remove_dummy_tuple(static_cast<T_worker*>(nullptr),
+                                               std::tuple<Rest...>()));
     }
   }
 }
