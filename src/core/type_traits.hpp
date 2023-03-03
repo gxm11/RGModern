@@ -28,7 +28,7 @@ consteval auto expand_tuples(Ts... tuples) {
 
 template <typename First, typename... Rest>
 consteval bool is_repeated() {
-  return (std::is_same_v<First, Rest> || ... || false);
+  return (std::is_same_v<First, Rest> || ...);
 }
 
 template <typename First, typename... Rest>
@@ -111,7 +111,7 @@ consteval cooperation get_co_type() {
 
 // 以上是 consteval 函数。
 // 以下是 struct，我保留了一部分 struct，这样才能知道这里是元编程。
-template <typename Item, typename Tuple>
+template <typename, typename>
 struct is_in_tuple : std::false_type {};
 
 template <typename Item, typename... Args>
@@ -119,7 +119,7 @@ struct is_in_tuple<Item, std::tuple<Args...>> {
   static constexpr bool value = is_repeated<Item, Args...>();
 };
 
-template <typename...>
+template <typename>
 struct for_each;
 
 template <typename... Args>

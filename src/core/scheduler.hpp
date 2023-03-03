@@ -50,16 +50,20 @@ struct scheduler<c, T_workers...> : scheduler<c> {
   }
 
   void run_asynchronous() {
-    auto jthread_tuple = std::apply(
+    auto _ = std::apply(
         [](auto&... worker) {
-          return std::make_tuple(std::jthread([&worker] { worker.run(); })...);
+          return std::make_tuple(std::jthread([&worker] {
+            worker.before();
+            worker.run();
+            worker.after();
+          })...);
         },
         workers);
   }
 
   void run_exclusive() {
     std::apply([](auto&... worker) { (worker.before(), ...); }, workers);
-    std::apply([](auto&... worker) { (worker.kernel_run(), ...); }, workers);
+    std::apply([](auto&... worker) { (worker.run(), ...); }, workers);
     std::apply([](auto&... worker) { (worker.after(), ...); }, workers);
   }
 
@@ -76,7 +80,7 @@ struct scheduler<c, T_workers...> : scheduler<c> {
         }
       };
 
-      return (get_task(worker, task) || ... || false);
+      return (get_task(worker, task) || ...);
     };
 
     bool ret = std::apply(set_task, workers);

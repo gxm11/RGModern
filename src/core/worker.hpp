@@ -44,8 +44,7 @@ struct worker {
       (co_type == cooperation::asynchronous);
 
   /** 保存父类的指针地址用于向下转型为 scheduler<> 的派生类指针 */
-  using base_scheduler_t = scheduler<co_type>;
-  base_scheduler_t* p_scheduler;
+  scheduler<co_type>* p_scheduler;
   /** datalist 类，存储的变量可供所有的任务读写 */
   std::unique_ptr<T_data> p_data;
 
@@ -92,12 +91,6 @@ struct worker {
    * 5. 按倒序执行任务列表的静态 after 函数 (after)
    * 6. 析构 datalist (after)
    */
-  void run() {
-    before();
-    kernel_run();
-    after();
-  }
-
   void before() {
     if constexpr (config::output_level > 0) {
       int size = sizeof(typename T_kernel<T_kernel_tasks>::T_variants);
@@ -108,7 +101,7 @@ struct worker {
     traits::for_each<T_tasks>::before(*this);
   }
 
-  void kernel_run() {
+  void run() {
     if constexpr (is_active || is_asynchronized) {
       m_kernel.run(*this);
     }
@@ -128,12 +121,12 @@ struct worker {
    * @brief 广播任务，可能会被某个 worker 接受。
    *
    * @tparam T 被广播的任务类型。
-   * @tparam U 辅助 base_scheduler_t* 向下转型，延迟到 magic_cast 的特化之后。
+   * @tparam U 辅助 scheduler<co_type>* 向下转型，延迟到 magic_cast 的特化之后。
    * @param task 被广播的任务，必须是右值，表示该任务已经离开作用域。
    * @return true 某个 worker 接受了该任务。
    * @return false 没有任何 worker 接受了该任务。
    */
-  template <typename T, typename U = base_scheduler_t*>
+  template <typename T, typename U = scheduler<co_type>*>
   bool send(T&& task) {
     using base_t = U;
     using derived_t = scheduler_cast<U>::type;
