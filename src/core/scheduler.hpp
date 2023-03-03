@@ -15,7 +15,6 @@
 #include "type_traits.hpp"
 
 namespace rgm::core {
-
 template <typename T>
 struct scheduler_cast {
   using type = T;
@@ -92,5 +91,4 @@ struct scheduler<c, T_workers...> : scheduler<c> {
     return ret;
   }
 };
-
 }  // namespace rgm::core

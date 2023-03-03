@@ -150,5 +150,4 @@ struct for_each<std::tuple<Args...>> {
     (proc(static_cast<Args*>(nullptr)), ...);
   }
 };
-
 }  // namespace rgm::core::traits

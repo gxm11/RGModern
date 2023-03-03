@@ -35,7 +35,7 @@ struct kernel {
   }
 
   void flush(auto& worker) {
-    auto stop_token = worker.template get_stop_token();
+    auto stop_token = worker.get_stop_token();
 
     auto visitor = [&worker]<typename T>(T& item) {
       if constexpr (!std::same_as<std::monostate, T>) {
