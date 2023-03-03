@@ -24,7 +24,7 @@ namespace rgm::core {
  * 存储的变量，其类型各不相同。
  */
 
-template <typename T>
+template <typename>
 struct datalist;
 
 template <typename... Ts>
@@ -32,8 +32,8 @@ struct datalist<std::tuple<Ts...>> {
   std::tuple<Ts...> data;
 
   template <typename T>
-  T& get() {
-    static_assert((std::same_as<T, Ts> || ... || false));
+  constexpr T& get() {
+    static_assert(traits::is_repeated<T, Ts...>());
 
     auto get_ptr = [](auto&... args) -> T* {
       T* ptr = nullptr;
@@ -41,10 +41,13 @@ struct datalist<std::tuple<Ts...>> {
       auto set_ptr = [&ptr]<typename U>(U& u) {
         if constexpr (std::same_as<std::decay_t<U>, T>) {
           ptr = &u;
+          return true;
+        } else {
+          return false;
         }
       };
 
-      (set_ptr(args), ...);
+      (set_ptr(args) || ...);
       return ptr;
     };
 

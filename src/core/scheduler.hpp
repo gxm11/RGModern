@@ -35,17 +35,16 @@ struct scheduler<c, T_workers...> : scheduler<c> {
   static constexpr cooperation co_type = c;
 
   std::tuple<T_workers...> workers;
+
   void run() {
+    static_assert(((T_workers::co_type == co_type) && ...));
+
     std::apply([this](auto&... worker) { ((worker.p_scheduler = this), ...); },
                workers);
 
     if constexpr (co_type == cooperation::asynchronous) {
-      static_assert((T_workers::is_asynchronized && ...));
-
       run_asynchronous();
     } else if constexpr (co_type == cooperation::exclusive) {
-      static_assert((!T_workers::is_asynchronized && ...));
-
       run_exclusive();
     }
   }
@@ -69,7 +68,7 @@ struct scheduler<c, T_workers...> : scheduler<c> {
     auto set_task = [&task](auto&... worker) {
       auto get_task = []<typename T_worker>(T_worker& worker, T_task& task) {
         if constexpr (traits::is_in_tuple<
-                          T_task, typename T_worker::T_kernel_tasks>()) {
+                          T_task, typename T_worker::T_kernel_tasks>::value) {
           worker << std::move(task);
           return true;
         } else {

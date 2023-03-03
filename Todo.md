@@ -75,3 +75,7 @@ std::apply和std::tuple 参见：https://godbolt.org/z/8K3WrEzd4
 高级参数包编程：https://www.scs.stanford.edu/~dm/blog/param-pack.html#recursing-over-argument-lists
 
 基于consteval和tuple的编程：https://godbolt.org/z/nrMM79o7j
+
+所有的任务都用std::tuple打包，tuple可以用std::tuple_cat函数合并：
+std::tuple_cat : *tuple -> tuple
+

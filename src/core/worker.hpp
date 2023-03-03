@@ -9,6 +9,7 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
+#include "cooperation.hpp"
 #include "datalist.hpp"
 #include "kernel.hpp"
 #include "scheduler.hpp"
@@ -29,13 +30,13 @@ struct worker {
   // using T_tasks = typename T_tasklist::tasks;
   // using T_kernel_tasks = traits::remove_dummy_t<T_tasks, worker>;
   // using T_datalist = typename T_tasklist::data::template to<datalist>;
-  using T_tasks = decltype(traits::unique_tuple<decltype(traits::expand_tuples(
-                               std::declval<Args>()...))>());
+  using T_all_tasks = decltype(traits::expand_tuples(std::declval<Args>()...));
+  using T_tasks = decltype(traits::unique_tuple(T_all_tasks{}));
   using T_kernel_tasks =
       decltype(traits::remove_dummy_tuple((worker*)0, T_tasks{}));
-  using T_data = decltype(traits::unique_tuple<decltype(traits::make_data_tuple(
-                              T_tasks{}))>());
-  using T_datalist = datalist<T_data>;
+  using T_all_data = decltype(traits::make_data_tuple(T_tasks{}));
+  using T_data = decltype(traits::unique_tuple(T_all_data{}));
+  // using T_datalist = datalist<T_data>;
   /**
    * @brief 任务执行的逻辑
    * @tparam T_kernel_tasks 包含了所有可以执行的任务的 TypeList
@@ -45,16 +46,20 @@ struct worker {
   static constexpr bool is_active =
       std::is_base_of_v<kernel_active<T_kernel_tasks>,
                         T_kernel<T_kernel_tasks>>;
+  // static constexpr bool is_asynchronized =
+  //     traits::is_asynchronized<T_kernel_tasks>::value;
+  static constexpr cooperation co_type = traits::get_co_type<T_tasks>::value;
   static constexpr bool is_asynchronized =
-      traits::is_asynchronized<T_kernel_tasks>::value;
+      (co_type == cooperation::asynchronous);
 
   /** 保存父类的指针地址用于向下转型为 scheduler<> 的派生类指针 */
-  using base_scheduler_t =
-      std::conditional_t<is_asynchronized, scheduler<cooperation::asynchronous>,
-                         scheduler<cooperation::exclusive>>;
+  using base_scheduler_t = scheduler<co_type>;
+  // std::conditional_t<is_asynchronized, scheduler<cooperation::asynchronous>,
+  //                    scheduler<cooperation::exclusive>>;
   base_scheduler_t* p_scheduler;
   /** datalist 类，存储的变量可供所有的任务读写 */
-  std::unique_ptr<T_datalist> p_datalist;
+  // std::unique_ptr<T_datalist> p_datalist;
+  std::unique_ptr<T_data> p_data;
 
   /**
    * @brief 根据不同的变量类型，获取相应的共享变量。
@@ -64,7 +69,26 @@ struct worker {
    */
   template <typename T>
   T& get() {
-    return p_datalist->template get<T>();
+    // return p_datalist->template get<T>();
+    static_assert(traits::is_in_tuple<T, T_data>::value);
+
+    auto get_ptr = [](auto&... args) -> T* {
+      T* ptr = nullptr;
+
+      auto set_ptr = [&ptr]<typename U>(U& u) {
+        if constexpr (std::same_as<std::decay_t<U>, T>) {
+          ptr = &u;
+          return true;
+        } else {
+          return false;
+        }
+      };
+
+      (set_ptr(args) || ...);
+      return ptr;
+    };
+
+    return *std::apply(get_ptr, *p_data);
   }
 
   template <typename T>
@@ -94,7 +118,8 @@ struct worker {
       int size = sizeof(typename T_kernel<T_kernel_tasks>::T_variants);
       printf("blocksize = %d\n", size);
     }
-    p_datalist = std::make_unique<T_datalist>();
+    // p_datalist = std::make_unique<T_datalist>();
+    p_data = std::make_unique<T_data>();
     traits::for_each<T_tasks>::before(*this);
   }
 
@@ -110,7 +135,8 @@ struct worker {
 
     // 同步模式下，不需要主动销毁变量
     if constexpr (is_asynchronized) {
-      p_datalist.reset();
+      // p_datalist.reset();
+      p_data.reset();
     }
   }
 
@@ -166,7 +192,7 @@ struct worker {
     static_assert(std::is_rvalue_reference_v<T&&>,
                   "Task must be passed as R-value!");
 
-    static_assert(traits::is_in_tuple<T, T_kernel_tasks>());
+    static_assert(traits::is_in_tuple<T, T_kernel_tasks>::value);
     if constexpr (is_asynchronized) {
       m_kernel << std::forward<T>(task);
     } else {

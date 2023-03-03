@@ -58,7 +58,7 @@ struct semaphore {
 /** @brief 任务：使 ruby 线程恢复运行 */
 template <size_t>
 struct synchronize_signal {
-  static constexpr auto cooperation_flag = cooperation::asynchronous;
+  static constexpr cooperation co_type = cooperation::asynchronous;
 
   semaphore* pause;
   void run(auto&) { pause->release(); }

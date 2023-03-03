@@ -21,6 +21,8 @@
 namespace rgm::core::traits {
 template <typename... Ts>
 consteval auto expand_tuples(Ts... tuples) {
+  static_assert((requires { std::tuple_size<Ts>(); } && ...));
+
   return std::tuple_cat(tuples...);
 }
 
@@ -30,18 +32,22 @@ consteval bool is_repeated() {
 }
 
 template <typename Item, typename Tuple>
-consteval bool is_in_tuple() {
-  return is_repeated(expand_tuples(std::tuple<Item>(), Tuple{}));
-}
+struct is_in_tuple : std::false_type {};
+
+template <typename Item, typename... Args>
+struct is_in_tuple<Item, std::tuple<Args...>> {
+  static constexpr bool value = is_repeated<Item, Args...>();
+};
 
 template <typename First, typename... Rest>
-consteval auto unique_tuple() {
+consteval auto unique_tuple(std::tuple<First, Rest...>) {
   if constexpr (sizeof...(Rest) == 0) {
-    return std::tuple<First>();
+    return std::tuple<First>{};
   } else if constexpr (is_repeated<First, Rest...>()) {
-    return unique_tuple<Rest...>();
+    return unique_tuple(std::tuple<Rest...>{});
   } else {
-    return std::tuple_cat(std::tuple<First>(), unique_tuple<Rest...>());
+    return std::tuple_cat(std::tuple<First>{},
+                          unique_tuple(std::tuple<Rest...>{}));
   }
 }
 
@@ -77,12 +83,14 @@ consteval bool is_storage_task() {
 template <typename T_task, typename... Rest>
 consteval auto make_data_tuple(std::tuple<T_task, Rest...>) {
   if constexpr (is_storage_task<T_task>()) {
+    // 这里的 data 都是 tuple
     using T_data = typename T_task::data;
+    static_assert((requires { std::tuple_size<T_data>(); }));
+
     if constexpr (sizeof...(Rest) == 0) {
-      return std::tuple<T_data>();
+      return T_data{};
     } else {
-      return std::tuple_cat(std::tuple<T_data>(),
-                            make_data_tuple(std::tuple<Rest...>{}));
+      return std::tuple_cat(T_data{}, make_data_tuple(std::tuple<Rest...>{}));
     }
   } else {
     if constexpr (sizeof...(Rest) == 0) {
@@ -98,24 +106,34 @@ consteval auto tuple_to_variant(std::tuple<Ts...>) {
   return std::variant<std::monostate, Ts...>{};
 }
 
-template <typename...>
-struct is_asynchronized;
+// template <typename...>
+// struct is_asynchronized;
 
-template <>
-struct is_asynchronized<> : std::false_type {};
+// template <>
+// struct is_asynchronized<> : std::false_type {};
 
-template <typename Head, typename... Args>
-struct is_asynchronized<Head, Args...> : is_asynchronized<Args...> {
-  static constexpr bool value = is_asynchronized<Args...>::value;
+// template <typename Head, typename... Args>
+// struct is_asynchronized<Head, Args...> : is_asynchronized<Args...> {
+//   static constexpr bool value = is_asynchronized<Args...>::value;
+// };
+
+// template <typename Head, typename... Args>
+//   requires(requires { Head::cooperation_flag; })
+// struct is_asynchronized<std::tuple<Head, Args...>>
+//     : is_asynchronized<std::tuple<Args...>> {
+//   static constexpr bool value =
+//       (Head::cooperation_flag == cooperation::asynchronous) ||
+//       is_asynchronized<std::tuple<Args...>>::value;
+// };
+template <typename>
+struct get_co_type {
+  static constexpr cooperation value = cooperation::exclusive;
 };
 
-template <typename Head, typename... Args>
-  requires(requires { Head::cooperation_flag; })
-struct is_asynchronized<std::tuple<Head, Args...>>
-    : is_asynchronized<std::tuple<Args...>> {
-  static constexpr bool value =
-      (Head::cooperation_flag == cooperation::asynchronous) ||
-      is_asynchronized<std::tuple<Args...>>::value;
+template <typename First, typename... Rest>
+  requires(requires { &First::co_type; })
+struct get_co_type<std::tuple<First, Rest...>> {
+  static constexpr cooperation value = First::co_type;
 };
 
 template <typename...>
