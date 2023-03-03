@@ -31,14 +31,6 @@ consteval bool is_repeated() {
   return (std::is_same_v<First, Rest> || ... || false);
 }
 
-template <typename Item, typename Tuple>
-struct is_in_tuple : std::false_type {};
-
-template <typename Item, typename... Args>
-struct is_in_tuple<Item, std::tuple<Args...>> {
-  static constexpr bool value = is_repeated<Item, Args...>();
-};
-
 template <typename First, typename... Rest>
 consteval auto unique_tuple(std::tuple<First, Rest...>) {
   if constexpr (sizeof...(Rest) == 0) {
@@ -107,15 +99,24 @@ consteval auto tuple_to_variant(std::tuple<Ts...>) {
   return std::variant<std::monostate, Ts...>{};
 }
 
-template <typename>
-struct get_co_type {
-  static constexpr cooperation value = cooperation::exclusive;
-};
+template <typename Tuple>
+consteval cooperation get_co_type() {
+  if constexpr (requires(Tuple t) { std::get<0>(t).co_type; }) {
+    using T = decltype(std::get<0>(std::declval<Tuple>()));
+    return std::remove_reference_t<T>::co_type;
+  } else {
+    return cooperation::exclusive;
+  }
+}
 
-template <typename First, typename... Rest>
-  requires(requires { &First::co_type; })
-struct get_co_type<std::tuple<First, Rest...>> {
-  static constexpr cooperation value = First::co_type;
+// 以上是 consteval 函数。
+// 以下是 struct，我保留了一部分 struct，这样才能知道这里是元编程。
+template <typename Item, typename Tuple>
+struct is_in_tuple : std::false_type {};
+
+template <typename Item, typename... Args>
+struct is_in_tuple<Item, std::tuple<Args...>> {
+  static constexpr bool value = is_repeated<Item, Args...>();
 };
 
 template <typename...>

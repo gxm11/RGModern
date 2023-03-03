@@ -39,7 +39,7 @@ struct worker {
   static constexpr bool is_active =
       std::is_base_of_v<kernel_active<T_kernel_tasks>,
                         T_kernel<T_kernel_tasks>>;
-  static constexpr cooperation co_type = traits::get_co_type<T_tasks>::value;
+  static constexpr cooperation co_type = traits::get_co_type<T_tasks>();
   static constexpr bool is_asynchronized =
       (co_type == cooperation::asynchronous);
 
@@ -63,7 +63,7 @@ struct worker {
       T* ptr = nullptr;
 
       auto set_ptr = [&ptr]<typename U>(U& u) {
-        if constexpr (std::same_as<std::decay_t<U>, T>) {
+        if constexpr (std::same_as<U, T>) {
           ptr = &u;
           return true;
         } else {
