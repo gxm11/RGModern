@@ -24,7 +24,6 @@ namespace rgm {
  * @tparam Args... 可变参数列表，通常是不同的数据类型
  */
 template <typename... Args>
-// using data = core::traits::TypeList<Args...>;
 using data = std::tuple<Args...>;
 }  // namespace rgm
 

@@ -132,7 +132,7 @@ consteval bool tuple_include() {
 
 // 以上是 consteval 函数。
 // 以下是 struct，我保留了一部分 struct，这样才能知道这里是元编程。
-#if 0
+#if 1
 template <typename>
 struct for_each;
 
@@ -140,7 +140,8 @@ template <typename... Args>
 struct for_each<std::tuple<Args...>> {
   static void before(auto& worker) {
     auto proc = [&worker]<typename T>(T*) {
-      if constexpr (requires { T::before(worker); }) {
+      constexpr bool condition = requires { T::before(worker); };
+      if constexpr (condition) {
         T::before(worker);
       }
       static_assert(
@@ -153,7 +154,8 @@ struct for_each<std::tuple<Args...>> {
 
   static void after(auto& worker) {
     auto proc = [&worker]<typename T>(T*) {
-      if constexpr (requires { T::after(worker); }) {
+      constexpr bool condition = requires { T::after(worker); };
+      if constexpr (condition) {
         T::after(worker);
       }
       static_assert(
@@ -169,7 +171,7 @@ template <typename>
 struct for_each;
 
 template <>
-struct for_each<std::tuple<> > {
+struct for_each<std::tuple<>> {
   static void before(auto&) {}
   static void after(auto&) {}
 };
@@ -184,14 +186,14 @@ struct for_each<std::tuple<Head, Rest...>> : for_each<std::tuple<Rest...>> {
         !(requires { Head::before(); }),
         "The static function before() without parameters will be ignored. "
         "Please use `auto&' as the first parameter.");
-    for_each<std::tuple<Rest...> >::before(worker);
+    for_each<std::tuple<Rest...>>::before(worker);
   }
 
   static void after(auto& worker) {
     if constexpr (requires { Head::after(worker); }) {
       Head::after(worker);
     }
-    for_each<std::tuple<Rest...> >::after(worker);
+    for_each<std::tuple<Rest...>>::after(worker);
     static_assert(
         !(requires { Head::after(); }),
         "The static function after() without parameters will be ignored. "
