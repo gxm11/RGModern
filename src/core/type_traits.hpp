@@ -110,29 +110,24 @@ consteval cooperation tuple_co_type() {
 }
 
 template <typename Item, typename... Args>
-consteval size_t tuple_index_helper(std::tuple<Args...>*) {
-  static_assert(sizeof...(Args) > 0);
-
+consteval std::pair<size_t, bool> tuple_find(std::tuple<Args...>*) {
   size_t i = 0;
-  ((++i, std::is_same_v<Args, Item>) || ...);
-  return --i;
+  bool ret = ((++i, std::is_same_v<Args, Item>) || ...);
+  return {i - 1, ret};
 }
 
 template <typename Tuple, typename Item>
   requires(requires { std::tuple_size_v<Tuple>; })
 consteval size_t tuple_index() {
-  return tuple_index_helper<Item>(static_cast<Tuple*>(nullptr));
-}
+  static_assert(std::tuple_size_v<Tuple> > 0);
 
-template <typename Item, typename... Args>
-consteval bool tuple_include_helper(std::tuple<Args...>*) {
-  return (std::is_same_v<Args, Item> || ...);
+  return tuple_find<Item>(static_cast<Tuple*>(nullptr)).first;
 }
 
 template <typename Tuple, typename Item>
   requires(requires { std::tuple_size_v<Tuple>; })
 consteval bool tuple_include() {
-  return tuple_include_helper<Item>(static_cast<Tuple*>(nullptr));
+  return tuple_find<Item>(static_cast<Tuple*>(nullptr)).second;
 }
 
 // 以上是 consteval 函数。
