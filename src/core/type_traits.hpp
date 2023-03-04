@@ -27,19 +27,19 @@ consteval auto expand_tuples(Ts... tuples) {
 }
 
 template <typename First, typename... Rest>
-consteval bool is_repeated() {
-  return (std::is_same_v<First, Rest> || ...);
+consteval bool is_unique() {
+  return (!std::is_same_v<First, Rest> && ...);
 }
 
 template <typename First, typename... Rest>
 consteval auto unique_tuple(std::tuple<First, Rest...>) {
   if constexpr (sizeof...(Rest) == 0) {
     return std::tuple<First>{};
-  } else if constexpr (is_repeated<First, Rest...>()) {
-    return unique_tuple(std::tuple<Rest...>{});
-  } else {
+  } else if constexpr (is_unique<First, Rest...>()) {
     return std::tuple_cat(std::tuple<First>{},
                           unique_tuple(std::tuple<Rest...>{}));
+  } else {
+    return unique_tuple(std::tuple<Rest...>{});
   }
 }
 
@@ -70,7 +70,7 @@ consteval auto remove_dummy_tuple(T_worker*, std::tuple<T_task, Rest...>) {
 
 template <typename T_task>
 consteval bool is_storage_task() {
-  return (requires(T_task t) { typename T_task::data; });
+  return (requires { typename T_task::data; });
 }
 
 template <typename T_task, typename... Rest>
