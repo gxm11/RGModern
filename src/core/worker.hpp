@@ -45,7 +45,7 @@ struct worker {
 
   /** 保存父类的指针地址用于向下转型为 scheduler<> 的派生类指针 */
   scheduler<co_type>* p_scheduler;
-  /** datalist 类，存储的变量可供所有的任务读写 */
+  /** T_data 类，存储的变量可供所有的任务读写 */
   std::unique_ptr<T_data> p_data;
 
   /**
@@ -77,8 +77,8 @@ struct worker {
   void before() {
     if constexpr (config::output_level > 0) {
       int size = sizeof(typename T_kernel<T_kernel_tasks>::T_variants);
-      printf("blocksize = %d\n", size);
-      printf("task size = %lld\n", std::tuple_size_v<T_kernel_tasks>);
+      printf("block size = %d\n", size);
+      printf("kernel task size = %lld\n", std::tuple_size_v<T_kernel_tasks>);
     }
     p_data = std::make_unique<T_data>();
     traits::for_each<T_tasks>::before(*this);
