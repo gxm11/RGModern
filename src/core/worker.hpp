@@ -39,7 +39,7 @@ struct worker {
   static constexpr bool is_active =
       std::is_base_of_v<kernel_active<T_kernel_tasks>,
                         T_kernel<T_kernel_tasks>>;
-  static constexpr cooperation co_type = traits::get_co_type<T_tasks>();
+  static constexpr cooperation co_type = traits::tuple_co_type<T_tasks>();
   static constexpr bool is_asynchronized =
       (co_type == cooperation::asynchronous);
 
@@ -56,25 +56,8 @@ struct worker {
    */
   template <typename T>
   T& get() {
-    static_assert(traits::is_in_tuple<T, T_data>::value);
-
-    auto get_ptr = [](auto&... args) -> T* {
-      T* ptr = nullptr;
-
-      auto set_ptr = [&ptr]<typename U>(U& u) {
-        if constexpr (std::same_as<U, T>) {
-          ptr = &u;
-          return true;
-        } else {
-          return false;
-        }
-      };
-
-      (set_ptr(args) || ...);
-      return ptr;
-    };
-
-    return *std::apply(get_ptr, *p_data);
+    constexpr size_t index = traits::tuple_index<T_data, T>();
+    return std::get<index>(*p_data);
   }
 
   std::stop_token get_stop_token() {
@@ -169,7 +152,7 @@ struct worker {
     static_assert(std::is_rvalue_reference_v<T&&>,
                   "Task must be passed as R-value!");
 
-    static_assert(traits::is_in_tuple<T, T_kernel_tasks>::value);
+    static_assert(traits::tuple_include<T_kernel_tasks, T>());
     if constexpr (is_asynchronized) {
       m_kernel << std::forward<T>(task);
     } else {

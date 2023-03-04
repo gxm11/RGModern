@@ -100,7 +100,7 @@ consteval auto tuple_to_variant(std::tuple<Ts...>) {
 }
 
 template <typename Tuple>
-consteval cooperation get_co_type() {
+consteval cooperation tuple_co_type() {
   if constexpr (requires(Tuple t) { std::get<0>(t).co_type; }) {
     using T = decltype(std::get<0>(std::declval<Tuple>()));
     return std::remove_reference_t<T>::co_type;
@@ -109,16 +109,34 @@ consteval cooperation get_co_type() {
   }
 }
 
-// 以上是 consteval 函数。
-// 以下是 struct，我保留了一部分 struct，这样才能知道这里是元编程。
-template <typename, typename>
-struct is_in_tuple : std::false_type {};
+template <typename Item, typename... Args>
+consteval size_t tuple_index_helper(std::tuple<Args...>*) {
+  static_assert(sizeof...(Args) > 0);
+
+  size_t i = 0;
+  ((++i, std::is_same_v<Args, Item>) || ...);
+  return --i;
+}
+
+template <typename Tuple, typename Item>
+  requires(requires { std::tuple_size_v<Tuple>; })
+consteval size_t tuple_index() {
+  return tuple_index_helper<Item>(static_cast<Tuple*>(nullptr));
+}
 
 template <typename Item, typename... Args>
-struct is_in_tuple<Item, std::tuple<Args...>> {
-  static constexpr bool value = is_repeated<Item, Args...>();
-};
+consteval bool tuple_include_helper(std::tuple<Args...>*) {
+  return (std::is_same_v<Args, Item> || ...);
+}
 
+template <typename Tuple, typename Item>
+  requires(requires { std::tuple_size_v<Tuple>; })
+consteval bool tuple_include() {
+  return tuple_include_helper<Item>(static_cast<Tuple*>(nullptr));
+}
+
+// 以上是 consteval 函数。
+// 以下是 struct，我保留了一部分 struct，这样才能知道这里是元编程。
 template <typename>
 struct for_each;
 

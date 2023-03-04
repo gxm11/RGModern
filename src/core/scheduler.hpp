@@ -70,8 +70,7 @@ struct scheduler<c, T_workers...> : scheduler<c> {
   bool broadcast(T_task&& task) {
     auto set_task = [&task](auto&... worker) {
       auto get_task = []<typename T_worker>(T_worker& worker, T_task& task) {
-        if constexpr (traits::is_in_tuple<
-                          T_task, typename T_worker::T_kernel_tasks>::value) {
+        if constexpr (traits::tuple_include<typename T_worker::T_kernel_tasks, T_task>()) {
           worker << std::move(task);
           return true;
         } else {
