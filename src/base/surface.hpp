@@ -19,7 +19,7 @@ namespace rgm::base {
 using surfaces = std::unordered_map<uint64_t, cen::surface>;
 
 struct init_surfaces {
-  using data = rgm::data<surfaces>;
+  using data = std::tuple<surfaces>;
 
   static void after(auto& worker) { RGMDATA(surfaces).clear(); }
 };

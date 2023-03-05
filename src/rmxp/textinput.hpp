@@ -78,7 +78,7 @@ struct text_edit {
 };
 
 struct init_textinput {
-  using data = rgm::data<textinput_state>;
+  using data = std::tuple<textinput_state>;
 
   static void before(auto& this_worker) {
     static decltype(auto) worker = this_worker;

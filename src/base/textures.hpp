@@ -23,7 +23,7 @@ using textures = std::unordered_map<uint64_t, cen::texture>;
 
 /** @brief 将 textures 类型的变量添加到 worker 的 datalist 中 */
 struct init_textures {
-  using data = rgm::data<textures>;
+  using data = std::tuple<textures>;
 
   static void after(auto& worker) { RGMDATA(textures).clear(); }
 };

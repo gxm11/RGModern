@@ -52,18 +52,18 @@ template <typename T_worker, typename T_task, typename... Rest>
 consteval auto remove_dummy_tuple(T_worker*, std::tuple<T_task, Rest...>) {
   if constexpr (is_dummy_task<T_worker, T_task>()) {
     if constexpr (sizeof...(Rest) == 0) {
-      return std::tuple<>();
+      return std::tuple<>{};
     } else {
       return remove_dummy_tuple(static_cast<T_worker*>(nullptr),
-                                std::tuple<Rest...>());
+                                std::tuple<Rest...>{});
     }
   } else {
     if constexpr (sizeof...(Rest) == 0) {
-      return std::tuple<T_task>();
+      return std::tuple<T_task>{};
     } else {
-      return std::tuple_cat(std::tuple<T_task>(),
+      return std::tuple_cat(std::tuple<T_task>{},
                             remove_dummy_tuple(static_cast<T_worker*>(nullptr),
-                                               std::tuple<Rest...>()));
+                                               std::tuple<Rest...>{}));
     }
   }
 }
@@ -87,7 +87,7 @@ consteval auto make_data_tuple(std::tuple<T_task, Rest...>) {
     }
   } else {
     if constexpr (sizeof...(Rest) == 0) {
-      return std::tuple<>();
+      return std::tuple<>{};
     } else {
       return make_data_tuple(std::tuple<Rest...>{});
     }
@@ -109,6 +109,8 @@ consteval cooperation tuple_co_type() {
   }
 }
 
+// 前面定义的函数都是在非求值上下文中，比如 using T = decltype(func());
+// 从这里开始的函数会用在求值上下文中，从而参数使用了 tuple 的指针避免实例化。
 template <typename Item, typename... Args>
 consteval std::pair<size_t, bool> tuple_find(std::tuple<Args...>*) {
   size_t i = 0;
@@ -131,8 +133,6 @@ consteval bool tuple_include() {
 }
 
 // 以上是 consteval 函数。
-// 以下是 struct，我保留了一部分 struct，这样才能知道这里是元编程。
-#if 1
 template <typename>
 struct for_each;
 
@@ -140,6 +140,8 @@ template <typename... Args>
 struct for_each<std::tuple<Args...>> {
   static void before(auto& worker) {
     auto proc = [&worker]<typename T>(T*) {
+      // 这里不把 requires 语句写到下面的 constexpr if 条件中，
+      // 是为了让 MSVC 能顺利运行。否则 MSVC 会错误地忽略 before 函数。
       constexpr bool condition = requires { T::before(worker); };
       if constexpr (condition) {
         T::before(worker);
@@ -166,39 +168,4 @@ struct for_each<std::tuple<Args...>> {
     (proc(static_cast<Args*>(nullptr)), ...);
   }
 };
-#else
-template <typename>
-struct for_each;
-
-template <>
-struct for_each<std::tuple<>> {
-  static void before(auto&) {}
-  static void after(auto&) {}
-};
-
-template <typename Head, typename... Rest>
-struct for_each<std::tuple<Head, Rest...>> : for_each<std::tuple<Rest...>> {
-  static void before(auto& worker) {
-    if constexpr (requires { Head::before(worker); }) {
-      Head::before(worker);
-    }
-    static_assert(
-        !(requires { Head::before(); }),
-        "The static function before() without parameters will be ignored. "
-        "Please use `auto&' as the first parameter.");
-    for_each<std::tuple<Rest...>>::before(worker);
-  }
-
-  static void after(auto& worker) {
-    if constexpr (requires { Head::after(worker); }) {
-      Head::after(worker);
-    }
-    for_each<std::tuple<Rest...>>::after(worker);
-    static_assert(
-        !(requires { Head::after(); }),
-        "The static function after() without parameters will be ignored. "
-        "Please use `auto&' as the first parameter.");
-  }
-};
-#endif
 }  // namespace rgm::core::traits

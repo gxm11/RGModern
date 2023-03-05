@@ -60,7 +60,7 @@ struct font_manager {
 
 template <bool owner>
 struct init_font {
-  using data = rgm::data<font_manager<owner>>;
+  using data = std::tuple<font_manager<owner>>;
 
   static void before(auto& this_worker)
     requires(owner)

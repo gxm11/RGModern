@@ -135,7 +135,7 @@ struct zip_data_embeded {
 
 template <size_t>
 struct regist_external_data {
-  using data = rgm::data<zip_data_external>;
+  using data = std::tuple<zip_data_external>;
 
   const char* path;
   const char* password;
@@ -152,7 +152,7 @@ struct regist_external_data {
  */
 
 struct init_zip {
-  using data = rgm::data<zip_data_external, zip_data_embeded>;
+  using data = std::tuple<zip_data_external, zip_data_embeded>;
 
   static void before(auto& this_worker) {
     static decltype(auto) worker = this_worker;

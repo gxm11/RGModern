@@ -215,7 +215,7 @@ struct renderstack {
 
 /** @brief 将 renderstack 类型的变量添加到 worker 的 datalist 中 */
 struct init_renderstack {
-  using data = rgm::data<renderstack>;
+  using data = std::tuple<renderstack>;
 
   static void before(auto& worker) {
     cen::renderer& renderer = RGMDATA(cen_library).renderer;

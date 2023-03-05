@@ -17,26 +17,16 @@
 #include "type_traits.hpp"
 #include "worker.hpp"
 
-namespace rgm {
-/**
- * @brief traits::TypeList 的简写
- *
- * @tparam Args... 可变参数列表，通常是不同的数据类型
- */
-template <typename... Args>
-using data = std::tuple<Args...>;
-}  // namespace rgm
-
 /** 宏 RGMDATA 调用 worker 的 get 方法，以取出特定类型的数据 */
 #define RGMDATA(type) worker.template get<type>()
 
 /** 宏 RGMWAIT 调用 worker 的 wait 方法，等待指定线程的同步信号 */
 #define RGMWAIT(id) worker.template wait<id>()
 
-/** 宏 RGMENGINE 特化 traits::magic_cast，以将基类指针 scheduler<>* 转型成派生类
- * T* */
-#define RGMENGINE(T)                                          \
-  template <>                                                 \
-  struct core::scheduler_cast<core::scheduler<T::co_type>*> { \
-    using type = T*;                                          \
+/** 宏 RGMENGINE 特化 scheduler_cast，
+ * 以将基类指针 scheduler<co_type>* 转型成派生类 T* */
+#define RGMENGINE(T)                                                    \
+  template <>                                                           \
+  struct rgm::core::scheduler_cast<rgm::core::scheduler<T::co_type>*> { \
+    using type = T*;                                                    \
   }

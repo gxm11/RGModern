@@ -52,7 +52,7 @@ size_t drawables::total_size() {
  * 3. refresh_value，同步更新值类型的属性
  */
 struct init_drawable_base {
-  using data = rgm::data<drawables, id2z>;
+  using data = std::tuple<drawables, id2z>;
 
   static void before(auto& this_worker) {
     static decltype(auto) worker = this_worker;

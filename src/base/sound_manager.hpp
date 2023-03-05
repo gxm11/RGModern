@@ -169,6 +169,6 @@ struct se_stop {
 };
 
 struct init_sound_manager {
-  using data = rgm::data<sound_manager>;
+  using data = std::tuple<sound_manager>;
 };
 }  // namespace rgm::base

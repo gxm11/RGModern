@@ -76,7 +76,7 @@ struct tables : std::unordered_map<uint64_t, table> {
  * @brief 创建 Table 相关的 ruby 方法
  */
 struct init_table {
-  using data = rgm::data<tables>;
+  using data = std::tuple<tables>;
 
   static void before(auto& this_worker) {
     static decltype(auto) worker = this_worker;

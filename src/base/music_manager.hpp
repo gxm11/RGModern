@@ -410,7 +410,7 @@ struct bgm_pos {
 };
 
 struct init_music_manager {
-  using data = rgm::data<music_manager>;
+  using data = std::tuple<music_manager>;
 
   static void after(auto& worker) {
     music_manager& mm = RGMDATA(music_manager);

@@ -29,13 +29,13 @@ RGMENGINE(engine_sync_t);
 
 // 异步的 scheduler 和 worker，特征是 task 里包含了 core::synchronize_signal
 using worker_main_async =
-    core::worker<base::kernel_ruby, data<core::synchronize_signal<0>>,
+    core::worker<base::kernel_ruby, std::tuple<core::synchronize_signal<0>>,
                  base::tasks_main, rmxp::tasks_main>;
 using worker_render_async =
-    core::worker<core::kernel_passive, data<core::synchronize_signal<1>>,
+    core::worker<core::kernel_passive, std::tuple<core::synchronize_signal<1>>,
                  base::tasks_render, rmxp::tasks_render>;
 using worker_audio_async =
-    core::worker<core::kernel_passive, data<core::synchronize_signal<2>>,
+    core::worker<core::kernel_passive, std::tuple<core::synchronize_signal<2>>,
                  base::tasks_audio, rmxp::tasks_audio>;
 
 using engine_async_t =
