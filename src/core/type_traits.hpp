@@ -31,6 +31,8 @@ consteval bool is_unique() {
   return (!std::is_same_v<First, Rest> && ...);
 }
 
+consteval auto unique_tuple(std::tuple<>) { return std::tuple<>{}; }
+
 template <typename First, typename... Rest>
 consteval auto unique_tuple(std::tuple<First, Rest...>) {
   if constexpr (sizeof...(Rest) == 0) {
