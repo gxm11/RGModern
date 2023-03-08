@@ -140,16 +140,15 @@ struct worker {
 
   /** send 的别名 */
   template <typename T>
-  worker& operator>>(T&& task) {
+  void operator>>(T&& task) {
     static_assert(std::is_rvalue_reference_v<T&&>,
                   "Task must be send as R-value!");
 
-    send(std::forward<T>(task));
-    return *this;
+    send(std::move(task));
   }
 
   template <typename T>
-  worker& operator<<(T&& task) {
+  void operator<<(T&& task) {
     static_assert(std::is_rvalue_reference_v<T&&>,
                   "Task must be passed as R-value!");
 
@@ -158,8 +157,7 @@ struct worker {
       m_kernel << std::forward<T>(task);
     } else {
       task.run(*this);
-    }
-    return *this;
+    }    
   }
 };
 }  // namespace rgm::core
