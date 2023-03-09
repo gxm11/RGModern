@@ -32,12 +32,15 @@
 #define RUBY_SYMBOL_EXPORT_BEGIN _Pragma("GCC visibility push(default)")
 #define RUBY_SYMBOL_EXPORT_END _Pragma("GCC visibility pop")
 #define HAVE_STMT_AND_DECL_IN_EXPR 1
+#define THREAD_IMPL_H "thread_win32.h"
+#define THREAD_IMPL_SRC "thread_win32.c"
 #define HAVE_TYPE_NET_LUID 1
 #define HAVE__GMTIME64_S 1
 #define HAVE__WFREOPEN_S 1
 #define HAVE_DIRENT_H 1
 #define HAVE__BOOL 1
 #define HAVE_STDBOOL_H 1
+#define HAVE_AFUNIX_H 1
 #define HAVE_DIRECT_H 1
 #define HAVE_FCNTL_H 1
 #define HAVE_FLOAT_H 1
@@ -48,6 +51,7 @@
 #define HAVE_PROCESS_H 1
 #define HAVE_SETJMPEX_H 1
 #define HAVE_STDALIGN_H 1
+#define HAVE_STDIO_H 1
 #define HAVE_SYS_FCNTL_H 1
 #define HAVE_SYS_FILE_H 1
 #define HAVE_SYS_UTIME_H 1
@@ -154,7 +158,7 @@
 #define RUBY_ALIAS_FUNCTION_VOID(prot, name, args) RUBY_ALIAS_FUNCTION_TYPE(void, prot, name, args)
 #define HAVE_GCC_ATOMIC_BUILTINS 1
 #define HAVE_GCC_SYNC_BUILTINS 1
-#define UNREACHABLE __builtin_unreachable()
+#define HAVE___BUILTIN_UNREACHABLE 1
 #define RUBY_FUNC_EXPORTED __attribute__ ((__visibility__("default"))) extern
 #define RUBY_FUNC_NONNULL(n,x) __attribute__ ((__nonnull__(n))) x
 #define RUBY_FUNCTION_NAME_STRING __func__
@@ -228,9 +232,14 @@
 #define vfork fork
 #define HAVE_ATAN2L 1
 #define HAVE_ATAN2F 1
+#define HAVE_CHMOD 1
 #define HAVE_CHSIZE 1
 #define HAVE_CLOCK_GETTIME 1
 #define HAVE_COSH 1
+#define HAVE_EXECL 1
+#define HAVE_EXECLE 1
+#define HAVE_EXECV 1
+#define HAVE_EXECVE 1
 #define HAVE_FCNTL 1
 #define HAVE_FMOD 1
 #define HAVE_FSYNC 1
@@ -247,6 +256,8 @@
 #define HAVE_LSTAT 1
 #define HAVE_MBLEN 1
 #define HAVE_MKTIME 1
+#define HAVE_PCLOSE 1
+#define HAVE_POPEN 1
 #define HAVE_QSORT_S 1
 #define HAVE_READLINK 1
 #define HAVE_SEEKDIR 1
@@ -254,11 +265,14 @@
 #define HAVE_SINH 1
 #define HAVE_SPAWNV 1
 #define HAVE_SYMLINK 1
+#define HAVE_SYSTEM 1
 #define HAVE_TANH 1
 #define HAVE_TELLDIR 1
 #define HAVE_TIMES 1
 #define HAVE_TRUNCATE 1
 #define HAVE_TRUNCATE64 1
+#define HAVE_TZSET 1
+#define HAVE_UMASK 1
 #define HAVE_WAITPID 1
 #if !defined __STDC_WANT_LIB_EXT1__
 #define __STDC_WANT_LIB_EXT1__ 1
@@ -295,17 +309,16 @@
 #define STACK_GROW_DIRECTION -1
 #define COROUTINE_H "coroutine/win64/Context.h"
 #define HAVE_CONST_PAGE_SIZE 0
+#define EXTSTATIC 1
 #define DLEXT_MAXLEN 3
 #define DLEXT ".so"
-#define EXTSTATIC 1
 #define LIBDIR_BASENAME "lib"
 #define EXECUTABLE_EXTS ".exe",".com",".cmd",".bat"
 #define HAVE__SETJMPEX 1
 #define RUBY_SETJMP(env) __builtin_setjmp((env))
 #define RUBY_LONGJMP(env,val) __builtin_longjmp((env),val)
-#define USE_MJIT 1
-#define THREAD_IMPL_H "thread_win32.h"
-#define THREAD_IMPL_SRC "thread_win32.c"
+#define USE_MJIT 0
+#define USE_YJIT 0
 #define LOAD_RELATIVE 1
 #define RUBY_PLATFORM "x64-mingw-ucrt"
 #endif /* INCLUDE_RUBY_CONFIG_H */

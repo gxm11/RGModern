@@ -1,23 +1,22 @@
 # frozen_string_literal: true
-
 # require 'fiddle'
 
 module Fiddle
-  module ValueUtil # :nodoc: all
+  module ValueUtil #:nodoc: all
     def unsigned_value(val, ty)
       case ty.abs
       when TYPE_CHAR
-        [val].pack('c').unpack1('C')
+        [val].pack("c").unpack("C")[0]
       when TYPE_SHORT
-        [val].pack('s!').unpack1('S!')
+        [val].pack("s!").unpack("S!")[0]
       when TYPE_INT
-        [val].pack('i!').unpack1('I!')
+        [val].pack("i!").unpack("I!")[0]
       when TYPE_LONG
-        [val].pack('l!').unpack1('L!')
+        [val].pack("l!").unpack("L!")[0]
       else
         if defined?(TYPE_LONG_LONG) and
-           ty.abs == TYPE_LONG_LONG
-          [val].pack('q').unpack1('Q')
+          ty.abs == TYPE_LONG_LONG
+          [val].pack("q").unpack("Q")[0]
         else
           val
         end
@@ -27,17 +26,17 @@ module Fiddle
     def signed_value(val, ty)
       case ty.abs
       when TYPE_CHAR
-        [val].pack('C').unpack1('c')
+        [val].pack("C").unpack("c")[0]
       when TYPE_SHORT
-        [val].pack('S!').unpack1('s!')
+        [val].pack("S!").unpack("s!")[0]
       when TYPE_INT
-        [val].pack('I!').unpack1('i!')
+        [val].pack("I!").unpack("i!")[0]
       when TYPE_LONG
-        [val].pack('L!').unpack1('l!')
+        [val].pack("L!").unpack("l!")[0]
       else
         if defined?(TYPE_LONG_LONG) and
-           ty.abs == TYPE_LONG_LONG
-          [val].pack('Q').unpack1('q')
+          ty.abs == TYPE_LONG_LONG
+          [val].pack("Q").unpack("q")[0]
         else
           val
         end
@@ -47,9 +46,9 @@ module Fiddle
     def wrap_args(args, tys, funcs, &block)
       result = []
       tys ||= []
-      args.each_with_index do |arg, idx|
+      args.each_with_index{|arg, idx|
         result.push(wrap_arg(arg, tys[idx], funcs, &block))
-      end
+      }
       result
     end
 
@@ -57,61 +56,63 @@ module Fiddle
       funcs ||= []
       case arg
       when nil
-        0
+        return 0
       when Pointer
-        arg.to_i
+        return arg.to_i
       when IO
         case ty
         when TYPE_VOIDP
-          Pointer[arg].to_i
+          return Pointer[arg].to_i
         else
-          arg.to_i
+          return arg.to_i
         end
       when Function
-        if block
+        if( block )
           arg.bind_at_call(&block)
           funcs.push(arg)
         elsif !arg.bound?
-          raise('block must be given.')
+          raise(RuntimeError, "block must be given.")
         end
-        arg.to_i
+        return arg.to_i
       when String
-        if ty.is_a?(Array)
-          arg.unpack('C*')
+        if( ty.is_a?(Array) )
+          return arg.unpack('C*')
         else
           case SIZEOF_VOIDP
           when SIZEOF_LONG
-            [arg].pack('p').unpack1('l!')
+            return [arg].pack("p").unpack("l!")[0]
           else
             if defined?(SIZEOF_LONG_LONG) and
-               SIZEOF_VOIDP == SIZEOF_LONG_LONG
-              [arg].pack('p').unpack1('q')
+              SIZEOF_VOIDP == SIZEOF_LONG_LONG
+              return [arg].pack("p").unpack("q")[0]
             else
-              raise('sizeof(void*)?')
+              raise(RuntimeError, "sizeof(void*)?")
             end
           end
         end
       when Float, Integer
-        arg
+        return arg
       when Array
-        if ty.is_a?(Array) # used only by struct
+        if( ty.is_a?(Array) ) # used only by struct
           case ty[0]
           when TYPE_VOIDP
-            return arg.collect { |v| Integer(v) }
+            return arg.collect{|v| Integer(v)}
           when TYPE_CHAR
-            return val.unpack('C*') if arg.is_a?(String)
+            if( arg.is_a?(String) )
+              return val.unpack('C*')
+            end
           end
-          arg
+          return arg
         else
-          arg
+          return arg
         end
       else
-        if arg.respond_to?(:to_ptr)
-          arg.to_ptr.to_i
+        if( arg.respond_to?(:to_ptr) )
+          return arg.to_ptr.to_i
         else
           begin
-            Integer(arg)
-          rescue StandardError
+            return Integer(arg)
+          rescue
             raise(ArgumentError, "unknown argument type: #{arg.class}")
           end
         end

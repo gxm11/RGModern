@@ -14,7 +14,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif // __GNUC__
-#include "ruby.h"
+#include "ruby/ruby.h"
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif // __GNUC__

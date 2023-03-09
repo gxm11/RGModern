@@ -1,10 +1,10 @@
 # frozen_string_literal: true
-
 # require 'fiddle'
 # require 'fiddle/struct'
 # require 'fiddle/cparser'
 
 module Fiddle
+
   # Used internally by Fiddle::Importer
   class CompositeHandler
     # Create a new handler with the open +handlers+
@@ -15,23 +15,25 @@ module Fiddle
     end
 
     # Array of the currently loaded libraries.
-    attr_reader :handlers
+    def handlers()
+      @handlers
+    end
 
     # Returns the address as an Integer from any handlers with the function
     # named +symbol+.
     #
     # Raises a DLError if the handle is closed.
     def sym(symbol)
-      @handlers.each do |handle|
-        next unless handle
-
-        begin
-          addr = handle.sym(symbol)
-          return addr
-        rescue DLError
+      @handlers.each{|handle|
+        if( handle )
+          begin
+            addr = handle.sym(symbol)
+            return addr
+          rescue DLError
+          end
         end
-      end
-      nil
+      }
+      return nil
     end
 
     # See Fiddle::CompositeHandler.sym
@@ -72,7 +74,7 @@ module Fiddle
     #
     # See Fiddle.dlopen
     def dlload(*libs)
-      handles = libs.collect do |lib|
+      handles = libs.collect{|lib|
         case lib
         when nil
           nil
@@ -83,7 +85,7 @@ module Fiddle
         else
           Fiddle.dlopen(lib)
         end
-      end.flatten
+      }.flatten()
       @handler = CompositeHandler.new(handles)
       @func_map = {}
       @type_alias = {}
@@ -99,7 +101,7 @@ module Fiddle
     def sizeof(ty)
       case ty
       when String
-        ty = parse_ctype(ty, type_alias).abs
+        ty = parse_ctype(ty, type_alias).abs()
         case ty
         when TYPE_CHAR
           return SIZEOF_CHAR
@@ -119,27 +121,29 @@ module Fiddle
           return SIZEOF_CONST_STRING
         else
           if defined?(TYPE_LONG_LONG) and
-             ty == TYPE_LONG_LONG
+            ty == TYPE_LONG_LONG
             return SIZEOF_LONG_LONG
           else
             raise(DLError, "unknown type: #{ty}")
           end
         end
       when Class
-        return ty.size if ty.instance_methods.include?(:to_ptr)
+        if( ty.instance_methods().include?(:to_ptr) )
+          return ty.size()
+        end
       end
-      Pointer[ty].size
+      return Pointer[ty].size()
     end
 
     def parse_bind_options(opts)
       h = {}
-      while (opt = opts.shift)
+      while( opt = opts.shift() )
         case opt
         when :stdcall, :cdecl
           h[:call_type] = opt
         when :carried, :temp, :temporal, :bind
           h[:callback_type] = opt
-          h[:carrier] = opts.shift
+          h[:carrier] = opts.shift()
         else
           h[opt] = true
         end
@@ -149,15 +153,13 @@ module Fiddle
     private :parse_bind_options
 
     # :stopdoc:
-    CALL_TYPE_TO_ABI = Hash.new do |_h, k|
-      raise "unsupported call type: #{k}"
-    end.merge({ :stdcall => if Function.const_defined?(:STDCALL)
-                              Function::STDCALL
-                            else
-                              Function::DEFAULT
-                            end,
-                :cdecl => Function::DEFAULT,
-                nil => Function::DEFAULT }).freeze
+    CALL_TYPE_TO_ABI = Hash.new { |h, k|
+      raise RuntimeError, "unsupported call type: #{k}"
+    }.merge({ :stdcall => Function.const_defined?(:STDCALL) ? Function::STDCALL :
+                          Function::DEFAULT,
+              :cdecl   => Function::DEFAULT,
+              nil      => Function::DEFAULT
+            }).freeze
     private_constant :CALL_TYPE_TO_ABI
     # :startdoc:
 
@@ -166,17 +168,16 @@ module Fiddle
       symname, ctype, argtype = parse_signature(signature, type_alias)
       opt = parse_bind_options(opts)
       f = import_function(symname, ctype, argtype, opt[:call_type])
-      name = symname.gsub(/@.+/, '')
+      name = symname.gsub(/@.+/,'')
       @func_map[name] = f
       # define_method(name){|*args,&block| f.call(*args,&block)}
       begin
         /^(.+?):(\d+)/ =~ caller.first
-        file = Regexp.last_match(1)
-        line = Regexp.last_match(2).to_i
-      rescue StandardError
-        file, line = __FILE__, __LINE__ + 3
+        file, line = $1, $2.to_i
+      rescue
+        file, line = __FILE__, __LINE__+3
       end
-      module_eval(<<-EOS, __FILE__, __LINE__ + 1)
+      module_eval(<<-EOS, file, line)
         def #{name}(*args, &block)
           @func_map['#{name}'].call(*args,&block)
         end
@@ -194,18 +195,17 @@ module Fiddle
       when :bind, nil
         f = bind_function(name, ctype, argtype, h[:call_type], &blk)
       else
-        raise("unknown callback type: #{h[:callback_type]}")
+        raise(RuntimeError, "unknown callback type: #{h[:callback_type]}")
       end
       @func_map[name] = f
-      # define_method(name){|*args,&block| f.call(*args,&block)}
+      #define_method(name){|*args,&block| f.call(*args,&block)}
       begin
         /^(.+?):(\d+)/ =~ caller.first
-        file = Regexp.last_match(1)
-        line = Regexp.last_match(2).to_i
-      rescue StandardError
-        file, line = __FILE__, __LINE__ + 3
+        file, line = $1, $2.to_i
+      rescue
+        file, line = __FILE__, __LINE__+3
       end
-      module_eval(<<-EOS, __FILE__, __LINE__ + 1)
+      module_eval(<<-EOS, file, line)
         def #{name}(*args,&block)
           @func_map['#{name}'].call(*args,&block)
         end
@@ -239,26 +239,30 @@ module Fiddle
     # Creates a class to wrap the C struct with the value +ty+
     #
     # See also Fiddle::Importer.struct
-    def create_value(ty, val = nil)
-      s = struct([ty + ' value'])
-      ptr = s.malloc
-      ptr.value = val if val
-      ptr
+    def create_value(ty, val=nil)
+      s = struct([ty + " value"])
+      ptr = s.malloc()
+      if( val )
+        ptr.value = val
+      end
+      return ptr
     end
     alias value create_value
 
     # Returns a new instance of the C struct with the value +ty+ at the +addr+
     # address.
     def import_value(ty, addr)
-      s = struct([ty + ' value'])
-      s.new(addr)
+      s = struct([ty + " value"])
+      ptr = s.new(addr)
+      return ptr
     end
+
 
     # The Fiddle::CompositeHandler instance
     #
     # Will raise an error if no handlers are open.
     def handler
-      (@handler ||= nil) or raise 'call dlload before importing symbols and functions'
+      (@handler ||= nil) or raise "call dlload before importing symbols and functions"
     end
 
     # Returns a new Fiddle::Pointer instance at the memory address of the given
@@ -269,8 +273,9 @@ module Fiddle
     # See Fiddle::CompositeHandler.sym and Fiddle::Handle.sym
     def import_symbol(name)
       addr = handler.sym(name)
-      raise(DLError, "cannot find the symbol: #{name}") unless addr
-
+      if( !addr )
+        raise(DLError, "cannot find the symbol: #{name}")
+      end
       Pointer.new(addr)
     end
 
@@ -288,8 +293,9 @@ module Fiddle
     # See Fiddle::CompositeHandler.sym and Fiddle::Handler.sym
     def import_function(name, ctype, argtype, call_type = nil)
       addr = handler.sym(name)
-      raise(DLError, "cannot find the function: #{name}()") unless addr
-
+      if( !addr )
+        raise(DLError, "cannot find the function: #{name}()")
+      end
       Function.new(addr, argtype, ctype, CALL_TYPE_TO_ABI[call_type],
                    name: name)
     end
@@ -304,9 +310,9 @@ module Fiddle
     # See Fiddle::Closure
     def bind_function(name, ctype, argtype, call_type = nil, &block)
       abi = CALL_TYPE_TO_ABI[call_type]
-      closure = Class.new(Fiddle::Closure) do
+      closure = Class.new(Fiddle::Closure) {
         define_method(:call, block)
-      end.new(ctype, argtype, abi)
+      }.new(ctype, argtype, abi)
 
       Function.new(closure, argtype, ctype, abi, name: name)
     end

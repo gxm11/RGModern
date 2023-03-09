@@ -96,7 +96,7 @@ libs += SDL2_mixer flac mpg123 vorbisfile opusfile winmm ogg vorbis opus opusfil
 # -----------------------------------------------
 # opengl
 # -----------------------------------------------
-libs += opengl32 d3dx9
+libs += d3dx9 d3dx11 opengl32
 
 # -----------------------------------------------
 # ruby ext
