@@ -11,105 +11,84 @@
 #pragma once
 #include <thread>
 
+#include "cooperation.hpp"
 #include "type_traits.hpp"
 
 namespace rgm::core {
-/**
- * @brief scheduler 内部组合了多个 worker，并在不同线程里执行 worker 的 run
- * 函数。
- * @tparam Args 可变参数类型，代表内部组合的 worker。
- * @note scheduler 是使用继承递归定义的类型。
- */
-template <typename...>
+template <typename T>
+struct scheduler_cast {
+  using type = T;
+};
+
+template <cooperation, typename...>
 struct scheduler;
 
-/**
- * @brief scheduler 的基类，其指针可以使用 magic_cast 向下转型成派生类的指针。
- */
-template <>
-struct scheduler<> {
-  /**
-   * @brief 标志当前 scheduler 是否已停止执行。
-   * @note worker 保存了基类的指针，可以访问到该变量。
-   * worker 在其 kernel 的 run 函数退出后会调用 request_stop 函数。
-   * passive kernel 的 run 函数会循环检测 stop_token 以及时退出。
-   */
+template <cooperation c>
+struct scheduler<c> {
   std::stop_source stop_source;
 };
 
-template <typename T_worker, typename... Rest>
-struct scheduler<T_worker, Rest...> : scheduler<Rest...> {
-  T_worker m_worker;
+template <cooperation c, typename... T_workers>
+  requires(sizeof...(T_workers) > 0)
+struct scheduler<c, T_workers...> : scheduler<c> {
+  static constexpr cooperation co_type = c;
 
-  /** 创建不同的线程，执行 worker 的 run 函数 */
-  void run_async() {
-    static_assert(m_worker.is_asynchronized);
+  std::tuple<T_workers...> workers;
 
-    m_worker.p_scheduler = this;
-    auto stop_token = m_worker.template get<std::stop_token>();
-    std::jthread t([this](auto) { m_worker.run(); }, stop_token);
-    if constexpr (sizeof...(Rest) > 0) {
-      scheduler<Rest...>::run_async();
+  void run() {
+    static_assert(((T_workers::co_type == co_type) && ...));
+
+    std::apply([this](auto&... worker) { ((worker.p_scheduler = this), ...); },
+               workers);
+
+    if constexpr (co_type == cooperation::asynchronous) {
+      run_asynchronous();
+    } else if constexpr (co_type == cooperation::exclusive) {
+      run_exclusive();
     }
   }
 
-  void run_sync() {
-    run_sync_before();
-    run_sync_kernel();
-    run_sync_after();
+  void run_asynchronous() {
+    std::apply(
+        [](auto&... worker) {
+          return std::make_tuple(std::jthread([&worker] {
+            worker.before();
+            worker.run();
+            worker.after();
+          })...);
+        },
+        workers);
   }
 
-  void run_sync_before() {
-    m_worker.p_scheduler = this;
-    m_worker.before();
-    if constexpr (sizeof...(Rest) > 0) {
-      scheduler<Rest...>::run_sync_before();
-    }
+  void run_exclusive() {
+    std::apply([](auto&... worker) { (worker.before(), ...); }, workers);
+    std::apply([](auto&... worker) { (worker.run(), ...); }, workers);
+    std::apply([](auto&... worker) { (worker.after(), ...); }, workers);
   }
 
-  void run_sync_kernel() {
-    static_assert(!m_worker.is_asynchronized);
-
-    if constexpr (m_worker.is_active) {
-      m_worker.kernel_run();
-    }
-    if constexpr (sizeof...(Rest) > 0) {
-      scheduler<Rest...>::run_sync_kernel();
-    }
-  }
-
-  void run_sync_after() {
-    if constexpr (sizeof...(Rest) > 0) {
-      scheduler<Rest...>::run_sync_after();
-    }
-    m_worker.after();
-  }
-
-  /** 广播一个任务，如果该任务在某个 worker
-   * 的可执行任务列表中，就放到其任务队列里 */
   template <typename T_task>
   bool broadcast(T_task&& task) {
-    if constexpr (traits::is_repeated_v<T_task, typename T_worker::T_tasks>) {
-      m_worker << std::forward<T_task>(task);
-      return true;
-    } else if constexpr (sizeof...(Rest) > 0) {
-      return scheduler<Rest...>::template broadcast(std::forward<T_task>(task));
-    } else if constexpr (config::output_level > 0) {
-      printf("There's ingored task, check your code.\n");
-      return false;
-    } else {
-      return false;
+    auto set_task = [&task](auto&... worker) {
+      auto get_task = []<typename T_worker>(T_worker& worker, T_task& task) {
+        if constexpr (traits::tuple_include<typename T_worker::T_kernel_tasks,
+                                            T_task>()) {
+          worker << std::move(task);
+          return true;
+        } else {
+          return false;
+        }
+      };
+
+      return (get_task(worker, task) || ...);
+    };
+
+    bool ret = std::apply(set_task, workers);
+    if constexpr (config::output_level > 0) {
+      if (!ret) {
+        printf("There's ingored task, check your code.\n");
+      }
     }
+    return ret;
   }
-};
-
-template <typename Head, typename... Rest>
-struct scheduler<std::true_type, Head, Rest...> : scheduler<Head, Rest...> {
-  void run() { scheduler<Head, Rest...>::run_async(); }
-};
-
-template <typename Head, typename... Rest>
-struct scheduler<std::false_type, Head, Rest...> : scheduler<Head, Rest...> {
-  void run() { scheduler<Head, Rest...>::run_sync(); }
 };
 }  // namespace rgm::core

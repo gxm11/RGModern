@@ -10,180 +10,162 @@
 
 #pragma once
 #include <concepts>
-#include <future>
+#include <tuple>
 #include <type_traits>
 #include <variant>
 
+#include "cooperation.hpp"
 /**
- * @brief 类型萃取
- * @note 有一说一，这件事大家懂得都懂，不懂得，说了你也不明白，不如不说。
- * 你们也别来问我怎么了，利益牵扯太大，说了对你们也没什么好处，当不知道就行了，
- * 其余的我只能说这里面水很深，牵扯到很多大人物。详细资料你们自己找是很难找的，
- * 网上大部分已经删除干净了，所以我只能说懂得都懂，不懂得也没办法。XD
+ * @brief 使用现代元编程的方式完成类型萃取
  */
 namespace rgm::core::traits {
 template <typename... Ts>
-struct TypeList {
-  template <template <typename...> typename T>
-  using to = T<Ts...>;
-};
+consteval auto expand_tuples(Ts... tuples) {
+  static_assert((requires { std::tuple_size_v<Ts>; } && ...));
 
-template <typename, typename>
-struct is_repeated : std::false_type {};
+  return std::tuple_cat(std::forward<Ts>(tuples)...);
+}
 
-template <typename T, typename... Args>
-  requires(std::same_as<T, Args> || ... || false)
-struct is_repeated<T, TypeList<Args...>> : std::true_type {};
+template <typename First, typename... Rest>
+consteval bool is_unique() {
+  return (!std::is_same_v<First, Rest> && ...);
+}
 
-template <typename T, typename U>
-constexpr bool is_repeated_v = is_repeated<T, U>::value;
+template <typename First, typename... Rest>
+consteval auto unique_tuple(std::tuple<First, Rest...>) {
+  if constexpr (sizeof...(Rest) == 0) {
+    return std::tuple<First>{};
+  } else if constexpr (is_unique<First, Rest...>()) {
+    return std::tuple_cat(std::tuple<First>{},
+                          unique_tuple(std::tuple<Rest...>{}));
+  } else {
+    return unique_tuple(std::tuple<Rest...>{});
+  }
+}
 
-template <typename, typename>
-struct append;
+template <typename T_worker, typename T_task>
+consteval bool is_dummy_task() {
+  return !(requires(T_worker w, T_task t) { t.run(w); });
+}
 
-template <typename First, typename... Second>
-struct append<First, TypeList<Second...>> {
-  using type = TypeList<First, Second...>;
-};
+template <typename T_worker, typename T_task, typename... Rest>
+consteval auto remove_dummy_tuple(T_worker*, std::tuple<T_task, Rest...>) {
+  if constexpr (is_dummy_task<T_worker, T_task>()) {
+    if constexpr (sizeof...(Rest) == 0) {
+      return std::tuple<>{};
+    } else {
+      return remove_dummy_tuple(static_cast<T_worker*>(nullptr),
+                                std::tuple<Rest...>{});
+    }
+  } else {
+    if constexpr (sizeof...(Rest) == 0) {
+      return std::tuple<T_task>{};
+    } else {
+      return std::tuple_cat(std::tuple<T_task>{},
+                            remove_dummy_tuple(static_cast<T_worker*>(nullptr),
+                                               std::tuple<Rest...>{}));
+    }
+  }
+}
 
-template <typename First, typename... Second>
-  requires(is_repeated_v<First, TypeList<Second...>>)
-struct append<First, TypeList<Second...>> {
-  using type = TypeList<Second...>;
-};
-
-template <typename First, typename Second>
-using append_t = typename append<First, Second>::type;
-
-template <typename>
-struct unique;
-
-template <>
-struct unique<TypeList<>> {
-  using type = TypeList<>;
-};
-
-template <typename Head, typename... Args>
-struct unique<TypeList<Head, Args...>> : unique<TypeList<Args...>> {
-  using type = append_t<Head, typename unique<TypeList<Args...>>::type>;
-};
-
-template <typename Head, typename... Args>
-  requires(is_repeated_v<Head, TypeList<Args...>>)
-struct unique<TypeList<Head, Args...>> : unique<TypeList<Args...>> {
-  using type = unique<TypeList<Args...>>::type;
-};
-
-template <typename, typename>
-struct merge;
-
-template <typename... First, typename... Second>
-struct merge<TypeList<First...>, TypeList<Second...>> {
-  using type = typename unique<TypeList<First..., Second...>>::type;
-};
-
-template <typename First, typename Second>
-using merge_t = typename merge<First, Second>::type;
-
-template <typename>
-struct merge_data;
-
-template <>
-struct merge_data<TypeList<>> {
-  using type = TypeList<>;
-};
+template <typename T_task>
+consteval bool is_storage_task() {
+  return (requires { typename T_task::data; });
+}
 
 template <typename T_task, typename... Rest>
-struct merge_data<TypeList<T_task, Rest...>> : merge_data<TypeList<Rest...>> {
-  using type = merge_t<typename T_task::data,
-                       typename merge_data<TypeList<Rest...>>::type>;
-};
+consteval auto make_data_tuple(std::tuple<T_task, Rest...>) {
+  if constexpr (is_storage_task<T_task>()) {
+    // 这里的 data 都是 tuple
+    using T_data = typename T_task::data;
+    static_assert((requires { std::tuple_size_v<T_data>; }));
 
-template <typename T_task, typename... Rest>
-  requires(!requires { typename T_task::data; })
-struct merge_data<TypeList<T_task, Rest...>> : merge_data<TypeList<Rest...>> {
-  using type = merge_data<TypeList<Rest...>>::type;
-};
+    if constexpr (sizeof...(Rest) == 0) {
+      return T_data{};
+    } else {
+      return std::tuple_cat(T_data{}, make_data_tuple(std::tuple<Rest...>{}));
+    }
+  } else {
+    if constexpr (sizeof...(Rest) == 0) {
+      return std::tuple<>{};
+    } else {
+      return make_data_tuple(std::tuple<Rest...>{});
+    }
+  }
+}
 
+template <typename... Ts>
+consteval auto tuple_to_variant(std::tuple<Ts...>) {
+  return std::variant<std::monostate, Ts...>{};
+}
+
+template <typename Tuple>
+consteval cooperation tuple_co_type() {
+  if constexpr (requires(Tuple t) { std::get<0>(t).co_type; }) {
+    using T = decltype(std::get<0>(std::declval<Tuple>()));
+    return std::remove_reference_t<T>::co_type;
+  } else {
+    return cooperation::exclusive;
+  }
+}
+
+// 前面定义的函数都是在非求值上下文中，比如 using T = decltype(func());
+// 从这里开始的函数会用在求值上下文中，从而参数使用了 tuple 的指针避免实例化。
+template <typename Item, typename... Args>
+consteval std::pair<size_t, bool> tuple_find(std::tuple<Args...>*) {
+  size_t i = 0;
+  bool ret = ((++i, std::is_same_v<Args, Item>) || ...);
+  return {i - 1, ret};
+}
+
+template <typename Tuple, typename Item>
+  requires(requires { std::tuple_size_v<Tuple>; })
+consteval size_t tuple_index() {
+  static_assert(std::tuple_size_v<Tuple> > 0);
+
+  return tuple_find<Item>(static_cast<Tuple*>(nullptr)).first;
+}
+
+template <typename Tuple, typename Item>
+  requires(requires { std::tuple_size_v<Tuple>; })
+consteval bool tuple_include() {
+  return tuple_find<Item>(static_cast<Tuple*>(nullptr)).second;
+}
+
+// 以上是 consteval 函数。
 template <typename>
 struct for_each;
 
-template <>
-struct for_each<TypeList<>> {
-  static void before(auto&) {}
-  static void after(auto&) {}
-};
-
-template <typename Head, typename... Rest>
-struct for_each<TypeList<Head, Rest...>> : for_each<TypeList<Rest...>> {
+template <typename... Args>
+struct for_each<std::tuple<Args...>> {
   static void before(auto& worker) {
-    if constexpr (requires { Head::before(worker); }) {
-      Head::before(worker);
-    }
-    static_assert(
-        !(requires { Head::before(); }),
-        "The static function before() without parameters will be ignored. "
-        "Please use `auto&' as the first parameter.");
-    for_each<TypeList<Rest...>>::before(worker);
+    auto proc = [&worker]<typename T>(T*) {
+      // 这里不把 requires 语句写到下面的 constexpr if 条件中，
+      // 是为了让 MSVC 能顺利运行。否则 MSVC 会错误地忽略 before 函数。
+      constexpr bool condition = requires { T::before(worker); };
+      if constexpr (condition) {
+        T::before(worker);
+      }
+      static_assert(
+          !(requires { T::before(); }),
+          "The static function before() without parameters will be ignored. "
+          "Please use `auto&' as the first parameter.");
+    };
+    (proc(static_cast<Args*>(nullptr)), ...);
   }
 
   static void after(auto& worker) {
-    for_each<TypeList<Rest...>>::after(worker);
-    if constexpr (requires { Head::after(worker); }) {
-      Head::after(worker);
-    }
-    static_assert(
-        !(requires { Head::after(); }),
-        "The static function after() without parameters will be ignored. "
-        "Please use `auto&' as the first parameter.");
+    auto proc = [&worker]<typename T>(T*) {
+      constexpr bool condition = requires { T::after(worker); };
+      if constexpr (condition) {
+        T::after(worker);
+      }
+      static_assert(
+          !(requires { T::after(); }),
+          "The static function after() without parameters will be ignored. "
+          "Please use `auto&' as the first parameter.");
+    };
+    (proc(static_cast<Args*>(nullptr)), ...);
   }
-};
-
-template <typename, typename>
-struct remove_dummy;
-
-template <typename T, typename U>
-using remove_dummy_t = typename remove_dummy<T, U>::type;
-
-template <typename U>
-struct remove_dummy<TypeList<>, U> {
-  using type = TypeList<>;
-};
-
-template <typename U, typename Head, typename... Args>
-struct remove_dummy<TypeList<Head, Args...>, U>
-    : remove_dummy<TypeList<Args...>, U> {
-  using type = typename remove_dummy<TypeList<Args...>, U>::type;
-};
-
-template <typename U, typename Head, typename... Args>
-  requires(requires(Head a, U b) { a.run(b); })
-struct remove_dummy<TypeList<Head, Args...>, U>
-    : remove_dummy<TypeList<Args...>, U> {
-  using type =
-      append_t<Head, typename remove_dummy<TypeList<Args...>, U>::type>;
-};
-
-template <typename...>
-struct is_asynchronized;
-
-template <>
-struct is_asynchronized<> : std::false_type {};
-
-template <typename Head, typename... Args>
-struct is_asynchronized<Head, Args...> : is_asynchronized<Args...> {
-  static constexpr bool value = is_asynchronized<Args...>::value;
-};
-
-template <typename Head, typename... Args>
-  requires(requires { Head::launch_flag; })
-struct is_asynchronized<TypeList<Head, Args...>> : is_asynchronized<TypeList<Args...>> {
-  static constexpr bool value = (Head::launch_flag == std::launch::async) ||
-                                is_asynchronized<TypeList<Args...>>::value;
-};
-
-template <typename T, bool>
-struct magic_cast {
-  using type = T;
 };
 }  // namespace rgm::core::traits

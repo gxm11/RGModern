@@ -133,7 +133,7 @@ struct set_fullscreen {
 
 /** @brief 将 cen_library 类型的变量添加到 worker 的 datalist 中 */
 struct init_sdl2 {
-  using data = rgm::data<cen_library>;
+  using data = std::tuple<cen_library>;
 
   static void before(auto& worker) {
     cen::renderer& renderer = RGMDATA(cen_library).renderer;

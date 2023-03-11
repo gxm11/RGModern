@@ -9,11 +9,10 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
-#include "datalist.hpp"
+#include "cooperation.hpp"
 #include "kernel.hpp"
 #include "scheduler.hpp"
 #include "semaphore.hpp"
-#include "tasklist.hpp"
 #include "type_traits.hpp"
 
 namespace rgm::core {
@@ -25,16 +24,12 @@ namespace rgm::core {
  */
 template <template <typename> class T_kernel, typename... Args>
 struct worker {
-  using T_tasklist = tasklist<Args...>;
-  using T_tasks = typename T_tasklist::tasks;
-  using T_kernel_tasks = traits::remove_dummy_t<T_tasks, worker>;
-  using T_datalist = typename T_tasklist::data::template to<datalist>;
-
-  /** 保存父类的指针地址用于向下转型为 scheduler<> 的派生类指针 */
-  scheduler<>* p_scheduler;
-  /** datalist 类，存储的变量可供所有的任务读写 */
-  std::unique_ptr<T_datalist> p_datalist;
-
+  using T_all_tasks = decltype(traits::expand_tuples(std::declval<Args>()...));
+  using T_tasks = decltype(traits::unique_tuple(std::declval<T_all_tasks>()));
+  using T_kernel_tasks = decltype(traits::remove_dummy_tuple(
+      static_cast<worker*>(nullptr), std::declval<T_tasks>()));
+  using T_all_data = decltype(traits::make_data_tuple(std::declval<T_tasks>()));
+  using T_data = decltype(traits::unique_tuple(std::declval<T_all_data>()));
   /**
    * @brief 任务执行的逻辑
    * @tparam T_kernel_tasks 包含了所有可以执行的任务的 TypeList
@@ -44,8 +39,15 @@ struct worker {
   static constexpr bool is_active =
       std::is_base_of_v<kernel_active<T_kernel_tasks>,
                         T_kernel<T_kernel_tasks>>;
+  static constexpr cooperation co_type = traits::tuple_co_type<T_tasks>();
   static constexpr bool is_asynchronized =
-      traits::is_asynchronized<T_kernel_tasks>::value;
+      (co_type == cooperation::asynchronous);
+
+  /** 保存父类的指针地址用于向下转型为 scheduler<> 的派生类指针 */
+  scheduler<co_type>* p_scheduler;
+  /** T_data 类，存储的变量可供所有的任务读写 */
+  std::unique_ptr<T_data> p_data;
+
   /**
    * @brief 根据不同的变量类型，获取相应的共享变量。
    *
@@ -54,12 +56,11 @@ struct worker {
    */
   template <typename T>
   T& get() {
-    return p_datalist->template get<T>();
+    constexpr size_t index = traits::tuple_index<T_data, T>();
+    return std::get<index>(*p_data);
   }
 
-  template <typename T>
-    requires(std::same_as<T, std::stop_token>)
-  std::stop_token get() {
+  std::stop_token get_stop_token() {
     return p_scheduler->stop_source.get_token();
   }
 
@@ -73,29 +74,29 @@ struct worker {
    * 5. 按倒序执行任务列表的静态 after 函数 (after)
    * 6. 析构 datalist (after)
    */
-  void run() {
-    before();
-    kernel_run();
-    after();
-  }
-
   void before() {
     if constexpr (config::output_level > 0) {
       int size = sizeof(typename T_kernel<T_kernel_tasks>::T_variants);
-      printf("blocksize = %d\n", size);
+      printf("block size = %d\n", size);
+      printf("kernel task size = %lld\n", std::tuple_size_v<T_kernel_tasks>);
     }
-    p_datalist = std::make_unique<T_datalist>();
+    p_data = std::make_unique<T_data>();
     traits::for_each<T_tasks>::before(*this);
   }
 
-  void kernel_run() { m_kernel.run(*this); }
+  void run() {
+    if constexpr (is_active || is_asynchronized) {
+      m_kernel.run(*this);
+    }
+  }
 
   void after() {
     p_scheduler->stop_source.request_stop();
     traits::for_each<T_tasks>::after(*this);
+
     // 同步模式下，不需要主动销毁变量
     if constexpr (is_asynchronized) {
-      p_datalist.reset();
+      p_data.reset();
     }
   }
 
@@ -103,15 +104,15 @@ struct worker {
    * @brief 广播任务，可能会被某个 worker 接受。
    *
    * @tparam T 被广播的任务类型。
-   * @tparam U 辅助 scheduler<>* 向下转型，延迟到 magic_cast 的特化之后。
+   * @tparam U 辅助 scheduler<co_type>* 向下转型，延迟到 magic_cast 的特化之后。
    * @param task 被广播的任务，必须是右值，表示该任务已经离开作用域。
    * @return true 某个 worker 接受了该任务。
    * @return false 没有任何 worker 接受了该任务。
    */
-  template <typename T, typename U = scheduler<>*>
+  template <typename T, typename U = scheduler<co_type>*>
   bool send(T&& task) {
     using base_t = U;
-    using derived_t = traits::magic_cast<U, is_asynchronized>::type;
+    using derived_t = scheduler_cast<U>::type;
 
     static_assert(std::is_rvalue_reference_v<T&&>,
                   "Task must be passed as R-value!");
@@ -151,7 +152,7 @@ struct worker {
     static_assert(std::is_rvalue_reference_v<T&&>,
                   "Task must be passed as R-value!");
 
-    static_assert(traits::is_repeated_v<T, T_kernel_tasks>);
+    static_assert(traits::tuple_include<T_kernel_tasks, T>());
     if constexpr (is_asynchronized) {
       m_kernel << std::forward<T>(task);
     } else {

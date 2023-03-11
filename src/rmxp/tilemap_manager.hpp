@@ -127,7 +127,7 @@ struct tilemap_manager {
 };
 
 struct init_tilemap_manager {
-  using data = rgm::data<tilemap_manager>;
+  using data = std::tuple<tilemap_manager>;
   static void before(auto& worker) {
     tilemap_manager& tm = RGMDATA(tilemap_manager);
     tm.p_tables = &(RGMDATA(tables));

@@ -25,7 +25,7 @@ struct interrupt_signal {
 
 /** @brief 创建 synchronize 相关的 ruby 方法 */
 struct init_synchronize {
-  using data = rgm::data<timer>;
+  using data = std::tuple<timer>;
 
   static void before(auto& this_worker) {
     static decltype(auto) worker = this_worker;

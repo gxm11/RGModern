@@ -169,7 +169,7 @@ struct key_release {
  * ruby 方法。
  */
 struct init_input {
-  using data = rgm::data<keymap, keystate>;
+  using data = std::tuple<keymap, keystate>;
 
   static void before(auto& this_worker) {
     static decltype(auto) worker = this_worker;

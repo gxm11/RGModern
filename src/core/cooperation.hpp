@@ -9,22 +9,6 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
-#include <cstdint>
-#include <unordered_map>
-
-#include "cen_library.hpp"
-#include "core/core.hpp"
-
-namespace rgm::base {
-/**
- * @brief 管理所有 texture 的哈希表，继承自 unordered_map 以区分不同的类型。
- */
-using textures = std::unordered_map<uint64_t, cen::texture>;
-
-/** @brief 将 textures 类型的变量添加到 worker 的 datalist 中 */
-struct init_textures {
-  using data = std::tuple<textures>;
-
-  static void after(auto& worker) { RGMDATA(textures).clear(); }
-};
-}  // namespace rgm::base
+namespace rgm::core {
+enum class cooperation { asynchronous, exclusive, concurrent };
+}

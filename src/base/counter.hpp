@@ -27,7 +27,7 @@ struct counter {
 
 /** @brief 将 counter 类型的变量添加到 worker 的 datalist 中 */
 struct init_counter {
-  using data = rgm::data<counter>;
+  using data = std::tuple<counter>;
 
   static void before(auto& this_worker) {
     static decltype(auto) worker = this_worker;
