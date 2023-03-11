@@ -10,107 +10,120 @@
 
 #pragma once
 #include "init_sdl2.hpp"
-#include <chrono>
-#include <thread>
+#include <time.h>
+
+#if defined(_WIN32)
+#include <Windows.h>
+
+#define TIME_BEGIN_PERIOD(p) timeBeginPeriod(p)
+#define TIME_END_PERIOD(p) timeEndPeriod(p)
+#else
+#define TIME_BEGIN_PERIOD(p) (p)
+#define TIME_END_PERIOD(p) (p)
+#endif // _WIN32
 
 namespace rgm::base {
-#if 1
 struct timer {
   uint64_t counter;
   uint64_t frequency;
   int64_t error_counter;
+  uint32_t period_min;
+#if defined(_WIN32)
+  HANDLE waitable_timer;
+#endif // _WIN32
 
   timer() {
     counter = SDL_GetPerformanceCounter();
     frequency = SDL_GetPerformanceFrequency();
     error_counter = 0;
+    period_min = 1;
+#if defined(_WIN32)
+    // query min period
+    TIMECAPS tc = { 0 };
+    timeGetDevCaps(&tc, sizeof(tc));
+    period_min = std::max(period_min, tc.wPeriodMin);
+    // create timer
+    waitable_timer = CreateWaitableTimer(
+      nullptr,
+      TRUE,
+      nullptr
+    );
+    if (!waitable_timer)
+      cen::log_warn("[timer] CreateWaitableTimer FAILED with %08x", HRESULT_FROM_WIN32(GetLastError()));
   }
+
+  ~timer() {
+    if (waitable_timer) CloseHandle(waitable_timer);
+#endif // _WIN32
+  }
+
+  /// @param[in] delay  单位：SDL performance counter
+  /// @return           单位：SDL performance counter
+  uint64_t predict_delay(uint64_t delay) {
+    return delay;
+  }
+
+  /// @param[in] delay      传递给延时函数的时间，单位同上
+  /// @param[in] real_delay 实际延时的时间，单位同上
+  void train_model(uint64_t delay, uint64_t real_delay)
+  {}
 
   void tick(double interval) {
     uint64_t next_counter;
 
     next_counter = counter + round(frequency * interval);
-    counter = SDL_GetPerformanceCounter();
+    uint64_t before_counter = SDL_GetPerformanceCounter();
 
-    if (counter < next_counter) {
-      long double delta_counter = (next_counter - counter) - error_counter;
-      long long delay_ns = static_cast<long long>(delta_counter * (1E9 / frequency));
-      std::this_thread::sleep_for(std::chrono::nanoseconds(delay_ns));
-      
-      long double before_counter = counter;
+    if (before_counter < next_counter) {
+      uint64_t delta_counter = (next_counter - before_counter) - error_counter;
+      time_t delay_ns = 
+        static_cast<ULONGLONG>(predict_delay(delta_counter) * (1E9 / frequency));
+
+      TIME_BEGIN_PERIOD(period_min);
+#if defined(_WIN32)
+      bool waited = false;
+      if (waitable_timer) do {
+        // WaitableTimer
+        LARGE_INTEGER dt = { 0 };
+        dt.QuadPart = delay_ns / -100;
+        HRESULT hr = SetWaitableTimer(
+          waitable_timer,
+          &dt,
+          0,
+          nullptr, nullptr,
+          FALSE
+        );
+        if (FAILED(hr)) {
+          cen::log_warn("[timer] SetWaitableTimer FAILED with %08x", hr);
+          break;
+        }
+        WaitForSingleObject(waitable_timer, INFINITE);
+        waited = true;
+      } while (0);
+      if (!waited) {
+        // system sleep
+        Sleep(lroundl(delta_counter / 1E6));
+      }
+#else
+      // POSIX sleep
+      timespec dt = { 0 };
+      dt.tv_sec = delay_ns / long(1E6);
+      dt.tv_nsec = delay_ns % long(1E6);
+      nanosleep(&dt, nullptr);
+#endif // _WIN32
+      TIME_END_PERIOD(period_min);
+
       counter = SDL_GetPerformanceCounter();
-      error_counter = static_cast<int64_t>((counter - before_counter) - delta_counter);
+      uint64_t real_delay_counter = counter - before_counter;
+      error_counter = static_cast<int64_t>(real_delay_counter - delta_counter);
+      train_model(delta_counter, real_delay_counter);
     }
     else {
-      counter = SDL_GetPerformanceCounter();
+      counter = before_counter;
       error_counter = 0;
     }
   }
 
   void reset() { counter = SDL_GetPerformanceCounter(); }
 };
-#else
-// Author: Ryan M. Geiss
-// http://www.geisswerks.com/ryan/FAQS/timing.html
-struct timer {
-  timer() {
-    QueryPerformanceFrequency(&freq_);
-    QueryPerformanceCounter(&time_);
-  }
-
-  void tick(double interval) {
-    LARGE_INTEGER t;
-    QueryPerformanceCounter(&t);
-
-    if (time_.QuadPart != 0) {
-      int ticks_to_wait =
-          static_cast<int>(static_cast<double>(freq_.QuadPart) * interval);
-      int done = 0;
-      while (!done) {
-        QueryPerformanceCounter(&t);
-
-        int ticks_passed =
-            static_cast<int>(static_cast<__int64>(t.QuadPart) -
-                             static_cast<__int64>(time_.QuadPart));
-        int ticks_left = ticks_to_wait - ticks_passed;
-
-        if (t.QuadPart < time_.QuadPart)  // time wrap
-        {
-          done = 1;
-        }
-        if (ticks_passed >= ticks_to_wait) {
-          done = 1;
-        }
-        if (!done) {
-          // if > 0.002s left, do Sleep(1), which will actually sleep some
-          //   steady amount, probably 1-2 ms,
-          //   and do so in a nice way (cpu meter drops; laptop battery spared).
-          // otherwise, do a few Sleep(0)'s, which just give up the timeslice,
-          //   but don't really save cpu or battery, but do pass a tiny
-          //   amount of time.
-          if (ticks_left > static_cast<int>((freq_.QuadPart * 2) / 1000)) {
-            Sleep(1);
-          } else {
-            for (int i = 0; i < 10; ++i) {
-              Sleep(0);  // causes thread to give up its timeslice
-            }
-          }
-        }
-      }
-    }
-
-    time_ = t;
-  }
-
-  void reset() {
-    LARGE_INTEGER t;
-    QueryPerformanceCounter(&t);
-    time_ = t;
-  }
-
-  // private:
-  LARGE_INTEGER freq_;
-  LARGE_INTEGER time_;
-};
-#endif
 }  // namespace rgm::base
