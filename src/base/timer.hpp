@@ -77,12 +77,12 @@ struct timer {
     if (before_counter < next_counter) {
       uint64_t delta_counter = (next_counter - before_counter) - error_counter;
       time_t delay_ns = 
-        static_cast<ULONGLONG>(predict_delay(delta_counter) * (1E9 / frequency));
+        static_cast<time_t>(predict_delay(delta_counter) * (1E9 / frequency));
 
       TIME_BEGIN_PERIOD(period_min);
 #if defined(_WIN32)
       bool waited = false;
-      if (waitable_timer) do {
+      if (waitable_timer) {
         // WaitableTimer
         LARGE_INTEGER dt = { 0 };
         dt.QuadPart = delay_ns / -100;
@@ -95,11 +95,12 @@ struct timer {
         );
         if (FAILED(hr)) {
           cen::log_warn("[timer] SetWaitableTimer FAILED with %08x", hr);
-          break;
         }
-        WaitForSingleObject(waitable_timer, INFINITE);
-        waited = true;
-      } while (0);
+        else {
+          WaitForSingleObject(waitable_timer, INFINITE);
+          waited = true;
+        }
+      }
       if (!waited) {
         // system sleep
         Sleep(lroundl(delta_counter / 1E6));
