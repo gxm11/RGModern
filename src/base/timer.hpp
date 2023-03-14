@@ -98,10 +98,8 @@ struct timer {
 #else
       // POSIX sleep
       timespec dt;
-      // replace long with int32_t
-      static_assert(sizeof(long) == sizeof(int32_t));
-      dt.tv_sec = delay_ns / int32_t(1E6);
-      dt.tv_nsec = delay_ns % int32_t(1E6);
+      dt.tv_sec = delay_ns / long(1E6);
+      dt.tv_nsec = delay_ns % long(1E6);
       nanosleep(&dt, nullptr);
 #endif  // _WIN32
       TIME_END_PERIOD(period_min);

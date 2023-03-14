@@ -44,9 +44,7 @@ struct kernel_ruby : rgm::core::kernel_active<T_tasks> {
     VALUE backtrace = rb_ary_to_ary(rb_funcall(exc, rb_intern("backtrace"), 0));
     VALUE message = rb_str_to_str(rb_funcall(exc, rb_intern("message"), 0));
     std::cerr << StringValueCStr(message) << std::endl;
-    // replace long with int32_t
-    static_assert(sizeof(long) == sizeof(int32_t));
-    for (int32_t i = 0; i < RARRAY_LEN(backtrace); ++i) {
+    for (long i = 0; i < RARRAY_LEN(backtrace); ++i) {
       VALUE lp = rb_str_to_str(rb_ary_entry(backtrace, i));
       std::cerr << StringValueCStr(lp) << std::endl;
     }
