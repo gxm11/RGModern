@@ -157,7 +157,7 @@ struct worker {
       m_kernel << std::forward<T>(task);
     } else {
       task.run(*this);
-    }    
+    }
   }
 };
 }  // namespace rgm::core
