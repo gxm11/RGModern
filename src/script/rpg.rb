@@ -283,7 +283,7 @@ module RPG
         sprite = @_animation_sprites[0]
         unless sprite.nil?
           @@_reference_count[sprite.bitmap] -= 1
-          sprite.bitmap.dispose if @@_reference_count[sprite.bitmap] == 0
+          # sprite.bitmap.dispose if @@_reference_count[sprite.bitmap] == 0
         end
         @_animation_sprites.each do |sprite|
           sprite.dispose
@@ -298,7 +298,7 @@ module RPG
         sprite = @_loop_animation_sprites[0]
         unless sprite.nil?
           @@_reference_count[sprite.bitmap] -= 1
-          sprite.bitmap.dispose if @@_reference_count[sprite.bitmap] == 0
+          # sprite.bitmap.dispose if @@_reference_count[sprite.bitmap] == 0
         end
         @_loop_animation_sprites.each do |sprite|
           sprite.dispose

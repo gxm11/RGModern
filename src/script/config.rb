@@ -9,7 +9,7 @@
 # See the Mulan PSL v2 for more details.
 
 unless File.exist?(RGM::Default_Config)
-  File.open(RGM::Default_Config, 'w') do |f|
+  File.open(RGM::Default_Config, 'wb') do |f|
     f << load_file('config.ini')
   end
 end
