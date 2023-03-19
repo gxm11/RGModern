@@ -9,6 +9,8 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
+#include <SDL_syswm.h>
+
 #include <memory>
 
 #include "cen_library.hpp"
@@ -63,6 +65,8 @@ struct cen_library {
 
   event_dispatcher_t event_dispatcher;
 
+  SDL_SysWMinfo window_info;
+  SDL_RendererInfo renderer_info;
   /** @brief 初始化 SDL2 运行环境，创建并显示窗口 */
   explicit cen_library()
       : sdl(),
@@ -92,6 +96,10 @@ struct cen_library {
     sound_pitch::setup();
 
     event_dispatcher.poll();
+
+    SDL_VERSION(&window_info.version);
+    SDL_GetWindowWMInfo(window.get(), &window_info);
+    SDL_GetRendererInfo(renderer.get(), &renderer_info);
   }
 };
 
@@ -136,10 +144,7 @@ struct init_sdl2 {
   using data = std::tuple<cen_library>;
 
   static void before(auto& worker) {
-    cen::renderer& renderer = RGMDATA(cen_library).renderer;
-
-    SDL_RendererInfo info;
-    SDL_GetRendererInfo(renderer.get(), &info);
+    SDL_RendererInfo& info = RGMDATA(cen_library).renderer_info;
     cen::log_info(cen::log_category::video, "[Driver] use %s for rendering\n",
                   info.name);
     cen::log_info(cen::log_category::video, "[Driver] max texture %d x %d\n",

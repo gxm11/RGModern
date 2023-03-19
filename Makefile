@@ -82,7 +82,7 @@ ifeq ($(system), MINGW64_NT)
 else
 	libs += msvcrt-ruby$(RUBY_LIBRARY_VERSION)-static
 endif
-libs += gmp stdc++ shell32 ws2_32 iphlpapi imagehlp shlwapi bcrypt
+libs += nana gmp stdc++ shell32 ws2_32 iphlpapi imagehlp shlwapi bcrypt comdlg32
 # -----------------------------------------------
 # SDL2 static library
 # -----------------------------------------------

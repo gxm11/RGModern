@@ -13,17 +13,19 @@
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif // __GNUC__
+#endif  // __GNUC__
 #include "ruby.h"
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
-#endif // __GNUC__
+#endif  // __GNUC__
 
 // 宏 access 与 centurion 库冲突
 #undef access
 // 宏 bind 与 ruby 头文件冲突
 #undef bind
-
+// 宏 connect 与 nana 头文件冲突
+#undef connect
+#undef close
 /** 加密包模式下不检查 ruby 的变量类型 */
 #if RGM_BUILDMODE >= 3
 #undef Check_Type
