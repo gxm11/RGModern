@@ -17,11 +17,9 @@
 namespace rgm::base {
 /** @brief 计数器，用于生成递增的 ID。*/
 struct counter {
-  uint64_t value{0};
-
   uint64_t fetch_and_add() {
-    value += 10;
-    return value;
+    static std::atomic<uint64_t> id = 1000;
+    return id.fetch_add(10);
   }
 };
 

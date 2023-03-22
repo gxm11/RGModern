@@ -141,7 +141,7 @@ music_manager::state music_manager::update<music_manager::event::bgm_play>(
         current_state = bgm_fade;
       } else {
         cen::music::set_position(position);
-        cen::music::set_volume(volume);
+        cen::music::set_volume(volume);        
       }
       break;
     default:
