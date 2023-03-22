@@ -45,6 +45,11 @@ struct detail {
     Check_Type(value_, T_FIXNUM);
     return FIX2INT(value_);
   }
+
+  template <typename T>
+  static T get(VALUE object) {
+    return from_ruby<T>(object);
+  }
 };
 /** 全局变量 id_table */
 std::vector<ID> detail::id_table = {};

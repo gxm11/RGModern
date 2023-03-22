@@ -19,10 +19,15 @@ namespace rgm::base {
 using musics = std::map<uint64_t, cen::music>;
 
 struct music_create {
+  using data = std::tuple<musics>;
+
   uint64_t id;
   const char* path;
 
-  void run(auto& worker) { musics.emplace(id, cen::music(path)); }
+  void run(auto& worker) {
+    musics& data = RGMDATA(musics);
+    data.emplace(id, cen::music(path));
+  }
 };
 
 struct music_dispose {
@@ -49,9 +54,9 @@ struct music_fade_in {
   int iteration;
   int duration;
 
-  void run(auto&) {
+  void run(auto& worker) {
     musics& data = RGMDATA(musics);
-    data.at(id).fade_in(duration, iteration);
+    data.at(id).fade_in(cen::music::ms_type{duration}, iteration);
   }
 };
 
@@ -78,7 +83,7 @@ struct music_halt {
 struct music_fade_out {
   int duration;
 
-  void run(auto&) { cen::music::fade_out(duration); }
+  void run(auto&) { cen::music::fade_out(cen::music::ms_type{duration}); }
 };
 
 struct music_is_playing {
@@ -88,8 +93,6 @@ struct music_is_playing {
 };
 
 struct init_music {
-  using data = std::tuple<musics>;
-
   static void before(auto& this_worker) {
     static decltype(auto) worker = this_worker;
 
@@ -98,13 +101,13 @@ struct init_music {
         RGMLOAD(id, const uint64_t);
         RGMLOAD(path, const char*);
 
-        worker >> music_create{id, path};
+        worker >> base::music_create{id, path};
         return Qnil;
       }
 
       static VALUE music_dispose(VALUE, VALUE id_) {
         RGMLOAD(id, const uint64_t);
-        worker >> music_dispose{id};
+        worker >> base::music_dispose{id};
         return Qnil;
       }
 
@@ -112,7 +115,7 @@ struct init_music {
         RGMLOAD(id, const uint64_t);
         RGMLOAD(iteration, int);
 
-        worker >> music_play{id, iteration};
+        worker >> base::music_play{id, iteration};
         return Qnil;
       }
 
@@ -122,45 +125,45 @@ struct init_music {
         RGMLOAD(iteration, int);
         RGMLOAD(duration, int);
 
-        worker >> music_fade_in{id, iteration, duration};
+        worker >> base::music_fade_in{id, iteration, duration};
         return Qnil;
       }
 
       static VALUE music_set_volume(VALUE, VALUE volume_) {
         RGMLOAD(volume, int);
 
-        worker >> music_set_volume{volume};
+        worker >> base::music_set_volume{volume};
         return Qnil;
       }
 
       static VALUE music_set_position(VALUE, VALUE position_) {
         RGMLOAD(position, double);
 
-        worker >> music_set_position{position};
+        worker >> base::music_set_position{position};
         return Qnil;
       }
 
       static VALUE music_pause(VALUE) {
-        worker >> music_pause{};
+        worker >> base::music_pause{};
         return Qnil;
       }
 
       static VALUE music_halt(VALUE) {
-        worker >> music_halt{};
+        worker >> base::music_halt{};
         return Qnil;
       }
 
       static VALUE music_fade_out(VALUE, VALUE duration_) {
         RGMLOAD(duration, int);
 
-        worker >> music_fade_out{duration};
+        worker >> base::music_fade_out{duration};
         return Qnil;
       }
 
       static VALUE music_is_playing(VALUE) {
-        bool is_playing;
+        bool is_playing = false;
 
-        worker >> music_is_playing{&bool};
+        worker >> base::music_is_playing{&is_playing};
         RGMWAIT(2);
 
         return is_playing ? Qtrue : Qfalse;

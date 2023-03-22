@@ -31,6 +31,7 @@ module RGM
         RGM::Ext.music_play(@id, iteration)
       end
 
+      # duration 单位是 ms
       def fade_in(iteration, duration)
         RGM::Ext.music_fade_in(@id, iteration, duration)
       end
@@ -62,6 +63,7 @@ module RGM
           RGM::Ext.music_halt
         end
 
+        # duration 单位是 ms
         def fade_out(duration)
           RGM::Ext.music_fade_out(duration)
         end
