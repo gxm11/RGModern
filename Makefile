@@ -1,9 +1,9 @@
 # -----------------------------------------------
 # packages settings
 # -----------------------------------------------
-# include ./ext/settings.txt
+include ./ext/settings.txt
 RGM_VERSION = 0.9.0
-
+RUBY_M_VERSION = $(RUBY_MAJOR_VERSION)$(RUBY_MINOR_VERSION)
 # -----------------------------------------------
 # UUID and PASSWORDS
 # -----------------------------------------------
@@ -13,17 +13,14 @@ RGM_VERSION ?= $(shell git tag --list | tail -1)*
 RGM_FULLVERSION = $(RGM_VERSION) ($(shell date +%F) revision $(shell find ./src -type f | sort | xargs -n 1 cat | md5sum | cut -c-10))
 
 system := $(shell uname | cut -d'-' -f1)
-ifeq ($(system), MINGW64_NT)
-	path_vendors := $(subst \,/,$(shell cygpath -aw ./))/vendors
-else
-	path_vendors := $(subst \,/,$(shell cygpath -aw ./))/vendors_mingw32
-endif
+
 path_thirdparty := \
 	./third_party/centurion/src \
 	./third_party/concurrentqueue \
 	./third_party/incbin \
 	./third_party/readerwriterqueue \
-	./third_party/xorstr/include
+	./third_party/xorstr/include \
+	./third_party/ruby$(RUBY_M_VERSION)/include
 
 path_script := ./src/script
 deps := ./ext/deps.mk
@@ -40,8 +37,7 @@ zip_publish_add := 7z a -tzip $(zip_publish) $(slient)
 # -----------------------------------------------
 path_include = $(MSYSTEM_PREFIX)/include
 path_lib = $(MSYSTEM_PREFIX)/lib
-path_include += $(path_vendors)/include $(path_thirdparty) ./src
-path_lib += $(path_vendors)/lib
+path_include += $(path_thirdparty) ./src
 
 cc = $(MSYSTEM_PREFIX)/bin/g++
 cflags = -std=c++20 -pipe -fstack-protector-strong -MMD -MP -static -Wall -Wextra
@@ -65,30 +61,18 @@ cflags_develop  = -DRGM_BUILDMODE=1 -s -O3
 cflags_standard = -DRGM_BUILDMODE=2 -s -O3 -DPASSWORD="\"$(PASSWORD)\""
 cflags_encrypt  = -DRGM_BUILDMODE=3 -s -O3 -DPASSWORD="\"$(PASSWORD)\"" -mwindows
 
-clibs = icon.o
-libs = pthread zip uuid
-
+clibs = 
+libs = pthread stdc++
 # -----------------------------------------------
 # ruby static library
 # -----------------------------------------------
-RUBY_MAJOR_VERSION = 3
-RUBY_MINOR_VERSION = 2
-
-RUBY_VERSION := $(RUBY_MAJOR_VERSION).$(RUBY_MINOR_VERSION).$(RUBY_PATCH_VERSION)
-RUBY_LIBRARY_VERSION := $(RUBY_MAJOR_VERSION)$(RUBY_MINOR_VERSION)0
-
-lib_ruby := $(path_vendors)/lib/ruby-$(RUBY_VERSION)
-lib_ruby_ext := $(lib_ruby)/ext
-
-path_lib += ./ruby$(RUBY_MAJOR_VERSION)$(RUBY_MINOR_VERSION)/lib
-path_include += ./ruby$(RUBY_MAJOR_VERSION)$(RUBY_MINOR_VERSION)/include
-
+path_lib += ./third_party/ruby$(RUBY_M_VERSION)/lib
 ifeq ($(system), MINGW64_NT)
-	libs += x64-ucrt-ruby$(RUBY_LIBRARY_VERSION)-static
+	libs += x64-ucrt-ruby$(RUBY_M_VERSION)0-static
 else
-	libs += msvcrt-ruby$(RUBY_LIBRARY_VERSION)-static
+	libs += msvcrt-ruby$(RUBY_M_VERSION)0-static
 endif
-libs += gmp stdc++ shell32 ws2_32 iphlpapi imagehlp shlwapi bcrypt
+libs += gmp zip uuid shell32 ws2_32 iphlpapi imagehlp shlwapi bcrypt
 # -----------------------------------------------
 # SDL2 static library
 # -----------------------------------------------
@@ -105,7 +89,7 @@ libs += SDL2_mixer flac mpg123 vorbisfile opusfile winmm ogg vorbis opus opusfil
 libs += opengl32 d3dx9
 
 # -----------------------------------------------
-# ruby ext
+# ruby static extension
 # -----------------------------------------------
 libs += :fiddle.a :zlib.a
 libs += ffi
@@ -128,7 +112,7 @@ all : main.exe
 
 main.exe : ./src/main.cpp Makefile icon.o
 	@echo "compile $@"
-	time $(cc) $< -o $@ $(cflags) $(clibs) $(cflags_develop)
+	@time $(cc) $< -o $@ $(cflags) $(clibs) $(cflags_develop)
 
 debug.exe : ./src/main.cpp Makefile icon.o
 	@echo "compile $@"
