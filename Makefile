@@ -2,8 +2,7 @@
 # packages settings
 # -----------------------------------------------
 include ./ext/settings.txt
-RGM_VERSION = 0.9.0
-RUBY_M_VERSION = $(RUBY_MAJOR_VERSION)$(RUBY_MINOR_VERSION)
+
 # -----------------------------------------------
 # UUID and PASSWORDS
 # -----------------------------------------------
@@ -32,6 +31,7 @@ zip_embeded = ./embeded.zip
 zip_publish = ./publish_$(RGM_VERSION).zip
 zip_temp_add := 7z a -tzip -mx9 -p'$(PASSWORD)' $(zip_embeded) $(slient)
 zip_publish_add := 7z a -tzip $(zip_publish) $(slient)
+
 # -----------------------------------------------
 # include and link path
 # -----------------------------------------------
@@ -73,6 +73,7 @@ else
 	libs += msvcrt-ruby$(RUBY_M_VERSION)0-static
 endif
 libs += gmp zip uuid shell32 ws2_32 iphlpapi imagehlp shlwapi bcrypt
+
 # -----------------------------------------------
 # SDL2 static library
 # -----------------------------------------------
@@ -148,16 +149,13 @@ clean :
 envs : $(deps)
 	@make envs -f $(deps)
 
-deps : $(deps)
-	@make -f $(deps)
-
 publish : Game.exe main.exe
 	@echo "pack $(zip_publish)"
 	@rm -f $(zip_publish)
 	@$(zip_publish_add) Game.exe main.exe src Project1
 
 misc.7z :
-	# @7z a $@ history Project1/Audio Project1/Graphics Project1/RGSS103J.dll Project1/RGSS104E.dll Project1/RPGXP.chm Project1/RPGXP.chw resource vendors/lib Doxyfile
+	# @7z a $@ history Project1/Audio Project1/Graphics Project1/RGSS103J.dll Project1/RGSS104E.dll Project1/RPGXP.chm Project1/RPGXP.chw resource third_party/ruby$(RUBY_M_VERSION) Doxyfile
 	wget https://7niu.gxmatmars.com/p1/RGModern/misc.7z
 
 misc : misc.7z

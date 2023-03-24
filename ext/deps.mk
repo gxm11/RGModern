@@ -18,7 +18,7 @@ endif
 # ruby static library
 # -----------------------------------------------
 RUBY_VERSION := $(RUBY_MAJOR_VERSION).$(RUBY_MINOR_VERSION).$(RUBY_PATCH_VERSION)
-RUBY_LIBRARY_VERSION := $(RUBY_MAJOR_VERSION)$(RUBY_MINOR_VERSION)0
+RUBY_LIBRARY_VERSION := $(RUBY_M_VERSION)0
 
 url_ruby_static := https://cache.ruby-lang.org/pub/ruby/$(RUBY_MAJOR_VERSION).$(RUBY_MINOR_VERSION)/ruby-$(RUBY_VERSION).tar.gz
 zip_ruby_static := $(path_download)/ruby-$(RUBY_VERSION).tar.gz
@@ -30,7 +30,7 @@ else
 	lib_ruby_static := $(path_ruby_static)/libmsvcrt-ruby$(RUBY_LIBRARY_VERSION)-static.a
 endif
 
-lib_ruby := ./third_party/ruby$(RUBY_MAJOR_VERSION)$(RUBY_MINOR_VERSION)
+lib_ruby := ./third_party/ruby$(RUBY_M_VERSION)
 configure_ruby = --disable-install-doc --disable-jit-support --disable-rubygems --with-static-linked-ext --with-out-ext=openssl --without-gmp
 
 # -----------------------------------------------
@@ -43,9 +43,7 @@ pkgs_msys2 += bison libffi gmp upx p7zip vim unzip
 # -----------------------------------------------
 # tasks
 # -----------------------------------------------
-.PHONY: all envs
-
-all: envs ruby
+.PHONY: all envs ruby
 
 envs:
 	pacman -S --noconfirm --needed --quiet $(pkgs_msys2)
