@@ -1,7 +1,8 @@
 # -----------------------------------------------
 # packages settings
 # -----------------------------------------------
-include ./ext/settings.txt
+# include ./ext/settings.txt
+RGM_VERSION = 0.9.0
 
 # -----------------------------------------------
 # UUID and PASSWORDS
@@ -70,12 +71,17 @@ libs = pthread zip uuid
 # -----------------------------------------------
 # ruby static library
 # -----------------------------------------------
+RUBY_MAJOR_VERSION = 3
+RUBY_MINOR_VERSION = 2
+
 RUBY_VERSION := $(RUBY_MAJOR_VERSION).$(RUBY_MINOR_VERSION).$(RUBY_PATCH_VERSION)
 RUBY_LIBRARY_VERSION := $(RUBY_MAJOR_VERSION)$(RUBY_MINOR_VERSION)0
 
 lib_ruby := $(path_vendors)/lib/ruby-$(RUBY_VERSION)
 lib_ruby_ext := $(lib_ruby)/ext
-path_lib += $(lib_ruby)
+
+path_lib += ./ruby$(RUBY_MAJOR_VERSION)$(RUBY_MINOR_VERSION)/lib
+path_include += ./ruby$(RUBY_MAJOR_VERSION)$(RUBY_MINOR_VERSION)/include
 
 ifeq ($(system), MINGW64_NT)
 	libs += x64-ucrt-ruby$(RUBY_LIBRARY_VERSION)-static
@@ -122,7 +128,7 @@ all : main.exe
 
 main.exe : ./src/main.cpp Makefile icon.o
 	@echo "compile $@"
-	@time $(cc) $< -o $@ $(cflags) $(clibs) $(cflags_develop)
+	time $(cc) $< -o $@ $(cflags) $(clibs) $(cflags_develop)
 
 debug.exe : ./src/main.cpp Makefile icon.o
 	@echo "compile $@"
