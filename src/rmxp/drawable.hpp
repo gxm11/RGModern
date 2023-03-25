@@ -14,6 +14,11 @@
 #include "drawable_object.hpp"
 #include "overlayer.hpp"
 
+// RGM 里强制约定，所有 C++ 的映射类型中，类型为 uint64_t 的成员变量，
+// 都对应于一个 ruby 中对象类型的属性，其值为该属性的 object_id。
+// 在 detail 中有特殊的处理，使用 get 时会自动转换类型参数为 const uint64_t。
+// 此时会尝试获取 ruby 对象的 object_id，而不是调用 NUM2ULL。
+// detail 的 get 会在 drawable_object 中的宏里被调用，请参阅。
 namespace rgm::rmxp {
 /**
  * @brief 对应于 RGSS 中的 Sprite 类

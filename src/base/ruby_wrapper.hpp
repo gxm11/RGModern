@@ -21,10 +21,6 @@ struct ruby_wrapper {
     using type = VALUE;
   };
 
-  struct value<uint64_t> {
-    using type = const uint64_t;
-  };
-
   inline static T_worker* p_worker = nullptr;
 
   explicit ruby_wrapper(T_worker& w) {

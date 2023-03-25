@@ -1,1 +1,0 @@
-m = RGM::Ext::Music.new("1.mp3")

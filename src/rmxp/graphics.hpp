@@ -140,10 +140,10 @@ struct init_graphics {
 
       static VALUE transition(VALUE, VALUE freeze_id_, VALUE current_id_,
                               VALUE rate_, VALUE transition_id_, VALUE vague_) {
-        RGMLOAD(freeze_id, const uint64_t);
-        RGMLOAD(current_id, const uint64_t);
+        RGMLOAD(freeze_id, uint64_t);
+        RGMLOAD(current_id, uint64_t);
         RGMLOAD(rate, double);
-        RGMLOAD(transition_id, const uint64_t);
+        RGMLOAD(transition_id, uint64_t);
         RGMLOAD(vague, int);
 
         worker >> base::poll_event{};

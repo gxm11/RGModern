@@ -20,7 +20,7 @@ struct init_palette {
     /** wrapper 类，创建静态方法供 ruby 的模块绑定 */
     struct wrapper {
       static VALUE create(VALUE, VALUE id_, VALUE width_, VALUE height_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
         base::surfaces& surfaces = RGMDATA(base::surfaces);
 
         if (height_ == Qnil) {
@@ -59,7 +59,7 @@ struct init_palette {
       }
 
       static VALUE dispose(VALUE, VALUE id_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
         base::surfaces& surfaces = RGMDATA(base::surfaces);
 
         cen::log_debug(cen::log_category::system,
@@ -70,7 +70,7 @@ struct init_palette {
       }
 
       static VALUE get_pixel(VALUE, VALUE id_, VALUE x_, VALUE y_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
         RGMLOAD(x, int);
         RGMLOAD(y, int);
 
@@ -87,7 +87,7 @@ struct init_palette {
 
       static VALUE set_pixel(VALUE, VALUE id_, VALUE x_, VALUE y_,
                              VALUE color_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
         RGMLOAD(x, int);
         RGMLOAD(y, int);
 
@@ -108,7 +108,7 @@ struct init_palette {
 
       static VALUE save_png(VALUE, VALUE id_, VALUE path_) {
         RGMLOAD(path, const char*);
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
         base::surfaces& surfaces = RGMDATA(base::surfaces);
 
         cen::log_info(cen::log_category::system,
@@ -121,8 +121,8 @@ struct init_palette {
 
       static VALUE convert_to_bitmap(VALUE, VALUE id_, VALUE bitmap_id_,
                                      VALUE rect_) {
-        RGMLOAD(id, const uint64_t);
-        RGMLOAD(bitmap_id, const uint64_t);
+        RGMLOAD(id, uint64_t);
+        RGMLOAD(bitmap_id, uint64_t);
 
         rect r;
         r << rect_;

@@ -171,7 +171,7 @@ struct autotiles {
         continue;
       }
       const VALUE bitmap_ = RARRAY_AREF(object, i);
-      const uint64_t new_id = detail::get<uint64_t>(bitmap_);
+      const uint64_t new_id = detail::get<const uint64_t>(bitmap_);
       // new_id 是 Bitmap 的 object_id，一定是偶数（否则在 ruby 中表示一个
       // FIXNUM） 如果 id != new_id，说明 Bitmap 已经改变了，将 id + 1
       // 存储，等后续处理

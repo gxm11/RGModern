@@ -506,7 +506,7 @@ struct init_bitmap {
     struct wrapper {
       /** RGM::Base.bitmap_create 方法 */
       static VALUE create(VALUE, VALUE id_, VALUE width_, VALUE height_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
 
         if (height_ == Qnil) {
           RGMLOAD2(path, const char*, width_);
@@ -531,7 +531,7 @@ struct init_bitmap {
 
       /** RGM::Base.bitmap_dispose 方法 */
       static VALUE dispose(VALUE, VALUE id_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
 
         worker >> bitmap_dispose{id};
         return Qnil;
@@ -539,8 +539,8 @@ struct init_bitmap {
 
       static VALUE blt(VALUE, VALUE id_, VALUE x_, VALUE y_, VALUE src_id_,
                        VALUE rect_, VALUE opacity_) {
-        RGMLOAD(id, const uint64_t);
-        RGMLOAD(src_id, const uint64_t);
+        RGMLOAD(id, uint64_t);
+        RGMLOAD(src_id, uint64_t);
         RGMLOAD(x, int);
         RGMLOAD(y, int);
         RGMLOAD(opacity, int);
@@ -554,8 +554,8 @@ struct init_bitmap {
 
       static VALUE stretch_blt(VALUE, VALUE id_, VALUE dst_rect_, VALUE src_id_,
                                VALUE src_rect_, VALUE opacity_) {
-        RGMLOAD(id, const uint64_t);
-        RGMLOAD(src_id, const uint64_t);
+        RGMLOAD(id, uint64_t);
+        RGMLOAD(src_id, uint64_t);
         RGMLOAD(opacity, int);
 
         rect dst_r;
@@ -568,7 +568,7 @@ struct init_bitmap {
       }
 
       static VALUE fill_rect(VALUE, VALUE id_, VALUE rect_, VALUE color_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
 
         rect r;
         r << rect_;
@@ -579,7 +579,7 @@ struct init_bitmap {
       }
 
       static VALUE hue_change(VALUE, VALUE id_, VALUE hue_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
         RGMLOAD(hue, int);
 
         worker >> bitmap_hue_change{id, hue};
@@ -604,7 +604,7 @@ struct init_bitmap {
 
       static VALUE draw_text(VALUE, VALUE id_, VALUE font_, VALUE rect_,
                              VALUE text_, VALUE align_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
         RGMLOAD(align, uint8_t);
         RGMLOAD(text, const char*);
 
@@ -640,7 +640,7 @@ struct init_bitmap {
       // 参见：https://github.com/libsdl-org/SDL/issues/4782
       // 实际测试 d3d11 问题仍然存在，好在 opengl 和 direct3d9 测试通过。
       static VALUE get_pixel(VALUE, VALUE id_, VALUE x_, VALUE y_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
         RGMLOAD(x, int);
         RGMLOAD(y, int);
 
@@ -653,7 +653,7 @@ struct init_bitmap {
       }
 
       static VALUE save_png(VALUE, VALUE id_, VALUE path_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
         RGMLOAD(path, const char*);
 
         worker >> bitmap_save_png{id, path};
@@ -661,7 +661,7 @@ struct init_bitmap {
       }
 
       static VALUE capture_screen(VALUE, VALUE id_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
 
         worker >> bitmap_capture_screen{id};
         return Qnil;

@@ -44,7 +44,7 @@ struct init_viewport {
         drawables& data = RGMDATA(drawables);
         id2z& cache_z = RGMDATA(id2z);
 
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
 
         auto it = cache_z.find(id);
 

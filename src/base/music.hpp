@@ -100,7 +100,7 @@ struct init_music {
 
     struct wrapper {
       // static VALUE music_create(VALUE, VALUE id_, VALUE path_) {
-      //   RGMLOAD(id, const uint64_t);
+      //   RGMLOAD(id, uint64_t);
       //   RGMLOAD(path, const char*);
 
       //   worker >> base::music_create{id, path};
@@ -108,13 +108,13 @@ struct init_music {
       // }
 
       static VALUE music_dispose(VALUE, VALUE id_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
         worker >> base::music_dispose{id};
         return Qnil;
       }
 
       static VALUE music_play(VALUE, VALUE id_, VALUE iteration_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
         RGMLOAD(iteration, int);
 
         worker >> base::music_play{id, iteration};
@@ -123,7 +123,7 @@ struct init_music {
 
       static VALUE music_fade_in(VALUE, VALUE id_, VALUE iteration_,
                                  VALUE duration_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
         RGMLOAD(iteration, int);
         RGMLOAD(duration, int);
 

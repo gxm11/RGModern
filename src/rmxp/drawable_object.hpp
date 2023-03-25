@@ -67,7 +67,7 @@ namespace rgm::rmxp {
  * T_Drawable 中相应的变量。
  * 6. ID 类型也是值类型，但是其在 ruby 层中并不是一个数值，而是 Bitmap 或 Table
  * 等类型的 对象。这些对象的真实数据存储在 C++ 层的容器中，使用数字 ID
- * 为索引，而其 ruby 层只是简 单的封装。如果该类型属性的值为 nil，则其 ID = 0。
+ * 为索引，而其 ruby 层只是简单的封装。如果该类型属性的值为 nil，则其 ID = 0。
  * 7. 得益于 RGSS 的特殊设计，各个 Drawable
  * 之间的属性，如果其变量名相同，则其类型也相同。 从而我们无需逐个 T_Drawable
  * 定义 refresh_value 和 refresh_object 函数。

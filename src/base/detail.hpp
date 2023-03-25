@@ -55,7 +55,7 @@ struct detail {
 std::vector<ID> detail::id_table = {};
 
 /**
- * @brief uint64_t 类型变量的特化处理。该变量代表 ruby 层的对象。
+ * @brief const uint64_t 类型变量的特化处理。该变量代表 ruby 层的对象。
  * @note 如果对象为 nil，返回 0，否则返回对象的 object_id。
  * 目前只有 Bitmap 和 Table 类的对象需要用此方法获取 id。
  * 虽然 drawable 的 z_index::id 的类型也是 uint64_t，
@@ -64,7 +64,7 @@ std::vector<ID> detail::id_table = {};
  * @return uint64_t 返回 0 或者对象 object_id 的值。
  */
 template <>
-uint64_t detail::from_ruby<uint64_t>(const VALUE value_) {
+uint64_t detail::from_ruby<const uint64_t>(const VALUE value_) {
   if (value_ != Qnil) [[likely]] {
     return NUM2ULL(rb_obj_id(value_));
   } else [[unlikely]] {
@@ -73,12 +73,12 @@ uint64_t detail::from_ruby<uint64_t>(const VALUE value_) {
 }
 
 /**
- * @brief const uint64_t 类型变量的特化处理。
- * @note 该类型是整数转const uint64_t，与上面的 uint64_t 做一个区分处理。
+ * @brief uint64_t 类型变量的特化处理。
+ * @note 该类型是单纯的整数转 uint64_t，与上面的 const uint64_t 做一个区分处理。
  * 通常用来获取传入的 object id，或者其他无符号大整数。
  */
 template <>
-uint64_t detail::from_ruby<const uint64_t>(const VALUE value_) {
+uint64_t detail::from_ruby<uint64_t>(const VALUE value_) {
   return NUM2ULL(value_);
 }
 
@@ -160,7 +160,11 @@ struct detail_ext : detail {
    */
   template <word w, typename U>
   static U get(VALUE object) {
-    return from_ruby<U>(get<w>(object));
+    if constexpr (std::same_as<U, uint64_t>) {
+      return from_ruby<const uint64_t>(get<w>(object));
+    } else {
+      return from_ruby<U>(get<w>(object));
+    }
   }
 
   /**

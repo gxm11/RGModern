@@ -84,7 +84,7 @@ struct init_table {
     struct wrapper {
       static VALUE create(VALUE, VALUE id_, VALUE x_size_, VALUE y_size_,
                           VALUE z_size_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
         RGMLOAD(x_size, int);
         RGMLOAD(y_size, int);
         RGMLOAD(z_size, int);
@@ -98,7 +98,7 @@ struct init_table {
       }
 
       static VALUE dispose(VALUE, VALUE id_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
         tables& data = RGMDATA(tables);
 
         data.erase(id);
@@ -123,7 +123,7 @@ struct init_table {
 
       static VALUE resize(VALUE, VALUE id_, VALUE x_size_, VALUE y_size_,
                           VALUE z_size_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
         RGMLOAD(x_size, int);
         RGMLOAD(y_size, int);
         RGMLOAD(z_size, int);
@@ -136,7 +136,7 @@ struct init_table {
       }
 
       static VALUE load(VALUE, VALUE id_, VALUE string_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
 
         tables& data = RGMDATA(tables);
         table& t = data[id];
@@ -150,7 +150,7 @@ struct init_table {
       }
 
       static VALUE dump(VALUE, VALUE id_) {
-        RGMLOAD(id, const uint64_t);
+        RGMLOAD(id, uint64_t);
 
         tables& data = RGMDATA(tables);
         table& t = data[id];
