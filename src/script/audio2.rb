@@ -49,6 +49,7 @@ module Audio2
   #  - 此后ME自动结束，在回调事件中将当前的ME出队，播放队列中最后一个BGM
   # - 如果需要fade或者stop ME，则直接执行相应内容。
   #  - 向队列中添加一个dummy任务{flag_fading_out}。
+  #  - 如果队列中有{flag_fading_out}，说明当前的ME正在退出，不需要重复fade或者stop。
   #  - 并且清空队列里除当前ME外的全部ME。
   #  - 此后在回调事件中将当前的ME出队。
   #   - 同时移除{flag_fading_out}
@@ -56,92 +57,71 @@ module Audio2
   # - 如果需要fade或者stop BGM，则直接清除队列中的BGM。
   #  - 此后在回调事件中将当前的ME出队。因为此时队列里没有BGM，就不会再播放BGM。
   # 当队列的首项是BGM时，说明现在正在播放BGM。
-  #  - 如果现在要修改当前BGM的position和volume，直接操作即可
-  #  - 如果现在要切换BGM，则将新的BGM入队，fading_out当前的BGM
-  #   - 向队列中添加一个dummy任务{flag_fading_out}。
+  # - 如果现在要修改当前BGM的position和volume，直接操作即可
+  # - 如果现在要切换BGM，则将新的BGM入队，fading_out当前的BGM
+  #  - 向队列中添加一个dummy任务{flag_fading_out}。
+  # - 如果队列中有{flag_fading_out}，说明当前的BGM正在退出，不需要重复fade。
+  #  - 此后在回调事件中将当前的BGM出队，播放队列中最后一个BGM
+  #  - 同时移除{flag_fading_out}，和其他BGM。
+  # - 如果现在要切换ME，则将ME入队。
+  #  - 当前的BGM的position和volume保存下来，再次入队。
+  #  - fade out当前的BGM，等待回调。
+  #  - 向队列中添加一个dummy任务{flag_fading_out}。
   #  - 如果队列中有{flag_fading_out}，说明当前的BGM正在退出，不需要重复fade。
-  #   - 此后在回调事件中将当前的BGM出队，播放队列中最后一个BGM
-  #   - 同时移除{flag_fading_out}，和其他BGM。
-  #  - 如果现在要切换ME，则将ME入队。
-  #   - 当前的BGM的position和volume保存下来，再次入队。
-  #   - fade out当前的BGM，等待回调。
-  #   - 向队列中添加一个dummy任务{flag_fading_out}。
-  #   - 如果队列中有{flag_fading_out}，说明当前的BGM正在退出，不需要重复fade。
-  #    - 也不需要再次添加当前的BGM。
-  #   - 此后在回调事件中将当前的BGM出队
-  #    - 因为队列中有ME，所以会播放队列中最后一个ME。
-  #    - 同时移除{flag_fading_out}，和其他ME。
-  #    - BGM不受影响，所以旧的BGM还在，ME结束后会继续播放此BGM。
-  Music_Queue = []
+  #   - 也不需要再次添加当前的BGM。
+  #  - 此后在回调事件中将当前的BGM出队
+  #   - 因为队列中有ME，所以会播放队列中最后一个ME。
+  #   - 同时移除{flag_fading_out}，和其他ME。
+  #   - BGM不受影响，所以旧的BGM还在，ME结束后会继续播放此BGM。
+  # - 如果需要fade或者stop BGM，则直接执行相应内容。
+  #  - 向队列中添加一个dummy任务{flag_fading_out}。
+  #  - 如果队列中有{flag_fading_out}，说明当前的BGM正在退出，不需要重复fade或者stop。
+  #  - 并且清空队列里除当前BGM外的全部BGM。
+  #  - 此后在回调事件中将当前的BGM出队。
+  #   - 同时移除{flag_fading_out}
+  # - 如果需要fade或者stop ME，则直接清除队列中的ME。
 
-  T_FADEOUT = 0
-  T_BGM = 1
-  T_ME = 2
+  # 综上所述，总共有5*(1+2x2)种情况需要考虑。
+  # 5 种调用的函数：bgm_play/bgm_stop/me_play/me_stop/on_finish
+  #  - 其中fade和stop没有本质区别。
+  # 5 种场合：Queue为空，Queue的首项是BGM或者ME x Queue中是否有{flag_fading_out}
 
-  Music_Task = Struct.new(:music, :type, :volume, :position)
+  class Music_Manager
+    Queue = []
+    T_Fading = 0
+    T_BGM = 1
+    T_ME = 2
+    Task = Struct.new(:music, :type, :volume, :position)
+
+    def shift; end
+    def push; end
+    def play_me; end
+    def play_bgm; end
+    def fade_me; end
+    def fade_bgm; end
+    def clear_me; end
+    def clear_bgm; end
+    def on_finish; end
+  end
+  # Music Manager 的实例
+  @@music_manager = Music_Manager.new
   # 默认 fade 的时间，单位 ms
   Default_Fade_Time = 500
 
-  module Music_State
-    Fading = 1
-    FadingIn = 2
-    FadingOut = 4
-    Paused = 8
-    Playing = 16
-  end
-
   module_function
 
-  def bgm_play(filename, volume = 80, pitch = 100, pos = -1)
+  def bgm_play(filename, _volume = 80, pitch = 100, _pos = -1)
     return if @@disable_music
 
     puts 'ignoring the pitch setting for bgm.' if pitch != 100
     path = Finder.find(filename, :music)
+  end
 
-    bgm = Music_Task.new(RGM::Ext::Music.new(path), T_BGM, volume, pos)
-
-    # 获取音乐的 State
-    state = RGM::Ext.music_get_state
-
-    if (state & Music_State::FadingOut) != 0
-      # 当前的音乐正在 fading 的场合
-      # 加入到队列里，在fading结束后的回调里，会播放此BGM
-      Music_Queue << bgm
-    elsif (state & Music_State::Playing) != 0
-      # 当前的音乐正在播放的场合
-      current = Music_Queue.first
-      if current.type == T_ME
-        # 当前的音乐是ME，加入到队列里
-        Music_Queue << bgm
-      elsif current.type == T_BGM
-        # 当前音乐是BGM
-        if current.music == bgm.music
-          # 与自己相同则修改volume和position
-          RGM::Ext.music_set_volume(bgm.volume)
-          RGM::Ext.music_set_position(bgm.position) if pos != -1
-        else
-          # 与自己不同，则fadeout当前music，然后把自己加入队列
-          RGM::Ext.music_fade_out(Default_Fade_Time)
-          Music_Queue << bgm
-        end
-      end
-    else
-      # 当前没有音乐在播放的场合
-      if Music_Queue.empty?
-        # 当前队列里没有任何音乐，则播放当前音乐
-        bgm.play(-1)
-        RGM::Ext.music_set_volume(bgm.volume)
-        RGM::Ext.music_set_position(bgm.position)
-      end
-      # 添加到队列里
-      Music_Queue << bgm
-    end
+  def bgm_fade(_time)
+    return if @@disable_music
   end
 
   def bgm_stop
-    return if @@disable_music
-
-    # 获取音乐的 State
-    state = RGM::Ext.music_get_state
+    bgm_fade(0)
   end
 end
