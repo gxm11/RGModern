@@ -313,7 +313,7 @@ struct music_finish {
 
     music_manager::state s = mm.update<music_manager::event::music_finish>();
 
-    static const decltype(worker) this_worker(worker);
+    static decltype(auto) this_worker = worker;
     struct wrapper {
       static void callback() { this_worker >> music_finish{}; }
     };
@@ -335,7 +335,7 @@ struct bgm_play {
     music_manager& mm = RGMDATA(music_manager);
     mm.update<music_manager::event::bgm_play>(path, volume, position);
 
-    static const decltype(worker) this_worker(worker);
+    static decltype(auto) this_worker = worker;
     struct wrapper {
       static void callback() { this_worker >> music_finish{}; }
     };
@@ -372,7 +372,7 @@ struct me_play {
     music_manager& mm = RGMDATA(music_manager);
     mm.update<music_manager::event::me_play>(path, volume);
 
-    static const decltype(worker) this_worker(worker);
+    static decltype(auto) this_worker = worker;
     struct wrapper {
       static void callback() { this_worker >> music_finish{}; }
     };

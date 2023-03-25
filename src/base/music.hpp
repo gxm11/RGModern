@@ -19,6 +19,16 @@
 namespace rgm::base {
 using musics = std::map<uint64_t, cen::music>;
 
+struct music_finish_callback {
+  void run(auto&) {
+    cen::log_info("music finish callback");
+
+    VALUE rb_mRGM = rb_define_module("RGM");
+    VALUE rb_mRGM_Ext = rb_define_module_under(rb_mRGM, "Ext");
+    rb_funcall(rb_mRGM_Ext, rb_intern("music_finish_callback"), 0);
+  }
+};
+
 struct music_create {
   using data = std::tuple<musics>;
 
@@ -26,7 +36,6 @@ struct music_create {
   const char* path;
 
   void run(auto& worker) {
-    cen::log_info("musics, id: %lld, path: %s", id, path);
     musics& data = RGMDATA(musics);
     data.emplace(id, cen::music(path));
   }
@@ -48,6 +57,13 @@ struct music_play {
   void run(auto& worker) {
     musics& data = RGMDATA(musics);
     data.at(id).play(iteration);
+
+    static decltype(auto) this_worker(worker);
+    struct wrapper {
+      static void callback() { this_worker >> music_finish_callback{}; }
+    };
+
+    Mix_HookMusicFinished(wrapper::callback);
   }
 };
 
@@ -59,6 +75,23 @@ struct music_fade_in {
   void run(auto& worker) {
     musics& data = RGMDATA(musics);
     data.at(id).fade_in(cen::music::ms_type{duration}, iteration);
+
+    static decltype(auto) this_worker(worker);
+    struct wrapper {
+      static void callback() { this_worker >> music_finish_callback{}; }
+    };
+
+    Mix_HookMusicFinished(wrapper::callback);
+  }
+};
+
+struct music_get_position {
+  uint64_t id;
+  double* p_position;
+
+  void run(auto& worker) {
+    musics& data = RGMDATA(musics);
+    *p_position = data.at(id).position().value_or(-1);
   }
 };
 
@@ -74,6 +107,10 @@ struct music_set_position {
   void run(auto&) { cen::music::set_position(position); }
 };
 
+struct music_resume {
+  void run(auto&) { cen::music::resume(); }
+};
+
 struct music_pause {
   void run(auto&) { cen::music::pause(); }
 };
@@ -82,16 +119,33 @@ struct music_halt {
   void run(auto&) { cen::music::halt(); }
 };
 
+struct music_rewind {
+  void run(auto&) { cen::music::rewind(); }
+};
+
 struct music_fade_out {
   int duration;
 
   void run(auto&) { cen::music::fade_out(cen::music::ms_type{duration}); }
 };
 
-struct music_is_playing {
-  bool* is_playing;
+struct music_get_volume {
+  int* p_volume;
 
-  void run(auto&) { *is_playing = cen::music::is_playing(); }
+  void run(auto&) { *p_volume = cen::music::volume(); }
+};
+
+struct music_get_state {
+  int* p_state;
+
+  void run(auto&) {
+    *p_state = 0;
+    if (cen::music::is_fading()) *p_state += 1;
+    if (cen::music::is_fading_in()) *p_state += 2;
+    if (cen::music::is_fading_out()) *p_state += 4;
+    if (cen::music::is_paused()) *p_state += 8;
+    if (cen::music::is_playing()) *p_state += 16;
+  }
 };
 
 struct init_music {
@@ -99,108 +153,58 @@ struct init_music {
     static decltype(auto) worker = this_worker;
 
     struct wrapper {
-      // static VALUE music_create(VALUE, VALUE id_, VALUE path_) {
-      //   RGMLOAD(id, uint64_t);
-      //   RGMLOAD(path, const char*);
-
-      //   worker >> base::music_create{id, path};
-      //   return Qnil;
-      // }
-
-      static VALUE music_dispose(VALUE, VALUE id_) {
-        RGMLOAD(id, uint64_t);
-        worker >> base::music_dispose{id};
-        return Qnil;
-      }
-
-      static VALUE music_play(VALUE, VALUE id_, VALUE iteration_) {
-        RGMLOAD(id, uint64_t);
-        RGMLOAD(iteration, int);
-
-        worker >> base::music_play{id, iteration};
-        return Qnil;
-      }
-
-      static VALUE music_fade_in(VALUE, VALUE id_, VALUE iteration_,
-                                 VALUE duration_) {
-        RGMLOAD(id, uint64_t);
-        RGMLOAD(iteration, int);
-        RGMLOAD(duration, int);
-
-        worker >> base::music_fade_in{id, iteration, duration};
-        return Qnil;
-      }
-
-      static VALUE music_set_volume(VALUE, VALUE volume_) {
-        RGMLOAD(volume, int);
-
-        worker >> base::music_set_volume{volume};
-        return Qnil;
-      }
-
-      static VALUE music_set_position(VALUE, VALUE position_) {
-        RGMLOAD(position, double);
-
-        worker >> base::music_set_position{position};
-        return Qnil;
-      }
-
-      static VALUE music_pause(VALUE) {
-        worker >> base::music_pause{};
-        return Qnil;
-      }
-
-      static VALUE music_halt(VALUE) {
-        worker >> base::music_halt{};
-        return Qnil;
-      }
-
-      static VALUE music_fade_out(VALUE, VALUE duration_) {
-        RGMLOAD(duration, int);
-
-        worker >> base::music_fade_out{duration};
-        return Qnil;
-      }
-
-      static VALUE music_is_playing(VALUE) {
-        bool is_playing = false;
-
-        worker >> base::music_is_playing{&is_playing};
+      static VALUE music_get_state(VALUE) {
+        int state;
+        worker >> base::music_get_state{&state};
         RGMWAIT(2);
+        return INT2FIX(state);
+      }
 
-        return is_playing ? Qtrue : Qfalse;
+      static VALUE music_get_volume(VALUE) {
+        int volume;
+        worker >> base::music_get_volume{&volume};
+        RGMWAIT(2);
+        return INT2FIX(volume);
+      }
+
+      static VALUE music_get_position(VALUE, VALUE id_) {
+        RGMLOAD(id, uint64_t);
+        double position;
+        worker >> base::music_get_position{id, &position};
+        RGMWAIT(2);
+        return DBL2NUM(position);
       }
     };
 
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Ext = rb_define_module_under(rb_mRGM, "Ext");
+    rb_define_module_function(rb_mRGM_Ext, "music_get_state",
+                              wrapper::music_get_state, 0);
+    rb_define_module_function(rb_mRGM_Ext, "music_get_volume",
+                              wrapper::music_get_volume, 0);
+    rb_define_module_function(rb_mRGM_Ext, "music_get_position",
+                              wrapper::music_get_position, 1);
 
-    // rb_define_module_function(rb_mRGM_Ext, "music_create",
-    //                           wrapper::music_create, 2);
-    {
-      ruby_wrapper w(this_worker);
-      w.template create_sender<music_create, uint64_t, const char*>(
-          rb_mRGM_Ext, "music_create");
-    }
-
-    rb_define_module_function(rb_mRGM_Ext, "music_dispose",
-                              wrapper::music_dispose, 1);
-    rb_define_module_function(rb_mRGM_Ext, "music_play", wrapper::music_play,
-                              2);
-    rb_define_module_function(rb_mRGM_Ext, "music_fade_in",
-                              wrapper::music_fade_in, 3);
-    rb_define_module_function(rb_mRGM_Ext, "music_set_volume",
-                              wrapper::music_set_volume, 1);
-    rb_define_module_function(rb_mRGM_Ext, "music_set_position",
-                              wrapper::music_set_position, 1);
-    rb_define_module_function(rb_mRGM_Ext, "music_pause", wrapper::music_pause,
-                              0);
-    rb_define_module_function(rb_mRGM_Ext, "music_halt", wrapper::music_halt,
-                              0);
-    rb_define_module_function(rb_mRGM_Ext, "music_fade_out",
-                              wrapper::music_fade_out, 1);
-    rb_define_module_function(rb_mRGM_Ext, "music_is_playing",
-                              wrapper::music_is_playing, 0);
+    // simple bindings
+    base::ruby_wrapper w(this_worker);
+    w.template create_sender<music_create, uint64_t, const char*>(
+        rb_mRGM_Ext, "music_create");
+    w.template create_sender<music_dispose, uint64_t>(rb_mRGM_Ext,
+                                                      "music_dispose");
+    w.template create_sender<music_play, uint64_t, int>(rb_mRGM_Ext,
+                                                        "music_play");
+    w.template create_sender<music_fade_in, uint64_t, int, int>(
+        rb_mRGM_Ext, "music_fade_in");
+    w.template create_sender<music_set_volume, int>(rb_mRGM_Ext,
+                                                    "music_set_volume");
+    w.template create_sender<music_set_position, double>(rb_mRGM_Ext,
+                                                         "music_set_position");
+    w.template create_sender<music_resume>(rb_mRGM_Ext, "music_resume");
+    w.template create_sender<music_pause>(rb_mRGM_Ext, "music_pause");
+    w.template create_sender<music_halt>(rb_mRGM_Ext, "music_halt");
+    w.template create_sender<music_rewind>(rb_mRGM_Ext, "music_rewind");
+    w.template create_sender<music_fade_out, int>(rb_mRGM_Ext,
+                                                  "music_fade_out");
   }
 };
 }  // namespace rgm::base

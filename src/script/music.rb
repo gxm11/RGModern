@@ -17,11 +17,11 @@ module RGM
     # - music_dispose(id)
     # - music_play(id, iteration)
     # - music_fade_in(id, iteration, duration)
+    # - music_get_position(id)
 
     # 2. module functions for volumn and position
     # - music_get_volumn
     # - music_set_volumn(volumn : Integer)
-    # - music_get_position
     # - music_set_position(position : Float)
 
     # 3. module functions can only use as Music class functions
@@ -45,6 +45,9 @@ module RGM
     #    after current music finishes. However, it will be
     #    called in next Input.update asynchronously.
     # - music_on_finish
+    def self.music_finish_callback
+      puts 'ruby music callback'
+    end
 
     class Music
       def self.create_finalizer(id)
@@ -66,6 +69,11 @@ module RGM
       # duration 单位是 ms
       def fade_in(iteration, duration)
         RGM::Ext.music_fade_in(@id, iteration, duration)
+      end
+
+      # position 单位是 s
+      def position
+        RGM::Ext.music_get_position(@id)
       end
     end
   end
