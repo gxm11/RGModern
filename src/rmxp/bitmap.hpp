@@ -578,14 +578,6 @@ struct init_bitmap {
         return Qnil;
       }
 
-      static VALUE hue_change(VALUE, VALUE id_, VALUE hue_) {
-        RGMLOAD(id, uint64_t);
-        RGMLOAD(hue, int);
-
-        worker >> bitmap_hue_change{id, hue};
-        return Qnil;
-      }
-
       static VALUE text_size(VALUE, VALUE font_, VALUE text_) {
         RGMLOAD(text, const char*);
 
@@ -651,21 +643,6 @@ struct init_bitmap {
                          (pixels[0] << 16);
         return UINT2NUM(color);
       }
-
-      static VALUE save_png(VALUE, VALUE id_, VALUE path_) {
-        RGMLOAD(id, uint64_t);
-        RGMLOAD(path, const char*);
-
-        worker >> bitmap_save_png{id, path};
-        return Qnil;
-      }
-
-      static VALUE capture_screen(VALUE, VALUE id_) {
-        RGMLOAD(id, uint64_t);
-
-        worker >> bitmap_capture_screen{id};
-        return Qnil;
-      }
     };
 
     VALUE rb_mRGM = rb_define_module("RGM");
@@ -679,18 +656,21 @@ struct init_bitmap {
                               wrapper::stretch_blt, 5);
     rb_define_module_function(rb_mRGM_BASE, "bitmap_fill_rect",
                               wrapper::fill_rect, 3);
-    rb_define_module_function(rb_mRGM_BASE, "bitmap_hue_change",
-                              wrapper::hue_change, 2);
     rb_define_module_function(rb_mRGM_BASE, "bitmap_draw_text",
                               wrapper::draw_text, 5);
     rb_define_module_function(rb_mRGM_BASE, "bitmap_text_size",
                               wrapper::text_size, 2);
-    rb_define_module_function(rb_mRGM_BASE, "bitmap_save_png",
-                              wrapper::save_png, 2);
     rb_define_module_function(rb_mRGM_BASE, "bitmap_get_pixel",
                               wrapper::get_pixel, 3);
-    rb_define_module_function(rb_mRGM_BASE, "bitmap_capture_screen",
-                              wrapper::capture_screen, 1);
+
+    // simple bindings
+    base::ruby_wrapper w(this_worker);
+    w.template create_sender<bitmap_hue_change, uint64_t, int>(
+        rb_mRGM_BASE, "bitmap_hue_change");
+    w.template create_sender<bitmap_save_png, uint64_t, const char*>(
+        rb_mRGM_BASE, "bitmap_save_png");
+    w.template create_sender<bitmap_capture_screen, uint64_t>(
+        rb_mRGM_BASE, "bitmap_capture_screen");
   }
 };
 }  // namespace rgm::rmxp

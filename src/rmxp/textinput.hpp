@@ -85,23 +85,6 @@ struct init_textinput {
 
     /** wrapper 类，创建静态方法供 ruby 的模块绑定 */
     struct wrapper {
-      static VALUE start(VALUE, VALUE x_, VALUE y_, VALUE width_,
-                         VALUE height_) {
-        RGMLOAD(x, int);
-        RGMLOAD(y, int);
-        RGMLOAD(width, int);
-        RGMLOAD(height, int);
-
-        worker >> textinput_start{x, y, width, height};
-        return Qnil;
-      }
-
-      static VALUE stop(VALUE) {
-        worker >> textinput_stop{};
-
-        return Qnil;
-      }
-
       static VALUE edit_text(VALUE) {
         textinput_state& ci = RGMDATA(textinput_state);
 
@@ -124,15 +107,18 @@ struct init_textinput {
 
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Ext = rb_define_module_under(rb_mRGM, "Ext");
-    rb_define_module_function(rb_mRGM_Ext, "textinput_start", wrapper::start,
-                              4);
-    rb_define_module_function(rb_mRGM_Ext, "textinput_stop", wrapper::stop, 0);
     rb_define_module_function(rb_mRGM_Ext, "textinput_edit_text",
                               wrapper::edit_text, 0);
     rb_define_module_function(rb_mRGM_Ext, "textinput_edit_pos",
                               wrapper::edit_pos, 0);
     rb_define_module_function(rb_mRGM_Ext, "textinput_edit_clear",
                               wrapper::edit_clear, 0);
+
+    // simple bindings
+    base::ruby_wrapper w(this_worker);
+    w.template create_sender<textinput_start, int, int, int, int>(
+        rb_mRGM_Ext, "textinput_start");
+    w.template create_sender<textinput_stop>(rb_mRGM_Ext, "textinput_stop");
 
     RGMDATA(textinput_state).setup();
   }

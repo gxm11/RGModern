@@ -160,52 +160,25 @@ struct init_graphics {
         RGMWAIT(1);
         return Qnil;
       }
-
-      static VALUE present(VALUE, VALUE scale_mode_) {
-        RGMLOAD(scale_mode, int);
-
-        worker >> base::present_window{scale_mode};
-        return Qnil;
-      }
-
-      static VALUE resize_screen(VALUE, VALUE width_, VALUE height_) {
-        RGMLOAD(width, int);
-        RGMLOAD(height, int);
-
-        worker >> base::resize_screen{width, height};
-        return Qnil;
-      }
-
-      static VALUE resize_window(VALUE, VALUE width_, VALUE height_) {
-        RGMLOAD(width, int);
-        RGMLOAD(height, int);
-
-        worker >> base::resize_window{width, height};
-        return Qnil;
-      }
-
-      static VALUE set_fullscreen(VALUE, VALUE mode_) {
-        RGMLOAD(mode, int);
-
-        worker >> base::set_fullscreen{mode};
-        return Qnil;
-      }
     };
 
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
     rb_define_module_function(rb_mRGM_Base, "graphics_update", wrapper::update,
                               2);
-    rb_define_module_function(rb_mRGM_Base, "graphics_present",
-                              wrapper::present, 1);
-    rb_define_module_function(rb_mRGM_Base, "graphics_resize_screen",
-                              wrapper::resize_screen, 2);
-    rb_define_module_function(rb_mRGM_Base, "graphics_resize_window",
-                              wrapper::resize_window, 2);
     rb_define_module_function(rb_mRGM_Base, "graphics_transition",
                               wrapper::transition, 5);
-    rb_define_module_function(rb_mRGM_Base, "graphics_set_fullscreen",
-                              wrapper::set_fullscreen, 1);
+
+    // simple bindings
+    base::ruby_wrapper w(this_worker);
+    w.template create_sender<base::present_window, int>(rb_mRGM_Base,
+                                                        "graphics_present");
+    w.template create_sender<base::resize_screen, int, int>(
+        rb_mRGM_Base, "graphics_resize_screen");
+    w.template create_sender<base::resize_window, int, int>(
+        rb_mRGM_Base, "graphics_resize_window");
+    w.template create_sender<base::set_fullscreen, int>(
+        rb_mRGM_Base, "graphics_set_fullscreen");
   }
 };
 }  // namespace rgm::rmxp

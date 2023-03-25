@@ -13,23 +13,14 @@
 
 namespace rgm::rmxp {
 struct init_title {
-  static void before(auto& this_worker) {
-    static decltype(auto) worker = this_worker;
-
-    /** wrapper 类，创建静态方法供 ruby 的模块绑定 */
-    struct wrapper {
-      static VALUE set_title(VALUE, VALUE title_) {
-        RGMLOAD(title, const char*);
-
-        worker >> base::set_title{title};
-
-        return Qnil;
-      }
-    };
-
+  static void before(auto& worker) {
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_BASE = rb_define_module_under(rb_mRGM, "Base");
-    rb_define_module_function(rb_mRGM_BASE, "set_title", wrapper::set_title, 1);
+
+    // simple bindings
+    base::ruby_wrapper w(worker);
+    w.template create_sender<base::set_title, const char*>(rb_mRGM_BASE,
+                                                           "set_title");
   }
 };
 }  // namespace rgm::rmxp
