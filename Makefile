@@ -61,7 +61,7 @@ cflags_develop  = -DRGM_BUILDMODE=1 -s -O3
 cflags_standard = -DRGM_BUILDMODE=2 -s -O3 -DPASSWORD="\"$(PASSWORD)\""
 cflags_encrypt  = -DRGM_BUILDMODE=3 -s -O3 -DPASSWORD="\"$(PASSWORD)\"" -mwindows
 
-clibs = 
+clibs = icon.o
 libs = pthread stdc++
 # -----------------------------------------------
 # ruby static library
