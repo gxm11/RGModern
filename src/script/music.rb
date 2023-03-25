@@ -42,15 +42,15 @@ module RGM
     #    after current music finishes. However, it will be
     #    called in next Input.update asynchronously.
     # - music_finish_callback
-    def self.music_finish_callback
-      puts 'ruby music callback'
-    end
+    def self.music_finish_callback; end
   end
 end
 
 module RGM
   module Ext
     class Music
+      attr_reader :id, :path
+
       def self.create_finalizer(id)
         proc { RGM::Ext.music_dispose(id) }
       end
@@ -75,6 +75,10 @@ module RGM
       # position 单位是 s
       def position
         RGM::Ext.music_get_position(@id)
+      end
+
+      def ==(other)
+        other.is_a?(Music) && other.path == @path
       end
     end
   end

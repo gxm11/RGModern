@@ -21,8 +21,6 @@ using musics = std::map<uint64_t, cen::music>;
 
 struct music_finish_callback {
   void run(auto&) {
-    cen::log_info("music finish callback");
-
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Ext = rb_define_module_under(rb_mRGM, "Ext");
     rb_funcall(rb_mRGM_Ext, rb_intern("music_finish_callback"), 0);
@@ -57,7 +55,6 @@ struct music_play {
   void run(auto& worker) {
     musics& data = RGMDATA(musics);
     data.at(id).play(iteration);
-    cen::log_info("Music [%lld] starting to play.", id);
 
     static decltype(auto) this_worker(worker);
     struct wrapper {
