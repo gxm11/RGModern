@@ -22,6 +22,7 @@
 #include "render.hpp"
 #include "renderstack.hpp"
 #include "ruby.hpp"
+#include "ruby_wrapper.hpp"
 #include "signal.hpp"
 #include "sound_manager.hpp"
 #include "sound_pitch.hpp"

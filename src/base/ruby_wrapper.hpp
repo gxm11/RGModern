@@ -21,6 +21,10 @@ struct ruby_wrapper {
     using type = VALUE;
   };
 
+  struct value<uint64_t> {
+    using type = const uint64_t;
+  };
+
   inline static T_worker* p_worker = nullptr;
 
   explicit ruby_wrapper(T_worker& w) {
@@ -28,9 +32,15 @@ struct ruby_wrapper {
   }
 
   template <typename T, typename... Args>
-  static VALUE function(VALUE, value<Args>::type... args) {
+  static VALUE sender(VALUE, value<Args>::type... args) {
     *p_worker >> T{detail::get<Args>(args)...};
     return Qnil;
+  }
+
+  template <typename T, typename... Args>
+  static void create_sender(VALUE module, const char* name) {
+    auto* fp = &sender<T, Args...>;
+    rb_define_module_function(module, name, fp, sizeof...(Args));
   }
 };
 }  // namespace rgm::base

@@ -97,7 +97,6 @@ struct music_is_playing {
 struct init_music {
   static void before(auto& this_worker) {
     static decltype(auto) worker = this_worker;
-    static ruby_wrapper w(this_worker);
 
     struct wrapper {
       // static VALUE music_create(VALUE, VALUE id_, VALUE path_) {
@@ -178,8 +177,11 @@ struct init_music {
 
     // rb_define_module_function(rb_mRGM_Ext, "music_create",
     //                           wrapper::music_create, 2);
-    auto* f = &w.template function<music_create, uint64_t, const char*>;
-    rb_define_module_function(rb_mRGM_Ext, "music_create", f, 2);
+    {
+      ruby_wrapper w(this_worker);
+      w.template create_sender<music_create, uint64_t, const char*>(
+          rb_mRGM_Ext, "music_create");
+    }
 
     rb_define_module_function(rb_mRGM_Ext, "music_dispose",
                               wrapper::music_dispose, 1);
