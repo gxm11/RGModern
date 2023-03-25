@@ -32,9 +32,6 @@ module RGM
     # - music_fade_out(duration)
 
     # 4. module functions that show current states.
-    #    All these five results can be acquired by `music_state',
-    #    which return an array of Booleans.
-    #    Calling `music_state' blocks current thread.
     # - music_is_playing -> Bool
     # - music_is_paused -> Bool
     # - music_is_fading -> Bool
@@ -44,11 +41,15 @@ module RGM
     # 5. module functions that will automatically called
     #    after current music finishes. However, it will be
     #    called in next Input.update asynchronously.
-    # - music_on_finish
+    # - music_finish_callback
     def self.music_finish_callback
       puts 'ruby music callback'
     end
+  end
+end
 
+module RGM
+  module Ext
     class Music
       def self.create_finalizer(id)
         proc { RGM::Ext.music_dispose(id) }

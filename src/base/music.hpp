@@ -57,6 +57,7 @@ struct music_play {
   void run(auto& worker) {
     musics& data = RGMDATA(musics);
     data.at(id).play(iteration);
+    cen::log_info("Music [%lld] starting to play.", id);
 
     static decltype(auto) this_worker(worker);
     struct wrapper {
