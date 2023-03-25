@@ -47,16 +47,12 @@ module RGM
     # - music_on_finish
 
     class Music
-      attr_accessor :volume, :position
-
       def self.create_finalizer(id)
         proc { RGM::Ext.music_dispose(id) }
       end
 
       def initialize(path)
         @id = RGM::Base.new_id
-        @volume = 100
-        @position = 0
         @path = path
 
         RGM::Ext.music_create(@id, @path)

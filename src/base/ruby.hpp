@@ -21,8 +21,10 @@
 
 // 宏 access 与 centurion 库冲突
 #undef access
-// 宏 bind 与 ruby 头文件冲突
+// 函数名 bind 与 ruby 头文件冲突
 #undef bind
+// 函数名 send 与 ruby 头文件冲突
+#undef send
 
 /** 加密包模式下不检查 ruby 的变量类型 */
 #if RGM_BUILDMODE >= 3

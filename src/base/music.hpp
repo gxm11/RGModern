@@ -14,6 +14,7 @@
 #include "cen_library.hpp"
 #include "core/core.hpp"
 #include "detail.hpp"
+#include "ruby_wrapper.hpp"
 
 namespace rgm::base {
 using musics = std::map<uint64_t, cen::music>;
@@ -25,6 +26,7 @@ struct music_create {
   const char* path;
 
   void run(auto& worker) {
+    cen::log_info("musics, id: %lld, path: %s", id, path);
     musics& data = RGMDATA(musics);
     data.emplace(id, cen::music(path));
   }
@@ -95,15 +97,16 @@ struct music_is_playing {
 struct init_music {
   static void before(auto& this_worker) {
     static decltype(auto) worker = this_worker;
+    static ruby_wrapper w(this_worker);
 
     struct wrapper {
-      static VALUE music_create(VALUE, VALUE id_, VALUE path_) {
-        RGMLOAD(id, const uint64_t);
-        RGMLOAD(path, const char*);
+      // static VALUE music_create(VALUE, VALUE id_, VALUE path_) {
+      //   RGMLOAD(id, const uint64_t);
+      //   RGMLOAD(path, const char*);
 
-        worker >> base::music_create{id, path};
-        return Qnil;
-      }
+      //   worker >> base::music_create{id, path};
+      //   return Qnil;
+      // }
 
       static VALUE music_dispose(VALUE, VALUE id_) {
         RGMLOAD(id, const uint64_t);
@@ -173,8 +176,10 @@ struct init_music {
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Ext = rb_define_module_under(rb_mRGM, "Ext");
 
-    rb_define_module_function(rb_mRGM_Ext, "music_create",
-                              wrapper::music_create, 2);
+    // rb_define_module_function(rb_mRGM_Ext, "music_create",
+    //                           wrapper::music_create, 2);
+    auto* f = &w.template function<music_create, uint64_t, const char*>;
+    rb_define_module_function(rb_mRGM_Ext, "music_create", f, 2);
 
     rb_define_module_function(rb_mRGM_Ext, "music_dispose",
                               wrapper::music_dispose, 1);
