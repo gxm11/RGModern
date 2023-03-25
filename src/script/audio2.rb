@@ -86,42 +86,194 @@ module Audio2
   #  - 其中fade和stop没有本质区别。
   # 5 种场合：Queue为空，Queue的首项是BGM或者ME x Queue中是否有{flag_fading_out}
 
-  class Music_Manager
-    Queue = []
-    T_Fading = 0
-    T_BGM = 1
-    T_ME = 2
-    Task = Struct.new(:music, :type, :volume, :position)
-
-    def shift; end
-    def push; end
-    def play_me; end
-    def play_bgm; end
-    def fade_me; end
-    def fade_bgm; end
-    def clear_me; end
-    def clear_bgm; end
-    def on_finish; end
-  end
-  # Music Manager 的实例
-  @@music_manager = Music_Manager.new
   # 默认 fade 的时间，单位 ms
   Default_Fade_Time = 500
 
+  module Music_Manager
+    Flag_Stop = 0
+    Flag_BGM_Playing = 1
+    Flag_BGM_Fading = 2
+    Flag_ME_Playing = 3
+    Flag_ME_Fading = 4
+
+    Type_Unknown = 0
+    Type_BGM = 1
+    Type_ME = 2
+
+    BGM_Queue = []
+    ME_Queue = []
+
+    @@state = Flag_Stop
+
+    module_function
+
+    def play(type, music)
+      case @@state
+      when Flag_Stop
+        if type == Type_BGM
+          music.play(-1)
+          RGM::Ext.music_set_volume(music.volume)
+          RGM::Ext.music_set_position(music.position) if music.position != -1
+          BGM_Queue << music
+          @@state = Flag_BGM_Playing
+        else
+          music.play(1)
+          RGM::Ext.music_set_volume(music.volume)
+          RGM::Ext.music_set_position(music.position) if music.position != -1
+          ME_Queue << music
+          @@state = Flag_ME_Playing
+        end
+      when Flag_BGM_Playing
+        if type == Type_BGM
+          if music == BGM_Queue.first
+            RGM::Ext.music_set_volume(music.volume)
+            RGM::Ext.music_set_position(music.position) if music.position != -1
+          else
+            RGM::Ext.music_fade_out(Default_Fade_Time)
+            BGM_Queue << music
+            @@state = Flag_BGM_Fading
+          end
+        else
+          current = BGM_Queue.first
+          current.update
+          RGM::Ext.music_fade_out(Default_Fade_Time)
+          BGM_Queue << RGM::Ext::Music.new(current.path, current.volume, current.position)
+          ME_Queue << music
+          @@state = Flag_BGM_Fading
+        end
+      when Flag_BGM_Fading
+        if type == Type_BGM
+          BGM_Queue << music
+        else
+          ME_Queue << music
+        end
+      when Flag_ME_Playing
+        if type == Type_BGM
+          BGM_Queue << music
+        else
+          ME_Queue << music
+          RGM::Ext.music_halt
+          @@state = Flag_ME_Fading
+        end
+      when Flag_ME_Fading
+        if type == Type_BGM
+          BGM_Queue << music
+        else
+          ME_Queue << music
+        end
+      end
+    end
+
+    def fade(type, time = 0)
+      case @@state
+      when Flag_Stop
+      when Flag_BGM_Playing
+        if type == Type_BGM
+          if time > 0
+            RGM::Ext.music_fade_out(time)
+          else
+            RGM::Ext.music_halt
+          end
+          @@state = Flag_BGM_Fading
+        else
+          ME_Queue.clear
+        end
+      when Flag_BGM_Fading
+        if type == Type_BGM
+          BGM_Queue.pop(BGM_Queue.size - 1)
+        else
+          ME_Queue.clear
+        end
+      when Flag_ME_Playing
+        if type == Type_BGM
+          BGM_Queue.clear
+        else
+          if time > 0
+            RGM::Ext.music_fade_out(time)
+          else
+            RGM::Ext.music_halt
+          end
+          @@state = Flag_ME_Fading
+        end
+      when Flag_ME_Fading
+        if type == Type_BGM
+          BGM_Queue.clear
+        else
+          ME_Queue.pop(ME_Queue.size - 1)
+        end
+      end
+    end
+
+    def on_finish
+      case @@state
+      when Flag_Stop
+        BGM_Queue.clear
+        ME_Queue.clear
+      when Flag_BGM_Playing, Flag_BGM_Fading
+        BGM_Queue.shift
+      when Flag_ME_Playing, Flag_ME_Fading
+        ME_Queue.shift
+      end
+
+      @@state = Flag_Stop
+
+      unless ME_Queue.empty?
+        ME_Queue.shift(ME_Queue.size - 1)
+        music = ME_Queue.first
+        music.play(1)
+        RGM::Ext.music_set_volume(music.volume)
+        @@state = Flag_ME_Playing
+        return
+      end
+
+      unless BGM_Queue.empty?
+        BGM_Queue.shift(BGM_Queue.size - 1)
+        music = BGM_Queue.first
+        music.play(-1)
+        RGM::Ext.music_set_volume(music.volume)
+        RGM::Ext.music_set_position(music.position) if music.position != -1
+        @@state = Flag_BGM_Playing
+      end
+    end
+  end
+
   module_function
 
-  def bgm_play(filename, _volume = 80, pitch = 100, _pos = -1)
+  def bgm_play(filename, volume = 80, pitch = 100, pos = -1)
     return if @@disable_music
 
     puts 'ignoring the pitch setting for bgm.' if pitch != 100
     path = Finder.find(filename, :music)
+    music = RGM::Ext::Music.new(path, volume, pos)
+    Music_Manager.play(Music_Manager::Type_BGM, music)
   end
 
-  def bgm_fade(_time)
+  def bgm_fade(time)
     return if @@disable_music
+
+    Music_Manager.fade(Music_Manager::Type_BGM, time)
   end
 
   def bgm_stop
     bgm_fade(0)
+  end
+
+  def me_play(filename, volume = 80, pitch = 100)
+    return if @@disable_music
+
+    puts 'ignoring the pitch setting for bgm.' if pitch != 100
+    path = Finder.find(filename, :music)
+    music = RGM::Ext::Music.new(path, volume)
+    Music_Manager.play(Music_Manager::Type_ME, music)
+  end
+
+  def me_fade(time)
+    return if @@disable_music
+
+    Music_Manager.fade(Music_Manager::Type_ME, time)
+  end
+
+  def me_stop
+    me_fade(0)
   end
 end

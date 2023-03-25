@@ -50,14 +50,17 @@ module RGM
   module Ext
     class Music
       attr_reader :id, :path
+      attr_accessor :volume, :position
 
       def self.create_finalizer(id)
         proc { RGM::Ext.music_dispose(id) }
       end
 
-      def initialize(path)
+      def initialize(path, volume = 100, position = -1)
         @id = RGM::Base.new_id
         @path = path
+        @volume = volume
+        @position = position
 
         RGM::Ext.music_create(@id, @path)
         ObjectSpace.define_finalizer(self, self.class.create_finalizer(@id))
@@ -73,8 +76,9 @@ module RGM
       end
 
       # position 单位是 s
-      def position
-        RGM::Ext.music_get_position(@id)
+      def update
+        @volume = RGM::Ext.music_get_volume
+        @position = RGM::Ext.music_get_position(@id)
       end
 
       def ==(other)
