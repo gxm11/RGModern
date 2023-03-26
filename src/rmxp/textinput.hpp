@@ -114,12 +114,8 @@ struct init_textinput {
     rb_define_module_function(rb_mRGM_Ext, "textinput_edit_clear",
                               wrapper::edit_clear, 0);
 
-    // simple bindings
-    base::ruby_wrapper w(this_worker);
-    w.template create_sender<textinput_start, int, int, int, int>(
-        rb_mRGM_Ext, "textinput_start");
-    w.template create_sender<textinput_stop>(rb_mRGM_Ext, "textinput_stop");
-
+    RGMBIND(rb_mRGM_Ext, textinput_start, int, int, int, int);
+    RGMBIND(rb_mRGM_Ext, textinput_stop);
     RGMDATA(textinput_state).setup();
   }
 };

@@ -13,14 +13,11 @@
 
 namespace rgm::rmxp {
 struct init_title {
-  static void before(auto& worker) {
+  static void before(auto& this_worker) {
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_BASE = rb_define_module_under(rb_mRGM, "Base");
 
-    // simple bindings
-    base::ruby_wrapper w(worker);
-    w.template create_sender<base::set_title, const char*>(rb_mRGM_BASE,
-                                                           "set_title");
+    RGMBIND2(rb_mRGM_BASE, "set_title", base::set_title, const char*);
   }
 };
 }  // namespace rgm::rmxp

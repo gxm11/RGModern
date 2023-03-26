@@ -169,16 +169,13 @@ struct init_graphics {
     rb_define_module_function(rb_mRGM_Base, "graphics_transition",
                               wrapper::transition, 5);
 
-    // simple bindings
-    base::ruby_wrapper w(this_worker);
-    w.template create_sender<base::present_window, int>(rb_mRGM_Base,
-                                                        "graphics_present");
-    w.template create_sender<base::resize_screen, int, int>(
-        rb_mRGM_Base, "graphics_resize_screen");
-    w.template create_sender<base::resize_window, int, int>(
-        rb_mRGM_Base, "graphics_resize_window");
-    w.template create_sender<base::set_fullscreen, int>(
-        rb_mRGM_Base, "graphics_set_fullscreen");
+    RGMBIND2(rb_mRGM_Base, "graphics_present", base::present_window, int);
+    RGMBIND2(rb_mRGM_Base, "graphics_resize_screen", base::resize_screen, int,
+             int);
+    RGMBIND2(rb_mRGM_Base, "graphics_resize_window", base::resize_window, int,
+             int);
+    RGMBIND2(rb_mRGM_Base, "graphics_set_fullscreen", base::set_fullscreen,
+             int);
   }
 };
 }  // namespace rgm::rmxp

@@ -49,7 +49,7 @@ using tasks_main =
                init_tilemap_manager, init_viewport, init_graphics, init_input,
                init_drawable_base, init_drawable<sprite>, init_drawable<window>,
                init_drawable<plane>, init_drawable<tilemap>, init_zip,
-               init_font<true>, init_palette,  
+               init_font<true>, init_palette,
                init_textinput, init_title, init_message, key_release, key_press,
                text_input, text_edit>;
 

@@ -663,14 +663,9 @@ struct init_bitmap {
     rb_define_module_function(rb_mRGM_BASE, "bitmap_get_pixel",
                               wrapper::get_pixel, 3);
 
-    // simple bindings
-    base::ruby_wrapper w(this_worker);
-    w.template create_sender<bitmap_hue_change, uint64_t, int>(
-        rb_mRGM_BASE, "bitmap_hue_change");
-    w.template create_sender<bitmap_save_png, uint64_t, const char*>(
-        rb_mRGM_BASE, "bitmap_save_png");
-    w.template create_sender<bitmap_capture_screen, uint64_t>(
-        rb_mRGM_BASE, "bitmap_capture_screen");
+    RGMBIND(rb_mRGM_BASE, bitmap_hue_change, uint64_t, int);
+    RGMBIND(rb_mRGM_BASE, bitmap_save_png, uint64_t, const char*);
+    RGMBIND(rb_mRGM_BASE, bitmap_capture_screen, uint64_t);
   }
 };
 }  // namespace rgm::rmxp

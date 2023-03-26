@@ -183,26 +183,17 @@ struct init_music {
     rb_define_module_function(rb_mRGM_Base, "music_get_position",
                               wrapper::music_get_position, 1);
 
-    // simple bindings
-    base::ruby_wrapper w(this_worker);
-    w.template create_sender<music_create, uint64_t, const char*>(
-        rb_mRGM_Base, "music_create");
-    w.template create_sender<music_dispose, uint64_t>(rb_mRGM_Base,
-                                                      "music_dispose");
-    w.template create_sender<music_play, uint64_t, int>(rb_mRGM_Base,
-                                                        "music_play");
-    w.template create_sender<music_fade_in, uint64_t, int, int>(
-        rb_mRGM_Base, "music_fade_in");
-    w.template create_sender<music_set_volume, int>(rb_mRGM_Base,
-                                                    "music_set_volume");
-    w.template create_sender<music_set_position, double>(rb_mRGM_Base,
-                                                         "music_set_position");
-    w.template create_sender<music_resume>(rb_mRGM_Base, "music_resume");
-    w.template create_sender<music_pause>(rb_mRGM_Base, "music_pause");
-    w.template create_sender<music_halt>(rb_mRGM_Base, "music_halt");
-    w.template create_sender<music_rewind>(rb_mRGM_Base, "music_rewind");
-    w.template create_sender<music_fade_out, int>(rb_mRGM_Base,
-                                                  "music_fade_out");
+    RGMBIND(rb_mRGM_Base, music_create, uint64_t, const char*);
+     RGMBIND(rb_mRGM_Base, music_dispose, uint64_t);
+    RGMBIND(rb_mRGM_Base, music_play, uint64_t, int);
+   RGMBIND(rb_mRGM_Base, music_fade_in, uint64_t, int, int);
+     RGMBIND(rb_mRGM_Base, music_set_volume, int);
+    RGMBIND(rb_mRGM_Base, music_set_position, double);
+    RGMBIND(rb_mRGM_Base, music_resume);
+    RGMBIND(rb_mRGM_Base, music_pause);
+    RGMBIND(rb_mRGM_Base, music_halt);
+    RGMBIND(rb_mRGM_Base, music_rewind);
+    RGMBIND(rb_mRGM_Base, music_fade_out, int);
   }
 };
 }  // namespace rgm::base

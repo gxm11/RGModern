@@ -40,3 +40,15 @@ struct ruby_wrapper {
   }
 };
 }  // namespace rgm::base
+
+// clang-format off
+// clang-format 会在 __VA_OPT__ 中的逗号后添加一个空格
+#define RGMBIND(module, function, ...)              \
+  rgm::base::ruby_wrapper(this_worker)              \
+      .template create_sender<function              \
+      __VA_OPT__(,) __VA_ARGS__>(module, #function)
+#define RGMBIND2(module, method, function, ...)     \
+  rgm::base::ruby_wrapper(this_worker)              \
+      .template create_sender<function              \
+      __VA_OPT__(,) __VA_ARGS__>(module, method)
+// clang-format on
