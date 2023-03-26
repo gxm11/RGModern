@@ -8,7 +8,7 @@
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more details.
 
-module Audio2
+module Audio
   # 由于SDL的特殊设计，music不存在多通道混合，一次只能有 1 个music在播放。
   # 这看上去是更底层的限制，当然这也符合 RGSS 的设定。
 
@@ -108,23 +108,13 @@ module Audio2
     module_function
 
     def play(type, music)
-      case @@state
-      when Flag_Stop
-        if type == Type_BGM
+      if type == Type_BGM
+        case @@state
+        when Flag_Stop
           music.play(-1)
-          RGM::Ext.music_set_volume(music.volume)
-          RGM::Ext.music_set_position(music.position) if music.position != -1
           BGM_Queue << music
           @@state = Flag_BGM_Playing
-        else
-          music.play(1)
-          RGM::Ext.music_set_volume(music.volume)
-          RGM::Ext.music_set_position(music.position) if music.position != -1
-          ME_Queue << music
-          @@state = Flag_ME_Playing
-        end
-      when Flag_BGM_Playing
-        if type == Type_BGM
+        when Flag_BGM_Playing
           if music == BGM_Queue.first
             RGM::Ext.music_set_volume(music.volume)
             RGM::Ext.music_set_position(music.position) if music.position != -1
@@ -133,72 +123,66 @@ module Audio2
             BGM_Queue << music
             @@state = Flag_BGM_Fading
           end
-        else
+        when Flag_BGM_Fading, Flag_ME_Playing, Flag_ME_Fading
+          BGM_Queue << music
+        end
+      end
+
+      if type == Type_ME
+        ME_Queue << music
+
+        case @@state
+        when Flag_Stop
+          music.play(1)
+          @@state = Flag_ME_Playing
+        when Flag_BGM_Playing
           current = BGM_Queue.first
           current.update
           RGM::Ext.music_fade_out(Default_Fade_Time)
           BGM_Queue << RGM::Ext::Music.new(current.path, current.volume, current.position)
-          ME_Queue << music
           @@state = Flag_BGM_Fading
-        end
-      when Flag_BGM_Fading
-        if type == Type_BGM
-          BGM_Queue << music
-        else
-          ME_Queue << music
-        end
-      when Flag_ME_Playing
-        if type == Type_BGM
-          BGM_Queue << music
-        else
-          ME_Queue << music
+        when Flag_ME_Playing
           RGM::Ext.music_halt
           @@state = Flag_ME_Fading
-        end
-      when Flag_ME_Fading
-        if type == Type_BGM
-          BGM_Queue << music
-        else
-          ME_Queue << music
         end
       end
     end
 
     def fade(type, time = 0)
-      case @@state
-      when Flag_Stop
-      when Flag_BGM_Playing
-        if type == Type_BGM
+      if type == Type_BGM
+        case @@state
+        when Flag_Stop
+        when Flag_BGM_Playing
           if time > 0
             RGM::Ext.music_fade_out(time)
           else
             RGM::Ext.music_halt
           end
           @@state = Flag_BGM_Fading
-        else
-          ME_Queue.clear
-        end
-      when Flag_BGM_Fading
-        if type == Type_BGM
+        when Flag_BGM_Fading
           BGM_Queue.pop(BGM_Queue.size - 1)
-        else
-          ME_Queue.clear
-        end
-      when Flag_ME_Playing
-        if type == Type_BGM
+        when Flag_ME_Playing
           BGM_Queue.clear
-        else
+        when Flag_ME_Fading
+          BGM_Queue.clear
+        end
+      end
+
+      if type == Type_ME
+        case @@state
+        when Flag_Stop
+        when Flag_BGM_Playing
+          ME_Queue.clear
+        when Flag_BGM_Fading
+          ME_Queue.clear
+        when Flag_ME_Playing
           if time > 0
             RGM::Ext.music_fade_out(time)
           else
             RGM::Ext.music_halt
           end
           @@state = Flag_ME_Fading
-        end
-      when Flag_ME_Fading
-        if type == Type_BGM
-          BGM_Queue.clear
-        else
+        when Flag_ME_Fading
           ME_Queue.pop(ME_Queue.size - 1)
         end
       end
@@ -221,7 +205,6 @@ module Audio2
         ME_Queue.shift(ME_Queue.size - 1)
         music = ME_Queue.first
         music.play(1)
-        RGM::Ext.music_set_volume(music.volume)
         @@state = Flag_ME_Playing
         return
       end
@@ -230,8 +213,6 @@ module Audio2
         BGM_Queue.shift(BGM_Queue.size - 1)
         music = BGM_Queue.first
         music.play(-1)
-        RGM::Ext.music_set_volume(music.volume)
-        RGM::Ext.music_set_position(music.position) if music.position != -1
         @@state = Flag_BGM_Playing
       end
     end
@@ -255,6 +236,8 @@ module Audio2
   end
 
   def bgm_stop
+    return if @@disable_music
+
     bgm_fade(0)
   end
 
@@ -274,6 +257,8 @@ module Audio2
   end
 
   def me_stop
+    return if @@disable_music
+
     me_fade(0)
   end
 end

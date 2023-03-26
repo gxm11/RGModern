@@ -68,6 +68,8 @@ module RGM
 
       def play(iteration)
         RGM::Ext.music_play(@id, iteration)
+        RGM::Ext.music_set_volume(@volume)
+        RGM::Ext.music_set_position(@position) if @position != -1        
       end
 
       # duration 单位是 ms
