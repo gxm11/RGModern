@@ -18,14 +18,14 @@
 #include "init_sdl2.hpp"
 #include "kernel_ruby.hpp"
 #include "music.hpp"
-#include "music_manager.hpp"
+// #include "music_manager.hpp"
 #include "render.hpp"
 #include "renderstack.hpp"
 #include "ruby.hpp"
 #include "ruby_wrapper.hpp"
 #include "signal.hpp"
 #include "sound.hpp"
-#include "sound_manager.hpp"
+// #include "sound_manager.hpp"
 #include "sound_pitch.hpp"
 #include "surface.hpp"
 #include "textures.hpp"
@@ -42,14 +42,11 @@ using tasks_render =
                clear_screen, present_window, resize_window, resize_screen,
                set_title, set_fullscreen>;
 /** @brief 执行音乐播放的 task，使用 SDL2 Mixer 播放音乐和音效 */
-using tasks_audio =
-    std::tuple<init_music_manager, init_sound_manager, bgm_play, bgm_stop,
-               me_play, me_stop, music_finish, bgm_pos, bgs_play, bgs_stop,
-               se_play, se_stop, music_create, music_dispose, music_play,
-               music_fade_in, music_set_volume, music_set_position,
-               music_resume, music_pause, music_halt, music_rewind,
-               music_fade_out, music_get_volume, music_get_position,
-               music_get_state, sound_create, sound_dispose, sound_play,
-               sound_stop, sound_fade_in, sound_fade_out, sound_set_volume,
-               sound_set_pitch, sound_get_state, sound_get_channel>;
+using tasks_audio = std::tuple<
+    /* init_music_manager, init_sound_manager,*/ music_create, music_dispose,
+    music_play, music_fade_in, music_set_volume, music_set_position,
+    music_resume, music_pause, music_halt, music_rewind, music_fade_out,
+    music_get_volume, music_get_position, music_get_state, sound_create,
+    sound_dispose, sound_play, sound_stop, sound_fade_in, sound_fade_out,
+    sound_set_volume, sound_set_pitch, sound_get_state, sound_get_channel>;
 }  // namespace rgm::base

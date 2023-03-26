@@ -15,7 +15,7 @@
 
 #include "cen_library.hpp"
 #include "core/core.hpp"
-#include "sound_manager.hpp"
+#include "sound_pitch.hpp"
 
 namespace rgm::base {
 struct sdl_hint {

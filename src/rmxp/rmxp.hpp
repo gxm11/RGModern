@@ -9,7 +9,7 @@
 // Mulan PSL v2 for more details.
 
 #pragma once
-#include "audio.hpp"
+// #include "audio.hpp"
 #include "base/base.hpp"
 #include "bitmap.hpp"
 #include "blend_type.hpp"
@@ -45,13 +45,14 @@
 
 namespace rgm::rmxp {
 /** @brief 逻辑流程的 worker 的可执行任务列表 */
-using tasks_main = std::tuple<
-    init_extension, init_detail, init_bitmap, init_table, init_tilemap_manager,
-    init_viewport, init_graphics, init_input, init_drawable_base,
-    init_drawable<sprite>, init_drawable<window>, init_drawable<plane>,
-    init_drawable<tilemap>, init_zip, init_font<true>, init_palette, init_music,
-    init_sound, init_textinput, init_title, init_message, key_release,
-    key_press, text_input, text_edit>;
+using tasks_main =
+    std::tuple<init_extension, init_detail, init_bitmap, init_table,
+               init_tilemap_manager, init_viewport, init_graphics, init_input,
+               init_drawable_base, init_drawable<sprite>, init_drawable<window>,
+               init_drawable<plane>, init_drawable<tilemap>, init_zip,
+               init_font<true>, init_palette, /*init_music, init_sound, */
+               init_textinput, init_title, init_message, key_release, key_press,
+               text_input, text_edit>;
 
 /** @brief 渲染流程的 worker 的可执行任务列表 */
 using tasks_render = std::tuple<
