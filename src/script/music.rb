@@ -32,11 +32,12 @@ module RGM
     # - music_fade_out(duration)
 
     # 4. module functions that show current states.
-    # - music_is_playing -> Bool
-    # - music_is_paused -> Bool
-    # - music_is_fading -> Bool
-    # - music_is_fading_in -> Bool
-    # - music_is_fading_out -> Bool
+    # - music_get_state can get results for following states:
+    #  - music_is_playing -> Bool
+    #  - music_is_paused -> Bool
+    #  - music_is_fading -> Bool
+    #  - music_is_fading_in -> Bool
+    #  - music_is_fading_out -> Bool
 
     # 5. module functions that will automatically called
     #    after current music finishes. However, it will be
@@ -69,7 +70,7 @@ module RGM
       def play(iteration)
         RGM::Ext.music_play(@id, iteration)
         RGM::Ext.music_set_volume(@volume)
-        RGM::Ext.music_set_position(@position) if @position != -1        
+        RGM::Ext.music_set_position(@position) if @position != -1
       end
 
       # duration 单位是 ms

@@ -24,6 +24,7 @@
 #include "ruby.hpp"
 #include "ruby_wrapper.hpp"
 #include "signal.hpp"
+#include "sound.hpp"
 #include "sound_manager.hpp"
 #include "sound_pitch.hpp"
 #include "surface.hpp"
@@ -32,8 +33,9 @@
 
 namespace rgm::base {
 /** @brief 执行逻辑流程的 task，运行 ruby 脚本 */
-using tasks_main = std::tuple<init_ruby, init_synchronize, init_counter,
-                              init_surfaces, interrupt_signal, init_music, music_finish_callback>;
+using tasks_main =
+    std::tuple<init_ruby, init_synchronize, init_counter, init_surfaces,
+               interrupt_signal, init_music, music_finish_callback, init_sound>;
 /** @brief 执行渲染流程的 task，使用 SDL2 创建窗口，绘制画面 */
 using tasks_render =
     std::tuple<init_sdl2, init_renderstack, init_textures, poll_event,
@@ -44,7 +46,10 @@ using tasks_audio =
     std::tuple<init_music_manager, init_sound_manager, bgm_play, bgm_stop,
                me_play, me_stop, music_finish, bgm_pos, bgs_play, bgs_stop,
                se_play, se_stop, music_create, music_dispose, music_play,
-               music_fade_in, music_set_volume, music_set_position, music_resume, 
-               music_pause, music_halt, music_rewind, music_fade_out, 
-               music_get_volume, music_get_position, music_get_state>;
+               music_fade_in, music_set_volume, music_set_position,
+               music_resume, music_pause, music_halt, music_rewind,
+               music_fade_out, music_get_volume, music_get_position,
+               music_get_state, sound_create, sound_dispose, sound_play,
+               sound_stop, sound_fade_in, sound_fade_out, sound_set_volume,
+               sound_set_pitch, sound_get_state, sound_get_channel>;
 }  // namespace rgm::base

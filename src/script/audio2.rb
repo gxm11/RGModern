@@ -218,6 +218,64 @@ module Audio
     end
   end
 
+  # sound中，BGS是循环播放的。SE在播放前，需要clean一下当前的SE数量
+  # 由于SDL channel的数量 = 8，所以SE
+  module Sound_Manager
+    Sound_List = []
+
+    Type_Unknown = 0
+    Type_BGS = 1
+    Type_SE = 2
+
+    Max_Channel = 8
+
+    module_function
+
+    def play(type, sound)
+      clean if Sound_List.size >= Max_Channel
+
+      # 播放 BGS 需要先 fade out 其他的 BGS
+      if type == Type_BGS
+        Sound_List.each do |type2, sound|
+          if type2 == Type_BGS
+            if time > 0
+              sound.fade_out(Default_Fade_Time)
+            else
+              sound.stop
+            end
+          end
+        end
+        Sound_List << sound
+        sound.play(-1)
+      end
+
+      if type == Type_SE
+        # 播放 SE 直接操作即可
+        Sound_List << sound
+
+        sound.play(1)
+      end
+    end
+
+    def fade(type, time)
+      if type == Type_BGS
+        Sound_List.each do |type2, sound|
+          sound.fade_out(time) if type2 == Type_BGS
+        end
+      end
+
+      if type == Type_SE
+        Sound_List.each do |type2, sound|
+          sound.stop if type2 == Type_SE
+        end
+      end
+    end
+
+    def clean
+      Sound_List.select! { |_type, sound| sound.is_playing }
+    end
+  end
+
   module_function
 
   def bgm_play(filename, volume = 80, pitch = 100, pos = -1)
@@ -268,6 +326,48 @@ module Audio
     return if @@disable_music
 
     me_fade(0)
+  end
+
+  def bgs_play(filename, volume = 80, pitch = 100)
+    return if @@disable_sound
+
+    path = Finder.find(filename, :sound)
+    sound = RGM::Ext::Sound.new(path, volume, pitch)
+    Sound_Manager.play(Sound_Manager::Type_BGS, sound)
+  end
+
+  def bgs_stop
+    return if @@disable_sound
+
+    bgs_fade(0)
+  end
+
+  def bgs_fade(time)
+    return if @@disable_sound
+
+    Sound_Manager.fade(Sound_Manager::Type_BGS, time)
+  end
+
+  def se_play(filename, volume = 80, pitch = 100)
+    return if @@disable_sound
+
+    path = Finder.find(filename, :sound)
+    sound = RGM::Ext::Sound.new(path, volume, pitch)
+    Sound_Manager.play(Sound_Manager::Type_SE, sound)
+  end
+
+  def se_stop
+    return if @@disable_sound
+
+    Sound_Manager.fade(Sound_Manager::Type_SE, 0)
+  end
+
+  def disable_music
+    @@disable_music = true
+  end
+
+  def disable_sound
+    @@disable_sound = true
   end
 
   @@disable_music = false
