@@ -86,7 +86,7 @@ module Audio
           current = BGM_Queue.first
           current.update
           RGM::Base.music_fade_out(Default_Fade_Time)
-          BGM_Queue << RGM::Base::Music.new(current.path, current.volume, current.position)
+          BGM_Queue << RGM::Music.new(current.path, current.volume, current.position)
           @@state = Flag_BGM_Fading
         when Flag_ME_Playing
           RGM::Base.music_halt
@@ -98,7 +98,6 @@ module Audio
     def fade(type, time = 0)
       if type == Type_BGM
         case @@state
-        when Flag_Stop
         when Flag_BGM_Playing
           if time > 0
             RGM::Base.music_fade_out(time)
@@ -108,19 +107,14 @@ module Audio
           @@state = Flag_BGM_Fading
         when Flag_BGM_Fading
           BGM_Queue.pop(BGM_Queue.size - 1)
-        when Flag_ME_Playing
-          BGM_Queue.clear
-        when Flag_ME_Fading
+        when Flag_ME_Playing, Flag_ME_Fading
           BGM_Queue.clear
         end
       end
 
       if type == Type_ME
         case @@state
-        when Flag_Stop
-        when Flag_BGM_Playing
-          ME_Queue.clear
-        when Flag_BGM_Fading
+        when Flag_BGM_Playing, Flag_BGM_Fading
           ME_Queue.clear
         when Flag_ME_Playing
           if time > 0
