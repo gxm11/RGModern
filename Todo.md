@@ -79,7 +79,7 @@ std::apply和std::tuple 参见：https://godbolt.org/z/8K3WrEzd4
 所有的任务都用std::tuple打包，tuple可以用std::tuple_cat函数合并：
 std::tuple_cat : *tuple -> tuple
 
-## wrapper的元编程
+## wrapper的元编程（已完成）
 https://godbolt.org/z/a7eaf79Kn
 ```c++
 #include <cstdint>
@@ -208,3 +208,6 @@ int main() {
     init_music::before(w);
 }
 ```
+
+## opengl的渐变bug
+在第二张地图切换时，整个画面是白色的。看上去是因为整个地图都是白色的，opengl没有正常绘制地图上的内容。
