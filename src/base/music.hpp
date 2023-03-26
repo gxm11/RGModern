@@ -184,10 +184,10 @@ struct init_music {
                               wrapper::music_get_position, 1);
 
     RGMBIND(rb_mRGM_Base, music_create, uint64_t, const char*);
-     RGMBIND(rb_mRGM_Base, music_dispose, uint64_t);
+    RGMBIND(rb_mRGM_Base, music_dispose, uint64_t);
     RGMBIND(rb_mRGM_Base, music_play, uint64_t, int);
-   RGMBIND(rb_mRGM_Base, music_fade_in, uint64_t, int, int);
-     RGMBIND(rb_mRGM_Base, music_set_volume, int);
+    RGMBIND(rb_mRGM_Base, music_fade_in, uint64_t, int, int);
+    RGMBIND(rb_mRGM_Base, music_set_volume, int);
     RGMBIND(rb_mRGM_Base, music_set_position, double);
     RGMBIND(rb_mRGM_Base, music_resume);
     RGMBIND(rb_mRGM_Base, music_pause);
