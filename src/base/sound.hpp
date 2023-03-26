@@ -155,7 +155,10 @@ struct init_sound {
 
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Ext = rb_define_module_under(rb_mRGM, "Ext");
-
+    rb_define_module_function(rb_mRGM_Ext, "sound_get_state",
+                              wrapper::sound_get_state, 1);
+    rb_define_module_function(rb_mRGM_Ext, "sound_get_channel",
+                              wrapper::sound_get_channel, 1);
     // simple bindings
     base::ruby_wrapper w(this_worker);
     w.template create_sender<sound_create, uint64_t, const char*>(

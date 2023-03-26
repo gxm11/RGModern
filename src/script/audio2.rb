@@ -133,7 +133,7 @@ module Audio
 
         case @@state
         when Flag_Stop
-          music.play(1)
+          music.play(0)
           @@state = Flag_ME_Playing
         when Flag_BGM_Playing
           current = BGM_Queue.first
@@ -204,7 +204,7 @@ module Audio
       unless ME_Queue.empty?
         ME_Queue.shift(ME_Queue.size - 1)
         music = ME_Queue.first
-        music.play(1)
+        music.play(0)
         @@state = Flag_ME_Playing
         return
       end
@@ -245,15 +245,15 @@ module Audio
             end
           end
         end
-        Sound_List << sound
+        Sound_List << [type, sound]
         sound.play(-1)
       end
 
       if type == Type_SE
         # 播放 SE 直接操作即可
-        Sound_List << sound
+        Sound_List << [type, sound]
 
-        sound.play(1)
+        sound.play(0)
       end
     end
 
