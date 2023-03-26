@@ -153,7 +153,7 @@ struct worker {
                   "Task must be passed as R-value!");
 
     static_assert(traits::tuple_include<T_kernel_tasks, T>());
-    if constexpr (is_asynchronized) {
+    if constexpr (is_asynchronized || is_active) {
       m_kernel << std::forward<T>(task);
     } else {
       task.run(*this);

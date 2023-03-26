@@ -241,6 +241,14 @@ module Audio
     bgm_fade(0)
   end
 
+  def bgm_pos
+    bgm = Music_Manager::BGM_Queue.first
+    return -1 if bgm.nil?
+
+    bgm.update
+    bgm.position
+  end
+
   def me_play(filename, volume = 80, pitch = 100)
     return if @@disable_music
 
@@ -260,5 +268,18 @@ module Audio
     return if @@disable_music
 
     me_fade(0)
+  end
+
+  @@disable_music = false
+  @@disable_sound = false
+end
+
+module RGM
+  module Ext
+    module_function
+
+    def music_finish_callback
+      Audio::Music_Manager.on_finish
+    end
   end
 end
