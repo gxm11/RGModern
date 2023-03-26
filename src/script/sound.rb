@@ -64,7 +64,11 @@ module RGM
       end
 
       def fade_out(duration)
-        RGM::Ext.sound_fade_out(@id, duration)
+        if duration > 0
+          RGM::Ext.sound_fade_out(@id, duration)
+        else
+          RGM::Ext.sound_stop(@id)
+        end
       end
 
       def is_playing

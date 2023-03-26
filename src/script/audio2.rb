@@ -237,13 +237,7 @@ module Audio
       # 播放 BGS 需要先 fade out 其他的 BGS
       if type == Type_BGS
         Sound_List.each do |type2, sound|
-          if type2 == Type_BGS
-            if time > 0
-              sound.fade_out(Default_Fade_Time)
-            else
-              sound.stop
-            end
-          end
+          sound.fade_out(Default_Fade_Time) if type2 == Type_BGS
         end
         Sound_List << [type, sound]
         sound.play(-1)
@@ -257,7 +251,7 @@ module Audio
       end
     end
 
-    def fade(type, time)
+    def fade(type, time = 0)
       if type == Type_BGS
         Sound_List.each do |type2, sound|
           sound.fade_out(time) if type2 == Type_BGS
