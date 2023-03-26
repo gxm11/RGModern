@@ -20,12 +20,21 @@ module RGM
       Temp << object
       object
     end
+
+    # 音乐播放结束后的自动回调，已在 Audio 模块中重新定义
+    def self.music_finish_callback; end
   end
 
   module Word
   end
 
   module SDL
+  end
+
+  class Music
+  end
+
+  class Sound
   end
 end
 

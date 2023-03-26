@@ -63,10 +63,10 @@ module Audio
           @@state = Flag_BGM_Playing
         when Flag_BGM_Playing
           if music == BGM_Queue.first
-            RGM::Ext.music_set_volume(music.volume)
-            RGM::Ext.music_set_position(music.position) if music.position != -1
+            RGM::Base.music_set_volume(music.volume)
+            RGM::Base.music_set_position(music.position) if music.position != -1
           else
-            RGM::Ext.music_fade_out(Default_Fade_Time)
+            RGM::Base.music_fade_out(Default_Fade_Time)
             BGM_Queue << music
             @@state = Flag_BGM_Fading
           end
@@ -85,11 +85,11 @@ module Audio
         when Flag_BGM_Playing
           current = BGM_Queue.first
           current.update
-          RGM::Ext.music_fade_out(Default_Fade_Time)
-          BGM_Queue << RGM::Ext::Music.new(current.path, current.volume, current.position)
+          RGM::Base.music_fade_out(Default_Fade_Time)
+          BGM_Queue << RGM::Base::Music.new(current.path, current.volume, current.position)
           @@state = Flag_BGM_Fading
         when Flag_ME_Playing
-          RGM::Ext.music_halt
+          RGM::Base.music_halt
           @@state = Flag_ME_Fading
         end
       end
@@ -101,9 +101,9 @@ module Audio
         when Flag_Stop
         when Flag_BGM_Playing
           if time > 0
-            RGM::Ext.music_fade_out(time)
+            RGM::Base.music_fade_out(time)
           else
-            RGM::Ext.music_halt
+            RGM::Base.music_halt
           end
           @@state = Flag_BGM_Fading
         when Flag_BGM_Fading
@@ -124,9 +124,9 @@ module Audio
           ME_Queue.clear
         when Flag_ME_Playing
           if time > 0
-            RGM::Ext.music_fade_out(time)
+            RGM::Base.music_fade_out(time)
           else
-            RGM::Ext.music_halt
+            RGM::Base.music_halt
           end
           @@state = Flag_ME_Fading
         when Flag_ME_Fading
@@ -219,7 +219,7 @@ module Audio
 end
 
 module RGM
-  module Ext
+  module Base
     module_function
 
     def music_finish_callback
@@ -236,7 +236,7 @@ module Audio
 
     puts 'ignoring the pitch setting for bgm.' if pitch != 100
     path = Finder.find(filename, :music)
-    music = RGM::Ext::Music.new(path, volume, pos)
+    music = RGM::Music.new(path, volume, pos)
     Music_Manager.play(Music_Manager::Type_BGM, music)
   end
 
@@ -265,7 +265,7 @@ module Audio
 
     puts 'ignoring the pitch setting for bgm.' if pitch != 100
     path = Finder.find(filename, :music)
-    music = RGM::Ext::Music.new(path, volume)
+    music = RGM::Music.new(path, volume)
     Music_Manager.play(Music_Manager::Type_ME, music)
   end
 
@@ -285,7 +285,7 @@ module Audio
     return if @@disable_sound
 
     path = Finder.find(filename, :sound)
-    sound = RGM::Ext::Sound.new(path, volume, pitch)
+    sound = RGM::Sound.new(path, volume, pitch)
     Sound_Manager.play(Sound_Manager::Type_BGS, sound)
   end
 
@@ -305,7 +305,7 @@ module Audio
     return if @@disable_sound
 
     path = Finder.find(filename, :sound)
-    sound = RGM::Ext::Sound.new(path, volume, pitch)
+    sound = RGM::Sound.new(path, volume, pitch)
     Sound_Manager.play(Sound_Manager::Type_SE, sound)
   end
 

@@ -22,8 +22,8 @@ using musics = std::map<uint64_t, cen::music>;
 struct music_finish_callback {
   void run(auto&) {
     VALUE rb_mRGM = rb_define_module("RGM");
-    VALUE rb_mRGM_Ext = rb_define_module_under(rb_mRGM, "Ext");
-    rb_funcall(rb_mRGM_Ext, rb_intern("music_finish_callback"), 0);
+    VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
+    rb_funcall(rb_mRGM_Base, rb_intern("music_finish_callback"), 0);
   }
 };
 
@@ -175,33 +175,33 @@ struct init_music {
     };
 
     VALUE rb_mRGM = rb_define_module("RGM");
-    VALUE rb_mRGM_Ext = rb_define_module_under(rb_mRGM, "Ext");
-    rb_define_module_function(rb_mRGM_Ext, "music_get_state",
+    VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
+    rb_define_module_function(rb_mRGM_Base, "music_get_state",
                               wrapper::music_get_state, 0);
-    rb_define_module_function(rb_mRGM_Ext, "music_get_volume",
+    rb_define_module_function(rb_mRGM_Base, "music_get_volume",
                               wrapper::music_get_volume, 0);
-    rb_define_module_function(rb_mRGM_Ext, "music_get_position",
+    rb_define_module_function(rb_mRGM_Base, "music_get_position",
                               wrapper::music_get_position, 1);
 
     // simple bindings
     base::ruby_wrapper w(this_worker);
     w.template create_sender<music_create, uint64_t, const char*>(
-        rb_mRGM_Ext, "music_create");
-    w.template create_sender<music_dispose, uint64_t>(rb_mRGM_Ext,
+        rb_mRGM_Base, "music_create");
+    w.template create_sender<music_dispose, uint64_t>(rb_mRGM_Base,
                                                       "music_dispose");
-    w.template create_sender<music_play, uint64_t, int>(rb_mRGM_Ext,
+    w.template create_sender<music_play, uint64_t, int>(rb_mRGM_Base,
                                                         "music_play");
     w.template create_sender<music_fade_in, uint64_t, int, int>(
-        rb_mRGM_Ext, "music_fade_in");
-    w.template create_sender<music_set_volume, int>(rb_mRGM_Ext,
+        rb_mRGM_Base, "music_fade_in");
+    w.template create_sender<music_set_volume, int>(rb_mRGM_Base,
                                                     "music_set_volume");
-    w.template create_sender<music_set_position, double>(rb_mRGM_Ext,
+    w.template create_sender<music_set_position, double>(rb_mRGM_Base,
                                                          "music_set_position");
-    w.template create_sender<music_resume>(rb_mRGM_Ext, "music_resume");
-    w.template create_sender<music_pause>(rb_mRGM_Ext, "music_pause");
-    w.template create_sender<music_halt>(rb_mRGM_Ext, "music_halt");
-    w.template create_sender<music_rewind>(rb_mRGM_Ext, "music_rewind");
-    w.template create_sender<music_fade_out, int>(rb_mRGM_Ext,
+    w.template create_sender<music_resume>(rb_mRGM_Base, "music_resume");
+    w.template create_sender<music_pause>(rb_mRGM_Base, "music_pause");
+    w.template create_sender<music_halt>(rb_mRGM_Base, "music_halt");
+    w.template create_sender<music_rewind>(rb_mRGM_Base, "music_rewind");
+    w.template create_sender<music_fade_out, int>(rb_mRGM_Base,
                                                   "music_fade_out");
   }
 };
