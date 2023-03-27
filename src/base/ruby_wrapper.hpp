@@ -16,16 +16,14 @@ namespace rgm::base {
 template <typename T_worker>
 struct ruby_wrapper {
   // type to convert all input args into VALUE
-  template <typename T>
+  template <typename>
   struct value {
     using type = VALUE;
   };
 
   inline static T_worker* p_worker = nullptr;
 
-  explicit ruby_wrapper(T_worker& w) {
-    if (!p_worker) p_worker = &w;
-  }
+  explicit ruby_wrapper(T_worker& w) { p_worker = &w; }
 
   template <typename T, typename... Args>
   static VALUE sender(VALUE, value<Args>::type... args) {
@@ -35,7 +33,7 @@ struct ruby_wrapper {
 
   template <typename T, size_t arity>
   static void bind(VALUE module, const char* name) {
-    using U = decltype(core::traits::struct_to_tuple<arity>(T{}));
+    using U = decltype(core::traits::struct_to_tuple<arity>(std::declval<T>()));
     auto helper = []<typename... Args>(std::tuple<Args...>*) {
       return &sender<T, Args...>;
     };
