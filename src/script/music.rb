@@ -36,8 +36,8 @@ module RGM
   #  - music_is_fading -> 1
   #  - music_is_fading_in -> 2
   #  - music_is_fading_out -> 4
-  #  - music_is_playing -> 16
   #  - music_is_paused -> 8
+  #  - music_is_playing -> 16
 
   # 5. module functions that will automatically called
   #    after current music finishes. However, it will be

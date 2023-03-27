@@ -13,9 +13,7 @@
 
 namespace rgm::rmxp {
 struct init_title {
-  static void before(auto& this_worker) {
-    static decltype(auto) worker = this_worker;
-
+  static void before(auto& worker) {
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_BASE = rb_define_module_under(rb_mRGM, "Base");
 
