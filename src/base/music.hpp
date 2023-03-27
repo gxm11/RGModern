@@ -182,18 +182,28 @@ struct init_music {
                               wrapper::music_get_volume, 0);
     rb_define_module_function(rb_mRGM_Base, "music_get_position",
                               wrapper::music_get_position, 1);
-
-    RGMBIND(rb_mRGM_Base, music_create, uint64_t, const char*);
-    RGMBIND(rb_mRGM_Base, music_dispose, uint64_t);
-    RGMBIND(rb_mRGM_Base, music_play, uint64_t, int);
-    RGMBIND(rb_mRGM_Base, music_fade_in, uint64_t, int, int);
-    RGMBIND(rb_mRGM_Base, music_set_volume, int);
-    RGMBIND(rb_mRGM_Base, music_set_position, double);
-    RGMBIND(rb_mRGM_Base, music_resume);
-    RGMBIND(rb_mRGM_Base, music_pause);
-    RGMBIND(rb_mRGM_Base, music_halt);
-    RGMBIND(rb_mRGM_Base, music_rewind);
-    RGMBIND(rb_mRGM_Base, music_fade_out, int);
+    // RGMBIND(rb_mRGM_Base, music_create, uint64_t, const char*);
+    RGMBIND4(rb_mRGM_Base, "music_create", music_create, 2);
+    // RGMBIND(rb_mRGM_Base, music_dispose, uint64_t);
+    RGMBIND4(rb_mRGM_Base, "music_dispose", music_dispose, 1);
+    // RGMBIND(rb_mRGM_Base, music_play, uint64_t, int);
+    RGMBIND4(rb_mRGM_Base, "music_play", music_play, 2);
+    // RGMBIND(rb_mRGM_Base, music_fade_in, uint64_t, int, int);
+    RGMBIND4(rb_mRGM_Base, "music_fade_in", music_fade_in, 3);
+    // RGMBIND(rb_mRGM_Base, music_set_volume, int);
+    RGMBIND4(rb_mRGM_Base, "music_set_volume", music_set_volume, 1);
+    // RGMBIND(rb_mRGM_Base, music_set_position, double);
+    RGMBIND4(rb_mRGM_Base, "music_set_position", music_set_position, 1);
+    // RGMBIND(rb_mRGM_Base, music_resume);
+    RGMBIND4(rb_mRGM_Base, "music_resume", music_resume, 0);
+    // RGMBIND(rb_mRGM_Base, music_pause);
+    RGMBIND4(rb_mRGM_Base, "music_pause", music_pause, 0);
+    // RGMBIND(rb_mRGM_Base, music_halt);
+    RGMBIND4(rb_mRGM_Base, "music_halt", music_halt, 0);
+    // RGMBIND(rb_mRGM_Base, music_rewind);
+    RGMBIND4(rb_mRGM_Base, "music_rewind", music_rewind, 0);
+    // RGMBIND(rb_mRGM_Base, music_fade_out, int);
+    RGMBIND4(rb_mRGM_Base, "music_fade_out", music_fade_out, 1);
   }
 };
 }  // namespace rgm::base

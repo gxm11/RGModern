@@ -38,6 +38,18 @@ struct ruby_wrapper {
     auto* fp = &sender<T, Args...>;
     rb_define_module_function(module, name, fp, sizeof...(Args));
   }
+
+  template <typename T, size_t arity>
+  static void bind(VALUE module, const char* name) {
+    using U = decltype(core::traits::struct_to_tuple<arity>(T{}));
+    auto* fp = bind_helper((T*)0, (U*)0);
+    rb_define_module_function(module, name, fp, arity);
+  }
+
+  template <typename T, typename... Args>
+  static auto* bind_helper(T*, std::tuple<Args...>*) {
+    return &sender<T, Args...>;
+  }
 };
 }  // namespace rgm::base
 
@@ -51,4 +63,12 @@ struct ruby_wrapper {
   rgm::base::ruby_wrapper(this_worker)              \
       .template create_sender<function              \
       __VA_OPT__(,) __VA_ARGS__>(module, method)
+
+#define RGMBIND3(module, function, arity) \
+  rgm::base::ruby_wrapper(worker) \
+      .template bind<function, arity>(module, #function)
 // clang-format on
+
+#define RGMBIND4(module, method, function, arity) \
+  rgm::base::ruby_wrapper(worker) \
+    .template bind<function, arity>(module, method)

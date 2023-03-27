@@ -169,13 +169,19 @@ struct init_graphics {
     rb_define_module_function(rb_mRGM_Base, "graphics_transition",
                               wrapper::transition, 5);
 
-    RGMBIND2(rb_mRGM_Base, "graphics_present", base::present_window, int);
-    RGMBIND2(rb_mRGM_Base, "graphics_resize_screen", base::resize_screen, int,
-             int);
-    RGMBIND2(rb_mRGM_Base, "graphics_resize_window", base::resize_window, int,
-             int);
-    RGMBIND2(rb_mRGM_Base, "graphics_set_fullscreen", base::set_fullscreen,
-             int);
+    // RGMBIND2(rb_mRGM_Base, "graphics_present", base::present_window, int);
+    RGMBIND4(rb_mRGM_Base, "graphics_present", base::present_window, 1);
+    // RGMBIND2(rb_mRGM_Base, "graphics_resize_screen", base::resize_screen,
+    // int,
+    //          int);
+    RGMBIND4(rb_mRGM_Base, "graphics_resize_screen", base::resize_screen, 2);
+    // RGMBIND2(rb_mRGM_Base, "graphics_resize_window", base::resize_window,
+    // int,
+    //          int);
+    RGMBIND4(rb_mRGM_Base, "graphics_resize_window", base::resize_window, 2);
+    // RGMBIND2(rb_mRGM_Base, "graphics_set_fullscreen", base::set_fullscreen,
+    //          int);
+    RGMBIND4(rb_mRGM_Base, "graphics_set_fullscreen", base::set_fullscreen, 1);
   }
 };
 }  // namespace rgm::rmxp

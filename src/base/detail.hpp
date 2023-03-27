@@ -121,6 +121,16 @@ const char* detail::from_ruby<const char*>(const VALUE value_) {
   return RSTRING_PTR(value_);
 }
 
+/**
+ * @brief std::string 类型变量的特化处理。
+ * @param value_ ruby 对象的 VALUE
+ */
+template <>
+std::string detail::from_ruby<std::string>(const VALUE value_) {
+  Check_Type(value_, T_STRING);
+  return std::string{RSTRING_PTR(value_)};
+}
+
 // detail 类，继承自 base::detail 类，内部的方法和变量都是静态的。
 // 其重载的静态方法 get 能根据枚举类型 word 来获取 ruby 对象的实例变量。
 // 显然，只能在 ruby 线程中才能使用 detail 类，安全地访问 ruby 对象的实例变量。

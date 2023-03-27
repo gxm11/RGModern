@@ -663,9 +663,12 @@ struct init_bitmap {
     rb_define_module_function(rb_mRGM_BASE, "bitmap_get_pixel",
                               wrapper::get_pixel, 3);
 
-    RGMBIND(rb_mRGM_BASE, bitmap_hue_change, uint64_t, int);
-    RGMBIND(rb_mRGM_BASE, bitmap_save_png, uint64_t, const char*);
-    RGMBIND(rb_mRGM_BASE, bitmap_capture_screen, uint64_t);
+    // RGMBIND(rb_mRGM_BASE, bitmap_hue_change, uint64_t, int);
+    RGMBIND4(rb_mRGM_BASE,"bitmap_hue_change", bitmap_hue_change, 2);
+    // RGMBIND(rb_mRGM_BASE, bitmap_save_png, uint64_t, const char*);
+    RGMBIND4(rb_mRGM_BASE,"bitmap_save_png", bitmap_save_png, 2);
+    // RGMBIND(rb_mRGM_BASE, bitmap_capture_screen, uint64_t);
+    RGMBIND4(rb_mRGM_BASE,"bitmap_capture_screen", bitmap_capture_screen, 1);
   }
 };
 }  // namespace rgm::rmxp

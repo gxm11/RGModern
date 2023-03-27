@@ -111,6 +111,39 @@ consteval cooperation tuple_co_type() {
   }
 }
 
+template <size_t n>
+consteval auto struct_to_tuple(auto&& s) {
+  static_assert(n >= 0 && n <= 8,
+                "number of fields of this struct must be between 0 and 8");
+  if constexpr (n == 0) {
+    return std::tuple{};
+  } else if constexpr (n == 1) {
+    auto [a] = s;
+    return std::tuple{a};
+  } else if constexpr (n == 2) {
+    auto [a, b] = s;
+    return std::tuple{a, b};
+  } else if constexpr (n == 3) {
+    auto [a, b, c] = s;
+    return std::tuple{a, b, c};
+  } else if constexpr (n == 4) {
+    auto [a, b, c, d] = s;
+    return std::tuple{a, b, c, d};
+  } else if constexpr (n == 5) {
+    auto [a, b, c, d, e] = s;
+    return std::tuple{a, b, c, d, e};
+  } else if constexpr (n == 6) {
+    auto [a, b, c, d, e, f] = s;
+    return std::tuple{a, b, c, d, e, f};
+  } else if constexpr (n == 7) {
+    auto [a, b, c, d, e, f, g] = s;
+    return std::tuple{a, b, c, d, e, f, g};
+  } else if constexpr (n == 8) {
+    auto [a, b, c, d, e, f, g, h] = s;
+    return std::tuple{a, b, c, d, e, f, g, h};
+  }
+}
+
 // 前面定义的函数都是在非求值上下文中，比如 using T = decltype(func());
 // 从这里开始的函数会用在求值上下文中，从而参数使用了 tuple 的指针避免实例化。
 template <typename Item, typename... Args>

@@ -114,8 +114,10 @@ struct init_textinput {
     rb_define_module_function(rb_mRGM_Ext, "textinput_edit_clear",
                               wrapper::edit_clear, 0);
 
-    RGMBIND(rb_mRGM_Ext, textinput_start, int, int, int, int);
-    RGMBIND(rb_mRGM_Ext, textinput_stop);
+    // RGMBIND(rb_mRGM_Ext, textinput_start, int, int, int, int);
+    RGMBIND4(rb_mRGM_Ext, "textinput_start", textinput_start, 4);
+    // RGMBIND(rb_mRGM_Ext, textinput_stop);
+    RGMBIND4(rb_mRGM_Ext, "textinput_stop", textinput_stop, 0);
     RGMDATA(textinput_state).setup();
   }
 };
