@@ -160,22 +160,14 @@ struct init_sound {
     rb_define_module_function(rb_mRGM_Base, "sound_get_channel",
                               wrapper::sound_get_channel, 1);
 
-    // RGMBIND(rb_mRGM_Base, sound_create, uint64_t, const char*);
-    RGMBIND4(rb_mRGM_Base, "sound_create", sound_create, 2);
-    // RGMBIND(rb_mRGM_Base, sound_dispose, uint64_t);
-    RGMBIND4(rb_mRGM_Base, "sound_dispose", sound_dispose, 1);
-    // RGMBIND(rb_mRGM_Base, sound_play, uint64_t, int);
-    RGMBIND4(rb_mRGM_Base, "sound_play", sound_play, 2);
-    // RGMBIND(rb_mRGM_Base, sound_stop, uint64_t);
-    RGMBIND4(rb_mRGM_Base, "sound_stop", sound_stop, 1);
-    // RGMBIND(rb_mRGM_Base, sound_fade_in, uint64_t, int);
-    RGMBIND4(rb_mRGM_Base, "sound_fade_in", sound_fade_in, 2);
-    // RGMBIND(rb_mRGM_Base, sound_fade_out, uint64_t, int);
-    RGMBIND4(rb_mRGM_Base, "sound_fade_out", sound_fade_out, 2);
-    // RGMBIND(rb_mRGM_Base, sound_set_volume, uint64_t, int);
-    RGMBIND4(rb_mRGM_Base, "sound_set_volume", sound_set_volume, 2);
-    // RGMBIND(rb_mRGM_Base, sound_set_pitch, uint64_t, int, bool);
-    RGMBIND4(rb_mRGM_Base, "sound_set_pitch", sound_set_pitch, 3);
+    RGMBIND(rb_mRGM_Base, "sound_create", sound_create, 2);
+    RGMBIND(rb_mRGM_Base, "sound_dispose", sound_dispose, 1);
+    RGMBIND(rb_mRGM_Base, "sound_play", sound_play, 2);
+    RGMBIND(rb_mRGM_Base, "sound_stop", sound_stop, 1);
+    RGMBIND(rb_mRGM_Base, "sound_fade_in", sound_fade_in, 2);
+    RGMBIND(rb_mRGM_Base, "sound_fade_out", sound_fade_out, 2);
+    RGMBIND(rb_mRGM_Base, "sound_set_volume", sound_set_volume, 2);
+    RGMBIND(rb_mRGM_Base, "sound_set_pitch", sound_set_pitch, 3);
   }
 };
 }  // namespace rgm::base

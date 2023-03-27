@@ -19,8 +19,7 @@ struct init_title {
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_BASE = rb_define_module_under(rb_mRGM, "Base");
 
-    // RGMBIND2(rb_mRGM_BASE, "set_title", base::set_title, const char*);
-    RGMBIND4(rb_mRGM_BASE, "set_title", base::set_title, 1);
+    RGMBIND(rb_mRGM_BASE, "set_title", base::set_title, 1);
   }
 };
 }  // namespace rgm::rmxp

@@ -33,42 +33,18 @@ struct ruby_wrapper {
     return Qnil;
   }
 
-  template <typename T, typename... Args>
-  static void create_sender(VALUE module, const char* name) {
-    auto* fp = &sender<T, Args...>;
-    rb_define_module_function(module, name, fp, sizeof...(Args));
-  }
-
   template <typename T, size_t arity>
   static void bind(VALUE module, const char* name) {
     using U = decltype(core::traits::struct_to_tuple<arity>(T{}));
-    auto* fp = bind_helper((T*)0, (U*)0);
-    rb_define_module_function(module, name, fp, arity);
-  }
+    auto helper = []<typename... Args>(std::tuple<Args...>*) {
+      return &sender<T, Args...>;
+    };
 
-  template <typename T, typename... Args>
-  static auto* bind_helper(T*, std::tuple<Args...>*) {
-    return &sender<T, Args...>;
+    auto* fp = helper(static_cast<U*>(nullptr));
+    rb_define_module_function(module, name, fp, arity);
   }
 };
 }  // namespace rgm::base
 
-// clang-format off
-// clang-format 会在 __VA_OPT__ 中的逗号后添加一个空格
-#define RGMBIND(module, function, ...)              \
-  rgm::base::ruby_wrapper(this_worker)              \
-      .template create_sender<function              \
-      __VA_OPT__(,) __VA_ARGS__>(module, #function)
-#define RGMBIND2(module, method, function, ...)     \
-  rgm::base::ruby_wrapper(this_worker)              \
-      .template create_sender<function              \
-      __VA_OPT__(,) __VA_ARGS__>(module, method)
-
-#define RGMBIND3(module, function, arity) \
-  rgm::base::ruby_wrapper(worker) \
-      .template bind<function, arity>(module, #function)
-// clang-format on
-
-#define RGMBIND4(module, method, function, arity) \
-  rgm::base::ruby_wrapper(worker) \
-    .template bind<function, arity>(module, method)
+#define RGMBIND(module, method, struct, arity) \
+  rgm::base::ruby_wrapper(worker).template bind<struct, arity>(module, method)
