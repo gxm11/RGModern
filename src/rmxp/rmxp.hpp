@@ -1,12 +1,22 @@
-// Copyright (c) 2022 Xiaomi Guo
-// Modern Ruby Game Engine (RGM) is licensed under Mulan PSL v2.
-// You can use this software according to the terms and conditions of the Mulan
-// PSL v2. You may obtain a copy of Mulan PSL v2 at:
-//          http://license.coscl.org.cn/MulanPSL2
-// THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
-// KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE. See the
-// Mulan PSL v2 for more details.
+// zlib License
+
+// Copyright (C) [2023] [Xiaomi Guo]
+
+// This software is provided 'as-is', without any express or implied
+// warranty.  In no event will the authors be held liable for any damages
+// arising from the use of this software.
+
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgment in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
 #include "base/base.hpp"
@@ -49,9 +59,8 @@ using tasks_main =
                init_tilemap_manager, init_viewport, init_graphics, init_input,
                init_drawable_base, init_drawable<sprite>, init_drawable<window>,
                init_drawable<plane>, init_drawable<tilemap>, init_zip,
-               init_font<true>, init_palette,
-               init_textinput, init_title, init_message, key_release, key_press,
-               text_input, text_edit>;
+               init_font<true>, init_palette, init_textinput, init_title,
+               init_message, key_release, key_press, text_input, text_edit>;
 
 /** @brief 渲染流程的 worker 的可执行任务列表 */
 using tasks_render = std::tuple<

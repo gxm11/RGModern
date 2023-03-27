@@ -1,12 +1,22 @@
-// Copyright (c) 2022 Xiaomi Guo
-// Modern Ruby Game Engine (RGM) is licensed under Mulan PSL v2.
-// You can use this software according to the terms and conditions of the Mulan
-// PSL v2. You may obtain a copy of Mulan PSL v2 at:
-//          http://license.coscl.org.cn/MulanPSL2
-// THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
-// KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE. See the
-// Mulan PSL v2 for more details.
+// zlib License
+
+// Copyright (C) [2023] [Xiaomi Guo]
+
+// This software is provided 'as-is', without any express or implied
+// warranty.  In no event will the authors be held liable for any damages
+// arising from the use of this software.
+
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgment in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
 #include "cen_library.hpp"
@@ -40,11 +50,12 @@ using tasks_render =
                clear_screen, present_window, resize_window, resize_screen,
                set_title, set_fullscreen>;
 /** @brief 执行音乐播放的 task，使用 SDL2 Mixer 播放音乐和音效 */
-using tasks_audio = std::tuple<
-    music_create, music_dispose,
-    music_play, music_fade_in, music_set_volume, music_set_position,
-    music_resume, music_pause, music_halt, music_rewind, music_fade_out,
-    music_get_volume, music_get_position, music_get_state, sound_create,
-    sound_dispose, sound_play, sound_stop, sound_fade_in, sound_fade_out,
-    sound_set_volume, sound_set_pitch, sound_get_state, sound_get_channel>;
+using tasks_audio =
+    std::tuple<music_create, music_dispose, music_play, music_fade_in,
+               music_set_volume, music_set_position, music_resume, music_pause,
+               music_halt, music_rewind, music_fade_out, music_get_volume,
+               music_get_position, music_get_state, sound_create, sound_dispose,
+               sound_play, sound_stop, sound_fade_in, sound_fade_out,
+               sound_set_volume, sound_set_pitch, sound_get_state,
+               sound_get_channel>;
 }  // namespace rgm::base
