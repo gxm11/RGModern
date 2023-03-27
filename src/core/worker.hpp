@@ -44,7 +44,7 @@ struct worker {
       (co_type == cooperation::asynchronous);
 
   /** 保存父类的指针地址用于向下转型为 scheduler<> 的派生类指针 */
-  scheduler<co_type>* p_scheduler;
+  inline static scheduler<co_type>* p_scheduler = nullptr;
   /** T_data 类，存储的变量可供所有的任务读写 */
   std::unique_ptr<T_data> p_data;
 
@@ -60,7 +60,7 @@ struct worker {
     return std::get<index>(*p_data);
   }
 
-  std::stop_token get_stop_token() {
+  static std::stop_token get_stop_token() {
     return p_scheduler->stop_source.get_token();
   }
 
@@ -110,7 +110,7 @@ struct worker {
    * @return false 没有任何 worker 接受了该任务。
    */
   template <typename T, typename U = scheduler<co_type>*>
-  bool send(T&& task) {
+  static bool send(T&& task) {
     using base_t = U;
     using derived_t = scheduler_cast<U>::type;
 

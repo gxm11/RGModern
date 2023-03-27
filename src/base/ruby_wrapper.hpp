@@ -21,13 +21,11 @@ struct ruby_wrapper {
     using type = VALUE;
   };
 
-  inline static T_worker* p_worker = nullptr;
-
-  explicit ruby_wrapper(T_worker& w) { p_worker = &w; }
+  explicit ruby_wrapper(T_worker&) {}
 
   template <typename T, typename... Args>
-  static VALUE sender(VALUE, value<Args>::type... args) {
-    *p_worker >> T{detail::get<Args>(args)...};
+  static VALUE send(VALUE, value<Args>::type... args) {
+    T_worker::template send<T>(T{detail::get<Args>(args)...});
     return Qnil;
   }
 
@@ -35,7 +33,7 @@ struct ruby_wrapper {
   static void bind(VALUE module, const char* name) {
     using U = decltype(core::traits::struct_to_tuple<arity>(std::declval<T>()));
     auto helper = []<typename... Args>(std::tuple<Args...>*) {
-      return &sender<T, Args...>;
+      return &send<T, Args...>;
     };
 
     auto* fp = helper(static_cast<U*>(nullptr));
