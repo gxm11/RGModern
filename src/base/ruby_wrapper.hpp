@@ -21,8 +21,6 @@ struct ruby_wrapper {
     using type = VALUE;
   };
 
-  explicit ruby_wrapper(T_worker&) {}
-
   template <typename T, typename... Args>
   static VALUE send(VALUE, value<Args>::type... args) {
     T_worker::template send<T>(T{detail::get<Args>(args)...});
@@ -42,5 +40,6 @@ struct ruby_wrapper {
 };
 }  // namespace rgm::base
 
-#define RGMBIND(module, method, struct, arity) \
-  rgm::base::ruby_wrapper(worker).template bind<struct, arity>(module, method)
+#define RGMBIND(module, method, struct, arity)                         \
+  rgm::base::ruby_wrapper<std::remove_reference_t<decltype(worker)>>:: \
+      template bind<struct, arity>(module, method)
