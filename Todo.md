@@ -69,146 +69,15 @@ opengl可以不链接到glew，见 https://github.com/AugustoRuiz/sdl2glsl/blob/
 7. snap_to_bitmap，save_png
 8. Palette测试
 
-## 核心内容修改（已完成）
-std::apply和std::tuple 参见：https://godbolt.org/z/8K3WrEzd4
-
-高级参数包编程：https://www.scs.stanford.edu/~dm/blog/param-pack.html#recursing-over-argument-lists
-
-基于consteval和tuple的编程：https://godbolt.org/z/nrMM79o7j
-
-所有的任务都用std::tuple打包，tuple可以用std::tuple_cat函数合并：
-std::tuple_cat : *tuple -> tuple
-
-## wrapper的元编程（已完成）
-https://godbolt.org/z/a7eaf79Kn
-```c++
-#include <cstdint>
-#include <functional>
-
-struct worker {    
-    void send(auto task) {}
-
-    template<typename T, typename U>
-    T get(U a) {
-        return static_cast<T>(a);
-    }
-};
-
-struct music_play {
-    uint64_t id;
-    int iteration;
-
-    void run(auto&) {}
-};
-
-template<typename T>
-struct value {
-    using type = size_t;
-};
-
-template<typename T>
-using value_t = value<T>::type;
-
-struct wrapper_base {
-    template <typename T, typename... Args>
-    static void fun(value_t<Args>... args) {}
-};
-
-struct init_music {
-    static auto before(auto& this_worker) {
-        static decltype(auto) worker = this_worker;
-
-        struct wrapper : wrapper_base {
-            using wrapper_base::fun;
-        };
-
-        auto f = &wrapper::template fun<music_play, uint64_t, int>;
-        wrapper::template fun<music_play, uint64_t, int>(0, 0);
-    }
-};
-```
-
-https://godbolt.org/z/eGWYcaq8Y
-引入了ruby_sender类。会根据模板参数制作相应的ruby函数。使用方法：
-```c++
-struct music_play {
-    uint64_t id;
-    int iteration;
-
-    void run(auto&) {}
-};
-// ...
-static ruby_sender sender(this_worker);
-// ...
-
-auto a = &sender.template fun<music_play, uint64_t, int>;
-a(0, 1, 2);
-// ...
-```
-
-详细内容：
-```c++
-#include <cstdint>
-#include <functional>
-#include <iostream>
-
-template <typename T>
-struct value {
-    using type = size_t;
-};
-
-template <typename T>
-using value_t = value<T>::type;
-
-struct worker {
-    void send(auto task) { printf("task.id = %lld", task.id); }
-};
-
-template <typename T_worker>
-struct ruby_sender {
-    static T_worker* worker;
-
-    ruby_sender(T_worker& w) {
-        if (!worker) worker = &w;
-    }
-
-    template <typename T, typename U>
-    static T get(U a) {
-        return static_cast<T>(a);
-    }
-
-    template <typename T, typename... Args>
-    static size_t fun(size_t, value_t<Args>... args) {
-        worker->send(T{(get<Args>(args))...});
-        return 0;
-    }
-};
-template <typename T_worker>
-T_worker* ruby_sender<T_worker>::worker;
-
-struct music_play {
-    uint64_t id;
-    int iteration;
-
-    void run(auto&) {}
-};
-
-struct init_music {
-    static auto before(auto& this_worker) {
-        static ruby_sender sender(this_worker);
-
-        auto a = &sender.template fun<music_play, uint64_t, int>;
-        a(1, 2, 3);
-        return a;
-    }
-};
-
-int main() {
-    worker w;
-    init_music::before(w);
-}
-```
 
 ## opengl的渐变bug
 在第二张地图切换时，整个画面是白色的。看上去是因为整个地图都是白色的，opengl没有正常绘制地图上的内容。
 
+目前发现第一张地图（室内）更换海边道路05的tileset后，偶发帧率20帧的场合，目前已经发现：
+1. 渲染引擎使用opengl或者d3d11都有此现象
+2. 同步/异步模式下都有此现象
+3. 使用N卡/集显渲染都有此现象
+
+初步怀疑是地图中有大量优先级为1的图块导致tilemap的性能问题。仍然使用店内36的tileset，只是把外面绘制成自动元件的海洋，似乎是没有此问题的。
+
+从效率上看，正常绘制第一张地图应该只需要0.5ms的时间，卡顿的时候需要50ms。
