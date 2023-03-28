@@ -1,6 +1,6 @@
 // zlib License
 
-// Copyright (C) [2023] [Xiaomi Guo]
+// copyright (C) 2023 Xiaomi Guo and Krimiston
 
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
