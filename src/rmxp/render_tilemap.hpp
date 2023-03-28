@@ -123,9 +123,9 @@ struct render_tilemap_helper {
   auto make_render_proc(cen::renderer& renderer, base::textures& textures,
                         auto& autotile_textures)
       -> std::function<void(int, int, int, int)> {
-    const cen::texture& tileset = textures.at(p_tilemap->tileset);
-
     auto render = [&](int x, int y, int x_index, int y_index) {
+      const cen::texture& tileset = textures.at(p_tilemap->tileset);
+
       cen::irect dst_rect(x, y, 32, 32);
       cen::irect src_rect(0, 0, 32, 32);
 
