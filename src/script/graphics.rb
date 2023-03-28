@@ -203,7 +203,7 @@ module Graphics
   @@scale_mode = 0
 
   @@title = RGM::Default_Title
-  @@show_fps = false
+  @@show_fps = (RGM::Build_Mode < 2)
   @@fps_last_frame_count = 0
   @@fps_last_time = Time.now.to_f
 end
