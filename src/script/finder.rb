@@ -30,7 +30,7 @@ module Finder
     none: [nil]
   }
 
-  if RGM::BuildMode <= 1
+  if RGM::Build_Mode <= 1
     Load_Path.each_key do |type|
       next if type == :none
 

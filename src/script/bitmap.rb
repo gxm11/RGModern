@@ -177,6 +177,20 @@ class Bitmap
     Color.new(c & 255, (c >> 8) & 255, (c >> 16) & 255, c >> 24)
   end
 
+  if RGM::Render_Driver == RGM::Driver::Direct3D11
+    if RGM::Build_Mode >= 2
+      def get_pixel(_x, _y)
+        Color.new(0, 0, 0, 0)
+      end
+    else
+      def get_pixel(_x, _y)
+        puts '[Warning] Bitmap#get_pixel may return invalid result with Direct3d11 driver.'
+        puts 'Bitmap#get_pixel is deprecated in this situation, Use Palette#get_pixel instead.'
+        raise
+      end
+    end
+  end
+
   # set_pixel(x, y, color)
   # Sets the specified pixel (x, y) to color (Color).
   def set_pixel(x, y, color)

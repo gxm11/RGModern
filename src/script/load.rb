@@ -18,7 +18,7 @@
 #    misrepresented as being the original software.
 # 3. This notice may not be removed or altered from any source distribution.
 
-if RGM::BuildMode >= 2
+if RGM::Build_Mode >= 2
   def load_script(fn)
     RGM::Base.load_script('script/' + fn)
   end
@@ -30,7 +30,9 @@ end
 
 BEGIN {
   puts 'start ruby.'
-  puts "build mode = #{RGM::BuildMode}"
+  puts "resource prefix = #{RGM::Resource_Prefix}"
+  puts "render driver = #{RGM::Render_Driver}"
+  puts "build mode = #{RGM::Build_Mode}"
 }
 
 at_exit do

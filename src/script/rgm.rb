@@ -46,6 +46,13 @@ module RGM
 
   class Sound
   end
+
+  module Driver
+    Software = 0
+    OpenGL = 1
+    Direct3D9 = 2
+    Direct3D11 = 3
+  end
 end
 
 def force_utf8_encode(obj)
@@ -88,7 +95,7 @@ def load_file(fn)
   end
 end
 
-if RGM::BuildMode >= 3
+if RGM::Build_Mode >= 3
   def load_data(fn)
     data = nil
     if fn.start_with?('Data/')
@@ -104,7 +111,7 @@ if RGM::BuildMode >= 3
   end
 end
 
-if RGM::BuildMode >= 2
+if RGM::Build_Mode >= 2
   def load_file(fn)
     RGM::Base.load_file(fn)
   end

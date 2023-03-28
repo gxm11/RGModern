@@ -76,7 +76,7 @@ class Table
     end
   end
 
-  if RGM::BuildMode >= 3
+  if RGM::Build_Mode >= 3
     def []=(x, y = 0, z = 0, value)
       index = x + @xsize * (y + @ysize * z)
       RGM::Base.table_set(@data, index, value)

@@ -36,6 +36,7 @@ File.open(RGM::Default_Config, 'r') do |f|
       flag = :System if line == '[System]'
       flag = :Keymap if line == '[Keymap]'
       flag = :Font if line == '[Font]'
+      flag = :Kernel if line == '[Kernel]'
       next
     end
 
@@ -52,6 +53,7 @@ File.open(RGM::Default_Config, 'r') do |f|
           Finder::Load_Path[type] << rtp
         end
       end
+      next
     end
 
     if flag == :System
@@ -63,6 +65,7 @@ File.open(RGM::Default_Config, 'r') do |f|
           msgbox(args.collect(&:to_s).join("\n"))
         end
       end
+      next
     end
 
     if flag == :Keymap
@@ -71,12 +74,16 @@ File.open(RGM::Default_Config, 'r') do |f|
       elsif line =~ /^(K_\w+)=$/
         Input.bind Regexp.last_match(1).to_sym, nil
       end
+      next
     end
 
-    next unless flag == :Font && (line =~ /^(.+)=(.+)$/)
+    if flag == :Font && (line =~ /^(.+)=(.+)$/)
+      fontname = Regexp.last_match(1)
+      path = Regexp.last_match(2)
+      Finder::FontPaths[fontname] = path
+      next
+    end
 
-    fontname = Regexp.last_match(1)
-    path = Regexp.last_match(2)
-    Finder::FontPaths[fontname] = path
+    next if flag == :Kernel
   end
 end

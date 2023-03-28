@@ -31,7 +31,7 @@ namespace rgm::rmxp {
  * @brief 引入 ruby 的扩展功能
  * @note 目前的扩展有
  * 1. Fiddle 库
- * 2. RGM::BuildMode 常量
+ * 2. RGM::Build_Mode 常量
  */
 struct init_extension {
   static void before(auto&) {
@@ -48,7 +48,9 @@ struct init_extension {
                  rb_utf8_str_new_cstr(config::config_path));
     rb_const_set(rb_mRGM, rb_intern("Resource_Prefix"),
                  rb_utf8_str_new_cstr(config::resource_prefix.data()));
-    rb_const_set(rb_mRGM, rb_intern("BuildMode"), INT2FIX(config::build_mode));
+    rb_const_set(rb_mRGM, rb_intern("Render_Driver"),
+                 INT2FIX(static_cast<int>(shader::driver)));
+    rb_const_set(rb_mRGM, rb_intern("Build_Mode"), INT2FIX(config::build_mode));
   }
 };
 }  // namespace rgm::rmxp
