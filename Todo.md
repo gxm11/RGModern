@@ -81,3 +81,25 @@ opengl可以不链接到glew，见 https://github.com/AugustoRuiz/sdl2glsl/blob/
 初步怀疑是地图中有大量优先级为1的图块导致tilemap的性能问题。仍然使用店内36的tileset，只是把外面绘制成自动元件的海洋，似乎是没有此问题的。
 
 从效率上看，正常绘制第一张地图应该只需要0.5ms的时间，卡顿的时候需要50ms。
+
+极大可能是table越界导致的问题。以下代码可以暂时解决table越界的问题：
+```c++
+int16_t get(int x, int y, int z) const {
+int index = x + y * x_size + z * x_size * y_size;
+
+if (index < 0 || static_cast<size_t>(index) >= data.size()) return 0;
+
+return data[index];
+}
+
+int16_t get(int index) const {
+if (index < 0 || static_cast<size_t>(index) >= data.size()) return 0;
+
+return data[index];
+}
+```
+由于从ruby层调用是没有问题的。所以直接排查一下c++层里所有`table&`和`table*`的变量，凡是调用了get方法，都要判断一下范围。还有`tables&`和`tables*`的变量，也要排除。
+
+直接搜一下table，cpp文件也就不到10个，可以逐一排查一遍。
+
+此外，tilemap_info的setup方法，下面那个三层循环，似乎没有多次做的必要，看上去这个setup方法会因为zi的不同被频繁调用，见tilemap_manager。这里主要是为了设置x_cache和y_cache，加速后面的绘制。但是x_cache和y_cache的值与zi无关，可以考虑再弄一个表专门存cache？或者只在第一次调用时执行下面的三层循环。

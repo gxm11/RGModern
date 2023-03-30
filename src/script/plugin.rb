@@ -63,5 +63,16 @@ $game_map.update
 # 切换地图画面
 $scene = Scene_Map.new
 
+Thread.start do
+  sleep 2
+  count = Graphics.frame_count
+  sleep 1
+  File.open('test.log', 'a') do |f|
+    f.puts(Graphics.frame_count - count)
+  end
+  $scene = nil
+end
+
 $scene.main
 exit
+# for((i=0;i<=100;i++));do ./main; done;
