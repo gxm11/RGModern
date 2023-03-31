@@ -45,7 +45,7 @@ struct render_tone_helper {
       : t(t), r(r) {}
 
   void process(cen::renderer& renderer, std::function<void()> proc) {
-    if (t.gray || (shader::driver == shader::opengl)) {
+    if (t.gray) {
       shader_tone shader(t);
       proc();
     } else if ((t.red != 0) | (t.green != 0) | (t.blue != 0)) {
@@ -60,17 +60,32 @@ struct render_tone_helper {
         }
       }
       if (auto c_sub = t.color_sub(); c_sub.has_value()) {
-        renderer.set_blend_mode(blend_type::sub);
-        if (r) {
-          renderer.set_color(c_sub.value());
-          renderer.fill_rect(*r);
+        if (shader::driver == shader::opengl) {
+          renderer.set_blend_mode(blend_type::reverse);
+          renderer.fill_with(cen::colors::white);
+
+          renderer.set_blend_mode(blend_type::add);
+          if (r) {
+            renderer.set_color(c_sub.value());
+            renderer.fill_rect(*r);
+          } else {
+            renderer.fill_with(c_sub.value());
+          }
+
+          renderer.set_blend_mode(blend_type::reverse);
+          renderer.fill_with(cen::colors::white);
         } else {
-          renderer.fill_with(c_sub.value());
+          renderer.set_blend_mode(blend_type::sub);
+          if (r) {
+            renderer.set_color(c_sub.value());
+            renderer.fill_rect(*r);
+          } else {
+            renderer.fill_with(c_sub.value());
+          }
         }
+      } else {
+        proc();
       }
-    } else {
-      proc();
     }
-  }
-};
+  };
 }  // namespace rgm::rmxp

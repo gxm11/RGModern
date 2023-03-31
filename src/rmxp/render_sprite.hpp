@@ -68,9 +68,7 @@ struct render<sprite> {
         break;
       case 2:
         // opengl的情况下，使用reverse代替sub（第1步）
-
         up.set_blend_mode(blend_type::sub);
-
         break;
     }
     // opengl的情况下，使用reverse代替sub（第1步）
