@@ -63,17 +63,17 @@ struct table {
 
   int16_t get(int x, int y, int z) const {
     int index = x + y * x_size + z * x_size * y_size;
-    return data[index];
+    return data.at(index);
   }
 
-  int16_t get(int index) const { return data[index]; }
+  int16_t get(int index) const { return data.at(index); }
 
   void set(int x, int y, int z, int16_t value) {
     int index = x + y * x_size + z * x_size * y_size;
-    data[index] = value;
+    data.at(index) = value;
   }
 
-  void set(int index, int16_t value) { data[index] = value; }
+  void set(int index, int16_t value) { data.at(index) = value; }
 
   int16_t* data_ptr() { return &(data.front()); }
 };

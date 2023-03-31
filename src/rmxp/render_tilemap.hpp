@@ -132,6 +132,7 @@ struct render_tilemap_helper {
       for (int z_index = 0; z_index < p_map->z_size; ++z_index) {
         const int16_t tileid = p_map->get(x_index, y_index, z_index);
         if (tileid <= 0) continue;
+        if (static_cast<size_t>(tileid) >= p_priorities->data.size()) continue;
         const int16_t priority = p_priorities->get(tileid);
 
         if constexpr (is_overlayer) {
