@@ -39,25 +39,22 @@ struct init_event {
 
     d.bind<cen::quit_event>().to(
         [&worker]([[maybe_unused]] const cen::quit_event& e) {
-          cen::log_info(cen::log_category::system, "[Input] quit");
+          cen::log_info("[Input] quit");
           worker >> base::interrupt_signal{};
         });
 
     d.bind<cen::window_event>().to([&worker](const cen::window_event& e) {
-      cen::log_info(cen::log_category::input, "[Input] window %s",
-                    cen::to_string(e.event_id()).data());
+      cen::log_info("[Input] window %s", cen::to_string(e.event_id()).data());
     });
 
     d.bind<cen::keyboard_event>().to([&worker](const cen::keyboard_event& e) {
       if (e.released()) {
-        cen::log_debug(cen::log_category::input, "[Input] key '%s' is pressed",
-                       e.key().name().data());
+        cen::log_debug("[Input] key '%s' is pressed", e.key().name().data());
 
         const int32_t key = static_cast<int32_t>(e.key().get());
         worker >> key_release{key};
       } else if (e.pressed()) {
-        cen::log_debug(cen::log_category::input, "[Input] key '%s' is released",
-                       e.key().name().data());
+        cen::log_debug("[Input] key '%s' is released", e.key().name().data());
 
         const int32_t key = static_cast<int32_t>(e.key().get());
         worker >> key_press{key};
@@ -67,27 +64,24 @@ struct init_event {
     d.bind<cen::mouse_button_event>().to(
         [&worker](const cen::mouse_button_event& e) {
           if (e.released()) {
-            cen::log_debug(cen::log_category::input,
-                           "[Input] mouse button '%s' is released",
+            cen::log_debug("[Input] mouse button '%s' is released",
                            cen::to_string(e.button()).data());
           } else if (e.pressed()) {
-            cen::log_debug(cen::log_category::input,
-                           "[Input] mouse button '%s' is pressed",
+            cen::log_debug("[Input] mouse button '%s' is pressed",
                            cen::to_string(e.button()).data());
           }
         });
 
     d.bind<cen::text_editing_event>().to(
         [&worker](const cen::text_editing_event& e) {
-          cen::log_debug(cen::log_category::input, "[Input] text edit\n");
+          cen::log_debug("[Input] text edit\n");
 
           worker >> text_edit{std::string{e.text()}, e.start()};
         });
 
     d.bind<cen::text_input_event>().to(
         [&worker](const cen::text_input_event& e) {
-          cen::log_info(cen::log_category::input, "[Input] text input '%s'\n",
-                        e.text_utf8().data());
+          cen::log_info("[Input] text input '%s'\n", e.text_utf8().data());
 
           worker >> text_input{std::string{e.text_utf8()}};
         });

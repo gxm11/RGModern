@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
 
   rgm::config::load(argc, argv);
 
-  cen::log_info(cen::log_category::system, "rgm start running...");
+  cen::log_info("rgm start running...");
   if (rgm::config::asynchronized) {
     rgm::engine_async_t engine;
     engine.run();
@@ -63,6 +63,6 @@ int main(int argc, char* argv[]) {
     rgm::engine_sync_t engine;
     engine.run();
   }
-  cen::log_info(cen::log_category::system, "rgm terminated.");
+  cen::log_info("rgm terminated.");
   return 0;
 }

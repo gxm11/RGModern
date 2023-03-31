@@ -48,8 +48,7 @@ struct bitmap_create<1> {
   const char* path;
 
   void run(auto& worker) {
-    cen::log_info(cen::log_category::render,
-                  "[Bitmap] id = %lld, is created from %s", id, path);
+    cen::log_info("[Bitmap] id = %lld, is created from %s", id, path);
 
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
     base::renderstack& stack = RGMDATA(base::renderstack);
@@ -82,8 +81,7 @@ struct bitmap_create<2> {
   int height;
 
   void run(auto& worker) {
-    cen::log_debug(cen::log_category::render,
-                   "[Bitmap] id = %lld, is created with area %d x %d", id,
+    cen::log_debug("[Bitmap] id = %lld, is created with area %d x %d", id,
                    width, height);
 
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
@@ -118,8 +116,7 @@ struct bitmap_create<3> {
       0x0c111217, 0x0c0d2a2b, 0x24292a2f, 0x10112e2f, 0x0c112a2f, 0x0c112a2f};
 
   void run(auto& worker) {
-    cen::log_debug(cen::log_category::render,
-                   "[Bitmap] id = %lld, is converted to autotile format", id);
+    cen::log_debug("[Bitmap] id = %lld, is converted to autotile format", id);
 
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
     base::renderstack& stack = RGMDATA(base::renderstack);
@@ -191,8 +188,7 @@ struct bitmap_create<4> {
   const char* path;
 
   void run(auto& worker) {
-    cen::log_info(cen::log_category::render,
-                  "[Bitmap] id = %lld, is created from external://%s", id,
+    cen::log_info("[Bitmap] id = %lld, is created from external://%s", id,
                   path);
 
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
@@ -222,8 +218,7 @@ struct bitmap_dispose {
   uint64_t id;
 
   void run(auto& worker) {
-    cen::log_debug(cen::log_category::render, "[Bitmap] id = %lld, is disposed",
-                   id);
+    cen::log_debug("[Bitmap] id = %lld, is disposed", id);
 
     RGMDATA(base::textures).erase(id);
     // +1 for autotiles
@@ -440,8 +435,7 @@ struct bitmap_save_png {
   const char* path;
 
   void run(auto& worker) {
-    cen::log_info(cen::log_category::render,
-                  "[Bitmap] id = %lld, is saved to %s", id, path);
+    cen::log_info("[Bitmap] id = %lld, is saved to %s", id, path);
 
     cen::texture& bitmap = RGMDATA(base::textures).at(id);
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
@@ -466,8 +460,7 @@ struct bitmap_capture_screen {
   uint64_t id;
 
   void run(auto& worker) {
-    cen::log_debug(cen::log_category::render,
-                   "[Bitmap] id = %lld, is created from screen capturing", id);
+    cen::log_debug("[Bitmap] id = %lld, is created from screen capturing", id);
 
     base::renderstack& stack = RGMDATA(base::renderstack);
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;

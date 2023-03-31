@@ -87,8 +87,9 @@ struct worker {
   void before() {
     if constexpr (config::output_level > 0) {
       int size = sizeof(typename T_kernel<T_kernel_tasks>::T_variants);
-      printf("block size = %d\n", size);
-      printf("kernel task size = %lld\n", std::tuple_size_v<T_kernel_tasks>);
+      printf("INFO: block size = %d\n", size);
+      printf("INFO: kernel task size = %lld\n",
+             std::tuple_size_v<T_kernel_tasks>);
     }
     p_data = std::make_unique<T_data>();
     traits::for_each<T_tasks>::before(*this);

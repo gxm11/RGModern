@@ -95,7 +95,7 @@ struct scheduler<c, T_workers...> : scheduler<c> {
     bool ret = std::apply(set_task, workers);
     if constexpr (config::output_level > 0) {
       if (!ret) {
-        printf("There's ingored task, check your code.\n");
+        printf("WARN: There's ingored task, check your code.\n");
       }
     }
     return ret;

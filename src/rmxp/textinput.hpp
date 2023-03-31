@@ -30,7 +30,7 @@ struct textinput_start {
   int height;
 
   void run(auto&) {
-    cen::log_warn(cen::log_category::system, "[Input] text input is started");
+    cen::log_warn("[Input] text input is started");
 
     SDL_StartTextInput();
     SDL_Rect r{x, y, width, height};
@@ -40,7 +40,7 @@ struct textinput_start {
 
 struct textinput_stop {
   void run(auto&) {
-    cen::log_warn(cen::log_category::system, "[Input] text input is stopped");
+    cen::log_warn("[Input] text input is stopped");
 
     SDL_SetTextInputRect(NULL);
     SDL_StopTextInput();

@@ -97,9 +97,9 @@ struct shader_base<opengl> {
     GLint result = GL_FALSE;
     glGetShaderiv(shaderID, GL_COMPILE_STATUS, &result);
     if (result) {
-      printf("Successfully compiling shader.\n");
+      cen::log_info("Successfully compiling shader.\n");
     } else {
-      printf("Error in compiling shader.\n");
+      cen::log_error("Error in compiling shader.\n");
       GLint logLength;
       glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logLength);
       if (logLength > 0) {
@@ -150,7 +150,7 @@ struct shader_dynamic<opengl, T_shader> : shader_base<opengl> {
         GL_FRAGMENT_SHADER, reinterpret_cast<const char*>(T::fragment),
         T::fragment_size);
     program_id = compile_program(vertex_shader, fragment_shader);
-    printf("program id = %d\n", program_id);
+    cen::log_info("program id = %d\n", program_id);
   }
 
   explicit shader_dynamic() {
