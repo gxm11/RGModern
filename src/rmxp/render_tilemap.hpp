@@ -120,12 +120,10 @@ struct render_tilemap_helper {
     }
   }
 
-  auto make_render_proc(cen::renderer& renderer, base::textures& textures,
+  auto make_render_proc(cen::renderer& renderer, const cen::texture& tileset,
                         auto& autotile_textures)
       -> std::function<void(int, int, int, int)> {
     auto render = [&](int x, int y, int x_index, int y_index) {
-      const cen::texture& tileset = textures.at(p_tilemap->tileset);
-
       cen::irect dst_rect(x, y, 32, 32);
       cen::irect src_rect(0, 0, 32, 32);
 
@@ -178,9 +176,10 @@ struct render<tilemap> {
 
     render_tilemap_helper<false> helper(t, v, p_tables);
     helper.adjust_area(stack);
+
     auto autotile_textures = helper.make_autotiles(textures);
-    auto render =
-        helper.make_render_proc(renderer, textures, autotile_textures);
+
+    auto render = helper.make_render_proc(renderer, tileset, autotile_textures);
 
     helper.iterate_tiles(render);
 
@@ -228,11 +227,14 @@ struct render<overlayer<tilemap>> {
     base::textures& textures = RGMDATA(base::textures);
     base::renderstack& stack = RGMDATA(base::renderstack);
 
+    cen::texture& tileset = textures.at(t->tileset);
+    tileset.set_blend_mode(cen::blend_mode::blend);
+
     render_tilemap_helper<true> helper(t, v, p_tables, info, overlayer_index);
     helper.adjust_area(stack);
+
     auto autotile_textures = helper.make_autotiles(textures);
-    auto render =
-        helper.make_render_proc(renderer, textures, autotile_textures);
+    auto render = helper.make_render_proc(renderer, tileset, autotile_textures);
 
     helper.iterate_tiles(render);
   }
