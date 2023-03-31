@@ -33,25 +33,24 @@ int main(int argc, char* argv[]) {
 #ifdef __WIN32
   SetConsoleOutputCP(65001);
 #endif
-  for (int i = 0; i < argc; ++i) {
-    // show version and exit
-    if (strncmp(argv[i], "-v", 2) == 0) {
-      printf("RGM %s [BuildMode = %d]\n\n", RGM_FULLVERSION, RGM_BUILDMODE);
-      printf("Modern Ruby Game Engine (RGM) is licensed under Mulan PSL v2.\n");
-      printf("Copyright (c) 2022 Xiaomi Guo\n\n");
-      printf("Compiler: %s\n", CC_VERSION);
-      printf("Vendors:\n - ");
-      ruby_show_version();
+  if (argc == 2 && strncmp(argv[1], "-v", 2) == 0) {
+    printf("RGM %s [BuildMode = %d]\n\n", RGM_FULLVERSION, RGM_BUILDMODE);
+    printf("Modern Ruby Game Engine (RGM) is licensed under zlib License.\n");
+    printf("copyright (C) 2023 Guoxiaomi and Krimiston\n\n");
+    printf("Repository: https://github.com/gxm11/RGModern\n\n");
+    printf("Compiler: %s\n\n", CC_VERSION);
+    printf("Libraries:\n - ");
+    ruby_show_version();
 #define GETVERSION(x) \
   SDL_##x##_MAJOR_VERSION, SDL_##x##_MINOR_VERSION, SDL_##x##_PATCHLEVEL
-      printf(" - SDL %d.%d.%d\n", SDL_MAJOR_VERSION, SDL_MINOR_VERSION,
-             SDL_PATCHLEVEL);
-      printf(" - SDL Image %d.%d.%d\n", GETVERSION(IMAGE));
-      printf(" - SDL TTF %d.%d.%d\n", GETVERSION(TTF));
-      printf(" - SDL Mixer %d.%d.%d\n", GETVERSION(MIXER));
+    printf(" - SDL %d.%d.%d\n", SDL_MAJOR_VERSION, SDL_MINOR_VERSION,
+           SDL_PATCHLEVEL);
+    printf(" - SDL Image %d.%d.%d\n", GETVERSION(IMAGE));
+    printf(" - SDL TTF %d.%d.%d\n", GETVERSION(TTF));
+    printf(" - SDL Mixer %d.%d.%d\n", GETVERSION(MIXER));
 #undef GETVERSION
-      return 0;
-    }
+    printf(" - centurion, concurrentqueue, incbin, xorstr, libzip, etc.\n");
+    return 0;
   }
 
   rgm::config::load(argc, argv);
