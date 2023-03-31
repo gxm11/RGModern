@@ -52,8 +52,9 @@ struct tilemap_info {
         for (int z_index = 0; z_index < map_data.z_size; ++z_index) {
           int16_t tileid = map_data.get(x_index, y_index, z_index);
           int16_t priority = 0;
-          if (tileid >= 0 && static_cast<size_t>(tileid) < priorities.data.size()) {
-            priorities.get(tileid);
+          if (tileid >= 0 &&
+              static_cast<size_t>(tileid) < priorities.data.size()) {
+            priority = priorities.get(tileid);
           }
           if (max_index < (y_index + priority)) {
             max_index = y_index + priority;
