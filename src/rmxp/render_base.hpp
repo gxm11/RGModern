@@ -48,44 +48,48 @@ struct render_tone_helper {
     if (t.gray) {
       shader_tone shader(t);
       proc();
-    } else if ((t.red != 0) | (t.green != 0) | (t.blue != 0)) {
-      proc();
-      if (auto c_add = t.color_add(); c_add.has_value()) {
-        renderer.set_blend_mode(blend_type::add);
-        if (r) {
-          renderer.set_color(c_add.value());
-          renderer.fill_rect(*r);
-        } else {
-          renderer.fill_with(c_add.value());
-        }
-      }
-      if (auto c_sub = t.color_sub(); c_sub.has_value()) {
-        if (shader::driver == shader::opengl) {
-          renderer.set_blend_mode(blend_type::reverse);
-          renderer.fill_with(cen::colors::white);
+      return;
+    }
 
-          renderer.set_blend_mode(blend_type::add);
-          if (r) {
-            renderer.set_color(c_sub.value());
-            renderer.fill_rect(*r);
-          } else {
-            renderer.fill_with(c_sub.value());
-          }
+    proc();
 
-          renderer.set_blend_mode(blend_type::reverse);
-          renderer.fill_with(cen::colors::white);
-        } else {
-          renderer.set_blend_mode(blend_type::sub);
-          if (r) {
-            renderer.set_color(c_sub.value());
-            renderer.fill_rect(*r);
-          } else {
-            renderer.fill_with(c_sub.value());
-          }
-        }
+    if ((t.red == 0) && (t.green == 0) && (t.blue == 0)) return;
+
+    if (auto c_add = t.color_add(); c_add.has_value()) {
+      renderer.set_blend_mode(blend_type::add);
+      if (r) {
+        renderer.set_color(c_add.value());
+        renderer.fill_rect(*r);
       } else {
-        proc();
+        renderer.fill_with(c_add.value());
       }
     }
-  };
+
+    if (auto c_sub = t.color_sub(); c_sub.has_value()) {
+      if (shader::driver == shader::opengl) {
+        renderer.set_blend_mode(blend_type::reverse);
+        renderer.fill_with(cen::colors::white);
+
+        renderer.set_blend_mode(blend_type::add);
+        if (r) {
+          renderer.set_color(c_sub.value());
+          renderer.fill_rect(*r);
+        } else {
+          renderer.fill_with(c_sub.value());
+        }
+
+        renderer.set_blend_mode(blend_type::reverse);
+        renderer.fill_with(cen::colors::white);
+      } else {
+        renderer.set_blend_mode(blend_type::sub);
+        if (r) {
+          renderer.set_color(c_sub.value());
+          renderer.fill_rect(*r);
+        } else {
+          renderer.fill_with(c_sub.value());
+        }
+      }
+    }
+  }
+};
 }  // namespace rgm::rmxp
