@@ -124,18 +124,10 @@ struct render<sprite> {
     cen::texture& bitmap = textures.at(s->bitmap);
 
     const rect& r = s->src_rect;
-    const color& c =
-        (s->color.alpha > s->flash_color.alpha) ? s->color : s->flash_color;
-    const tone& t = s->tone;
 
     // src_rect 的 width 和 height 设置为 0 时，使用 bitmap 的尺寸
     const int width = r.width ? r.width : bitmap.width();
     const int height = r.height ? r.height : bitmap.height();
-    const bool use_color =
-        (c.red != 0) | (c.green != 0) | (c.blue != 0) | (c.alpha != 0);
-    const bool use_bush = (s->bush_depth > 0);
-    const bool use_tone =
-        (t.red != 0) | (t.green != 0) | (t.blue != 0) | (t.gray != 0);
 
     // 设置图形的缩放和位置
     // viewport ox, oy
@@ -152,6 +144,20 @@ struct render<sprite> {
     const cen::frect dst_rect(s->x - s->ox * s->zoom_x - v_ox,
                               s->y - s->oy * s->zoom_y - v_oy,
                               width * s->zoom_x, height * s->zoom_y);
+
+    // 如果dst_rect根本就不在画面上，直接不绘制。
+    // 先简单判断 angle == 0 的场景
+    if (s->angle == 0.0) {
+      if (dst_rect.x() + dst_rect.width() < 0) return;
+      if (dst_rect.y() + dst_rect.height() < 0) return;
+
+      int target_width = v ? v->rect.width : stack.current().width();
+      int target_height = v ? v->rect.height : stack.current().height();
+
+      if (dst_rect.x() > target_width) return;
+      if (dst_rect.y() > target_height) return;
+    }
+
     // 绘制流程，捕获renderer，this 和上面的常量
     auto process = [&, this](auto& up, auto& down) {
       this->blend(renderer, up, down, src_rect, dst_rect);
@@ -160,6 +166,14 @@ struct render<sprite> {
     // 根据不同的情况绘制
     // 设置了 color 和 bush_depth 时，需要一个额外的层缓存并修改 bitmap
     // 未设置时，可以将 bitmap 直接绘制
+    const color& c =
+        (s->color.alpha > s->flash_color.alpha) ? s->color : s->flash_color;
+    const tone& t = s->tone;
+    const bool use_color =
+        (c.red != 0) | (c.green != 0) | (c.blue != 0) | (c.alpha != 0);
+    const bool use_bush = (s->bush_depth > 0);
+    const bool use_tone =
+        (t.red != 0) | (t.green != 0) | (t.blue != 0) | (t.gray != 0);
     // shader_tone 有 raii 机制，使得接下来的 render 附带色调改变的效果
     if (use_color | use_bush | use_tone) {
       stack.push_empty_layer(width, height);

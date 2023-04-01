@@ -68,7 +68,7 @@ struct init_graphics {
           // 此分支目前只对 window 和 viewport 有效
           // Plane 和 Tilemap 是平铺的
           // Tilemap 虽然可以不平铺，但是其宽和高不确定
-          // Sprite 因为有旋转，判断比较复杂，不在这里实现
+          // Sprite 判断比较复杂，在 render<sprite> 里实现
           if constexpr (requires { item.visible(rect{}); }) {
             const rect& r =
                 v_ptr ? v_ptr->rect : rect{0, 0, screen_width, screen_height};
