@@ -19,12 +19,13 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
+#include "shader_base.hpp"
+// include shader_base before other c headers
 #include "d3d11.h"
 #include "direct3d11/gray.h"
 #include "direct3d11/hue.h"
 #include "direct3d11/tone.h"
 #include "direct3d11/transition.h"
-#include "shader_base.hpp"
 
 namespace rgm::shader {
 template <>
