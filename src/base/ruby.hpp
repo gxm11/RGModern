@@ -35,9 +35,9 @@
 #undef bind
 // 函数名 send 与 ruby 头文件冲突
 #undef send
-
-/** 加密包模式下不检查 ruby 的变量类型 */
-#if RGM_BUILDMODE >= 3
-#undef Check_Type
-#define Check_Type(v, t) static_assert(true)
-#endif
+// 函数名 write 与 ruby 头文件冲突
+#undef write
+// 函数名 read 与 ruby 冲突
+#undef read
+// 函数名 sleep 与 ruby 冲突
+#undef sleep

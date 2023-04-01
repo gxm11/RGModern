@@ -23,6 +23,7 @@
 
 #include "cooperation.hpp"
 #include "type_traits.hpp"
+#include "config.hpp"
 
 namespace rgm::core {
 template <typename T>

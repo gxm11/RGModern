@@ -22,7 +22,7 @@
 #include <list>
 #include <vector>
 
-#include "cen_library.hpp"
+#include "init_sdl2.hpp"
 #include "core/core.hpp"
 
 namespace rgm::base {

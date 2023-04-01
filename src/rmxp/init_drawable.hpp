@@ -21,6 +21,7 @@
 #pragma once
 #include "base/base.hpp"
 #include "drawable.hpp"
+#include "tilemap_manager.hpp"
 
 namespace rgm::rmxp {
 void drawables::set_z(const z_index& key, const int new_z) {

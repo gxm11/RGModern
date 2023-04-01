@@ -71,11 +71,11 @@ ifeq ($(system), MINGW64_NT)
 else
 	cp -r $(path_ruby_static)/.ext/include/i386-mingw32/ruby/config.h $(lib_ruby)/include/ruby/config.h
 endif
-	cp -r $(path_ruby_static)/*.a $(path_ruby_static)/ext/*/*.a $(lib_ruby)/lib	
+	cp -r $(path_ruby_static)/*.a $(path_ruby_static)/ext/*/*.a $(lib_ruby)/lib
 	cp -r $(path_ruby_static)/ext/fiddle/lib/* $(lib_ruby)/script
 	sed -i -r "s/^require '.+'/\# \0/g" $(lib_ruby)/script/*.rb
 	sed -i -r "s/^require '.+'/\# \0/g" $(lib_ruby)/script/*/*.rb
 	cp -r $(lib_ruby)/script/* ./src/script
 
 misc.7z :
-	7z a $@ history Project1/Audio Project1/Graphics Project1/RGSS103J.dll Project1/RGSS104E.dll Project1/RPGXP.chm Project1/RPGXP.chw resource third_party/ruby$(RUBY_M_VERSION) Doxyfile	
+	7z a $@ history Project1/Audio Project1/Graphics Project1/RGSS103J.dll Project1/RGSS104E.dll Project1/RPGXP.chm Project1/RPGXP.chw resource third_party/ruby$(RUBY_M_VERSION) Doxyfile

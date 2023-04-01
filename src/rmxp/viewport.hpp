@@ -21,6 +21,7 @@
 #pragma once
 #include "base/base.hpp"
 #include "builtin.hpp"
+#include "drawable.hpp"
 
 namespace rgm::rmxp {
 /**

@@ -20,7 +20,7 @@
 
 #pragma once
 #include "base/base.hpp"
-#include "detail.hpp"
+#include "bitmap.hpp"
 
 namespace rgm::rmxp {
 struct init_palette {
@@ -44,13 +44,11 @@ struct init_palette {
             zip_data_external& z = RGMDATA(zip_data_external);
             SDL_Surface* ptr2 = z.load_surface(path2);
             ptr = std::make_unique<cen::surface>(ptr2);
-            cen::log_info(
-                          "[Palette] id = %lld, is created from external://%s",
+            cen::log_info("[Palette] id = %lld, is created from external://%s",
                           id, path2);
           } else {
             ptr = std::make_unique<cen::surface>(path);
-            cen::log_info(
-                          "[Palette] id = %lld, is created from %s", id, path);
+            cen::log_info("[Palette] id = %lld, is created from %s", id, path);
           }
           cen::surface s2 = ptr->convert_to(cen::pixel_format::rgba32);
           surfaces.emplace(id, std::move(s2));
@@ -58,8 +56,7 @@ struct init_palette {
           RGMLOAD(width, int);
           RGMLOAD(height, int);
 
-          cen::log_debug(
-                         "[Palette] id = %lld, is created with area %d x %d",
+          cen::log_debug("[Palette] id = %lld, is created with area %d x %d",
                          id, width, height);
 
           cen::surface s(cen::iarea{width, height}, cen::pixel_format::rgba32);
@@ -72,8 +69,7 @@ struct init_palette {
         RGMLOAD(id, uint64_t);
         base::surfaces& surfaces = RGMDATA(base::surfaces);
 
-        cen::log_debug(
-                       "[Palette] id = %lld, is disposed", id);
+        cen::log_debug("[Palette] id = %lld, is disposed", id);
 
         surfaces.erase(id);
         return Qnil;
@@ -121,8 +117,7 @@ struct init_palette {
         RGMLOAD(id, uint64_t);
         base::surfaces& surfaces = RGMDATA(base::surfaces);
 
-        cen::log_info(
-                      "[Palette] id = %lld, is saved to %s", id, path);
+        cen::log_info("[Palette] id = %lld, is saved to %s", id, path);
 
         cen::surface& s = surfaces.at(id);
         s.save_as_png(path);

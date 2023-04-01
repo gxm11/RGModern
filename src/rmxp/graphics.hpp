@@ -20,6 +20,7 @@
 
 #pragma once
 #include "base/base.hpp"
+#include "bitmap.hpp"
 #include "builtin.hpp"
 #include "render_base.hpp"
 #include "render_tilemap.hpp"

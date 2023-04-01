@@ -20,7 +20,9 @@
 
 #pragma once
 #include "base/base.hpp"
+#include "blend_type.hpp"
 #include "drawable.hpp"
+#include "shader/shader.hpp"
 
 namespace rgm::rmxp {
 /**

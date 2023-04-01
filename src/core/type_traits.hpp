@@ -20,6 +20,7 @@
 
 #pragma once
 #include <concepts>
+#include <cstdlib>
 #include <tuple>
 #include <type_traits>
 #include <variant>

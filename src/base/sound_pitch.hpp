@@ -29,7 +29,8 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "core/core.hpp"
+#include "cen_library.hpp"
+// #include "core/core.hpp"
 
 namespace rgm::base {
 struct sound_pitch {

@@ -159,3 +159,10 @@ misc.7z :
 
 misc : misc.7z
 	@7z x -y $^
+
+
+%.o : %.hpp
+	@g++ -x c++-header -c -o /dev/null $< $(cflags)
+
+headers :
+	@find ./src/ -type f -name *.hpp | sed s/.hpp/.o/g | xargs -n 1 make 2> make.log

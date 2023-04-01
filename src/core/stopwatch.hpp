@@ -22,6 +22,8 @@
 #include <array>
 #include <chrono>
 
+#include "config.hpp"
+
 namespace rgm::core {
 struct stopwatch_dummy {
   explicit stopwatch_dummy(const char*, int64_t = 0) {}

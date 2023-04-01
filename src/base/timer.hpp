@@ -19,12 +19,12 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
-#include <time.h>
+#include <ctime>
 
 #include "init_sdl2.hpp"
 
 #if defined(_WIN32)
-#include <Windows.h>
+#include <timeapi.h>
 
 #define TIME_BEGIN_PERIOD(p) timeBeginPeriod(p)
 #define TIME_END_PERIOD(p) timeEndPeriod(p)

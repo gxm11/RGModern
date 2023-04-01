@@ -20,6 +20,7 @@
 
 #pragma once
 #include "base/base.hpp"
+#include "detail.hpp"
 
 namespace rgm::rmxp {
 struct message_show {

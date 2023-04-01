@@ -24,6 +24,7 @@
 #include <string>
 
 #include "base/base.hpp"
+#include "detail.hpp"
 
 #ifdef RGM_EMBEDED_ZIP
 INCBIN(zip, "embeded.zip");
