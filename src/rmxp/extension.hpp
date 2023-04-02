@@ -51,6 +51,8 @@ struct init_extension {
     rb_const_set(rb_mRGM, rb_intern("Render_Driver"),
                  INT2FIX(static_cast<int>(shader::driver)));
     rb_const_set(rb_mRGM, rb_intern("Build_Mode"), INT2FIX(config::build_mode));
+    rb_const_set(rb_mRGM, rb_intern("Controller_Axis_Threshold"),
+                 INT2FIX(base::controller_axis_threshold));
   }
 };
 }  // namespace rgm::rmxp

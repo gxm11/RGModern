@@ -131,8 +131,8 @@ struct init_controller {
     static decltype(auto) worker = this_worker;
 
     struct wrapper {
-      static VALUE bind(VALUE, VALUE joy_index_, VALUE button_,
-                        VALUE input_key_) {
+      static VALUE bind(VALUE, VALUE button_, VALUE input_key_,
+                        VALUE joy_index_) {
         controller_buttonmap& map = RGMDATA(controller_buttonmap);
         RGMLOAD(joy_index, int);
         RGMLOAD(button, int);
@@ -151,7 +151,7 @@ struct init_controller {
         return Qnil;
       }
 
-      static VALUE axis_value(VALUE, VALUE joy_index_, VALUE axis_) {
+      static VALUE axis_value(VALUE, VALUE axis_, VALUE joy_index_) {
         base::controller_axisstate& state = RGMDATA(base::controller_axisstate);
 
         RGMLOAD(joy_index, int);

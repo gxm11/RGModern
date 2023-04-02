@@ -178,7 +178,7 @@ module Input
     # 1. 相同的 button 可以绑定到多个虚拟键上
     # 2. 如果 key = nil，则取消该 button 的全部绑定。
     if key_name.nil?
-      RGM::Base.controller_bind(joy_index, button, nil)
+      RGM::Base.controller_bind(button, nil, joy_index)
       return
     end
 
@@ -188,12 +188,12 @@ module Input
     key += 256 if key < 0
     raise "Key code #{key} must be 0 - #{RGM::Max_Keycode}" if key && (key < 0 || key > RGM::Max_Keycode)
 
-    RGM::Base.controller_bind(joy_index, button, key)
+    RGM::Base.controller_bind(button, key, joy_index)
   end
 
   def controller_axis_value(axis, joy_index = 0)
     axis = RGM::SDL.const_get(axis) if axis.is_a?(Symbol)
-
-    RGM::Base.controller_axis_value(joy_index, axis)
+    # compare with RGM::Base::Controller_Axis_Threshold
+    RGM::Base.controller_axis_value(axis, joy_index)
   end
 end
