@@ -21,6 +21,7 @@
 #pragma once
 #include <SDL_syswm.h>
 
+#include <map>
 #include <memory>
 
 #include "cen_library.hpp"
@@ -81,7 +82,7 @@ struct cen_library {
   SDL_SysWMinfo window_info;
   SDL_RendererInfo renderer_info;
   /** @brief joystick_index -> controller */
-  std::vector<cen::controller> controllers;
+  std::map<int, cen::controller> controllers;
   /** @brief 初始化 SDL2 运行环境，创建并显示窗口 */
   explicit cen_library()
       : sdl(),
@@ -124,13 +125,19 @@ struct poll_event {
   void run(auto& worker) {
     RGMDATA(cen_library).event_dispatcher.poll();
     // 处理 controller
-    std::vector<cen::controller>& cs = RGMDATA(cen_library).controllers;
+    std::map<int, cen::controller>& cs = RGMDATA(cen_library).controllers;
 
+    for (int i = 0; i < static_cast<int>(cs.size()); ++i) {
+      if (!cen::controller::supported(i)) {
+        cen::log_info("[Input] Controller %d is disconnected.", i);
+        cs.erase(i);
+      }
+    }
     const int joystick_numbers = SDL_NumJoysticks();
-    const int current_size = cs.size();
-    for (int i = current_size; i < joystick_numbers; ++i) {
-      cen::log_info("[Input] controller %d add.\n", i);
-      cs.push_back(cen::controller(i));
+    for (int i = 0; i < joystick_numbers; ++i) {
+      if (cs.find(i) != cs.end()) continue;
+      cen::log_info("[Input] Controller %d is connected.", i);
+      cs.emplace(i, cen::controller(i));
     }
   }
 };
