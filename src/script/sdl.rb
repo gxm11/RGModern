@@ -256,5 +256,30 @@ module RGM
     K_KBDILLUMUP = 0x40000118
     K_EJECT = 0x40000119
     K_SLEEP = 0x4000011A
+
+    # SDL_GameControllerButton
+    B_INVALID = -1
+    B_A = 0
+    B_B = 1
+    B_X = 2
+    B_Y = 3
+    B_BACK = 4
+    B_GUIDE = 5
+    B_START = 6
+    B_LEFTSTICK = 7
+    B_RIGHTSTICK = 8
+    B_LEFTSHOULDER = 9
+    B_RIGHTSHOULDER = 10
+    B_DPAD_UP = 11
+    B_DPAD_DOWN = 12
+    B_DPAD_LEFT = 13
+    B_DPAD_RIGHT = 14
+    B_MISC1 = 15
+    B_PADDLE1 = 16
+    B_PADDLE2 = 17
+    B_PADDLE3 = 18
+    B_PADDLE4 = 19
+    B_TOUCHPAD = 20
+    B_MAX = 21
   end
 end

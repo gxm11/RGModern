@@ -22,8 +22,8 @@
 #include <list>
 #include <vector>
 
-#include "init_sdl2.hpp"
 #include "core/core.hpp"
+#include "init_sdl2.hpp"
 
 namespace rgm::base {
 /**
@@ -187,7 +187,7 @@ struct renderstack {
    */
   void merge(process_t process) {
     size_t depth = stack.size();
-    if constexpr (config::check_renderstack) {
+    if constexpr (config::develop) {
       if (depth < 2) {
         cen::log_error("Merge failed, the stack depth is less than 2!");
         throw std::length_error{"renderstack in merge"};
@@ -204,7 +204,7 @@ struct renderstack {
    * @param texture 目标 texture
    */
   void merge(process_t process, cen::texture& texture) {
-    if constexpr (config::check_renderstack) {
+    if constexpr (config::develop) {
       if (stack.empty()) {
         cen::log_error("Merge failed, the stack is empty!");
         throw std::length_error{"renderstack in merge2"};

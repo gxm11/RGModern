@@ -31,7 +31,7 @@ struct resize_screen {
 
   void run(auto& worker) {
     base::renderstack& stack = RGMDATA(base::renderstack);
-    if constexpr (config::check_renderstack) {
+    if constexpr (config::develop) {
       if (stack.stack.size() != 1) {
         cen::log_error(
             "resize screen failed, the stack depth is not equal to 1!");
@@ -67,7 +67,7 @@ struct clear_screen {
     render_timer.step(1);
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
     base::renderstack& stack = RGMDATA(base::renderstack);
-    if constexpr (config::check_renderstack) {
+    if constexpr (config::develop) {
       if (stack.stack.size() != 1) {
         cen::log_error("In <clear_screen>, the stack size is not equal to 1!");
         throw std::length_error{"renderstack in clear screen"};
@@ -92,7 +92,7 @@ struct present_window {
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
     cen::window& window = RGMDATA(base::cen_library).window;
     base::renderstack& stack = RGMDATA(base::renderstack);
-    if constexpr (config::check_renderstack) {
+    if constexpr (config::develop) {
       if (stack.stack.size() != 1) {
         cen::log_error(
             "In <present_window>, the stack size is not equal to 1!");

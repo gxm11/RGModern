@@ -464,7 +464,7 @@ struct bitmap_capture_screen {
 
     base::renderstack& stack = RGMDATA(base::renderstack);
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
-    if constexpr (config::check_renderstack) {
+    if constexpr (config::develop) {
       if (stack.stack.size() != 1) {
         cen::log_error(
             "capture screen failed, the stack depth is not equal to 1!");

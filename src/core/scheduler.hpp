@@ -21,9 +21,9 @@
 #pragma once
 #include <thread>
 
+#include "config.hpp"
 #include "cooperation.hpp"
 #include "type_traits.hpp"
-#include "config.hpp"
 
 namespace rgm::core {
 template <typename T>
@@ -94,7 +94,7 @@ struct scheduler<c, T_workers...> : scheduler<c> {
     };
 
     bool ret = std::apply(set_task, workers);
-    if constexpr (config::output_level > 0) {
+    if constexpr (config::develop) {
       if (!ret) {
         printf("WARN: There's ingored task, check your code.\n");
       }

@@ -85,7 +85,7 @@ struct worker {
    * 6. 析构 datalist (after)
    */
   void before() {
-    if constexpr (config::output_level > 0) {
+    if constexpr (config::build_mode < 2) {
       int size = sizeof(typename T_kernel<T_kernel_tasks>::T_variants);
       printf("INFO: block size = %d\n", size);
       printf("INFO: kernel task size = %lld\n",

@@ -109,6 +109,6 @@ struct stopwatch_normal {
 };
 uint64_t stopwatch_normal::total_index = 0;
 
-using stopwatch = std::conditional_t<config::output_level == 0, stopwatch_dummy,
-                                     stopwatch_normal>;
+using stopwatch =
+    std::conditional_t<config::develop, stopwatch_normal, stopwatch_dummy>;
 }  // namespace rgm::core

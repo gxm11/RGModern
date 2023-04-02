@@ -68,10 +68,10 @@ struct cen_library {
   /** @brief 当前的渲染器 */
   cen::renderer renderer;
   /** @brief 管理事件的分配器 */
-  using event_dispatcher_t =
-      cen::event_dispatcher<cen::quit_event, cen::window_event,
-                            cen::keyboard_event, cen::mouse_button_event,
-                            cen::text_editing_event, cen::text_input_event>;
+  using event_dispatcher_t = cen::event_dispatcher<
+      cen::quit_event, cen::window_event, cen::keyboard_event,
+      cen::mouse_button_event, cen::text_editing_event, cen::text_input_event,
+      cen::controller_axis_event, cen::controller_button_event>;
 
   event_dispatcher_t event_dispatcher;
 
@@ -92,7 +92,8 @@ struct cen_library {
 #if RGM_BUILDMODE <= 0
     cen::set_priority(cen::log_priority::debug);
 #elif RGM_BUILDMODE == 1
-    cen::set_priority(cen::log_priority::info);
+    cen::set_priority(config::debug ? cen::log_priority::debug
+                                    : cen::log_priority::info);
 #else
     cen::set_priority(config::debug ? cen::log_priority::info
                                     : cen::log_priority::warn);
@@ -110,6 +111,8 @@ struct cen_library {
     SDL_VERSION(&window_info.version);
     SDL_GetWindowWMInfo(window.get(), &window_info);
     SDL_GetRendererInfo(renderer.get(), &renderer_info);
+
+    SDL_GameControllerEventState(SDL_ENABLE);
   }
 };
 
@@ -155,8 +158,9 @@ struct init_sdl2 {
 
   static void before(auto& worker) {
     SDL_RendererInfo& info = RGMDATA(cen_library).renderer_info;
-    cen::log_info("[Driver] use %s for rendering\n",                  info.name);
-    cen::log_info("[Driver] max texture %d x %d\n",                  info.max_texture_width, info.max_texture_height);
+    cen::log_info("[Driver] use %s for rendering\n", info.name);
+    cen::log_info("[Driver] max texture %d x %d\n", info.max_texture_width,
+                  info.max_texture_height);
   }
 
   static void after(auto& worker) { RGMDATA(cen_library).window.hide(); }

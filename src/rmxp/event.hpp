@@ -85,6 +85,18 @@ struct init_event {
 
           worker >> text_input{std::string{e.text_utf8()}};
         });
+
+    d.bind<cen::controller_axis_event>().to(
+        [&worker](const cen::controller_axis_event& e) {
+          cen::log_debug("[Input] controller axis '%s', value %d\n",
+                         cen::to_string(e.axis()), e.value());
+        });
+
+    d.bind<cen::controller_button_event>().to(
+        [&worker](const cen::controller_button_event& e) {
+          cen::log_debug("[Input] controller button '%s', value %d\n",
+                         cen::to_string(e.button()), (int)e.state());
+        });
   }
 };
 }  // namespace rgm::rmxp

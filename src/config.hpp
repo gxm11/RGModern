@@ -32,16 +32,12 @@ const char* config_path = "./config.ini";
 #define RGM_BUILDMODE 1
 #endif
 
-constexpr int build_mode = RGM_BUILDMODE;
-
 #if RGM_BUILDMODE >= 2
-constexpr int output_level = 0;
-constexpr bool check_renderstack = false;
 #define RGM_EMBEDED_ZIP
-#else
-constexpr int output_level = 1;
-constexpr bool check_renderstack = true;
 #endif
+
+constexpr int build_mode = RGM_BUILDMODE;
+constexpr bool develop = (RGM_BUILDMODE < 2);
 
 // configs
 bool btest = false;
