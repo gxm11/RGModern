@@ -80,8 +80,8 @@ struct cen_library {
 
   SDL_SysWMinfo window_info;
   SDL_RendererInfo renderer_info;
-
-  std::array<cen::controller, 4> controllers;
+  /** @brief joystick_index -> controller */
+  std::vector<cen::controller> controllers;
   /** @brief 初始化 SDL2 运行环境，创建并显示窗口 */
   explicit cen_library()
       : sdl(),
@@ -121,7 +121,18 @@ struct cen_library {
 
 /** @brief 任务：处理 SDL 事件 */
 struct poll_event {
-  void run(auto& worker) { RGMDATA(cen_library).event_dispatcher.poll(); }
+  void run(auto& worker) {
+    RGMDATA(cen_library).event_dispatcher.poll();
+    // 处理 controller
+    std::vector<cen::controller>& cs = RGMDATA(cen_library).controllers;
+
+    const int joystick_numbers = SDL_NumJoysticks();
+    const int current_size = cs.size();
+    for (int i = current_size; i < joystick_numbers; ++i) {
+      cen::log_info("[Input] controller %d add.\n", i);
+      cs.push_back(cen::controller(i));
+    }
+  }
 };
 
 struct set_title {

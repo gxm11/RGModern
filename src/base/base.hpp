@@ -36,7 +36,7 @@
 #include "sound.hpp"
 #include "sound_pitch.hpp"
 #include "surface.hpp"
-#include "textures.hpp"
+#include "texture.hpp"
 #include "timer.hpp"
 
 namespace rgm::base {

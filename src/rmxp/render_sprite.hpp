@@ -147,15 +147,23 @@ struct render<sprite> {
 
     // 如果dst_rect根本就不在画面上，直接不绘制。
     // 先简单判断 angle == 0 的场景
+    int target_width = v ? v->rect.width : stack.current().width();
+    int target_height = v ? v->rect.height : stack.current().height();
+
     if (s->angle == 0.0) {
       if (dst_rect.x() + dst_rect.width() < 0) return;
       if (dst_rect.y() + dst_rect.height() < 0) return;
-
-      int target_width = v ? v->rect.width : stack.current().width();
-      int target_height = v ? v->rect.height : stack.current().height();
-
       if (dst_rect.x() > target_width) return;
       if (dst_rect.y() > target_height) return;
+    } else {
+      int dx = std::max(std::abs(s->ox), std::abs(width - s->ox)) * s->zoom_x;
+      int dy = std::max(std::abs(s->oy), std::abs(height - s->oy)) * s->zoom_y;
+      float radius = std::sqrt(dx * dx + dy * dy);
+
+      if (dst_rect.x() + radius < 0) return;
+      if (dst_rect.y() + radius < 0) return;
+      if (dst_rect.x() - radius > target_width) return;
+      if (dst_rect.y() - radius > target_height) return;
     }
 
     // 绘制流程，捕获renderer，this 和上面的常量
