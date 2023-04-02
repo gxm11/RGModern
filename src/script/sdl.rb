@@ -257,6 +257,16 @@ module RGM
     K_EJECT = 0x40000119
     K_SLEEP = 0x4000011A
 
+    # SDL_GameControllerAxis
+    A_INVALID = -1
+    A_LEFTX = 0
+    A_LEFTY = 1
+    A_RIGHTX = 2
+    A_RIGHTY = 3
+    A_TRIGGERLEFT = 4
+    A_TRIGGERRIGHT = 5
+    A_MAX = 6
+
     # SDL_GameControllerButton
     B_INVALID = -1
     B_A = 0

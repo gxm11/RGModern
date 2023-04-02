@@ -23,6 +23,7 @@
 #include "bitmap.hpp"
 #include "blend_type.hpp"
 #include "builtin.hpp"
+#include "controller.hpp"
 #include "detail.hpp"
 #include "drawable.hpp"
 #include "drawable_object.hpp"
@@ -57,10 +58,12 @@ namespace rgm::rmxp {
 using tasks_main =
     std::tuple<init_extension, init_detail, init_bitmap, init_table,
                init_tilemap_manager, init_viewport, init_graphics, init_input,
-               init_drawable_base, init_drawable<sprite>, init_drawable<window>,
-               init_drawable<plane>, init_drawable<tilemap>, init_zip,
-               init_font<true>, init_palette, init_textinput, init_title,
-               init_message, key_release, key_press, text_input, text_edit>;
+               init_controller, init_drawable_base, init_drawable<sprite>,
+               init_drawable<window>, init_drawable<plane>,
+               init_drawable<tilemap>, init_zip, init_font<true>, init_palette,
+               init_textinput, init_title, init_message, key_release, key_press,
+               text_input, text_edit, controller_axis_move,
+               controller_button_release, controller_button_press>;
 
 /** @brief 渲染流程的 worker 的可执行任务列表 */
 using tasks_render = std::tuple<

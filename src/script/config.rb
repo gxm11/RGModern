@@ -74,6 +74,10 @@ File.open(RGM::Default_Config, 'r') do |f|
         Input.bind Regexp.last_match(1).to_sym, Regexp.last_match(2).to_sym
       elsif line =~ /^(K_\w+)=$/
         Input.bind Regexp.last_match(1).to_sym, nil
+      elsif line =~ /^(B_\w+)=(\w+)$/
+        Input.controller_bind Regexp.last_match(1).to_sym, Regexp.last_match(2).to_sym
+      elsif line =~ /^(B_\w+)=$/
+        Input.controller_bind Regexp.last_match(1).to_sym, nil
       end
       next
     end

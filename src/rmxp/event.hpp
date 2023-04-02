@@ -88,14 +88,28 @@ struct init_event {
 
     d.bind<cen::controller_axis_event>().to(
         [&worker](const cen::controller_axis_event& e) {
-          cen::log_warn("[Input] controller axis '%s', value %d\n",
-                        cen::to_string(e.axis()), e.value());
+          cen::log_info("[Input] controller axis '%s', value %d\n",
+                        cen::to_string(e.axis()).data(), e.value());
+
+          const int axis = static_cast<int>(e.axis());
+          worker >> controller_axis_move{e.which(), axis, e.value()};
         });
 
     d.bind<cen::controller_button_event>().to(
         [&worker](const cen::controller_button_event& e) {
-          cen::log_warn("[Input] controller button '%s', value %d\n",
-                        cen::to_string(e.button()), (int)e.state());
+          if (e.is_released()) {
+            cen::log_debug("[Input] controller %d button '%s' is released",
+                           e.which(), cen::to_string(e.button()).data());
+
+            const int key = static_cast<int>(e.button());
+            worker >> controller_button_release{e.which(), key};
+          } else if (e.is_pressed()) {
+            cen::log_debug("[Input] controller %d button '%s' is pressed",
+                           e.which(), cen::to_string(e.button()).data());
+
+            const int key = static_cast<int>(e.button());
+            worker >> controller_button_press{e.which(), key};
+          }
         });
   }
 };

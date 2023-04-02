@@ -27,15 +27,15 @@ namespace rgm::rmxp {
 /**
  * @brief 按键映射组合，其中的元素是 { SDL_Key, RMXP Input Key }
  */
-struct keymap : std::set<std::pair<int32_t, uint32_t>> {
-  explicit keymap() : std::set<std::pair<int32_t, uint32_t>>() {}
+struct keymap : std::set<std::pair<int32_t, int>> {
+  explicit keymap() : std::set<std::pair<int32_t, int>>() {}
 
   /**
    * @brief 遍历所有的 { SDL_Key, RMXP Input Key } 组合，执行特定函数
    * @param sdl_key 组合的第一项必须等于该值
    * @param callback 只接受一个参数，即 RMXP Input Key
    */
-  void iterate(int32_t sdl_key, std::function<void(uint32_t)> callback) {
+  void iterate(int32_t sdl_key, std::function<void(int)> callback) {
     auto it = lower_bound({sdl_key, 0});
     while (it != end()) {
       if (it->first != sdl_key) break;
@@ -51,7 +51,8 @@ struct keymap : std::set<std::pair<int32_t, uint32_t>> {
  * 最后一位（最低位）代表当前帧的情况，倒数第 N 位代表向前推算 N - 1 帧的情况。
  */
 struct keystate {
-  std::array<uint32_t, 256> data;
+  static constexpr size_t max = 256;
+  std::array<uint32_t, max> data;
 
   int32_t last_press;
   int32_t last_release;
@@ -64,7 +65,7 @@ struct keystate {
    * 的信息进一步更新。
    */
   void update() {
-    for (size_t i = 0; i < data.size(); ++i) {
+    for (size_t i = 0; i < max; ++i) {
       const uint32_t value = data[i];
       data[i] = (value & 1) | (value << 1);
     }
@@ -74,31 +75,25 @@ struct keystate {
    * @brief 将按键当前帧的状态改为按下，S? -> S1
    * @param key 目标按键
    */
-  void press(uint32_t key) { data[key % data.size()] |= 0b01; }
+  void press(int key) { data[key % max] |= 0b01; }
 
   /**
    * @brief 将按键当前帧的状态改为松开，S? -> S0
    * @param key 目标按键
    */
-  void release(uint32_t key) {
-    data[key % data.size()] ^= (data[key % data.size()] & 1);
-  }
+  void release(int key) { data[key % max] ^= (data[key % max] & 1); }
 
   /**
    * @brief 判断按键是否刚刚按下，只需检测最低 2 位是否为 01
    * @param key 目标按键
    */
-  bool is_trigger(uint32_t key) {
-    return (data[key % data.size()] & 0b11) == 0b01;
-  }
+  bool is_trigger(int key) { return (data[key % max] & 0b11) == 0b01; }
 
   /**
    * @brief 判断按键是否正在按下，只需检测最低 1 位是否为 1
    * @param key 目标按键
    */
-  bool is_press(uint32_t key) {
-    return (data[key % data.size()] & 0b01) == 0b01;
-  }
+  bool is_press(int key) { return (data[key % max] & 0b01) == 0b01; }
 
   /**
    * @brief 判断按键是否正在按下，但是每 interval 帧只会有 1 帧返回 true
@@ -114,7 +109,7 @@ struct keystate {
    * 的当前帧，和那之后的第 15 帧。 interval_a 和 interval_b 可以修改。
    */
 
-  bool is_repeat(uint32_t key) {
+  bool is_repeat(int key) {
     /** 按键按下时，重复触发的周期为 a + bx，单位：帧 */
     constexpr int interval_a = 16;
     constexpr int interval_b = 4;
@@ -126,7 +121,7 @@ struct keystate {
     static_assert(interval_b < interval_a - 4,
                   "Value of interval_b must be less than interval_a - 4.\n");
 
-    uint32_t& value = data[key % data.size()];
+    uint32_t& value = data[key % max];
 
     if ((value & 0b11) == 0b01) return true;
     if ((value & pattern_1) == pattern_2) return true;
@@ -155,7 +150,7 @@ struct key_press {
     keystate& state = RGMDATA(keystate);
 
     state.last_press = sdl_key;
-    map.iterate(sdl_key, [&state](int32_t key) { state.press(key); });
+    map.iterate(sdl_key, [&state](int key) { state.press(key); });
   }
 };
 
@@ -170,7 +165,7 @@ struct key_release {
     keystate& state = RGMDATA(keystate);
 
     state.last_release = sdl_key;
-    map.iterate(sdl_key, [&state](int32_t key) { state.release(key); });
+    map.iterate(sdl_key, [&state](int key) { state.release(key); });
   }
 };
 
@@ -187,6 +182,7 @@ struct init_input {
     struct wrapper {
       static VALUE bind(VALUE, VALUE sdl_key_, VALUE input_key_) {
         keymap& map = RGMDATA(keymap);
+        // 这里不能使用 FIX2INT
         int32_t sdl_key = NUM2LONG(sdl_key_);
 
         if (input_key_ == Qnil) {
@@ -194,28 +190,28 @@ struct init_input {
           auto end = map.lower_bound({sdl_key + 1, 0})++;
           map.erase(begin, end);
         } else {
-          Check_Type(input_key_, T_FIXNUM);
-          map.insert({sdl_key, FIX2UINT(input_key_)});
+          RGMLOAD(input_key, int);
+          map.insert({sdl_key, input_key});
         }
         return Qnil;
       }
 
       static VALUE is_trigger(VALUE, VALUE input_key_) {
-        Check_Type(input_key_, T_FIXNUM);
-        return RGMDATA(keystate).is_trigger(FIX2UINT(input_key_)) ? Qtrue
-                                                                  : Qfalse;
+        RGMLOAD(input_key, int);
+
+        return RGMDATA(keystate).is_trigger(input_key) ? Qtrue : Qfalse;
       }
 
       static VALUE is_press(VALUE, VALUE input_key_) {
-        Check_Type(input_key_, T_FIXNUM);
-        return RGMDATA(keystate).is_press(FIX2UINT(input_key_)) ? Qtrue
-                                                                : Qfalse;
+        RGMLOAD(input_key, int);
+
+        return RGMDATA(keystate).is_press(input_key) ? Qtrue : Qfalse;
       }
 
       static VALUE is_repeat(VALUE, VALUE input_key_) {
-        Check_Type(input_key_, T_FIXNUM);
-        return RGMDATA(keystate).is_repeat(FIX2UINT(input_key_)) ? Qtrue
-                                                                 : Qfalse;
+        RGMLOAD(input_key, int);
+
+        return RGMDATA(keystate).is_repeat(input_key) ? Qtrue : Qfalse;
       }
 
       static VALUE update(VALUE) {
@@ -233,19 +229,18 @@ struct init_input {
       }
 
       static VALUE last_press(VALUE) {
-        int32_t key = RGMDATA(keystate).last_press;
-        return INT2NUM(key);
+        int key = RGMDATA(keystate).last_press;
+        return INT2FIX(key);
       }
 
       static VALUE last_release(VALUE) {
-        int32_t key = RGMDATA(keystate).last_release;
-        return INT2NUM(key);
+        int key = RGMDATA(keystate).last_release;
+        return INT2FIX(key);
       }
     };
 
     VALUE rb_mRGM = rb_define_module("RGM");
-    rb_define_const(rb_mRGM, "Max_Keycode",
-                    INT2FIX(RGMDATA(keystate).data.size() - 1));
+    rb_define_const(rb_mRGM, "Max_Keycode", INT2FIX(keystate::max - 1));
     VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
     rb_define_module_function(rb_mRGM_Base, "input_update", wrapper::update, 0);
     rb_define_module_function(rb_mRGM_Base, "input_reset", wrapper::reset, 0);
