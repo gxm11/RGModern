@@ -93,15 +93,16 @@ struct cen_library {
                hint.window_flag),
         renderer(window.make_renderer()),
         event_dispatcher() {
-#if RGM_BUILDMODE <= 0
-    cen::set_priority(cen::log_priority::debug);
-#elif RGM_BUILDMODE == 1
-    cen::set_priority(config::debug ? cen::log_priority::debug
-                                    : cen::log_priority::info);
-#else
-    cen::set_priority(config::debug ? cen::log_priority::info
-                                    : cen::log_priority::warn);
-#endif
+    if (config::build_mode <= 0) {
+      cen::set_priority(cen::log_priority::debug);
+    } else if (config::build_mode == 1) {
+      cen::set_priority(config::debug ? cen::log_priority::debug
+                                      : cen::log_priority::info);
+    } else {
+      cen::set_priority(config::debug ? cen::log_priority::info
+                                      : cen::log_priority::warn);
+    }
+
     renderer.reset_target();
     renderer.clear_with(cen::colors::transparent);
     renderer.present();
