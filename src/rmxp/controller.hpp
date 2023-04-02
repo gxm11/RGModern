@@ -23,6 +23,61 @@
 #include "input.hpp"
 
 namespace rgm::rmxp {
+struct controller_axis_move {
+  cen::controller_axis axis;
+  int joy_index;
+  int value;
+
+  void run(auto& worker) {
+    base::controller_axisstate& ca = RGMDATA(base::controller_axisstate);
+
+    size_t index = static_cast<int>(axis) +
+                   joy_index * static_cast<int>(cen::controller_axis::max);
+
+    if (joy_index < 0 ||
+        static_cast<size_t>(joy_index) >= base::controller_maxsize)
+      return;
+
+    const int old_value = ca[index];
+    ca[index] = value;
+
+    constexpr int t = base::controller_axis_threshold;
+
+    if (old_value < -t && -t <= value) {
+      if (axis == cen::controller_axis::left_x) {
+        worker >> key_release{SDLK_LEFT};
+      }
+      if (axis == cen::controller_axis::left_y) {
+        worker >> key_release{SDLK_UP};
+      }
+    }
+    if (value <= -t && -t < old_value) {
+      if (axis == cen::controller_axis::left_x) {
+        worker >> key_press{SDLK_LEFT};
+      }
+      if (axis == cen::controller_axis::left_y) {
+        worker >> key_press{SDLK_UP};
+      }
+    }
+    if (old_value < t && t <= value) {
+      if (axis == cen::controller_axis::left_x) {
+        worker >> key_press{SDLK_RIGHT};
+      }
+      if (axis == cen::controller_axis::left_y) {
+        worker >> key_press{SDLK_DOWN};
+      }
+    }
+    if (value <= t && t < old_value) {
+      if (axis == cen::controller_axis::left_x) {
+        worker >> key_release{SDLK_RIGHT};
+      }
+      if (axis == cen::controller_axis::left_y) {
+        worker >> key_release{SDLK_DOWN};
+      }
+    }
+  }
+};
+
 struct controller_buttonmap : std::set<std::pair<int, int>> {
   /**
    * @brief 遍历所有的 { Button, RMXP Input Key } 组合，执行特定函数

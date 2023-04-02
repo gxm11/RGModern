@@ -93,8 +93,7 @@ struct init_event {
           cen::log_debug("[Input] controller axis '%s', value %d\n",
                          cen::to_string(e.axis()).data(), e.value());
 
-          const int axis = static_cast<int>(e.axis());
-          worker >> base::controller_axis_move{e.which(), axis, e.value()};
+          worker >> controller_axis_move{e.axis(), e.which(), e.value()};
         });
 
     d.bind<cen::controller_button_event>().to(

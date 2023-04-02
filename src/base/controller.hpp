@@ -25,26 +25,16 @@
 #include "core/core.hpp"
 
 namespace rgm::base {
+constexpr size_t controller_maxsize = 8;
+constexpr int controller_axis_threshold = 8000;
+
 using controller_axisstate =
-    std::array<int, static_cast<size_t>(cen::controller_axis::max) * 8>;
+    std::array<int, static_cast<size_t>(cen::controller_axis::max) *
+                        controller_maxsize>;
 
 struct controller_axis_reset {
   using data = std::tuple<controller_axisstate>;
 
   void run(auto& worker) { RGMDATA(controller_axisstate).fill(0); }
-};
-
-struct controller_axis_move {
-  int joy_index;
-  int axis;
-  int value;
-
-  void run(auto& worker) {
-    controller_axisstate& ca = RGMDATA(controller_axisstate);
-
-    size_t index =
-        axis + joy_index * static_cast<int>(cen::controller_axis::max);
-    ca.at(index) = value;
-  }
 };
 }  // namespace rgm::base

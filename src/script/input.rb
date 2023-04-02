@@ -114,7 +114,7 @@ module Input
     return 6 if RGM::Base.input_press(RIGHT)
     return 8 if RGM::Base.input_press(UP)
 
-    controller_dir4
+    0
   end
 
   def dir8
@@ -138,7 +138,7 @@ module Input
     return 4 if RGM::Base.input_press(LEFT)
     return 6 if RGM::Base.input_press(RIGHT)
 
-    controller_dir8
+    0
   end
 
   def bind(sdl_key_name, key_name)
@@ -195,35 +195,5 @@ module Input
     axis = RGM::SDL.const_get(axis) if axis.is_a?(Symbol)
 
     RGM::Base.controller_axis_value(joy_index, axis)
-  end
-
-  def controller_dir4
-    return 2 if RGM::Base.controller_axis_value(0, RGM::SDL::A_LEFTY) > 8000
-    return 4 if RGM::Base.controller_axis_value(0, RGM::SDL::A_LEFTX) < -8000
-    return 6 if RGM::Base.controller_axis_value(0, RGM::SDL::A_LEFTX) > 8000
-    return 8 if RGM::Base.controller_axis_value(0, RGM::SDL::A_LEFTY) < -8000
-  end
-
-  def controller_dir8
-    down = RGM::Base.controller_axis_value(0, RGM::SDL::A_LEFTY) > 8000
-    left = RGM::Base.controller_axis_value(0, RGM::SDL::A_LEFTX) < -8000
-    right = RGM::Base.controller_axis_value(0, RGM::SDL::A_LEFTX) > 8000
-    up = RGM::Base.controller_axis_value(0, RGM::SDL::A_LEFTY) < -8000
-
-    if down
-      return 1 if left
-      return 3 if right
-
-      return 2
-    end
-
-    if up
-      return 7 if left
-      return 9 if right
-
-      return 8
-    end
-    return 4 if left
-    return 6 if right
   end
 end
