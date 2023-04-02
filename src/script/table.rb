@@ -76,13 +76,6 @@ class Table
     end
   end
 
-  if RGM::Build_Mode >= 3
-    def []=(x, y = 0, z = 0, value)
-      index = x + @xsize * (y + @ysize * z)
-      RGM::Base.table_set(@data, index, value)
-    end
-  end
-
   def inspect
     format('#<Table:%d> [%d x %d x %d] (0x%016x)', object_id, @xsize, @ysize, @zsize, @data)
   end

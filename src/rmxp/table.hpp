@@ -142,6 +142,7 @@ struct init_table {
 
         table& t = data[id];
         t.resize(x_size, y_size, z_size);
+        t.data.shrink_to_fit();
         return ULL2NUM(reinterpret_cast<uint64_t>(t.data_ptr()));
       }
 
