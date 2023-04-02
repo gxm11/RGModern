@@ -1,6 +1,6 @@
 # Modern Ruby Game Engine (RGModern)
 
-当前版本：v0.9.0
+当前版本：v1.0.0-RC1
 
 在线文档：[RGModern使用指南](https://docs.qq.com/doc/DUklCTWNvdmVEdVhY)
 
@@ -8,7 +8,7 @@
 
 ## 简介
 RGModern 是极具现代化特色的 RMXP 新 runtime，主要使用 C++20 和 Ruby 3 编写。RGModern 特点：
-1. 使用 SDL2 作为底层，支持 Direct3D 和 OpenGL 绘制。
+1. 使用 SDL2 作为底层，支持 Direct3D9，Direct3D11 和 OpenGL 绘制。
 2. 驱动多线程完成脚本逻辑、画面渲染等任务。
 3. 借助 C++ 模板元编程，RGModern 能自由组合各种功能模块，并使用静态多态技巧提升执行效率。
 
