@@ -88,8 +88,8 @@ struct init_event {
 
     d.bind<cen::controller_axis_event>().to(
         [&worker](const cen::controller_axis_event& e) {
-          cen::log_info("[Input] controller axis '%s', value %d\n",
-                        cen::to_string(e.axis()).data(), e.value());
+          cen::log_debug("[Input] controller axis '%s', value %d\n",
+                         cen::to_string(e.axis()).data(), e.value());
 
           const int axis = static_cast<int>(e.axis());
           worker >> controller_axis_move{e.which(), axis, e.value()};
