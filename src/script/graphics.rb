@@ -22,6 +22,7 @@ module Graphics
   # ---------------------------------------------------------------------------
   # The module that carries out graphics processing.
   # ---------------------------------------------------------------------------
+  Low_FPS_Skip_Ratio = 2
 
   module_function
 
@@ -30,6 +31,13 @@ module Graphics
     # This method must be called at set intervals.
     update_fps
     update_synchronize
+
+    if @@low_fps_mode
+      @@low_fps_skip_countdown -= 1
+      @@low_fps_skip_countdown += Low_FPS_Skip_Ratio if @@low_fps_skip_countdown <= 0
+      return if @@low_fps_skip_countdown < Low_FPS_Skip_Ratio
+    end
+
     unless @@freeze_bitmap
       RGM::Base.graphics_update(@@screen_width, @@screen_height)
       RGM::Base::Temp.clear
@@ -53,17 +61,19 @@ module Graphics
       delta_time = Time.now.to_f - @@fps_last_time
 
       # 超过 1s，或者frame_rate帧过后，主动更新 title
-      if delta_count > @@frame_rate / 2 || delta_time > 1.0
+      if delta_count > frame_rate || delta_time > 1.0
         fps = delta_count / delta_time
-
-        RGM::Base.set_title(format('%s - %.1f FPS', @@title, fps))
+        if fps < 0
+          RGM::Base.set_title(format('%s - Sampling...', @@title))
+        else
+          RGM::Base.set_title(format('%s - %.1f FPS', @@title, fps))
+        end
         @@fps_last_frame_count += delta_count
         @@fps_last_time += delta_time
       end
     end
     # toggle fps
     if Input.trigger?(Input::FPS_TOGGLE)
-      # p @@title.encoding, RGM::Default_Title.encoding
       if @@show_fps
         @@show_fps = false
         RGM::Base.set_title(@@title)
@@ -131,7 +141,7 @@ module Graphics
 
   def present
     RGM::Base.graphics_present(@@scale_mode)
-    RGM::Base.check_delay(@@frame_rate)
+    RGM::Base.check_delay(Graphics.frame_rate)
     @@frame_count += 1
   end
 
@@ -166,7 +176,7 @@ module Graphics
   end
 
   def frame_rate
-    @@frame_rate
+    @@low_fps_mode ? @@frame_rate / Low_FPS_Skip_Ratio : @@frame_rate
   end
 
   def width
@@ -184,6 +194,10 @@ module Graphics
 
   def set_fullscreen(mode)
     RGM::Base.graphics_set_fullscreen(mode.to_i)
+  end
+
+  def enable_low_fps_mode
+    @@low_fps_mode = true
   end
   # The screen's refresh rate count. Set this property to 0 at game start and
   # the game play time (in seconds) can be calculated by dividing this value by
@@ -206,4 +220,7 @@ module Graphics
   @@show_fps = (RGM::Build_Mode < 2)
   @@fps_last_frame_count = 0
   @@fps_last_time = Time.now.to_f
+
+  @@low_fps_mode = false
+  @@low_fps_skip_countdown = Low_FPS_Skip_Ratio
 end

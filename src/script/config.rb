@@ -60,6 +60,7 @@ File.open(RGM::Default_Config, 'r') do |f|
       Audio.disable_music if line == 'MUSIC=OFF'
       Audio.disable_sound if line == 'SOUND=OFF'
       Graphics.set_fullscreen(Regexp.last_match(1).to_i) if line =~ /^FULLSCREEN=(\d+)/
+      Graphics.enable_low_fps_mode if line == 'LOWFPSMODE=ON'
       if line == 'MESSAGEBOX=ON'
         def p(*args)
           msgbox(args.collect(&:to_s).join("\n"))
