@@ -22,7 +22,6 @@ module Graphics
   # ---------------------------------------------------------------------------
   # The module that carries out graphics processing.
   # ---------------------------------------------------------------------------
-  Low_FPS_Skip_Ratio = 2
 
   module_function
 
@@ -33,9 +32,9 @@ module Graphics
     update_synchronize
 
     if @@low_fps_mode
-      @@low_fps_skip_countdown -= 1
-      @@low_fps_skip_countdown += Low_FPS_Skip_Ratio if @@low_fps_skip_countdown <= 0
-      return if @@low_fps_skip_countdown < Low_FPS_Skip_Ratio
+      @@low_fps_countdown -= 1
+      @@low_fps_countdown += @@low_fps_ratio if @@low_fps_countdown <= 0
+      return if @@low_fps_countdown < @@low_fps_ratio
     end
 
     unless @@freeze_bitmap
@@ -105,6 +104,8 @@ module Graphics
     @@freeze_bitmap ||= snap_to_bitmap
     RGM::Base.graphics_update(@@screen_width, @@screen_height)
     @@current_bitmap = snap_to_bitmap
+
+    duration /= @@low_fps_ratio if @@low_fps_mode
 
     if filename.empty?
       duration.times do |i|
@@ -176,7 +177,7 @@ module Graphics
   end
 
   def frame_rate
-    @@low_fps_mode ? @@frame_rate / Low_FPS_Skip_Ratio : @@frame_rate
+    @@low_fps_mode ? @@frame_rate / @@low_fps_ratio : @@frame_rate
   end
 
   def width
@@ -196,8 +197,11 @@ module Graphics
     RGM::Base.graphics_set_fullscreen(mode.to_i)
   end
 
-  def enable_low_fps_mode
+  def enable_low_fps(ratio)
+    return if ratio == 1
+
     @@low_fps_mode = true
+    @@low_fps_ratio = ratio
   end
   # The screen's refresh rate count. Set this property to 0 at game start and
   # the game play time (in seconds) can be calculated by dividing this value by
@@ -222,5 +226,6 @@ module Graphics
   @@fps_last_time = Time.now.to_f
 
   @@low_fps_mode = false
-  @@low_fps_skip_countdown = Low_FPS_Skip_Ratio
+  @@low_fps_ratio = 2
+  @@low_fps_countdown = 0
 end
