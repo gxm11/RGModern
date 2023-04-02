@@ -20,6 +20,7 @@
 
 #pragma once
 #include "cen_library.hpp"
+#include "controller.hpp"
 #include "core/core.hpp"
 #include "counter.hpp"
 #include "detail.hpp"
@@ -43,7 +44,8 @@ namespace rgm::base {
 /** @brief 执行逻辑流程的 task，运行 ruby 脚本 */
 using tasks_main =
     std::tuple<init_ruby, init_synchronize, init_counter, init_surfaces,
-               interrupt_signal, init_music, music_finish_callback, init_sound>;
+               interrupt_signal, init_music, music_finish_callback, init_sound,
+               controller_axis_reset, controller_axis_move>;
 /** @brief 执行渲染流程的 task，使用 SDL2 创建窗口，绘制画面 */
 using tasks_render =
     std::tuple<init_sdl2, init_renderstack, init_textures, poll_event,

@@ -215,6 +215,7 @@ struct init_input {
       }
 
       static VALUE update(VALUE) {
+        // 处理 key
         RGMDATA(keystate).update();
         // 在 Graphics.update 里也有一次 poll_event，处理当前积压的事件
         // 由于执行了 flush() 函数清空任务队列，Input 数据总会适时刷新。

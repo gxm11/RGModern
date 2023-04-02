@@ -30,7 +30,9 @@ namespace rgm::rmxp {
  * 1. 退出事件，广播 interrupt_signal
  * 2. 窗口事件，处理后台运行时使用，未完成
  * 3. 键盘事件，广播 key_release 和 key_press
- * 4. 鼠标事件，未完成
+ * 4. 控制器事件，广播 controller_axis_move，
+ *    controller_button_press 和 controller_button_release
+ * 5. 鼠标事件，未完成
  */
 struct init_event {
   static void before(auto& worker) {
@@ -92,7 +94,7 @@ struct init_event {
                          cen::to_string(e.axis()).data(), e.value());
 
           const int axis = static_cast<int>(e.axis());
-          worker >> controller_axis_move{e.which(), axis, e.value()};
+          worker >> base::controller_axis_move{e.which(), axis, e.value()};
         });
 
     d.bind<cen::controller_button_event>().to(

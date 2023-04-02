@@ -23,9 +23,6 @@
 #include "input.hpp"
 
 namespace rgm::rmxp {
-using controller_axisstate =
-    std::array<int, static_cast<size_t>(cen::controller_axis::max) * 8>;
-
 struct controller_buttonmap : std::set<std::pair<int, int>> {
   /**
    * @brief 遍历所有的 { Button, RMXP Input Key } 组合，执行特定函数
@@ -38,22 +35,6 @@ struct controller_buttonmap : std::set<std::pair<int, int>> {
       if (it->first != button) break;
       callback(it->second);
       ++it;
-    }
-  }
-};
-
-struct controller_axis_move {
-  int joy_index;
-  int axis;
-  int value;
-
-  void run(auto& worker) {
-    controller_axisstate& ca = RGMDATA(controller_axisstate);
-
-    if (joy_index >= 0 && joy_index < static_cast<int>(ca.size())) {
-      size_t index =
-          axis + joy_index * static_cast<int>(cen::controller_axis::max);
-      ca.at(index) = value;
     }
   }
 };
@@ -89,7 +70,7 @@ struct controller_button_release {
 };
 
 struct init_controller {
-  using data = std::tuple<controller_buttonmap, controller_axisstate>;
+  using data = std::tuple<controller_buttonmap>;
 
   static void before(auto& this_worker) {
     static decltype(auto) worker = this_worker;
@@ -116,7 +97,7 @@ struct init_controller {
       }
 
       static VALUE axis_value(VALUE, VALUE joy_index_, VALUE axis_) {
-        controller_axisstate& state = RGMDATA(controller_axisstate);
+        base::controller_axisstate& state = RGMDATA(base::controller_axisstate);
 
         RGMLOAD(joy_index, int);
         RGMLOAD(axis, int);

@@ -25,6 +25,7 @@
 #include <memory>
 
 #include "cen_library.hpp"
+#include "controller.hpp"
 #include "core/core.hpp"
 #include "sound_pitch.hpp"
 
@@ -52,9 +53,6 @@ struct sdl_hint {
     }
 
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
-
-    // SDL_JoystickEventState(SDL_ENABLE);
-    // SDL_GameControllerEventState(SDL_ENABLE);
   }
 };
 
@@ -127,18 +125,22 @@ struct poll_event {
     // 处理 controller
     std::map<int, cen::controller>& cs = RGMDATA(cen_library).controllers;
 
+    bool changed = false;
     for (int i = 0; i < static_cast<int>(cs.size()); ++i) {
       if (!cen::controller::supported(i)) {
-        cen::log_info("[Input] Controller %d is disconnected.", i);
+        cen::log_warn("[Input] Controller %d is disconnected.", i);
         cs.erase(i);
+        changed = true;
       }
     }
     const int joystick_numbers = SDL_NumJoysticks();
     for (int i = 0; i < joystick_numbers; ++i) {
       if (cs.find(i) != cs.end()) continue;
-      cen::log_info("[Input] Controller %d is connected.", i);
+      cen::log_warn("[Input] Controller %d is connected.", i);
       cs.emplace(i, cen::controller(i));
+      changed = true;
     }
+    if (changed) worker >> controller_axis_reset{};
   }
 };
 
