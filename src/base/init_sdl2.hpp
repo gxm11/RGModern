@@ -51,6 +51,9 @@ struct sdl_hint {
     }
 
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
+
+    // SDL_JoystickEventState(SDL_ENABLE);
+    // SDL_GameControllerEventState(SDL_ENABLE);
   }
 };
 
@@ -77,6 +80,8 @@ struct cen_library {
 
   SDL_SysWMinfo window_info;
   SDL_RendererInfo renderer_info;
+
+  std::array<cen::controller, 4> controllers;
   /** @brief 初始化 SDL2 运行环境，创建并显示窗口 */
   explicit cen_library()
       : sdl(),
@@ -111,8 +116,6 @@ struct cen_library {
     SDL_VERSION(&window_info.version);
     SDL_GetWindowWMInfo(window.get(), &window_info);
     SDL_GetRendererInfo(renderer.get(), &renderer_info);
-
-    SDL_GameControllerEventState(SDL_ENABLE);
   }
 };
 

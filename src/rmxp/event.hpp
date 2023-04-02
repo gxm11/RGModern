@@ -88,14 +88,14 @@ struct init_event {
 
     d.bind<cen::controller_axis_event>().to(
         [&worker](const cen::controller_axis_event& e) {
-          cen::log_debug("[Input] controller axis '%s', value %d\n",
-                         cen::to_string(e.axis()), e.value());
+          cen::log_warn("[Input] controller axis '%s', value %d\n",
+                        cen::to_string(e.axis()), e.value());
         });
 
     d.bind<cen::controller_button_event>().to(
         [&worker](const cen::controller_button_event& e) {
-          cen::log_debug("[Input] controller button '%s', value %d\n",
-                         cen::to_string(e.button()), (int)e.state());
+          cen::log_warn("[Input] controller button '%s', value %d\n",
+                        cen::to_string(e.button()), (int)e.state());
         });
   }
 };
