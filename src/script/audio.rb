@@ -329,4 +329,9 @@ module Audio
 
   @@disable_music = false
   @@disable_sound = false
+
+  bgm_stop
+  me_stop
+  bgs_stop
+  se_stop
 end
