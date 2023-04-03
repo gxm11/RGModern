@@ -105,3 +105,5 @@ return data[index];
 此外，tilemap_info的setup方法，下面那个三层循环，似乎没有多次做的必要，看上去这个setup方法会因为zi的不同被频繁调用，见tilemap_manager。这里主要是为了设置x_cache和y_cache，加速后面的绘制。但是x_cache和y_cache的值与zi无关，可以考虑再弄一个表专门存cache？或者只在第一次调用时执行下面的三层循环。
 
 白屏的问题已经定位到opengl的shader_tone上了。因为之前不管有没有tone，opengl都会执行一次shader_tone的变化。
+
+现在看来resize window还是有点问题。建议用户尽量避免在运行时使用resize_window，而是修改了config后再重新启动游戏。resize跟全屏的2个模式，是否使用独显效果都有关。看来不是一个急需解决的问题，提醒用户注意即可。
