@@ -169,17 +169,7 @@ struct init_zip {
     static decltype(auto) worker = this_worker;
 
     struct wrapper {
-      static VALUE load_data(VALUE, VALUE path_) {
-        RGMLOAD(path, const char*);
-        zip_data_embeded& z = RGMDATA(zip_data_embeded);
-
-        const std::string buf = z.load_string(path);
-        if (buf.empty()) return Qnil;
-
-        VALUE object = rb_marshal_load(rb_str_new(buf.data(), buf.size() - 1));
-
-        return object;
-      }
+      static VALUE empty(VALUE, VALUE) { return Qnil; }
 
       static VALUE load_scirpt(VALUE, VALUE path_) {
         RGMLOAD(path, const char*);
@@ -216,8 +206,6 @@ struct init_zip {
 
         return object;
       }
-
-      static VALUE empty(VALUE, VALUE) { return Qnil; }
 
       static VALUE external_regist(VALUE, VALUE path_, VALUE password_) {
         RGMLOAD(path, const char*);
@@ -269,14 +257,14 @@ struct init_zip {
 
     VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
 #ifdef RGM_EMBEDED_ZIP
-    rb_define_module_function(rb_mRGM_Base, "load_data", wrapper::load_data, 1);
     rb_define_module_function(rb_mRGM_Base, "load_script", wrapper::load_scirpt,
                               1);
-    rb_define_module_function(rb_mRGM_Base, "load_file", wrapper::load_file, 1);
+    rb_define_module_function(rb_mRGM_Base, "load_embeded_file",
+                              wrapper::load_file, 1);
 #else
-    rb_define_module_function(rb_mRGM_Base, "load_data", wrapper::empty, 1);
     rb_define_module_function(rb_mRGM_Base, "load_script", wrapper::empty, 1);
-    rb_define_module_function(rb_mRGM_Base, "load_file", wrapper::empty, 1);
+    rb_define_module_function(rb_mRGM_Base, "load_embeded_file", wrapper::empty,
+                              1);
 #endif
   }
 };

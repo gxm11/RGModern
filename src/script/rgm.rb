@@ -99,7 +99,8 @@ if RGM::Build_Mode >= 3
   def load_data(fn)
     data = nil
     if fn.start_with?('Data/')
-      data = RGM::Base.load_data(fn)
+      bin = RGM::Base.load_embeded_file(fn)
+      data = Marshal.load(bin)
     else
       fn = Finder.find(fn, :data)
       File.open(fn, 'rb') do |f|
@@ -113,7 +114,7 @@ end
 
 if RGM::Build_Mode >= 2
   def load_file(fn)
-    RGM::Base.load_file(fn)
+    RGM::Base.load_embeded_file(fn)
   end
 end
 
