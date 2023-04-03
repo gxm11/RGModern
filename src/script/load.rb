@@ -31,7 +31,7 @@ end
 BEGIN {
   puts 'start ruby.'
   puts "resource prefix = #{RGM::Resource_Prefix}"
-  driver_names = ["Software", "OpenGL", "Direct3D9", "Direct3D11"]
+  driver_names = %w[Software OpenGL Direct3D9 Direct3D11]
   puts "render driver = #{RGM::Render_Driver} (#{driver_names[RGM::Render_Driver]})"
   puts "build mode = #{RGM::Build_Mode}"
 }
@@ -62,6 +62,7 @@ load_script 'music.rb'
 load_script 'sound.rb'
 load_script 'audio.rb'
 load_script 'rpg.rb'
+load_script 'rpgcache.rb'
 load_script 'config.rb'
 # entry
 load_script 'main.rb'

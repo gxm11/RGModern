@@ -106,4 +106,4 @@ return data[index];
 
 白屏的问题已经定位到opengl的shader_tone上了。因为之前不管有没有tone，opengl都会执行一次shader_tone的变化。
 
-现在看来resize window还是有点问题。建议用户尽量避免在运行时使用resize_window，而是修改了config后再重新启动游戏。resize跟全屏的2个模式，是否使用独显效果都有关。看来不是一个急需解决的问题，提醒用户注意即可。
+现在看来resize window还是有点问题。建议用户尽量避免在运行时使用resize_window，而是修改了config后再重新启动游戏。resize跟全屏的2个模式，是否使用独显效果都有关。看来不是一个急需解决的问题，提醒用户注意即可。试一下把cache清理掉？看上去就是当前的bitmap被重绘了，直接重新加载所有的bitmap就行。

@@ -149,6 +149,9 @@ module Graphics
   def resize_window(width, height, scale_mode = 0)
     @@scale_mode = scale_mode.to_i
     RGM::Base.graphics_resize_window(width.to_i, height.to_i)
+    # resize window 后，现存的 bitmap 可能会损坏，需要重新读取 Cache
+    RPG::Cache.reload
+    frame_reset
   end
 
   def resize_screen(width, height)
