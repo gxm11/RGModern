@@ -321,15 +321,21 @@ module Audio
 
   def disable_music
     @@disable_music = true
+    bgm_stop
+    me_stop
   end
 
   def disable_sound
     @@disable_sound = true
+    bgs_stop
+    se_stop
   end
 
   @@disable_music = false
   @@disable_sound = false
 
+  # 下面的代码为了解决 Build_Mode = 2 时 btest 没声音。
+  # 可能是这里需要唤醒一下音频所在的线程，实际上只需要执行 se_stop 就可以了
   bgm_stop
   me_stop
   bgs_stop
