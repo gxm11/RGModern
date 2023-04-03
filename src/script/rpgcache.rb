@@ -32,7 +32,7 @@ module RPG
 
         bitmap = Bitmap.new(key)
         value.blt(0, 0, bitmap, value.rect, 255)
-        # RGM::Base.bitmap_dispose(value.id + 1)
+        RGM::Base.bitmap_reload_autotile(value.id, false)
       end
 
       @cache.each_pair do |key, value|

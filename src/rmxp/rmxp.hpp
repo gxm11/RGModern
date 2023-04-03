@@ -62,8 +62,8 @@ using tasks_main =
                init_drawable<window>, init_drawable<plane>,
                init_drawable<tilemap>, init_zip, init_font<true>, init_palette,
                init_textinput, init_title, init_message, key_release, key_press,
-               text_input, text_edit, controller_axis_move, controller_button_release,
-               controller_button_press>;
+               text_input, text_edit, controller_axis_move,
+               controller_button_release, controller_button_press>;
 
 /** @brief 渲染流程的 worker 的可执行任务列表 */
 using tasks_render = std::tuple<
@@ -71,11 +71,11 @@ using tasks_render = std::tuple<
     bitmap_create<1>, bitmap_create<2>, bitmap_create<3>, bitmap_create<4>,
     bitmap_dispose, bitmap_save_png, bitmap_capture_screen, bitmap_blt,
     bitmap_stretch_blt, bitmap_fill_rect, bitmap_hue_change, bitmap_draw_text,
-    bitmap_get_pixel, bitmap_capture_palette, before_render_viewport,
-    after_render_viewport, render<sprite>, render<plane>, render<window>,
-    render<overlayer<window>>, render<tilemap>, render<overlayer<tilemap>>,
-    render_transition<1>, render_transition<2>, textinput_start, textinput_stop,
-    regist_external_data<1>, message_show>;
+    bitmap_get_pixel, bitmap_capture_palette, bitmap_reload_autotile,
+    before_render_viewport, after_render_viewport, render<sprite>,
+    render<plane>, render<window>, render<overlayer<window>>, render<tilemap>,
+    render<overlayer<tilemap>>, render_transition<1>, render_transition<2>,
+    textinput_start, textinput_stop, regist_external_data<1>, message_show>;
 
 using tasks_audio = std::tuple<>;
 }  // namespace rgm::rmxp

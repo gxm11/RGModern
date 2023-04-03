@@ -120,7 +120,10 @@ struct bitmap_create<3> {
 
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
     base::renderstack& stack = RGMDATA(base::renderstack);
-    cen::texture& source = RGMDATA(base::textures).at(id);
+    base::textures& textures = RGMDATA(base::textures);
+
+    cen::texture& source = textures.at(id);
+    textures.erase(id + 1);
 
     int height = source.height();
     int width = source.width();
@@ -140,7 +143,7 @@ struct bitmap_create<3> {
     // autotile，帧数的变化体现在 x 轴，不同tileid对应的图片体现在 y 轴
     // 对于 height == 32 的图块来说正好不用改动。
     if (height == 32) {
-      RGMDATA(base::textures).emplace(id + 1, std::move(temp));
+      textures.emplace(id + 1, std::move(temp));
       renderer.set_target(stack.current());
       return;
     }
@@ -168,7 +171,7 @@ struct bitmap_create<3> {
         }
       }
     }
-    RGMDATA(base::textures).emplace(id + 1, std::move(autotile));
+    textures.emplace(id + 1, std::move(autotile));
     // autotile的创建是在Graphics.update中，tilemap << VALUE 时触发的
     // 从而需要还原 renderer target，否则会导致后面的绘制出错。
     renderer.set_target(stack.current());
@@ -498,6 +501,19 @@ struct bitmap_capture_palette {
   }
 };
 
+struct bitmap_reload_autotile {
+  uint64_t id;
+  bool force;
+
+  void run(auto& worker) {
+    base::textures& textures = RGMDATA(base::textures);
+
+    if (force || textures.find(id + 1) != textures.end()) {
+      worker >> bitmap_create<3>{id};
+    }
+  }
+};
+
 /**
  * @brief 在 ruby 中定义操作 Bitmap 的相关函数。
  */
@@ -669,6 +685,7 @@ struct init_bitmap {
     RGMBIND(rb_mRGM_BASE, "bitmap_hue_change", bitmap_hue_change, 2);
     RGMBIND(rb_mRGM_BASE, "bitmap_save_png", bitmap_save_png, 2);
     RGMBIND(rb_mRGM_BASE, "bitmap_capture_screen", bitmap_capture_screen, 1);
+    RGMBIND(rb_mRGM_BASE, "bitmap_reload_autotile", bitmap_reload_autotile, 2);
   }
 };
 }  // namespace rgm::rmxp
