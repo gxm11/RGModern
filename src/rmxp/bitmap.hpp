@@ -94,97 +94,12 @@ struct bitmap_create<2> {
 };
 
 /**
- * @brief 任务：根据特定的Bitmap，创建自动元件图形
+ * @brief 任务：从资源文件中读取文件并创建 SDL 纹理。
  *
  * @tparam size_t=3 第 3 种特化
  */
 template <>
 struct bitmap_create<3> {
-  uint64_t id;
-
-  // 版权声明：本文为CSDN博主「gouki04」的原创文章，
-  // 遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
-  // 原文链接：https://blog.csdn.net/gouki04/article/details/7107088
-  static constexpr uint32_t autotile_map[48] = {
-      0x1a1b2021, 0x041b2021, 0x1a052021, 0x04052021, 0x1a1b200b, 0x041b200b,
-      0x1a05200b, 0x0405200b, 0x1a1b0a21, 0x041b0a21, 0x1a050a21, 0x04050a21,
-      0x1a1b0a0b, 0x041b0a0b, 0x1a050a0b, 0x04050a0b, 0x18191e1f, 0x18051e1f,
-      0x18191e0b, 0x18051e0b, 0x0e0f1415, 0x0e0f140b, 0x0e0f0a15, 0x0e0f0a0b,
-      0x1c1d2223, 0x1c1d0a23, 0x041d2223, 0x041d0a23, 0x1a1b2c2d, 0x04272c2d,
-      0x26052c2d, 0x04052c2d, 0x181d1e23, 0x0e0f2c2d, 0x0c0d1213, 0x0c0d120b,
-      0x10111617, 0x10110a17, 0x28292e2f, 0x04292e2f, 0x24252a2b, 0x24052a2b,
-      0x0c111217, 0x0c0d2a2b, 0x24292a2f, 0x10112e2f, 0x0c112a2f, 0x0c112a2f};
-
-  void run(auto& worker) {
-    cen::log_debug("[Bitmap] id = %lld, is converted to autotile format", id);
-
-    cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
-    base::renderstack& stack = RGMDATA(base::renderstack);
-    base::textures& textures = RGMDATA(base::textures);
-
-    cen::texture& source = textures.at(id);
-    textures.erase(id + 1);
-
-    int height = source.height();
-    int width = source.width();
-    if (height <= 32) {
-      height = 32;
-      width = width - (width % 32);
-    } else {
-      height = 128;
-      width = width - (width % 96);
-    }
-    // temp 将 autotile 的长宽对齐
-    cen::texture temp = stack.make_empty_texture(width, height);
-    renderer.set_target(temp);
-    source.set_blend_mode(cen::blend_mode::none);
-    renderer.render(source, cen::ipoint(0, 0));
-
-    // autotile，帧数的变化体现在 x 轴，不同tileid对应的图片体现在 y 轴
-    // 对于 height == 32 的图块来说正好不用改动。
-    if (height == 32) {
-      textures.emplace(id + 1, std::move(temp));
-      renderer.set_target(stack.current());
-      return;
-    }
-    // 对于 height = 128，x 轴长度为 width / 3，y 轴长度为 48 * 32
-    cen::texture autotile = stack.make_empty_texture(width / 3, 48 * 32);
-    renderer.set_target(autotile);
-    temp.set_blend_mode(cen::blend_mode::none);
-
-    cen::irect src_rect(0, 0, 16, 16);
-    cen::irect dst_rect(0, 0, 16, 16);
-
-    int sx, sy, dx, dy, index;
-    for (int i = 0; i < width / 96; ++i) {
-      for (int j = 0; j < 48; ++j) {
-        for (int k = 0; k < 4; ++k) {
-          index = (autotile_map[j] >> (24 - 8 * k)) & 255;
-          sx = i * 96 + (index % 6) * 16;
-          sy = index / 6 * 16;
-          dx = i * 32 + ((k & 1) ? 16 : 0);
-          dy = j * 32 + ((k & 2) ? 16 : 0);
-
-          src_rect.set_position(sx, sy);
-          dst_rect.set_position(dx, dy);
-          renderer.render(temp, src_rect, dst_rect);
-        }
-      }
-    }
-    textures.emplace(id + 1, std::move(autotile));
-    // autotile的创建是在Graphics.update中，tilemap << VALUE 时触发的
-    // 从而需要还原 renderer target，否则会导致后面的绘制出错。
-    renderer.set_target(stack.current());
-  }
-};
-
-/**
- * @brief 任务：从资源文件中读取文件并创建 SDL 纹理。
- *
- * @tparam size_t=4 第 4 种特化
- */
-template <>
-struct bitmap_create<4> {
   /** @brief Bitmap 的 ID */
   uint64_t id;
   /** @brief 目标文件路径 */
@@ -501,6 +416,89 @@ struct bitmap_capture_palette {
   }
 };
 
+/**
+ * @brief 任务：根据特定的Bitmap，创建自动元件图形
+ *
+ */
+struct bitmap_make_autotile {
+  uint64_t id;
+
+  // 版权声明：本文为CSDN博主「gouki04」的原创文章，
+  // 遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+  // 原文链接：https://blog.csdn.net/gouki04/article/details/7107088
+  static constexpr uint32_t autotile_map[48] = {
+      0x1a1b2021, 0x041b2021, 0x1a052021, 0x04052021, 0x1a1b200b, 0x041b200b,
+      0x1a05200b, 0x0405200b, 0x1a1b0a21, 0x041b0a21, 0x1a050a21, 0x04050a21,
+      0x1a1b0a0b, 0x041b0a0b, 0x1a050a0b, 0x04050a0b, 0x18191e1f, 0x18051e1f,
+      0x18191e0b, 0x18051e0b, 0x0e0f1415, 0x0e0f140b, 0x0e0f0a15, 0x0e0f0a0b,
+      0x1c1d2223, 0x1c1d0a23, 0x041d2223, 0x041d0a23, 0x1a1b2c2d, 0x04272c2d,
+      0x26052c2d, 0x04052c2d, 0x181d1e23, 0x0e0f2c2d, 0x0c0d1213, 0x0c0d120b,
+      0x10111617, 0x10110a17, 0x28292e2f, 0x04292e2f, 0x24252a2b, 0x24052a2b,
+      0x0c111217, 0x0c0d2a2b, 0x24292a2f, 0x10112e2f, 0x0c112a2f, 0x0c112a2f};
+
+  void run(auto& worker) {
+    cen::log_debug("[Bitmap] id = %lld, is converted to autotile format", id);
+
+    cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
+    base::renderstack& stack = RGMDATA(base::renderstack);
+    base::textures& textures = RGMDATA(base::textures);
+
+    cen::texture& source = textures.at(id);
+    textures.erase(id + 1);
+
+    int height = source.height();
+    int width = source.width();
+    if (height <= 32) {
+      height = 32;
+      width = width - (width % 32);
+    } else {
+      height = 128;
+      width = width - (width % 96);
+    }
+    // temp 将 autotile 的长宽对齐
+    cen::texture temp = stack.make_empty_texture(width, height);
+    renderer.set_target(temp);
+    source.set_blend_mode(cen::blend_mode::none);
+    renderer.render(source, cen::ipoint(0, 0));
+
+    // autotile，帧数的变化体现在 x 轴，不同tileid对应的图片体现在 y 轴
+    // 对于 height == 32 的图块来说正好不用改动。
+    if (height == 32) {
+      textures.emplace(id + 1, std::move(temp));
+      renderer.set_target(stack.current());
+      return;
+    }
+    // 对于 height = 128，x 轴长度为 width / 3，y 轴长度为 48 * 32
+    cen::texture autotile = stack.make_empty_texture(width / 3, 48 * 32);
+    renderer.set_target(autotile);
+    temp.set_blend_mode(cen::blend_mode::none);
+
+    cen::irect src_rect(0, 0, 16, 16);
+    cen::irect dst_rect(0, 0, 16, 16);
+
+    int sx, sy, dx, dy, index;
+    for (int i = 0; i < width / 96; ++i) {
+      for (int j = 0; j < 48; ++j) {
+        for (int k = 0; k < 4; ++k) {
+          index = (autotile_map[j] >> (24 - 8 * k)) & 255;
+          sx = i * 96 + (index % 6) * 16;
+          sy = index / 6 * 16;
+          dx = i * 32 + ((k & 1) ? 16 : 0);
+          dy = j * 32 + ((k & 2) ? 16 : 0);
+
+          src_rect.set_position(sx, sy);
+          dst_rect.set_position(dx, dy);
+          renderer.render(temp, src_rect, dst_rect);
+        }
+      }
+    }
+    textures.emplace(id + 1, std::move(autotile));
+    // autotile的创建是在Graphics.update中，tilemap << VALUE 时触发的
+    // 从而需要还原 renderer target，否则会导致后面的绘制出错。
+    renderer.set_target(stack.current());
+  }
+};
+
 struct bitmap_reload_autotile {
   uint64_t id;
   bool force;
@@ -509,7 +507,7 @@ struct bitmap_reload_autotile {
     base::textures& textures = RGMDATA(base::textures);
 
     if (force || textures.find(id + 1) != textures.end()) {
-      worker >> bitmap_create<3>{id};
+      worker >> bitmap_make_autotile{id};
     }
   }
 };
@@ -535,7 +533,7 @@ struct init_bitmap {
           if (ret == 0) {
             // 增加指针的值，相当于截取字符串的后半部分。
             const char* path2 = path + config::resource_prefix.size();
-            worker >> bitmap_create<4>{id, path2};
+            worker >> bitmap_create<3>{id, path2};
           } else {
             worker >> bitmap_create<1>{id, path};
           }

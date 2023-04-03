@@ -89,7 +89,8 @@ struct init_graphics {
           if constexpr (std::same_as<T, tilemap>) {
             // 如果是 tilemap，继续刷新 autotiles 属性
             // 注意这里会修改render_target，需要还原。
-            item.autotiles << [](auto id) { worker >> bitmap_create<3>{id}; };
+            item.autotiles <<
+                [](auto id) { worker >> bitmap_make_autotile{id}; };
             // tilemap 在绘制时要传递 p_tables
             worker >> render<T>{&item, v_ptr, p_tables};
             // 刷新在 tm 中的存储的 tilemap_info
