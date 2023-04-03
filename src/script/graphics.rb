@@ -150,7 +150,11 @@ module Graphics
     @@scale_mode = scale_mode.to_i
     RGM::Base.graphics_resize_window(width.to_i, height.to_i)
     # resize window 后，现存的 bitmap 可能会损坏，需要重新读取 Cache
+    # autotiles 由于特殊的设计，无法在这里重新读取，需要切换一次地图。
+    # 如此就利用了 RGSS 里 autotitles 会在切换地图时释放 bitmap 的特性。
+    # 尝试在 clear 里开个口？
     RPG::Cache.reload
+    puts '[Warning] reloading in resize window might be failed for autotiles.' if $scene.is_a? Scene_Map
     frame_reset
   end
 

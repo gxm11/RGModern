@@ -28,11 +28,11 @@ module RPG
         next unless key.is_a?(String)
         next if value.disposed?
 
-        path = Finder.find(key, :image)
-        next unless Finder::PictureShapes.include?(path)
+        next unless Finder::Cache.include?(key)
 
-        bitmap = Bitmap.new(path)
+        bitmap = Bitmap.new(key)
         value.blt(0, 0, bitmap, value.rect, 255)
+        # RGM::Base.bitmap_dispose(value.id + 1)
       end
 
       @cache.each_pair do |key, value|
