@@ -124,3 +124,6 @@ return data[index];
 - [ ] 范例中增加输入法和外部resource读取
 - [ ] 战斗测试可能要先执行Graphics，渲染一次画面。
 - [ ] Base.sync的定义要改成只等单个线程，跟RGMWAIT一致。
+- [ ] config重写，使用map等高级结构保存string，然后一口气分析完。
+  1. 调整config在load里的位置，或者把生成config放到c++部分。
+  2. 总之尽量统一ruby和c++对config的处理。
