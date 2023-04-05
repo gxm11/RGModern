@@ -70,7 +70,7 @@ opengl可以不链接到glew，见 https://github.com/AugustoRuiz/sdl2glsl/blob/
 8. Palette测试
 
 
-## opengl的渐变bug
+## opengl的渐变bug（已解决）
 在第二张地图切换时，整个画面是白色的。看上去是因为整个地图都是白色的，opengl没有正常绘制地图上的内容。
 
 目前发现第一张地图（室内）更换海边道路05的tileset后，偶发帧率20帧的场合，目前已经发现：
@@ -107,3 +107,20 @@ return data[index];
 白屏的问题已经定位到opengl的shader_tone上了。因为之前不管有没有tone，opengl都会执行一次shader_tone的变化。
 
 现在看来resize window还是有点问题。建议用户尽量避免在运行时使用resize_window，而是修改了config后再重新启动游戏。resize跟全屏的2个模式，是否使用独显效果都有关。看来不是一个急需解决的问题，提醒用户注意即可。试一下把cache清理掉？看上去就是当前的bitmap被重绘了，直接重新加载所有的bitmap就行。
+
+# 20230405-todo
+- [ ] rgm 小助手
+- [ ] 摇杆映射方向键写到config里
+- [ ] 增加切换全屏的快捷键 alt+enter
+- [ ] 简易设置的ruby的callback任务
+  1. 在ruby层发起请求，ruby层的函数要自带一个proc，会获得一个id
+  2. 实际发送2个异步任务，第一个是执行的内容，第二个是将第一个的结果包装成callback任务发送给ruby
+  3. 数据用string包装
+  4. 主动线程执行callback时，会根据id找到对应的proc，然后把string传给对应的函数
+- [ ] 支持超长的tileset
+  1. 直接修改RPG::Cache读取tileset的方式。用palette读进来之后，修改高度为8192，然后把原图切片折叠绘制到新的texture上。
+  2. 如果是8192，那么最高支持262,144的tileset。如果是16384，则最高支持1,048,576的tileset。
+  3. 相应在渲染线程读取tileset时，也需要对超出高度的部分进行处理。
+- [ ] 范例中增加输入法和外部resource读取
+- [ ] 战斗测试可能要先执行Graphics，渲染一次画面。
+- [ ] Base.sync的定义要改成只等单个线程，跟RGMWAIT一致。
