@@ -127,3 +127,4 @@ return data[index];
 - [ ] config重写，使用map等高级结构保存string，然后一口气分析完。
   1. 调整config在load里的位置，或者把生成config放到c++部分。
   2. 总之尽量统一ruby和c++对config的处理。
+- [ ] 用AI放大处理一下素材：https://bigjpg.com/zh
