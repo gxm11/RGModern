@@ -147,7 +147,6 @@ class Bitmap
   def draw_text(*args)
     if args.first.is_a?(Rect)
       rect, text, align = args
-
     else
       x, y, w, h, text, align = args
       rect = Rect.new(x, y, w, h)
