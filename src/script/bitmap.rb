@@ -153,8 +153,9 @@ class Bitmap
       rect = Rect.new(x, y, w, h)
     end
     text = text.to_s
+    align = align ? align.to_i : 0
     RGM::Base.keep_alive(text)
-    RGM::Base.bitmap_draw_text(@id, @font, rect, text, align || 0)
+    RGM::Base.bitmap_draw_text(@id, @font, rect, text, align)
   end
 
   # Changes the bitmap's hue within 360 degrees of displacement.

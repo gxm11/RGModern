@@ -50,10 +50,10 @@ class Color
 
   # Sets all components at once.
   def set(red, green, blue, alpha = 255)
-    self.red = red
-    self.green = green
-    self.blue = blue
-    self.alpha = alpha
+    self.red = red.to_i
+    self.green = green.to_i
+    self.blue = blue.to_i
+    self.alpha = alpha.to_i
   end
 
   def _dump(_depth = 1)
@@ -115,10 +115,10 @@ class Tone
 
   # Sets all components at once.
   def set(red, green, blue, gray)
-    self.red = red
-    self.green = green
-    self.blue = blue
-    self.gray = gray
+    self.red = red.to_i
+    self.green = green.to_i
+    self.blue = blue.to_i
+    self.gray = gray.to_i
   end
 
   def _dump(_depth = 1)
@@ -180,10 +180,10 @@ class Rect
   def set(x, y, width, height)
     raise ArgumentError if width < 0 || height < 0
 
-    @x = x
-    @y = y
-    @width = width
-    @height = height
+    @x = x.to_i
+    @y = y.to_i
+    @width = width.to_i
+    @height = height.to_i
   end
 
   def inspect

@@ -128,3 +128,4 @@ return data[index];
   1. 调整config在load里的位置，或者把生成config放到c++部分。
   2. 总之尽量统一ruby和c++对config的处理。
 - [ ] 用AI放大处理一下素材：https://bigjpg.com/zh
+- [ ] Bitmap里的fill_rect和draw_text加上to_i，可能是给color/rect等builtin加上比较合适。
