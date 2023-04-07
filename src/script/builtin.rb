@@ -50,10 +50,10 @@ class Color
 
   # Sets all components at once.
   def set(red, green, blue, alpha = 255)
-    self.red = red.to_i
-    self.green = green.to_i
-    self.blue = blue.to_i
-    self.alpha = alpha.to_i
+    self.red = red
+    self.green = green
+    self.blue = blue
+    self.alpha = alpha
   end
 
   def _dump(_depth = 1)
@@ -115,10 +115,10 @@ class Tone
 
   # Sets all components at once.
   def set(red, green, blue, gray)
-    self.red = red.to_i
-    self.green = green.to_i
-    self.blue = blue.to_i
-    self.gray = gray.to_i
+    self.red = red
+    self.green = green
+    self.blue = blue
+    self.gray = gray
   end
 
   def _dump(_depth = 1)
@@ -167,6 +167,8 @@ class Rect
   # height
   # The rectangle's height.
   # ---------------------------------------------------------------------------
+  Lower_Limit = -0x4000_0000
+  Upper_Limit = 0x4000_0000 - 1
   attr_accessor :x, :y, :width, :height
 
   # ---------------------------------------------------------------------------
@@ -180,10 +182,10 @@ class Rect
   def set(x, y, width, height)
     raise ArgumentError if width < 0 || height < 0
 
-    @x = x.to_i
-    @y = y.to_i
-    @width = width.to_i
-    @height = height.to_i
+    self.x = x
+    self.y = y
+    self.width = width
+    self.height = height
   end
 
   def inspect
@@ -208,3 +210,8 @@ class Rect
     other.is_a?(Rect) && @x == other.x && @y == other.y && @width == other.width && @height == other.height
   end
 end
+
+RGM::Base.decorate_builtin_setter(Rect, :x, Rect::Lower_Limit, Rect::Upper_Limit)
+RGM::Base.decorate_builtin_setter(Rect, :y, Rect::Lower_Limit, Rect::Upper_Limit)
+RGM::Base.decorate_builtin_setter(Rect, :width, Rect::Lower_Limit, Rect::Upper_Limit)
+RGM::Base.decorate_builtin_setter(Rect, :height, Rect::Lower_Limit, Rect::Upper_Limit)
