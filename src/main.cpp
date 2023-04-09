@@ -20,8 +20,6 @@
 
 #include "main.hpp"
 
-#include <any>
-
 /**
  * @brief SDL_Main 函数，程序的实际入口。
  *

@@ -229,7 +229,6 @@ struct init_renderstack {
 
   static void before(auto& worker) {
     cen::renderer& renderer = RGMDATA(cen_library).renderer;
-    // cen::window& window = RGMDATA(cen_library).window;
     renderstack& stack = RGMDATA(renderstack);
 
     stack.setup(renderer, config::screen_width, config::screen_height);
