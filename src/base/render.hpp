@@ -108,9 +108,9 @@ struct present_window {
     cen::irect src_rect(0, 0, stack.current().width(),
                         stack.current().height());
     cen::irect dst_rect(0, 0, window.width(), window.height());
+
     switch (scale_mode) {
       case 0:
-      default:
         stack.current().set_scale_mode(cen::scale_mode::nearest);
         break;
       case 1:
@@ -118,6 +118,13 @@ struct present_window {
         break;
       case 2:
         stack.current().set_scale_mode(cen::scale_mode::best);
+        break;
+      default:
+        stack.current().set_scale_mode(cen::scale_mode::nearest);
+        // 不缩放，而是居中显示
+        dst_rect.set_size(src_rect.width(), src_rect.height());
+        dst_rect.set_position((window.width() - src_rect.width()) / 2,
+                              (window.height() - src_rect.height()) / 2);
         break;
     }
     renderer.render(stack.current(), src_rect, dst_rect);

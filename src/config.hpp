@@ -49,6 +49,8 @@ bool asynchronized = false;
 std::string resource_prefix = "resource://";
 int window_width = 640;
 int window_height = 480;
+int screen_width = 640;
+int screen_height = 480;
 
 void load(int argc, char* argv[]) {
   // load configs from argv
@@ -94,6 +96,22 @@ void load(int argc, char* argv[]) {
       }
     }
 
+    if (t == root::system) {
+      // width and height of window and screen
+      if (p_value = GET_ITEM(WindowWidth), p_value) {
+        window_width = std::atoi(p_value);
+      }
+      if (p_value = GET_ITEM(WindowHeight), p_value) {
+        window_height = std::atoi(p_value);
+      }
+      if (p_value = GET_ITEM(ScreenHeight), p_value) {
+        screen_height = std::atoi(p_value);
+      }
+      if (p_value = GET_ITEM(ScreenWidth), p_value) {
+        screen_width = std::atoi(p_value);
+      }
+    }
+
     if (t == root::kernel) {
       // synchronization / asynchronization
       if (p_value = GET_ITEM(Synchronization), p_value) {
@@ -117,13 +135,6 @@ void load(int argc, char* argv[]) {
       // resource prefix
       if (p_value = GET_ITEM(ResourcePrefix), p_value) {
         resource_prefix = p_value;
-      }
-      // window width and height
-      if (p_value = GET_ITEM(WindowWidth), p_value) {
-        window_width = std::atoi(p_value);
-      }
-      if (p_value = GET_ITEM(WindowHeight), p_value) {
-        window_height = std::atoi(p_value);
       }
     }
   }

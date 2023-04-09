@@ -229,6 +229,8 @@ module Graphics
   @@freeze_bitmap = nil
   @@current_bitmap = nil
   @@flag_synchronize = false
+  # 设置成 0,1,2 对应不同的缩放模式：nearest/linear/best
+  # 设置成以外的值将不会缩放，而是居中显示
   @@scale_mode = 0
 
   @@title = RGM::Default_Title

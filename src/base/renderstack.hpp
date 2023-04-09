@@ -76,7 +76,7 @@ struct renderstack {
    * 1. 创建缓存 cache
    * 2. 创建与屏幕大小相同的 screen 并放入 stack 中
    */
-  void setup(cen::renderer& renderer, cen::window& window) {
+  void setup(cen::renderer& renderer, int width, int height) {
     this->renderer = cen::renderer_handle(renderer);
 
     for (int size : {48, 96, 192, 384, 768}) {
@@ -84,7 +84,7 @@ struct renderstack {
       cache.push_back(std::move(empty));
     }
 
-    cen::texture screen = make_empty_texture(window.width(), window.height());
+    cen::texture screen = make_empty_texture(width, height);
     screen.set_scale_mode(cen::scale_mode::nearest);
     stack.push_back(std::move(screen));
   }
@@ -229,10 +229,10 @@ struct init_renderstack {
 
   static void before(auto& worker) {
     cen::renderer& renderer = RGMDATA(cen_library).renderer;
-    cen::window& window = RGMDATA(cen_library).window;
+    // cen::window& window = RGMDATA(cen_library).window;
     renderstack& stack = RGMDATA(renderstack);
 
-    stack.setup(renderer, window);
+    stack.setup(renderer, config::screen_width, config::screen_height);
   }
 
   static void after(auto& worker) { RGMDATA(renderstack).clear(); }
