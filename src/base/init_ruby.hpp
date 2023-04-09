@@ -30,6 +30,28 @@ void rb_call_builtin_inits();
 }
 
 namespace rgm::base {
+struct async_callback {
+  int id;
+  std::string buf;
+
+  void run(auto&) {
+    VALUE object = rb_str_new(buf.data(), buf.size() - 1);
+    VALUE rb_mRGM = rb_define_module("RGM");
+    VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
+
+    rb_funcall(rb_mRGM_Base, rb_intern("async_callback"), 2, INT2FIX(id),
+               object);
+  }
+};
+
+// struct test_callback {
+//   int id;
+
+//   void run(auto& worker) {
+//     worker >> async_callback{id, "test callback!"};
+//   }
+// }
+
 /** @brief 将 ruby_library 类型的变量添加到 worker 的 datalist 中 */
 struct init_ruby {
   static void before(auto&) {

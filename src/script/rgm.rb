@@ -36,6 +36,20 @@ module RGM
 
     # def controller_rumble(joy_index, low, high, duration); end
     # def controller_rumble_trigger(joy_index, left, right, duration); end
+
+    Callback_Blocks = {}
+    @@callback_index = 0
+
+    def async_create(&block)
+      @@callback_index += 1
+      Callback_Blocks[@@callback_index] = block
+      @@callback_index
+    end
+
+    def async_callback(id, buffer)
+      proc = Callback_Blocks.delete(id)
+      proc.call(buffer) if proc
+    end
   end
 
   module Word

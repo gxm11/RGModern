@@ -111,10 +111,10 @@ return data[index];
 # 20230405-todo
 - [ ] rgm 小助手
 - [ ] 摇杆映射方向键写到config里
-- [ ] 增加摇杆的 rumble
+- [x] 增加摇杆的 rumble
 - [x] 增加切换全屏的快捷键 alt+enter（放弃）
 - [x] resize_window 增加第 4 种模式，画面直接无缩放并居中。
-- [ ] 简易设置的ruby的callback任务
+- [x] 简易设置的ruby的callback任务
   1. 在ruby层发起请求，ruby层的函数要自带一个proc，会获得一个id
   2. 实际发送2个异步任务，第一个是执行的内容，第二个是将第一个的结果包装成callback任务发送给ruby
   3. 数据用string包装
@@ -124,11 +124,10 @@ return data[index];
   2. 如果是8192，那么最高支持262,144的tileset。如果是16384，则最高支持1,048,576的tileset。
   3. 相应在渲染线程读取tileset时，也需要对超出高度的部分进行处理。
 - [ ] 范例中增加输入法和外部resource读取
-- [ ] 战斗测试可能要先执行Graphics，渲染一次画面。
+- [x] 战斗测试可能要先执行Graphics，渲染一次画面。
 - [x] Base.sync的定义要改成只等单个线程，跟RGMWAIT一致。
 - [ ] config重写，使用map等高级结构保存string，然后一口气分析完。
   1. 调整config在load里的位置，或者把生成config放到c++部分。
   2. 总之尽量统一ruby和c++对config的处理。
 - [ ] 用AI放大处理一下素材：https://bigjpg.com/zh
 - [x] Bitmap里的fill_rect和draw_text加上to_i，可能是给color/rect等builtin加上比较合适。
-- [x] 战斗测试现在有渐变了
