@@ -26,7 +26,6 @@
 
 namespace rgm::base {
 constexpr size_t controller_maxsize = 8;
-constexpr int controller_axis_threshold = 8000;
 
 using controller_axisstate =
     std::array<int, static_cast<size_t>(cen::controller_axis::max) *

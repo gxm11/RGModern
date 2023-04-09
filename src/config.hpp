@@ -22,12 +22,10 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <map>
+#include <string_view>
+#include <variant>
 
-#include "shader/driver.hpp"
-
-namespace rgm::config {
-// const and constexprs
-const char* config_path = "./config.ini";
 #ifndef RGM_BUILDMODE
 #define RGM_BUILDMODE 1
 #endif
@@ -36,15 +34,35 @@ const char* config_path = "./config.ini";
 #define RGM_EMBEDED_ZIP
 #endif
 
+#ifndef RGM_FULLVERSION
+#define RGM_FULLVERSION "RGM_FULLVERSION"
+#endif
+
+#ifndef CC_VERSION
+#define CC_VERSION "CC_VERSION"
+#endif
+
+extern "C" {
+void ruby_show_version();
+}
+
+#include "shader/driver.hpp"
+
+namespace rgm::config {
+// constexprs
+constexpr std::string_view config_path = "./config.ini";
 constexpr int build_mode = RGM_BUILDMODE;
 constexpr bool develop = (RGM_BUILDMODE < 2);
+constexpr int controller_axis_threshold = 8000;
+constexpr int max_threads = 8;
+constexpr int tileset_texture_height = 8192;
 
-// configs
+// configs from command line args
 bool btest = false;
 bool debug = false;
 
+// configs from config.ini
 std::string game_title = "RGModern";
-
 bool asynchronized = false;
 std::string resource_prefix = "resource://";
 int window_width = 640;
@@ -52,7 +70,27 @@ int window_height = 480;
 int screen_width = 640;
 int screen_height = 480;
 
-void load(int argc, char* argv[]) {
+bool load_args(int argc, char* argv[]) {
+  if (argc == 2 && strncmp(argv[1], "-v", 2) == 0) {
+    printf("RGM %s [BuildMode = %d]\n\n", RGM_FULLVERSION, RGM_BUILDMODE);
+    printf("Modern Ruby Game Engine (RGM) is licensed under zlib License.\n");
+    printf("copyright (C) 2023 Guoxiaomi and Krimiston\n\n");
+    printf("Repository: https://github.com/gxm11/RGModern\n\n");
+    printf("Compiler: %s\n\n", CC_VERSION);
+    printf("Libraries:\n - ");
+    ruby_show_version();
+#define GETVERSION(x) \
+  SDL_##x##_MAJOR_VERSION, SDL_##x##_MINOR_VERSION, SDL_##x##_PATCHLEVEL
+    printf(" - SDL %d.%d.%d\n", SDL_MAJOR_VERSION, SDL_MINOR_VERSION,
+           SDL_PATCHLEVEL);
+    printf(" - SDL Image %d.%d.%d\n", GETVERSION(IMAGE));
+    printf(" - SDL TTF %d.%d.%d\n", GETVERSION(TTF));
+    printf(" - SDL Mixer %d.%d.%d\n", GETVERSION(MIXER));
+#undef GETVERSION
+    printf(" - centurion, concurrentqueue, incbin, xorstr, libzip, etc.\n");
+    return false;
+  }
+
   // load configs from argv
   for (int i = 0; i < argc; ++i) {
     if (strncmp(argv[i], "btest", 6) == 0) {
@@ -62,89 +100,56 @@ void load(int argc, char* argv[]) {
       rgm::config::debug = true;
     }
   }
+  return true;
+}
 
-  // load config from ini
-  enum class root { game, system, keymap, font, kernel };
+void load_ini() {
+  if (!std::filesystem::exists(config_path.data())) return;
 
-#define CHECK_ROOT(key) \
-  strncmp(line.data(), "[" #key "]", sizeof(#key) + 1) == 0
+  using section_t = std::map<std::string, std::variant<bool, int, std::string>>;
 
-#define GET_ITEM(key)                               \
-  strncmp(line.data(), #key "=", sizeof(#key)) == 0 \
-      ? line.data() + sizeof(#key)                  \
-      : 0
-#define CHECK_ITEM(value1, value2) \
-  strncmp(value1, value2, sizeof(value2) - 1) == 0
-
-  if (!std::filesystem::exists(config_path)) return;
-
-  root t = root::game;
+  std::map<std::string, section_t> data;
+  section_t* p_section = nullptr;
   std::array<char, 1024> line{};
-  char* p_value = 0;
 
-  std::ifstream ifs(config_path, std::ios::in);
+  std::ifstream ifs(config_path.data(), std::ios::in);
   while (ifs.getline(line.data(), line.size())) {
-    if (CHECK_ROOT(Game)) t = root::game;
-    if (CHECK_ROOT(System)) t = root::system;
-    if (CHECK_ROOT(Keymap)) t = root::keymap;
-    if (CHECK_ROOT(Font)) t = root::font;
-    if (CHECK_ROOT(Kernel)) t = root::kernel;
+    if (line[0] == '[') {
+      // new section
+      std::string section_name(line.data() + 1,
+                               strchr(line.data(), ']') - line.data() - 1);
+      data[section_name] = {};
+      p_section = &data[section_name];
+    }
 
-    if (t == root::game) {
-      if (p_value = GET_ITEM(Title), p_value) {
-        game_title = p_value;
+    char* equal = strchr(line.data(), '=');
+    if (equal) {
+      int pos_equal = equal - line.data();
+      // key-value pair
+      std::string key(line.data(), pos_equal);
+      std::string value(equal + 1, strlen(line.data()) - pos_equal - 1);
+      if (p_section) {
+        if (value == "ON") {
+          p_section->insert_or_assign(key, true);
+        } else if (value == "OFF") {
+          p_section->insert_or_assign(key, false);
+        } else if (std::isdigit(value[0])) {
+          p_section->insert_or_assign(key, std::stoi(value));
+        } else {
+          p_section->insert_or_assign(key, value);
+        }
       }
     }
 
-    if (t == root::system) {
-      // width and height of window and screen
-      if (p_value = GET_ITEM(WindowWidth), p_value) {
-        window_width = std::atoi(p_value);
-      }
-      if (p_value = GET_ITEM(WindowHeight), p_value) {
-        window_height = std::atoi(p_value);
-      }
-      if (p_value = GET_ITEM(ScreenHeight), p_value) {
-        screen_height = std::atoi(p_value);
-      }
-      if (p_value = GET_ITEM(ScreenWidth), p_value) {
-        screen_width = std::atoi(p_value);
-      }
-    }
-
-    if (t == root::kernel) {
-      // synchronization / asynchronization
-      if (p_value = GET_ITEM(Synchronization), p_value) {
-        asynchronized = CHECK_ITEM(p_value, "OFF");
-      }
-      // render driver
-      if (p_value = GET_ITEM(RenderDriver), p_value) {
-        if (CHECK_ITEM(p_value, "software")) {
-          shader::driver = shader::software;
-        }
-        if (CHECK_ITEM(p_value, "opengl")) {
-          shader::driver = shader::opengl;
-        }
-        if (CHECK_ITEM(p_value, "direct3d9")) {
-          shader::driver = shader::direct3d9;
-        }
-        if (CHECK_ITEM(p_value, "direct3d11")) {
-          shader::driver = shader::direct3d11;
-        }
-      }
-      // resource prefix
-      if (p_value = GET_ITEM(ResourcePrefix), p_value) {
-        resource_prefix = p_value;
-      }
-    }
+    line.fill(0);
   }
+
+  game_title = std::get<std::string>(data["Game"]["Title"]);
+  asynchronized = !std::get<bool>(data["Kernel"]["Synchronization"]);
+  resource_prefix = std::get<std::string>(data["Kernel"]["ResourcePrefix"]);
+  window_width = std::get<int>(data["System"]["WindowWidth"]);
+  window_height = std::get<int>(data["System"]["WindowHeight"]);
+  screen_width = std::get<int>(data["System"]["ScreenWidth"]);
+  screen_height = std::get<int>(data["System"]["ScreenHeight"]);
 }
 }  // namespace rgm::config
-
-#ifndef RGM_FULLVERSION
-#define RGM_FULLVERSION "RGM_FULLVERSION"
-#endif
-
-#ifndef CC_VERSION
-#define CC_VERSION "CC_VERSION"
-#endif

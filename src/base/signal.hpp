@@ -45,7 +45,12 @@ struct init_synchronize {
       /** RGM::Base.synchronize 方法 */
       static VALUE synchronize(VALUE, VALUE thread_id_) {
         RGMLOAD(thread_id, int);
-        RGMDATA(timer).reset();
+
+        if (thread_id > config::max_threads) {
+          rb_raise(rb_eArgError,
+                   "There're too many threads, please change "
+                   "config::max_threads.\n");
+        }
 
         switch (thread_id) {
           default:
@@ -76,6 +81,7 @@ struct init_synchronize {
             break;
         }
 
+        RGMDATA(timer).reset();
         return Qnil;
       }
 

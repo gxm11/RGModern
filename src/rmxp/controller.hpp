@@ -41,7 +41,7 @@ struct controller_axis_move {
     const int old_value = ca[index];
     ca[index] = value;
 
-    constexpr int t = base::controller_axis_threshold;
+    constexpr int t = config::controller_axis_threshold;
 
     if (old_value < -t && -t <= value) {
       if (axis == cen::controller_axis::left_x) {

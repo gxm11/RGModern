@@ -76,14 +76,16 @@ module RPG
 
       h = RGM::Tileset_Texture_Height
       n = (figure.height - 1) / h + 1
-
-      tileset = Bitmap.new(n * 256, h)
-      n.times.each do |i|
-        r = Rect.new(0, i * h, 256, h)
-        b = figure.convert_to_bitmap(r)
-        tileset.blt(i * 256, 0, b, b.rect)
+      if n > 1
+        tileset = Bitmap.new(n * 256, h)
+        n.times.each do |i|
+          r = Rect.new(0, i * h, 256, h)
+          b = figure.convert_to_bitmap(r)
+          tileset.blt(i * 256, 0, b, b.rect)
+        end
+      else
+        tileset = figure.convert_to_bitmap
       end
-
       tileset
     end
   end

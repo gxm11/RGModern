@@ -45,14 +45,18 @@ struct init_extension {
     rb_const_set(rb_mRGM, rb_intern("Default_Title"),
                  rb_utf8_str_new_cstr(config::game_title.data()));
     rb_const_set(rb_mRGM, rb_intern("Default_Config"),
-                 rb_utf8_str_new_cstr(config::config_path));
+                 rb_utf8_str_new_cstr(config::config_path.data()));
     rb_const_set(rb_mRGM, rb_intern("Resource_Prefix"),
                  rb_utf8_str_new_cstr(config::resource_prefix.data()));
     rb_const_set(rb_mRGM, rb_intern("Render_Driver"),
                  INT2FIX(static_cast<int>(shader::driver)));
     rb_const_set(rb_mRGM, rb_intern("Build_Mode"), INT2FIX(config::build_mode));
     rb_const_set(rb_mRGM, rb_intern("Controller_Axis_Threshold"),
-                 INT2FIX(base::controller_axis_threshold));
+                 INT2FIX(config::controller_axis_threshold));
+    rb_const_set(rb_mRGM, rb_intern("Max_Threads"),
+                 INT2FIX(config::max_threads));
+    rb_const_set(rb_mRGM, rb_intern("Tileset_Texture_Height"),
+                 INT2FIX(config::tileset_texture_height));
   }
 };
 }  // namespace rgm::rmxp

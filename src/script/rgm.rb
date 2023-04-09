@@ -19,6 +19,22 @@
 # 3. This notice may not be removed or altered from any source distribution.
 
 module RGM
+  # Default_Title = "RGModern"
+  # Default_Config = "./config.ini"
+  # Resource_Prefix = "resource://"
+  # Render_Driver = 0
+  # Build_Mode = 1
+
+  # 控制器的 Axis 超过此阈值才会触发特定的按键效果
+  # Controller_Axis_Threshold = 8000
+
+  # 折叠过长的 tileset，使其高度不超过此值。此值不可修改。
+  # 参见 rpgcache.rb 中的 RPG::Cache.tileset 方法
+  # Tileset_Texture_Height = 8192
+
+  # 除了 ruby 线程外的最多线程数，如果超过此值需要修改 base/signal.hpp 源码
+  # Max_Threads = 8
+
   module Base
     Temp = []
 
@@ -70,13 +86,6 @@ module RGM
     Direct3D9 = 2
     Direct3D11 = 3
   end
-
-  # 折叠过长的 tileset，使其高度不超过此值。此值不可修改。
-  # 参见 rpgcache.rb 中的 RPG::Cache.tileset 方法
-  Tileset_Texture_Height = 8192
-
-  # 除了 ruby 线程外的最多线程数，如果超过此值需要修改 base/signal.hpp 源码
-  Max_Threads = 8
 end
 
 def force_utf8_encode(obj)
