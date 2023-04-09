@@ -37,7 +37,9 @@ BEGIN {
 }
 
 at_exit do
-  RGM::Base.synchronize(3)
+  RGM::Max_Threads.times do |i|
+    RGM::Base.synchronize(i)
+  end
   puts 'exit ruby.'
 end
 

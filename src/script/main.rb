@@ -21,8 +21,13 @@
 
 def rgss_main
   scripts = load_data('Data/Scripts.rxdata')
+  Graphics.update
+
+  RGM::Max_Threads.times do |i|
+    RGM::Base.synchronize(i)
+  end
+
   Graphics.transition
-  RGM::Base.synchronize(3)
 
   scripts.each do |_id, title, data|
     script = Zlib::Inflate.inflate(data)

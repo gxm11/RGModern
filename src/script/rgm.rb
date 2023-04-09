@@ -57,6 +57,9 @@ module RGM
   # 折叠过长的 tileset，使其高度不超过此值。此值不可修改。
   # 参见 rpgcache.rb 中的 RPG::Cache.tileset 方法
   Tileset_Texture_Height = 8192
+
+  # 除了 ruby 线程外的最多线程数，如果超过此值需要修改 base/signal.hpp 源码
+  Max_Threads = 8
 end
 
 def force_utf8_encode(obj)

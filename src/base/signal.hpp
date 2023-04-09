@@ -44,15 +44,38 @@ struct init_synchronize {
     struct wrapper {
       /** RGM::Base.synchronize 方法 */
       static VALUE synchronize(VALUE, VALUE thread_id_) {
-        Check_Type(thread_id_, T_FIXNUM);
-        int thread_id = FIX2INT(thread_id_);
-
-        if (thread_id & 0b0001) RGMWAIT(1);
-        if (thread_id & 0b0010) RGMWAIT(2);
-        if (thread_id & 0b0100) RGMWAIT(3);
-        if (thread_id & 0b1000) RGMWAIT(4);
-
+        RGMLOAD(thread_id, int);
         RGMDATA(timer).reset();
+
+        switch (thread_id) {
+          default:
+            break;
+          case 1:
+            RGMWAIT(1);
+            break;
+          case 2:
+            RGMWAIT(2);
+            break;
+          case 3:
+            RGMWAIT(3);
+            break;
+          case 4:
+            RGMWAIT(4);
+            break;
+          case 5:
+            RGMWAIT(5);
+            break;
+          case 6:
+            RGMWAIT(6);
+            break;
+          case 7:
+            RGMWAIT(7);
+            break;
+          case 8:
+            RGMWAIT(8);
+            break;
+        }
+
         return Qnil;
       }
 

@@ -112,6 +112,7 @@ return data[index];
 - [ ] rgm 小助手
 - [ ] 摇杆映射方向键写到config里
 - [ ] 增加切换全屏的快捷键 alt+enter
+- [ ] resize_window 增加第 4 种模式，画面直接无缩放并居中。
 - [ ] 简易设置的ruby的callback任务
   1. 在ruby层发起请求，ruby层的函数要自带一个proc，会获得一个id
   2. 实际发送2个异步任务，第一个是执行的内容，第二个是将第一个的结果包装成callback任务发送给ruby
@@ -123,7 +124,7 @@ return data[index];
   3. 相应在渲染线程读取tileset时，也需要对超出高度的部分进行处理。
 - [ ] 范例中增加输入法和外部resource读取
 - [ ] 战斗测试可能要先执行Graphics，渲染一次画面。
-- [ ] Base.sync的定义要改成只等单个线程，跟RGMWAIT一致。
+- [x] Base.sync的定义要改成只等单个线程，跟RGMWAIT一致。
 - [ ] config重写，使用map等高级结构保存string，然后一口气分析完。
   1. 调整config在load里的位置，或者把生成config放到c++部分。
   2. 总之尽量统一ruby和c++对config的处理。
