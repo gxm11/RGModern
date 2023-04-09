@@ -20,14 +20,21 @@
 # entry of RGSS
 
 def rgss_main
-  scripts = load_data('Data/Scripts.rxdata')
+  # clear screen
+  background = Plane.new
+  background.bitmap = Bitmap.new(32, 32)
+  color = Color.new(0, 0, 0, 255)
+  background.bitmap.fill_rect(0, 0, 32, 32, color)
   Graphics.update
+  background.dispose
 
+  # wait for other threads
   RGM::Max_Threads.times do |i|
     RGM::Base.synchronize(i)
   end
 
-  scripts.each do |_id, title, data|
+  # load Scripts.rxdata and eval
+  load_data('Data/Scripts.rxdata').each do |_id, title, data|
     script = Zlib::Inflate.inflate(data)
     force_utf8_encode(script)
     begin
