@@ -32,7 +32,10 @@ module RGM
     end
 
     # 音乐播放结束后的自动回调，已在 Audio 模块中重新定义
-    def self.music_finish_callback; end
+    # def music_finish_callback; end
+
+    # def controller_rumble(joy_index, low, high, duration); end
+    # def controller_rumble_trigger(joy_index, left, right, duration); end
   end
 
   module Word

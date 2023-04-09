@@ -75,7 +75,8 @@ using tasks_render = std::tuple<
     before_render_viewport, after_render_viewport, render<sprite>,
     render<plane>, render<window>, render<overlayer<window>>, render<tilemap>,
     render<overlayer<tilemap>>, render_transition<1>, render_transition<2>,
-    textinput_start, textinput_stop, regist_external_data<1>, message_show>;
+    textinput_start, textinput_stop, regist_external_data<1>, message_show,
+    controller_rumble, controller_rumble_triggers>;
 
 using tasks_audio = std::tuple<>;
 }  // namespace rgm::rmxp

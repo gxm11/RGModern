@@ -124,6 +124,36 @@ struct controller_button_release {
   }
 };
 
+struct controller_rumble {
+  int joy_index;
+  int low;
+  int high;
+  int duration;
+
+  void run(auto& worker) {
+    std::map<int, cen::controller>& cs = RGMDATA(base::cen_library).controllers;
+    if (cen::controller::supported(joy_index)) {
+      cen::controller& c = cs[joy_index];
+      c.rumble(low, high, cen::u32ms{duration});
+    }
+  }
+};
+
+struct controller_rumble_triggers {
+  int joy_index;
+  int left;
+  int right;
+  int duration;
+
+  void run(auto& worker) {
+    std::map<int, cen::controller>& cs = RGMDATA(base::cen_library).controllers;
+    if (cen::controller::supported(joy_index)) {
+      cen::controller& c = cs[joy_index];
+      c.rumble_triggers(left, right, cen::u32ms{duration});
+    }
+  }
+};
+
 struct init_controller {
   using data = std::tuple<controller_buttonmap>;
 
@@ -169,6 +199,9 @@ struct init_controller {
                               3);
     rb_define_module_function(rb_mRGM_Base, "controller_axis_value",
                               wrapper::axis_value, 2);
+    RGMBIND(rb_mRGM_Base, "controller_rumble", controller_rumble, 4);
+    RGMBIND(rb_mRGM_Base, "controller_rumble_triggers",
+            controller_rumble_triggers, 4);
   }
 };
 }  // namespace rgm::rmxp

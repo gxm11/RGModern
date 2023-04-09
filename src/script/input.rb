@@ -193,7 +193,7 @@ module Input
 
   def controller_axis_value(axis, joy_index = 0)
     axis = RGM::SDL.const_get(axis) if axis.is_a?(Symbol)
-    # compare with RGM::Base::Controller_Axis_Threshold
+    # compare with RGM::Controller_Axis_Threshold
     RGM::Base.controller_axis_value(axis, joy_index)
   end
 end
