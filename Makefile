@@ -125,6 +125,7 @@ Game.exe : ./src/main.cpp Makefile icon.o
 	@$(zip_temp_add) $(Script)
 	@echo "compile $@"
 	@$(cc) $< -o $@ $(cflags) $(clibs) $(cflags_standard)
+	@cp $@ ./Project1/
 
 Gamew.exe : ./src/main.cpp Makefile icon.o
 	@echo "pack $(zip_embeded)"
@@ -135,6 +136,7 @@ Gamew.exe : ./src/main.cpp Makefile icon.o
 	@$(cc) $< -o $@ $(cflags) $(clibs) $(cflags_encrypt)
 	@echo "compress $@"
 	@upx -q $@ $(slient)
+	@cp $@ ./Project1/
 
 icon.o : ext/icon.rc ext/favicon.ico
 	@echo "make icon"
