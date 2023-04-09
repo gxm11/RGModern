@@ -140,7 +140,12 @@ struct render_tilemap_helper {
         }
 
         if (tileid >= 384) {
-          src_rect.set_position(tileid % 8 * 32, (tileid - 384) / 8 * 32);
+          constexpr int tileset_texture_height = 8192;
+          int x = tileid % 8 * 32;
+          int y = (tileid - 384) / 8 * 32;
+          x = x + 256 * (y / tileset_texture_height);
+          y = y % tileset_texture_height;
+          src_rect.set_position(x, y);
           renderer.render(tileset, src_rect, dst_rect);
         } else {
           size_t autotile_index = tileid / 48 - 1;

@@ -47,5 +47,35 @@ module RPG
         value.blt(0, 0, bitmap, value.rect, 255)
       end
     end
+
+    # 针对非常长的 tileset 进行优化，使其支持到 262,144 的长度
+    # 实际上由于 Table 里的值最大为 32767，则 tileid <= 32767
+    # 那么 tileset 最高也不过 (32767 - 384) / 8 * 32  = 129,532
+    def self.tileset(filename)
+      raise 'Invalid file name for tileset resource.' if filename.empty?
+
+      path = 'Graphics/Tilesets/' + filename
+      # make bitmap
+      unless @cache.include?(path) && !@cache[path].disposed?
+        figure = Palette.new(path)
+        # keep palette alive before the tileset texture is created.
+        RGM::Base.keep_alive(figure)
+
+        h = RGM::Tileset_Texture_Height
+        n = (figure.height - 1) / h + 1
+        raise "Height of tileset must less than #{h * h / 256}" if n > h / 256
+
+        tileset = Bitmap.new(n * 256, h)
+        n.times.each do |i|
+          r = Rect.new(0, i * h, 256, h)
+          b = figure.convert_to_bitmap(r)
+          tileset.blt(i * 256, 0, b, b.rect)
+        end
+
+        @cache[path] = tileset
+      end
+      # return cache
+      @cache[path]
+    end
   end
 end

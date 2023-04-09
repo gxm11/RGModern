@@ -117,7 +117,7 @@ return data[index];
   2. 实际发送2个异步任务，第一个是执行的内容，第二个是将第一个的结果包装成callback任务发送给ruby
   3. 数据用string包装
   4. 主动线程执行callback时，会根据id找到对应的proc，然后把string传给对应的函数
-- [ ] 支持超长的tileset
+- [x] 支持超长的tileset
   1. 直接修改RPG::Cache读取tileset的方式。用palette读进来之后，修改高度为8192，然后把原图切片折叠绘制到新的texture上。
   2. 如果是8192，那么最高支持262,144的tileset。如果是16384，则最高支持1,048,576的tileset。
   3. 相应在渲染线程读取tileset时，也需要对超出高度的部分进行处理。
@@ -128,4 +128,4 @@ return data[index];
   1. 调整config在load里的位置，或者把生成config放到c++部分。
   2. 总之尽量统一ruby和c++对config的处理。
 - [ ] 用AI放大处理一下素材：https://bigjpg.com/zh
-- [ ] Bitmap里的fill_rect和draw_text加上to_i，可能是给color/rect等builtin加上比较合适。
+- [x] Bitmap里的fill_rect和draw_text加上to_i，可能是给color/rect等builtin加上比较合适。

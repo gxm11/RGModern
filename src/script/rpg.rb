@@ -77,6 +77,7 @@ module RPG
       load_bitmap('Graphics/Pictures/', filename)
     end
 
+    # redefined in rpgcache.rb for very long tilesets
     def self.tileset(filename)
       load_bitmap('Graphics/Tilesets/', filename)
     end
