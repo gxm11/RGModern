@@ -20,43 +20,42 @@
 
 #pragma once
 #include "base/base.hpp"
-#include "driver.hpp"
 #include "rmxp/builtin.hpp"
 
 namespace rgm::shader {
-using enum base::driver_type;
+using enum config::driver_type;
 
-template <base::driver_type driver>
+template <config::driver_type driver>
 struct shader_base {
   static void setup(cen::renderer&) {}
 };
 
-template <base::driver_type driver, template <base::driver_type> class T_shader>
+template <config::driver_type driver, template <config::driver_type> class T_shader>
 struct shader_static : shader_base<driver> {
   static void setup(cen::renderer&) {}
 };
 
-template <base::driver_type driver, template <base::driver_type> class T_shader>
+template <config::driver_type driver, template <config::driver_type> class T_shader>
 struct shader_dynamic : shader_base<driver> {
   static void setup(cen::renderer&) {}
 };
 
-template <base::driver_type driver>
+template <config::driver_type driver>
 struct shader_gray : shader_static<driver, shader_gray> {
   explicit shader_gray() {}
 };
 
-template <base::driver_type driver>
+template <config::driver_type driver>
 struct shader_hue : shader_dynamic<driver, shader_hue> {
   explicit shader_hue(int) {}
 };
 
-template <base::driver_type driver>
+template <config::driver_type driver>
 struct shader_tone : shader_dynamic<driver, shader_tone> {
   explicit shader_tone(rmxp::tone) {}
 };
 
-template <base::driver_type driver>
+template <config::driver_type driver>
 struct shader_transition : shader_dynamic<driver, shader_transition> {
   explicit shader_transition(double, int) {}
 };

@@ -73,7 +73,7 @@ struct render<plane> {
     }
     // opengl的情况下，使用reverse代替sub（第1步）
     const bool opengl_sub =
-        (p->blend_type == 2) && (base::driver == base::driver_type::opengl);
+        (p->blend_type == 2) && (config::driver == config::driver_type::opengl);
     if (opengl_sub) {
       up.set_blend_mode(blend_type::add);
       renderer.set_blend_mode(blend_type::reverse);

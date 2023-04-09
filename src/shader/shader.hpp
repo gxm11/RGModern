@@ -27,7 +27,7 @@
 #include "shader_opengl.hpp"
 
 namespace rgm::shader {
-template <template <base::driver_type> class T_shader>
+template <template <config::driver_type> class T_shader>
 struct shader_instance {
   using T_variant = std::variant<std::monostate, T_shader<opengl>,
                                  T_shader<direct3d9>, T_shader<direct3d11>>;
@@ -36,7 +36,7 @@ struct shader_instance {
 
   template <typename... Args>
   shader_instance(Args... args) : var{} {
-    switch (base::driver) {
+    switch (config::driver) {
       default:
         break;
       case opengl:
@@ -62,7 +62,7 @@ struct shader_instance {
 struct init_shader {
   static void before(auto& worker) {
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
-    switch (base::driver) {
+    switch (config::driver) {
       default:
         return;
       case opengl:

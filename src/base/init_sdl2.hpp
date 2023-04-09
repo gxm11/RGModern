@@ -28,27 +28,26 @@
 #include "controller.hpp"
 #include "core/core.hpp"
 #include "sound_pitch.hpp"
-#include "driver.hpp"
 
 namespace rgm::base {
 struct sdl_hint {
   cen::window::window_flags window_flag;
 
   sdl_hint() : window_flag{cen::window::window_flags::hidden} {
-    switch (driver) {
+    switch (config::driver) {
       default:
         break;
-      case driver_type::opengl:
+      case config::driver_type::opengl:
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
 
         window_flag = static_cast<cen::window::window_flags>(
             static_cast<size_t>(window_flag) |
             static_cast<size_t>(cen::window::window_flags::opengl));
         break;
-      case driver_type::direct3d9:
+      case config::driver_type::direct3d9:
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d9");
         break;
-      case driver_type::direct3d11:
+      case config::driver_type::direct3d11:
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d11");
         break;
     }
