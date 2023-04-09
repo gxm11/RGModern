@@ -131,4 +131,4 @@ return data[index];
   2. 总之尽量统一ruby和c++对config的处理。
 - [ ] 用AI放大处理一下素材：https://bigjpg.com/zh
 - [x] Bitmap里的fill_rect和draw_text加上to_i，可能是给color/rect等builtin加上比较合适。
-- [ ] 渐变突然没了？修复渐变消失的问题。
+- [x] 渐变突然没了？修复渐变消失的问题。

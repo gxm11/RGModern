@@ -41,7 +41,7 @@ struct shader_base<direct3d9> {
 SDL_Renderer* shader_base<direct3d9>::renderer;
 IDirect3DDevice9* shader_base<direct3d9>::device;
 
-template <template <size_t> class T_shader>
+template <template <base::driver_type> class T_shader>
 struct shader_static<direct3d9, T_shader> : shader_base<direct3d9> {
   using T = T_shader<direct3d9>;
 
@@ -64,10 +64,10 @@ struct shader_static<direct3d9, T_shader> : shader_base<direct3d9> {
                                        &current_shader);
   }
 };
-template <template <size_t> class T_shader>
+template <template <base::driver_type> class T_shader>
 IDirect3DPixelShader9* shader_static<direct3d9, T_shader>::current_shader;
 
-template <template <size_t> class T_shader>
+template <template <base::driver_type> class T_shader>
 struct shader_dynamic<direct3d9, T_shader> : shader_base<direct3d9> {
   using T = T_shader<direct3d9>;
 
@@ -94,10 +94,10 @@ struct shader_dynamic<direct3d9, T_shader> : shader_base<direct3d9> {
                                &constant_table);
   }
 };
-template <template <size_t> class T_shader>
+template <template <base::driver_type> class T_shader>
 IDirect3DPixelShader9* shader_dynamic<direct3d9, T_shader>::current_shader;
 
-template <template <size_t> class T_shader>
+template <template <base::driver_type> class T_shader>
 ID3DXConstantTable* shader_dynamic<direct3d9, T_shader>::constant_table;
 
 template <>

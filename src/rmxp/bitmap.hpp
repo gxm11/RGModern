@@ -235,7 +235,7 @@ struct bitmap_hue_change {
     // 如果不添加 GL_bind 和 unbind，对画面绘制没有影响，
     // 但在 hue_change 后立刻 save_png 会出现问题。
     constexpr bool enable_bind = true;
-    if (enable_bind && shader::driver == shader::opengl) {
+    if (enable_bind && base::driver == base::driver_type::opengl) {
       SDL_GL_BindTexture(empty.get(), nullptr, nullptr);
       shader_hue shader(hue);
 

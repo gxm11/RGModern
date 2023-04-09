@@ -18,17 +18,18 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-// #pragma once
+#pragma once
+#include "core/core.hpp"
 
-// namespace rgm::shader {
-// enum driver_type { software, opengl, direct3d9, direct3d11 };
+namespace rgm::base {
+enum class driver_type { software, opengl, direct3d9, direct3d11 };
 
-// driver_type driver;
+driver_type driver;
 
-// void setup_driver(const std::string_view name) {
-//   driver = driver_type::software;
-//   if (name == "opengl") driver = driver_type::opengl;
-//   if (name == "direct3d9") driver = driver_type::direct3d9;
-//   if (name == "direct3d11") driver = driver_type::direct3d11;
-// }
-// }  // namespace rgm::shader
+void setup_driver(const std::string_view name) {
+  driver = driver_type::software;
+  if (name == "opengl") driver = driver_type::opengl;
+  if (name == "direct3d9") driver = driver_type::direct3d9;
+  if (name == "direct3d11") driver = driver_type::direct3d11;
+}
+}  // namespace rgm::base

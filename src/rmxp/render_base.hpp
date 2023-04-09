@@ -68,7 +68,7 @@ struct render_tone_helper {
     }
 
     if (auto c_sub = t.color_sub(); c_sub.has_value()) {
-      if (shader::driver == shader::opengl) {
+      if (base::driver == base::driver_type::opengl) {
         renderer.set_blend_mode(blend_type::reverse);
         renderer.fill_with(cen::colors::white);
 

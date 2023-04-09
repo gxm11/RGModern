@@ -47,7 +47,10 @@ extern "C" {
 void ruby_show_version();
 }
 
-#include "shader/driver.hpp"
+// #include "shader/driver.hpp"
+namespace rgm::base {
+void setup_driver(const std::string_view name);
+}
 
 namespace rgm::config {
 // constexprs
@@ -152,5 +155,6 @@ void load_ini() {
   window_height = std::get<int>(data["System"]["WindowHeight"]);
   screen_width = std::get<int>(data["System"]["ScreenWidth"]);
   screen_height = std::get<int>(data["System"]["ScreenHeight"]);
+  base::setup_driver(std::get<std::string>(data["Kernel"]["RenderDriver"]));
 }
 }  // namespace rgm::config

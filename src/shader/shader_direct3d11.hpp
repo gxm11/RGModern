@@ -44,7 +44,7 @@ SDL_Renderer* shader_base<direct3d11>::renderer;
 ID3D11DeviceContext* shader_base<direct3d11>::context;
 ID3D11Device* shader_base<direct3d11>::device;
 
-template <template <size_t> class T_shader>
+template <template <base::driver_type> class T_shader>
 struct shader_static<direct3d11, T_shader> : shader_base<direct3d11> {
   using T = T_shader<direct3d11>;
 
@@ -64,10 +64,10 @@ struct shader_static<direct3d11, T_shader> : shader_base<direct3d11> {
   }
 };
 
-template <template <size_t> class T_shader>
+template <template <base::driver_type> class T_shader>
 ID3D11PixelShader* shader_static<direct3d11, T_shader>::current_shader;
 
-template <template <size_t> class T_shader>
+template <template <base::driver_type> class T_shader>
 struct shader_dynamic<direct3d11, T_shader> : shader_base<direct3d11> {
   using T = T_shader<direct3d11>;
 
@@ -118,19 +118,19 @@ struct shader_dynamic<direct3d11, T_shader> : shader_base<direct3d11> {
   }
 };
 
-template <template <size_t> class T_shader>
+template <template <base::driver_type> class T_shader>
 ID3D11PixelShader* shader_dynamic<direct3d11, T_shader>::current_shader;
 
-template <template <size_t> class T_shader>
+template <template <base::driver_type> class T_shader>
 D3D11_BUFFER_DESC shader_dynamic<direct3d11, T_shader>::cbDesc;
 
-template <template <size_t> class T_shader>
+template <template <base::driver_type> class T_shader>
 D3D11_SUBRESOURCE_DATA shader_dynamic<direct3d11, T_shader>::InitData;
 
-template <template <size_t> class T_shader>
+template <template <base::driver_type> class T_shader>
 ID3D11Buffer* shader_dynamic<direct3d11, T_shader>::p_buffer;
 
-template <template <size_t> class T_shader>
+template <template <base::driver_type> class T_shader>
 ID3D11PixelShader* shader_dynamic<direct3d11, T_shader>::previous_shader;
 
 template <>
