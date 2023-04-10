@@ -80,17 +80,22 @@ driver_type driver;
 std::string driver_name = "software";
 
 void load_data(std::map<std::string, section_t>& data) {
-  game_title = std::get<std::string>((data["Game"]["Title"]));
-  asynchronized = !std::get<bool>(data["Kernel"]["Synchronization"]);
-  controller_left_arrow = std::get<bool>(data["Kernel"]["LeftAxisArrow"]);
-  controller_right_arrow = std::get<bool>(data["Kernel"]["RightAxisArrow"]);
-  resource_prefix = std::get<std::string>(data["Kernel"]["ResourcePrefix"]);
-  window_width = std::get<int>(data["System"]["WindowWidth"]);
-  window_height = std::get<int>(data["System"]["WindowHeight"]);
-  screen_width = std::get<int>(data["System"]["ScreenWidth"]);
-  screen_height = std::get<int>(data["System"]["ScreenHeight"]);
+#define Set(item, section, key)                          \
+  if (data[section][key].index() != 0) {                 \
+    item = std::get<decltype(item)>(data[section][key]); \
+  }
 
-  driver_name = std::get<std::string>(data["Kernel"]["RenderDriver"]);
+  Set(game_title, "Game", "Title");
+  Set(asynchronized, "Kernel", "Synchronization");
+  Set(controller_left_arrow, "Kernel", "LeftAxisArrow");
+  Set(controller_right_arrow, "Kernel", "RightAxisArrow");
+  Set(resource_prefix, "Kernel", "ResourcePrefix");
+  Set(window_width, "System", "WindowWidth");
+  Set(window_height, "System", "WindowHeight");
+  Set(screen_width, "System", "ScreenWidth");
+  Set(screen_height, "System", "ScreenHeight");
+  Set(driver_name, "Kernel", "RenderDriver");
+#undef Set
   std::transform(driver_name.begin(), driver_name.end(), driver_name.begin(),
                  [](unsigned char c) { return std::tolower(c); });
 
@@ -162,6 +167,8 @@ void load_ini() {
         } else if (value == "OFF") {
           p_section->insert_or_assign(key, false);
         } else if (std::isdigit(value[0])) {
+          p_section->insert_or_assign(key, std::stoi(value));
+        } else if (value[0] == '-' && std::isdigit(value[1])) {
           p_section->insert_or_assign(key, std::stoi(value));
         } else {
           p_section->insert_or_assign(key, value);
