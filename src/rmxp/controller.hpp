@@ -41,39 +41,32 @@ struct controller_axis_move {
     const int old_value = ca[index];
     ca[index] = value;
 
-    constexpr int t = config::controller_axis_threshold;
+    const bool x_axis = ((config::controller_left_arrow &&
+                          axis == cen::controller_axis::left_x) ||
+                         (config::controller_right_arrow &&
+                          axis == cen::controller_axis::right_x));
+    const bool y_axis = ((config::controller_left_arrow &&
+                          axis == cen::controller_axis::left_y) ||
+                         (config::controller_right_arrow &&
+                          axis == cen::controller_axis::right_y));
 
-    if (old_value < -t && -t <= value) {
-      if (axis == cen::controller_axis::left_x) {
-        worker >> key_release{SDLK_LEFT};
-      }
-      if (axis == cen::controller_axis::left_y) {
-        worker >> key_release{SDLK_UP};
-      }
+    constexpr int t = config::controller_axis_threshold;
+    const bool negative_greater = (old_value < -t && -t <= value);
+    const bool negative_less = (value <= -t && -t < old_value);
+    const bool postive_greater = (old_value < t && t <= value);
+    const bool postive_less = (value <= t && t < old_value);
+
+    if (x_axis) {
+      if (negative_greater) worker >> key_release{SDLK_LEFT};
+      if (negative_less) worker >> key_press{SDLK_LEFT};
+      if (postive_greater) worker >> key_press{SDLK_RIGHT};
+      if (postive_less) worker >> key_release{SDLK_RIGHT};
     }
-    if (value <= -t && -t < old_value) {
-      if (axis == cen::controller_axis::left_x) {
-        worker >> key_press{SDLK_LEFT};
-      }
-      if (axis == cen::controller_axis::left_y) {
-        worker >> key_press{SDLK_UP};
-      }
-    }
-    if (old_value < t && t <= value) {
-      if (axis == cen::controller_axis::left_x) {
-        worker >> key_press{SDLK_RIGHT};
-      }
-      if (axis == cen::controller_axis::left_y) {
-        worker >> key_press{SDLK_DOWN};
-      }
-    }
-    if (value <= t && t < old_value) {
-      if (axis == cen::controller_axis::left_x) {
-        worker >> key_release{SDLK_RIGHT};
-      }
-      if (axis == cen::controller_axis::left_y) {
-        worker >> key_release{SDLK_DOWN};
-      }
+    if (y_axis) {
+      if (negative_greater) worker >> key_release{SDLK_UP};
+      if (negative_less) worker >> key_press{SDLK_UP};
+      if (postive_greater) worker >> key_press{SDLK_DOWN};
+      if (postive_less) worker >> key_release{SDLK_DOWN};
     }
   }
 };

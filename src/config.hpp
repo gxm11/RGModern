@@ -48,13 +48,15 @@ void ruby_show_version();
 }
 
 namespace rgm::config {
-using section_t = std::map<std::string, std::variant<bool, int, std::string>>;
+using section_t =
+    std::map<std::string, std::variant<std::monostate, bool, int, std::string>>;
 
 // constexprs
 constexpr std::string_view config_path = "./config.ini";
 constexpr int build_mode = RGM_BUILDMODE;
 constexpr bool develop = (RGM_BUILDMODE < 2);
 constexpr int controller_axis_threshold = 8000;
+
 constexpr int max_threads = 8;
 constexpr int tileset_texture_height = 8192;
 
@@ -64,6 +66,8 @@ bool debug = false;
 
 // configs from config.ini
 bool asynchronized = false;
+bool controller_left_arrow = true;
+bool controller_right_arrow = true;
 std::string game_title = "RGModern";
 std::string resource_prefix = "resource://";
 int window_width = 640;
@@ -76,8 +80,10 @@ driver_type driver;
 std::string driver_name = "software";
 
 void load_data(std::map<std::string, section_t>& data) {
-  game_title = std::get<std::string>(data["Game"]["Title"]);
+  game_title = std::get<std::string>((data["Game"]["Title"]));
   asynchronized = !std::get<bool>(data["Kernel"]["Synchronization"]);
+  controller_left_arrow = std::get<bool>(data["Kernel"]["LeftAxisArrow"]);
+  controller_right_arrow = std::get<bool>(data["Kernel"]["RightAxisArrow"]);
   resource_prefix = std::get<std::string>(data["Kernel"]["ResourcePrefix"]);
   window_width = std::get<int>(data["System"]["WindowWidth"]);
   window_height = std::get<int>(data["System"]["WindowHeight"]);

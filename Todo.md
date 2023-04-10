@@ -110,7 +110,7 @@ return data[index];
 
 # 20230405-todo
 - [ ] rgm 小助手
-- [ ] 摇杆映射方向键写到config里
+- [x] 摇杆映射方向键写到config里
 - [x] 增加摇杆的 rumble
 - [x] 增加切换全屏的快捷键 alt+enter（放弃）
 - [x] resize_window 增加第 4 种模式，画面直接无缩放并居中。
