@@ -28,7 +28,7 @@ struct async_callback {
   std::string buf;
 
   void run(auto&) {
-    VALUE object = rb_str_new(buf.data(), buf.size() - 1);
+    VALUE object = rb_str_new(buf.data(), buf.size());
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
 
@@ -39,13 +39,13 @@ struct async_callback {
 
 template <typename T>
 struct ruby_async {
-  int callback_id;
   T t;
+  int id;
 
   void run(auto& worker) {
-    std::string out;
+    std::string out = "";
     t.run(worker, out);
-    worker >> async_callback{callback_id, out};
+    worker >> async_callback{id, out};
   }
 };
 
@@ -75,9 +75,10 @@ struct ruby_wrapper {
   }
 
   template <typename T, typename... Args>
-  static VALUE send2(VALUE, VALUE id_, value<Args>::type... args) {
+  static VALUE send2(VALUE, value<Args>::type... args, VALUE id_) {
     using U = ruby_async<T>;
-    T_worker::template send<U>(U{detail::get<int>(id_), T{detail::get<Args>(args)...}});
+    T_worker::template send<U>(
+        U{T{detail::get<Args>(args)...}, detail::get<int>(id_)});
     return Qnil;
   }
 

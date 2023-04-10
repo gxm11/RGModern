@@ -25,7 +25,9 @@
 
 namespace rgm::base {
 struct ping {
-  void run(auto&, std::string& out) { out = "pong"; }
+  int hint;
+
+  void run(auto&, std::string& out) { out = "pong: " + std::to_string(hint); }
 };
 
 struct init_ping {
@@ -34,7 +36,7 @@ struct init_ping {
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_BASE = rb_define_module_under(rb_mRGM, "Base");
 
-    RGMBIND2(rb_mRGM_BASE, "async_ping", ping, 0);
+    RGMBIND2(rb_mRGM_BASE, "async_ping", ping, 1);
   }
 };
 }  // namespace rgm::base
