@@ -19,29 +19,22 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
-#include <fstream>
-#include <iostream>
-
 #include "core/core.hpp"
-#include "ruby.hpp"
-
-extern "C" {
-void rb_call_builtin_inits();
-}
+#include "init_ruby.hpp"
+#include "ruby_wrapper.hpp"
 
 namespace rgm::base {
-/** @brief 将 ruby_library 类型的变量添加到 worker 的 datalist 中 */
-struct init_ruby {
-  static void before(auto&) {
-    int argc = 0;
-    char* argv = nullptr;
-    char** pArgv = &argv;
+struct ping {
+  void run(auto&, std::string& out) { out = "pong"; }
+};
 
-    ruby_sysinit(&argc, &pArgv);
-    RUBY_INIT_STACK;
-    ruby_init();
-    ruby_init_loadpath();
-    rb_call_builtin_inits();
+struct init_ping {
+  static void before(auto& this_worker) {
+    static decltype(auto) worker = this_worker;
+    VALUE rb_mRGM = rb_define_module("RGM");
+    VALUE rb_mRGM_BASE = rb_define_module_under(rb_mRGM, "Base");
+
+    RGMBIND2(rb_mRGM_BASE, "async_ping", ping, 0);
   }
 };
 }  // namespace rgm::base

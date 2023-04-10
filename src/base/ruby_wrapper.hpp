@@ -23,6 +23,32 @@
 #include "detail.hpp"
 
 namespace rgm::base {
+struct async_callback {
+  int id;
+  std::string buf;
+
+  void run(auto&) {
+    VALUE object = rb_str_new(buf.data(), buf.size() - 1);
+    VALUE rb_mRGM = rb_define_module("RGM");
+    VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
+
+    rb_funcall(rb_mRGM_Base, rb_intern("async_callback"), 2, INT2FIX(id),
+               object);
+  }
+};
+
+template <typename T>
+struct ruby_async {
+  int callback_id;
+  T t;
+
+  void run(auto& worker) {
+    std::string out;
+    t.run(worker, out);
+    worker >> async_callback{callback_id, out};
+  }
+};
+
 template <typename T_worker>
 struct ruby_wrapper {
   // type to convert all input args into VALUE
@@ -47,9 +73,31 @@ struct ruby_wrapper {
     auto* fp = helper(static_cast<U*>(nullptr));
     rb_define_module_function(module, name, fp, arity);
   }
+
+  template <typename T, typename... Args>
+  static VALUE send2(VALUE, VALUE id_, value<Args>::type... args) {
+    using U = ruby_async<T>;
+    T_worker::template send<U>(U{detail::get<int>(id_), T{detail::get<Args>(args)...}});
+    return Qnil;
+  }
+
+  template <typename T, size_t arity>
+  static void bind2(VALUE module, const char* name) {
+    using U = decltype(core::traits::struct_to_tuple<arity>(std::declval<T>()));
+    auto helper = []<typename... Args>(std::tuple<Args...>*) {
+      return &send2<T, Args...>;
+    };
+
+    auto* fp = helper(static_cast<U*>(nullptr));
+    rb_define_module_function(module, name, fp, arity + 1);
+  }
 };
 }  // namespace rgm::base
 
 #define RGMBIND(module, method, struct, arity)                         \
   rgm::base::ruby_wrapper<std::remove_reference_t<decltype(worker)>>:: \
       template bind<struct, arity>(module, method)
+
+#define RGMBIND2(module, method, struct, arity)                        \
+  rgm::base::ruby_wrapper<std::remove_reference_t<decltype(worker)>>:: \
+      template bind2<struct, arity>(module, method)

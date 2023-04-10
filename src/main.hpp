@@ -30,10 +30,13 @@ using worker_render_sync =
 /** @brief 播放音乐音效的 worker */
 using worker_audio_sync =
     core::worker<core::kernel_passive, base::tasks_audio, rmxp::tasks_audio>;
+/** @brief 用来 ping 着玩的 worker */
+using worker_ping_sync = core::worker<core::kernel_passive, base::tasks_ping>;
+
 /** @brief 最终引擎由多个 worker 组合而来 */
 using engine_sync_t =
     core::scheduler<core::cooperation::exclusive, worker_render_sync,
-                    worker_audio_sync, worker_main_sync>;
+                    worker_audio_sync, worker_main_sync, worker_ping_sync>;
 // magic_cast 的特化处理
 RGMENGINE(engine_sync_t);
 
@@ -47,10 +50,13 @@ using worker_render_async =
 using worker_audio_async =
     core::worker<core::kernel_passive, std::tuple<core::synchronize_signal<2>>,
                  base::tasks_audio, rmxp::tasks_audio>;
+using worker_ping_async =
+    core::worker<core::kernel_passive, std::tuple<core::synchronize_signal<3>>,
+                 base::tasks_ping>;
 
 using engine_async_t =
     core::scheduler<core::cooperation::asynchronous, worker_render_async,
-                    worker_audio_async, worker_main_async>;
+                    worker_audio_async, worker_main_async, worker_ping_async>;
 
 RGMENGINE(engine_async_t);
 }  // namespace rgm

@@ -56,7 +56,7 @@ module RGM
     Callback_Blocks = {}
     @@callback_index = 0
 
-    def async_create(&block)
+    def callback(&block)
       @@callback_index += 1
       Callback_Blocks[@@callback_index] = block
       @@callback_index
@@ -65,6 +65,7 @@ module RGM
     def async_callback(id, buffer)
       proc = Callback_Blocks.delete(id)
       proc.call(buffer) if proc
+      @@callback_index = 0 if Callback_Blocks.empty?
     end
   end
 
