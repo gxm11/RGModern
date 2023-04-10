@@ -109,7 +109,7 @@ return data[index];
 现在看来resize window还是有点问题。建议用户尽量避免在运行时使用resize_window，而是修改了config后再重新启动游戏。resize跟全屏的2个模式，是否使用独显效果都有关。看来不是一个急需解决的问题，提醒用户注意即可。试一下把cache清理掉？看上去就是当前的bitmap被重绘了，直接重新加载所有的bitmap就行。
 
 # 20230405-todo
-- [ ] rgm 小助手
+
 - [x] 摇杆映射方向键写到config里
 - [x] 增加摇杆的 rumble
 - [x] 增加切换全屏的快捷键 alt+enter（放弃）
@@ -123,13 +123,19 @@ return data[index];
   1. 直接修改RPG::Cache读取tileset的方式。用palette读进来之后，修改高度为8192，然后把原图切片折叠绘制到新的texture上。
   2. 如果是8192，那么最高支持262,144的tileset。如果是16384，则最高支持1,048,576的tileset。
   3. 相应在渲染线程读取tileset时，也需要对超出高度的部分进行处理。
-- [ ] 范例中增加输入法和外部resource读取
 - [x] 战斗测试可能要先执行Graphics，渲染一次画面。
 - [x] Base.sync的定义要改成只等单个线程，跟RGMWAIT一致。
 - [x] config重写，使用map等高级结构保存string，然后一口气分析完。
   1. 调整config在load里的位置，或者把生成config放到c++部分。
   2. 总之尽量统一ruby和c++对config的处理。
-- [ ] 用AI放大处理一下素材：https://bigjpg.com/zh
 - [x] Bitmap里的fill_rect和draw_text加上to_i，可能是给color/rect等builtin加上比较合适。
 - [x] 渐变突然没了？修复渐变消失的问题。
 - [x] 增加 config::driver_name 和 RGM::Driver_Name 常量
+
+# 20230410-todo
+- [ ] rgm 小助手
+- [ ] 范例中增加输入法和外部resource读取
+  1. 工作室放一个宝箱，提醒用户输入密码打开特定图片
+  2. 工作室下水道的二维码更新一下
+- [ ] 用AI放大处理一下素材：https://bigjpg.com/zh
+- [ ] 文档和注释
