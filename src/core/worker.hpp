@@ -34,6 +34,9 @@ namespace rgm::core {
  */
 template <template <typename> class T_kernel, typename... Args>
 struct worker {
+  template <typename T>
+  using kernel_type = T_kernel<T>;
+
   using T_all_tasks = decltype(traits::expand_tuples(std::declval<Args>()...));
   using T_tasks = decltype(traits::unique_tuple(std::declval<T_all_tasks>()));
   using T_kernel_tasks = decltype(traits::remove_dummy_tuple(

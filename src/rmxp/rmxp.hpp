@@ -79,4 +79,6 @@ using tasks_render = std::tuple<
     controller_rumble, controller_rumble_triggers>;
 
 using tasks_audio = std::tuple<>;
+
+using tasks_calc = std::tuple<>;
 }  // namespace rgm::rmxp

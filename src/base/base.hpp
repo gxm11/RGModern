@@ -45,7 +45,7 @@ namespace rgm::base {
 /** @brief 执行逻辑流程的 task，运行 ruby 脚本 */
 using tasks_main =
     std::tuple<init_ruby, init_synchronize, init_counter, init_surfaces,
-               init_music, init_sound, init_ping, interrupt_signal, 
+               init_music, init_sound, init_ping, interrupt_signal,
                music_finish_callback, controller_axis_reset, ruby_callback>;
 /** @brief 执行渲染流程的 task，使用 SDL2 创建窗口，绘制画面 */
 using tasks_render =
@@ -62,5 +62,5 @@ using tasks_audio =
                sound_set_volume, sound_set_pitch, sound_get_state,
                sound_get_channel>;
 
-using tasks_ping = std::tuple<ruby_async<ping>>;
+using tasks_calc = std::tuple<ruby_async<ping>>;
 }  // namespace rgm::base
