@@ -50,6 +50,8 @@ struct init_extension {
                  rb_utf8_str_new_cstr(config::resource_prefix.data()));
     rb_const_set(rb_mRGM, rb_intern("Render_Driver"),
                  INT2FIX(static_cast<int>(config::driver)));
+    rb_const_set(rb_mRGM, rb_intern("Render_Driver_Name"),
+                 rb_utf8_str_new_cstr(config::driver_name.data()));
     rb_const_set(rb_mRGM, rb_intern("Build_Mode"), INT2FIX(config::build_mode));
     rb_const_set(rb_mRGM, rb_intern("Controller_Axis_Threshold"),
                  INT2FIX(config::controller_axis_threshold));

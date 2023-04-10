@@ -132,4 +132,4 @@ return data[index];
 - [ ] 用AI放大处理一下素材：https://bigjpg.com/zh
 - [x] Bitmap里的fill_rect和draw_text加上to_i，可能是给color/rect等builtin加上比较合适。
 - [x] 渐变突然没了？修复渐变消失的问题。
-- [ ] 增加 config::driver_name 和 RGM::Driver_Name 常量
+- [x] 增加 config::driver_name 和 RGM::Driver_Name 常量

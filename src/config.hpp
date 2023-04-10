@@ -73,6 +73,7 @@ int screen_height = 480;
 
 enum class driver_type { software, opengl, direct3d9, direct3d11 };
 driver_type driver;
+std::string driver_name = "software";
 
 void load_data(std::map<std::string, section_t>& data) {
   game_title = std::get<std::string>(data["Game"]["Title"]);
@@ -83,11 +84,14 @@ void load_data(std::map<std::string, section_t>& data) {
   screen_width = std::get<int>(data["System"]["ScreenWidth"]);
   screen_height = std::get<int>(data["System"]["ScreenHeight"]);
 
-  auto name = std::get<std::string>(data["Kernel"]["RenderDriver"]);
+  driver_name = std::get<std::string>(data["Kernel"]["RenderDriver"]);
+  std::transform(driver_name.begin(), driver_name.end(), driver_name.begin(),
+                 [](unsigned char c) { return std::tolower(c); });
+
   driver = driver_type::software;
-  if (name == "opengl") driver = driver_type::opengl;
-  if (name == "direct3d9") driver = driver_type::direct3d9;
-  if (name == "direct3d11") driver = driver_type::direct3d11;
+  if (driver_name == "opengl") driver = driver_type::opengl;
+  if (driver_name == "direct3d9") driver = driver_type::direct3d9;
+  if (driver_name == "direct3d11") driver = driver_type::direct3d11;
 }
 
 bool load_args(int argc, char* argv[]) {

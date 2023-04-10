@@ -31,8 +31,7 @@ end
 BEGIN {
   puts 'start ruby.'
   puts "resource prefix = #{RGM::Resource_Prefix}"
-  driver_names = %w[Software OpenGL Direct3D9 Direct3D11]
-  puts "render driver = #{RGM::Render_Driver} (#{driver_names[RGM::Render_Driver]})"
+  puts "render driver = #{RGM::Render_Driver_Name} (#{RGM::Render_Driver})"
   puts "build mode = #{RGM::Build_Mode}"
 }
 
