@@ -158,24 +158,22 @@ consteval auto struct_to_tuple(auto&& s) {
 // 前面定义的函数都是在非求值上下文中，比如 using T = decltype(func());
 // 从这里开始的函数会用在求值上下文中，从而参数使用了 tuple 的指针避免实例化。
 template <typename Item, typename... Args>
-consteval std::pair<size_t, bool> tuple_find(std::tuple<Args...>*) {
+consteval size_t tuple_find(std::tuple<Args...>*) {
   size_t i = 0;
-  bool ret = ((++i, std::is_same_v<Args, Item>) || ...);
-  return {i - 1, ret};
+  ((++i, std::is_same_v<Args, Item>) || ... || (++i, false));
+  return i - 1;
 }
 
 template <typename Tuple, typename Item>
   requires(requires { std::tuple_size_v<Tuple>; })
 consteval size_t tuple_index() {
-  static_assert(std::tuple_size_v<Tuple> > 0);
-
-  return tuple_find<Item>(static_cast<Tuple*>(nullptr)).first;
+  return tuple_find<Item>(static_cast<Tuple*>(nullptr));
 }
 
 template <typename Tuple, typename Item>
   requires(requires { std::tuple_size_v<Tuple>; })
 consteval bool tuple_include() {
-  return tuple_find<Item>(static_cast<Tuple*>(nullptr)).second;
+  return tuple_index<Tuple, Item>() != std::tuple_size_v<Tuple>;  
 }
 
 // 以上是 consteval 函数。

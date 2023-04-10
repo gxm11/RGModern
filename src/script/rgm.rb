@@ -50,13 +50,24 @@ module RGM
     # 音乐播放结束后的自动回调，已在 Audio 模块中重新定义
     # def music_finish_callback; end
 
+    # 控制器相关函数
     # def controller_rumble(joy_index, low, high, duration); end
     # def controller_rumble_trigger(joy_index, left, right, duration); end
+
+    # RGM::Base.send(:async_ping, 100) { |ret| p ret.size, ret }
+    # RGM::Base.send(:message_show, 'hi')
+    def send(method_name, *args, &block)
+      if block_given?
+        method(method_name).call(*args, async_bind(&block))
+      else
+        method(method_name).call(*args)
+      end
+    end
 
     Callback_Blocks = {}
     @@callback_index = 0
 
-    def callback(&block)
+    def async_bind(&block)
       @@callback_index += 1
       Callback_Blocks[@@callback_index] = block
       @@callback_index

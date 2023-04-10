@@ -23,7 +23,7 @@
 #include "detail.hpp"
 
 namespace rgm::base {
-struct async_callback {
+struct ruby_callback {
   int id;
   std::string buf;
 
@@ -39,13 +39,13 @@ struct async_callback {
 
 template <typename T>
 struct ruby_async {
-  T t;
   int id;
+  T t;
 
   void run(auto& worker) {
     std::string out = "";
     t.run(worker, out);
-    worker >> async_callback{id, out};
+    worker >> ruby_callback{id, std::move(out)};
   }
 };
 
@@ -78,7 +78,7 @@ struct ruby_wrapper {
   static VALUE send2(VALUE, value<Args>::type... args, VALUE id_) {
     using U = ruby_async<T>;
     T_worker::template send<U>(
-        U{T{detail::get<Args>(args)...}, detail::get<int>(id_)});
+        U{detail::get<int>(id_), T{detail::get<Args>(args)...}});
     return Qnil;
   }
 

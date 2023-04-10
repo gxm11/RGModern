@@ -46,8 +46,7 @@ namespace rgm::base {
 using tasks_main =
     std::tuple<init_ruby, init_synchronize, init_counter, init_surfaces,
                init_music, init_sound, init_ping, interrupt_signal, 
-               music_finish_callback,
-               controller_axis_reset, async_callback>;
+               music_finish_callback, controller_axis_reset, ruby_callback>;
 /** @brief 执行渲染流程的 task，使用 SDL2 创建窗口，绘制画面 */
 using tasks_render =
     std::tuple<init_sdl2, init_renderstack, init_textures, poll_event,
