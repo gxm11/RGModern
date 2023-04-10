@@ -173,7 +173,7 @@ consteval size_t tuple_index() {
 template <typename Tuple, typename Item>
   requires(requires { std::tuple_size_v<Tuple>; })
 consteval bool tuple_include() {
-  return tuple_index<Tuple, Item>() != std::tuple_size_v<Tuple>;  
+  return tuple_index<Tuple, Item>() != std::tuple_size_v<Tuple>;
 }
 
 // 以上是 consteval 函数。
