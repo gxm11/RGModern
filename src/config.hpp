@@ -63,8 +63,8 @@ bool btest = false;
 bool debug = false;
 
 // configs from config.ini
-std::string game_title = "RGModern";
 bool asynchronized = false;
+std::string game_title = "RGModern";
 std::string resource_prefix = "resource://";
 int window_width = 640;
 int window_height = 480;

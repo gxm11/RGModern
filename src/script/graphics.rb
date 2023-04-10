@@ -233,8 +233,8 @@ module Graphics
   # 设置成以外的值将不会缩放，而是居中显示
   @@scale_mode = 0
 
-  @@title = RGM::Default_Title
-  @@show_fps = (RGM::Build_Mode < 2)
+  @@title = RGM::Config::Game_Title
+  @@show_fps = (RGM::Config::Build_Mode < 2)
   @@fps_last_frame_count = 0
   @@fps_last_time = Time.now.to_f
 

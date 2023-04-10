@@ -29,7 +29,7 @@ def rgss_main
   background.dispose
 
   # wait for other threads
-  RGM::Max_Threads.times do |i|
+  RGM::Config::Max_Threads.times do |i|
     RGM::Base.synchronize(i)
   end
 

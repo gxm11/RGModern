@@ -30,7 +30,7 @@ module Finder
     none: [nil]
   }
 
-  if RGM::Build_Mode <= 1
+  if RGM::Config::Build_Mode <= 1
     Load_Path.each_key do |type|
       next if type == :none
 
@@ -61,7 +61,7 @@ module Finder
         path = filename + extname
         next unless RGM::Ext.external_check(path)
 
-        Cache[filename] = RGM::Resource_Prefix + path
+        Cache[filename] = RGM::Config::Resource_Prefix + path
         # puts "#{filename} -> #{Cache[filename]}"
         return Cache[filename]
       end
@@ -94,7 +94,7 @@ module Finder
 
   def get_picture_shape(path)
     unless PictureShapes[path]
-      if path.start_with?(RGM::Resource_Prefix)
+      if path.start_with?(RGM::Config::Resource_Prefix)
         content = RGM::Ext.external_load(path)
         PictureShapes[path] = Imagesize.load_raw(content)
       else

@@ -177,8 +177,8 @@ class Bitmap
     Color.new(c & 255, (c >> 8) & 255, (c >> 16) & 255, c >> 24)
   end
 
-  if RGM::Render_Driver == RGM::Driver::Direct3D11
-    if RGM::Build_Mode >= 2
+  if RGM::Config::Render_Driver == RGM::Driver::Direct3D11
+    if RGM::Config::Build_Mode >= 2
       def get_pixel(_x, _y)
         Color.new(0, 0, 0, 0)
       end

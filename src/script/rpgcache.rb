@@ -74,7 +74,7 @@ module RPG
       # keep palette alive before the tileset texture is created.
       RGM::Base.keep_alive(figure)
 
-      h = RGM::Tileset_Texture_Height
+      h = RGM::Config::Tileset_Texture_Height
       n = (figure.height - 1) / h + 1
       if n > 1
         tileset = Bitmap.new(n * 256, h)

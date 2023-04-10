@@ -46,4 +46,4 @@ def debug(b, key = Input::DEBUG)
   end
 end
 
-def debug; end if RGM::Build_Mode >= 2
+def debug; end if RGM::Config::Build_Mode >= 2

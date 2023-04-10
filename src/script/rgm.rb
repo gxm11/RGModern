@@ -19,21 +19,32 @@
 # 3. This notice may not be removed or altered from any source distribution.
 
 module RGM
-  # Default_Title = "RGModern"
-  # Default_Config = "./config.ini"
-  # Resource_Prefix = "resource://"
-  # Render_Driver = 0
-  # Build_Mode = 1
+  module Config
+    # Config_Path = "./config.ini"
+    # Build_Mode = 1
 
-  # 控制器的 Axis 超过此阈值才会触发特定的按键效果
-  # Controller_Axis_Threshold = 8000
+    # 控制器的 Axis 超过此阈值才会触发特定的按键效果
+    # Controller_Axis_Threshold = 8000
 
-  # 折叠过长的 tileset，使其高度不超过此值。此值不可修改。
-  # 参见 rpgcache.rb 中的 RPG::Cache.tileset 方法
-  # Tileset_Texture_Height = 8192
+    # 折叠过长的 tileset，使其高度不超过此值。此值不可修改。
+    # 参见 rpgcache.rb 中的 RPG::Cache.tileset 方法
+    # Tileset_Texture_Height = 8192
 
-  # 除了 ruby 线程外的最多线程数，如果超过此值需要修改 base/signal.hpp 源码
-  # Max_Threads = 8
+    # 除了 ruby 线程外的最多线程数，如果超过此值需要修改 base/signal.hpp 源码
+    # Max_Threads = 8
+
+    # Battle_Test
+    # Debug
+    # Asynchronized
+    # Game_Title = "RGModern"
+    # Resource_Prefix = "resource://"
+    # Window_Width
+    # Window_Height
+    # Screen_Width
+    # Screen_Height
+    # Render_Driver = 0
+    # Render_Driver_Name = "software"
+  end
 
   module Base
     Temp = []
@@ -140,7 +151,7 @@ def load_file(fn)
   end
 end
 
-if RGM::Build_Mode >= 3
+if RGM::Config::Build_Mode >= 3
   def load_data(fn)
     data = nil
     if fn.start_with?('Data/')
@@ -157,7 +168,7 @@ if RGM::Build_Mode >= 3
   end
 end
 
-if RGM::Build_Mode >= 2
+if RGM::Config::Build_Mode >= 2
   def load_file(fn)
     RGM::Base.load_embeded_file(fn)
   end

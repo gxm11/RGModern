@@ -18,7 +18,7 @@
 #    misrepresented as being the original software.
 # 3. This notice may not be removed or altered from any source distribution.
 
-if RGM::Build_Mode >= 2
+if RGM::Config::Build_Mode >= 2
   def load_script(fn)
     RGM::Base.load_script('script/' + fn)
   end
@@ -30,13 +30,16 @@ end
 
 BEGIN {
   puts 'start ruby.'
-  puts "resource prefix = #{RGM::Resource_Prefix}"
-  puts "render driver = #{RGM::Render_Driver_Name} (#{RGM::Render_Driver})"
-  puts "build mode = #{RGM::Build_Mode}"
+  puts "resource prefix = #{RGM::Config::Resource_Prefix}"
+  puts "render driver = #{RGM::Config::Render_Driver_Name} (#{RGM::Config::Render_Driver})"
+  puts "build mode = #{RGM::Config::Build_Mode}"
+
+  $BTEST = RGM::Config::Battle_Test
+  $DEBUG = RGM::Config::Debug
 }
 
 at_exit do
-  RGM::Max_Threads.times do |i|
+  RGM::Config::Max_Threads.times do |i|
     RGM::Base.synchronize(i)
   end
   puts 'exit ruby.'

@@ -44,4 +44,43 @@ struct init_ruby {
     rb_call_builtin_inits();
   }
 };
+
+struct init_config {
+  static void before(auto&) {
+    VALUE rb_mRGM = rb_define_module("RGM");
+    VALUE rb_mRGM_Config = rb_define_module_under(rb_mRGM, "Config");
+    rb_const_set(rb_mRGM_Config, rb_intern("Config_Path"),
+                 rb_utf8_str_new_cstr(config::config_path.data()));
+    rb_const_set(rb_mRGM_Config, rb_intern("Build_Mode"),
+                 INT2FIX(config::build_mode));
+    rb_const_set(rb_mRGM_Config, rb_intern("Controller_Axis_Threshold"),
+                 INT2FIX(config::controller_axis_threshold));
+    rb_const_set(rb_mRGM_Config, rb_intern("Max_Threads"),
+                 INT2FIX(config::max_threads));
+    rb_const_set(rb_mRGM_Config, rb_intern("Tileset_Texture_Height"),
+                 INT2FIX(config::tileset_texture_height));
+    rb_const_set(rb_mRGM_Config, rb_intern("Battle_Test"),
+                 config::btest ? Qtrue : Qfalse);
+    rb_const_set(rb_mRGM_Config, rb_intern("Debug"),
+                 config::debug ? Qtrue : Qfalse);
+    rb_const_set(rb_mRGM_Config, rb_intern("Asynchronized"),
+                 config::asynchronized ? Qtrue : Qfalse);
+    rb_const_set(rb_mRGM_Config, rb_intern("Game_Title"),
+                 rb_utf8_str_new_cstr(config::game_title.data()));
+    rb_const_set(rb_mRGM_Config, rb_intern("Resource_Prefix"),
+                 rb_utf8_str_new_cstr(config::resource_prefix.data()));
+    rb_const_set(rb_mRGM_Config, rb_intern("Window_Width"),
+                 INT2FIX(config::window_width));
+    rb_const_set(rb_mRGM_Config, rb_intern("Window_Height"),
+                 INT2FIX(config::window_height));
+    rb_const_set(rb_mRGM_Config, rb_intern("Screen_Width"),
+                 INT2FIX(config::screen_width));
+    rb_const_set(rb_mRGM_Config, rb_intern("Screen_Height"),
+                 INT2FIX(config::screen_height));
+    rb_const_set(rb_mRGM_Config, rb_intern("Render_Driver"),
+                 INT2FIX(static_cast<int>(config::driver)));
+    rb_const_set(rb_mRGM_Config, rb_intern("Render_Driver_Name"),
+                 rb_utf8_str_new_cstr(config::driver_name.data()));
+  }
+};
 }  // namespace rgm::base

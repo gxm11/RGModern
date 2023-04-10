@@ -31,34 +31,12 @@ namespace rgm::rmxp {
  * @brief 引入 ruby 的扩展功能
  * @note 目前的扩展有
  * 1. Fiddle 库
- * 2. RGM::Build_Mode 常量
+ * 2. Zlib 库
  */
 struct init_extension {
   static void before(auto&) {
     Init_fiddle();
     Init_zlib();
-    VALUE rb_mRGM = rb_define_module("RGM");
-
-    rb_gv_set("$DEBUG", config::debug ? Qtrue : Qfalse);
-    rb_gv_set("$BTEST", config::btest ? Qtrue : Qfalse);
-
-    rb_const_set(rb_mRGM, rb_intern("Default_Title"),
-                 rb_utf8_str_new_cstr(config::game_title.data()));
-    rb_const_set(rb_mRGM, rb_intern("Default_Config"),
-                 rb_utf8_str_new_cstr(config::config_path.data()));
-    rb_const_set(rb_mRGM, rb_intern("Resource_Prefix"),
-                 rb_utf8_str_new_cstr(config::resource_prefix.data()));
-    rb_const_set(rb_mRGM, rb_intern("Render_Driver"),
-                 INT2FIX(static_cast<int>(config::driver)));
-    rb_const_set(rb_mRGM, rb_intern("Render_Driver_Name"),
-                 rb_utf8_str_new_cstr(config::driver_name.data()));
-    rb_const_set(rb_mRGM, rb_intern("Build_Mode"), INT2FIX(config::build_mode));
-    rb_const_set(rb_mRGM, rb_intern("Controller_Axis_Threshold"),
-                 INT2FIX(config::controller_axis_threshold));
-    rb_const_set(rb_mRGM, rb_intern("Max_Threads"),
-                 INT2FIX(config::max_threads));
-    rb_const_set(rb_mRGM, rb_intern("Tileset_Texture_Height"),
-                 INT2FIX(config::tileset_texture_height));
   }
 };
 }  // namespace rgm::rmxp

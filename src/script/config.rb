@@ -18,13 +18,13 @@
 #    misrepresented as being the original software.
 # 3. This notice may not be removed or altered from any source distribution.
 
-unless File.exist?(RGM::Default_Config)
-  File.open(RGM::Default_Config, 'wb') do |f|
+unless File.exist?(RGM::Config::Config_Path)
+  File.open(RGM::Config::Config_Path, 'wb') do |f|
     f << load_file('config.ini')
   end
 end
 
-File.open(RGM::Default_Config, 'r') do |f|
+File.open(RGM::Config::Config_Path, 'r') do |f|
   flag = nil
   f.each_line do |line|
     line = line.strip
