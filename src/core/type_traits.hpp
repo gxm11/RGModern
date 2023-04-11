@@ -29,9 +29,9 @@
  * @brief 使用现代元编程的方式完成类型萃取
  */
 namespace rgm::core::traits {
-template <typename... Args, typename... Brgs>
-consteval auto append_tuple(std::tuple<Args...>, Brgs...) {
-  return std::tuple<Args..., Brgs...>{};
+template <typename T, typename... Args>
+consteval auto append_tuple(T, std::tuple<Args...>) {
+  return std::tuple<T, Args...>{};
 }
 
 template <typename... Ts>

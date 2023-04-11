@@ -23,20 +23,24 @@
 namespace rgm::core {
 enum class cooperation { asynchronous, exclusive, concurrent };
 
-enum worker_type { main, render, audio, table, steam, network, ai, other };
+enum worker_type { ruby, render, audio, table, steam, network, ai, other };
 
-template <cooperation type, size_t index>
-struct cooperation_flag {
-  static constexpr cooperation co_type = type;
-  static constexpr cooperation co_index = index;
+template <size_t index>
+struct as_flag {
+  static constexpr cooperation co_type = cooperation::asynchronous;
+  static constexpr size_t co_index = index;
 };
 
 template <size_t index>
-using as_flag = cooperation_flag<cooperation::asynchronous, index>;
+struct ex_flag {
+  static constexpr cooperation co_type = cooperation::exclusive;
+  static constexpr size_t co_index = index;
+};
 
 template <size_t index>
-using ex_flag = cooperation_flag<cooperation::exclusive, index>;
+struct co_flag {
+  static constexpr cooperation co_type = cooperation::concurrent;
+  static constexpr size_t co_index = index;
+};
 
-template <size_t index>
-using co_flag = cooperation_flag<cooperation::concurrent, index>;
 }  // namespace rgm::core

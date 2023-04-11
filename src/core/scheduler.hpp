@@ -42,7 +42,7 @@ struct scheduler<> {
 template <typename First, typename... Rest>
 struct scheduler<First, Rest...> : scheduler<> {
   static constexpr cooperation co_type = First::co_type;
-  
+
   std::tuple<First, Rest...> workers;
 
   void run() {
@@ -95,7 +95,8 @@ struct scheduler<First, Rest...> : scheduler<> {
     bool ret = std::apply(set_task, workers);
     if constexpr (config::develop) {
       if (!ret) {
-        printf("WARN: There's ingored task, check your code.\n");
+        printf("WARN: There's ingored task <%s>, check your code.\n",
+               typeid(T_task).name());
       }
     }
     return ret;
