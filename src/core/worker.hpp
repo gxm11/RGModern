@@ -38,16 +38,17 @@ struct worker {
   using kernel_type = T_kernel<T>;
 
   using T_all_tasks = decltype(traits::expand_tuples(std::declval<Args>()...));
-  using T_all_tasks2 = decltype(traits::append_tuple(
+  using T_all_tasks_with_flag = decltype(traits::append_tuple(
       std::declval<T_flag>(), std::declval<T_all_tasks>()));
-  using T_tasks = decltype(traits::unique_tuple(std::declval<T_all_tasks2>()));
+  using T_tasks =
+      decltype(traits::unique_tuple(std::declval<T_all_tasks_with_flag>()));
   using T_kernel_tasks = decltype(traits::remove_dummy_tuple(
       static_cast<worker*>(nullptr), std::declval<T_tasks>()));
   using T_all_data = decltype(traits::make_data_tuple(std::declval<T_tasks>()));
   using T_data = decltype(traits::unique_tuple(std::declval<T_all_data>()));
 
   static constexpr cooperation co_type = T_flag::co_type;
-  static constexpr cooperation co_index = T_flag::co_index;
+  static constexpr size_t co_index = T_flag::co_index;
   static constexpr bool is_active =
       std::is_base_of_v<kernel_active<T_kernel_tasks>,
                         T_kernel<T_kernel_tasks>>;
@@ -93,11 +94,12 @@ struct worker {
   void before() {
     if constexpr (config::build_mode < 2) {
       int size = sizeof(typename T_kernel<T_kernel_tasks>::T_variants);
-      printf("INFO: worker<%lld> starts running...\n", co_index);
-      printf("INFO: cooperation type = %d\n", static_cast<int>(co_type));
-      printf("INFO: queue block size = %d\n", size);
-      printf("INFO: kernel task size = %lld\n",
-             std::tuple_size_v<T_kernel_tasks>);
+      printf("INFO: worker %lld starts running...\n", co_index);
+      printf(
+          "INFO: worker %lld has cooperation type = %d, queue block size = %d "
+          "and kernel task size = %lld.\n",
+          co_index, static_cast<int>(co_type), size,
+          std::tuple_size_v<T_kernel_tasks>);
     }
     p_data = std::make_unique<T_data>();
     traits::for_each<T_tasks>::before(*this);

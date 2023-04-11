@@ -68,7 +68,7 @@ struct semaphore {
 template <size_t index>
 struct synchronize_signal {
   static constexpr cooperation co_type = cooperation::asynchronous;
-  static constexpr cooperation co_index = index;
+  static constexpr size_t co_index = index;
 
   semaphore* pause;
   void run(auto&) { pause->release(); }

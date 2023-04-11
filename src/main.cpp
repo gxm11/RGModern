@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
 
   rgm::config::load_ini();
 
-  cen::log_info("rgm starts running...");
+  cen::log_info("RGModern starts running...");
   if (rgm::config::synchronized) {
     rgm::engine_sync_t engine;
     engine.run();
@@ -44,6 +44,6 @@ int main(int argc, char* argv[]) {
     rgm::engine_async_t engine;
     engine.run();
   }
-  cen::log_info("rgm terminated.");
+  cen::log_info("RGModern ends with applause.");
   return 0;
 }
