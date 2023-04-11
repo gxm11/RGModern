@@ -65,9 +65,10 @@ struct semaphore {
 #endif
 
 /** @brief 任务：使 ruby 线程恢复运行 */
-template <size_t>
+template <size_t index>
 struct synchronize_signal {
   static constexpr cooperation co_type = cooperation::asynchronous;
+  static constexpr cooperation co_index = index;
 
   semaphore* pause;
   void run(auto&) { pause->release(); }

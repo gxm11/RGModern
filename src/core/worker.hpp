@@ -32,13 +32,16 @@ namespace rgm::core {
  * @tparam T_kernel 任务执行的逻辑，分为主动模式和被动模式。
  * @tparam Args 可以执行的任务列表。
  */
-template <template <typename> class T_kernel, typename... Args>
+template <template <typename> class T_kernel, typename Co_Task,
+          typename... Args>
 struct worker {
   template <typename T>
   using kernel_type = T_kernel<T>;
 
   using T_all_tasks = decltype(traits::expand_tuples(std::declval<Args>()...));
-  using T_tasks = decltype(traits::unique_tuple(std::declval<T_all_tasks>()));
+  using T_all_tasks2 = decltype(traits::append_tuple(
+      std::declval<T_all_tasks>(), std::declval<Co_Task>()));
+  using T_tasks = decltype(traits::unique_tuple(std::declval<T_all_tasks2>()));
   using T_kernel_tasks = decltype(traits::remove_dummy_tuple(
       static_cast<worker*>(nullptr), std::declval<T_tasks>()));
   using T_all_data = decltype(traits::make_data_tuple(std::declval<T_tasks>()));
@@ -49,10 +52,11 @@ struct worker {
    */
   T_kernel<T_kernel_tasks> m_kernel;
 
+  static constexpr cooperation co_type = Co_Task::co_type;
+  static constexpr cooperation co_index = Co_Task::co_index;
   static constexpr bool is_active =
       std::is_base_of_v<kernel_active<T_kernel_tasks>,
                         T_kernel<T_kernel_tasks>>;
-  static constexpr cooperation co_type = traits::tuple_co_type<T_tasks>();
   static constexpr bool is_asynchronized =
       (co_type == cooperation::asynchronous);
 

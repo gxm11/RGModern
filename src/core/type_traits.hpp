@@ -25,11 +25,15 @@
 #include <type_traits>
 #include <variant>
 
-#include "cooperation.hpp"
 /**
  * @brief 使用现代元编程的方式完成类型萃取
  */
 namespace rgm::core::traits {
+template <typename... Args, typename... Brgs>
+consteval auto append_tuple(std::tuple<Args...>, Brgs...) {
+  return std::tuple<Args..., Brgs...>{};
+}
+
 template <typename... Ts>
 consteval auto expand_tuples(Ts... tuples) {
   static_assert((requires { std::tuple_size_v<Ts>; } && ...));
@@ -112,16 +116,6 @@ consteval auto tuple_to_variant(std::tuple<Ts...>) {
   return std::variant<std::monostate, Ts...>{};
 }
 
-template <typename Tuple>
-consteval cooperation tuple_co_type() {
-  if constexpr (requires(Tuple t) { std::get<0>(t).co_type; }) {
-    using T = decltype(std::get<0>(std::declval<Tuple>()));
-    return std::remove_reference_t<T>::co_type;
-  } else {
-    return cooperation::exclusive;
-  }
-}
-
 template <size_t n>
 consteval auto struct_to_tuple(auto&& s) {
   static_assert(n >= 0 && n <= 8,
@@ -168,7 +162,6 @@ consteval size_t tuple_index() {
 }
 
 template <typename Tuple, typename Item>
-  requires(requires { std::tuple_size_v<Tuple>; })
 consteval bool tuple_include() {
   return tuple_index<Tuple, Item>() != std::tuple_size_v<Tuple>;
 }

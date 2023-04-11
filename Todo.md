@@ -139,3 +139,4 @@ return data[index];
   2. 工作室下水道的二维码更新一下
 - [ ] 用AI放大处理一下素材：https://bigjpg.com/zh
 - [ ] 文档和注释
+- [ ] 给worker添加co_type

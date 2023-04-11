@@ -80,5 +80,5 @@ using tasks_render = std::tuple<
 
 using tasks_audio = std::tuple<>;
 
-using tasks_calc = std::tuple<>;
+using tasks_table = std::tuple<>;
 }  // namespace rgm::rmxp

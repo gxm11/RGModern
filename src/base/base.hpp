@@ -62,5 +62,5 @@ using tasks_audio =
                sound_set_volume, sound_set_pitch, sound_get_state,
                sound_get_channel>;
 
-using tasks_calc = std::tuple<ruby_async<ping>>;
+using tasks_table = std::tuple<ruby_async<ping>>;
 }  // namespace rgm::base
