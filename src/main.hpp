@@ -35,8 +35,8 @@ using worker_table_sync = core::worker<core::kernel_passive, core::ex_flag<3>, b
 
 /** @brief 最终引擎由多个 worker 组合而来 */
 using engine_sync_t =
-    core::scheduler<core::cooperation::exclusive, worker_render_sync,
-                    worker_audio_sync, worker_main_sync, worker_table_sync>;
+    core::scheduler<worker_render_sync, worker_audio_sync, worker_main_sync,
+                    worker_table_sync>;
 // magic_cast 的特化处理
 RGMENGINE(engine_sync_t);
 
@@ -54,9 +54,9 @@ using worker_table_async =
     core::worker<worker_table_sync::kernel_type, core::synchronize_signal<3>,
                  worker_table_sync::T_tasks>;
 
-using engine_async_t =
-    core::scheduler<core::cooperation::asynchronous, worker_render_async,
-                    worker_audio_async, worker_main_async, worker_table_async>;
+using engine_async_t = 
+    core::scheduler<worker_render_async, worker_audio_async, worker_main_async,
+                    worker_table_async>;
 
 RGMENGINE(engine_async_t);
 }  // namespace rgm

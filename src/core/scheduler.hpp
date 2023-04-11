@@ -26,28 +26,27 @@
 #include "type_traits.hpp"
 
 namespace rgm::core {
-template <typename T>
+template <cooperation>
 struct scheduler_cast {
-  using type = T;
+  using type = void;
 };
 
-template <cooperation, typename...>
+template <typename...>
 struct scheduler;
 
-template <cooperation c>
-struct scheduler<c> {
+template <>
+struct scheduler<> {
   std::stop_source stop_source;
 };
 
-template <cooperation c, typename... T_workers>
-  requires(sizeof...(T_workers) > 0)
-struct scheduler<c, T_workers...> : scheduler<c> {
-  static constexpr cooperation co_type = c;
-
-  std::tuple<T_workers...> workers;
+template <typename First, typename... Rest>
+struct scheduler<First, Rest...> : scheduler<> {
+  static constexpr cooperation co_type = First::co_type;
+  
+  std::tuple<First, Rest...> workers;
 
   void run() {
-    static_assert(((T_workers::co_type == co_type) && ...));
+    static_assert(((Rest::co_type == co_type) && ...));
 
     std::apply([this](auto&... worker) { ((worker.p_scheduler = this), ...); },
                workers);

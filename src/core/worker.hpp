@@ -46,11 +46,6 @@ struct worker {
       static_cast<worker*>(nullptr), std::declval<T_tasks>()));
   using T_all_data = decltype(traits::make_data_tuple(std::declval<T_tasks>()));
   using T_data = decltype(traits::unique_tuple(std::declval<T_all_data>()));
-  /**
-   * @brief 任务执行的逻辑
-   * @tparam T_kernel_tasks 包含了所有可以执行的任务的 TypeList
-   */
-  T_kernel<T_kernel_tasks> m_kernel;
 
   static constexpr cooperation co_type = Co_Task::co_type;
   static constexpr cooperation co_index = Co_Task::co_index;
@@ -60,8 +55,13 @@ struct worker {
   static constexpr bool is_asynchronized =
       (co_type == cooperation::asynchronous);
 
+  /**
+   * @brief 任务执行的逻辑
+   * @tparam T_kernel_tasks 包含了所有可以执行的任务的 TypeList
+   */
+  T_kernel<T_kernel_tasks> m_kernel;
   /** 保存父类的指针地址用于向下转型为 scheduler<> 的派生类指针 */
-  inline static scheduler<co_type>* p_scheduler = nullptr;
+  inline static scheduler<>* p_scheduler = nullptr;
   /** T_data 类，存储的变量可供所有的任务读写 */
   std::unique_ptr<T_data> p_data;
 
@@ -127,14 +127,13 @@ struct worker {
    * @return true 某个 worker 接受了该任务。
    * @return false 没有任何 worker 接受了该任务。
    */
-  template <typename T, typename U = scheduler<co_type>*>
+  template <typename T, cooperation c = co_type>
   static bool send(T&& task) {
-    using base_t = U;
-    using derived_t = scheduler_cast<U>::type;
+    using derived_t = scheduler_cast<c>::type;
 
     static_assert(std::is_rvalue_reference_v<T&&>,
                   "Task must be passed as R-value!");
-    static_assert(!std::same_as<base_t, derived_t>,
+    static_assert(!std::is_void_v<derived_t>,
                   "Failed to downcast scheduler<>* !");
 
     return static_cast<derived_t>(p_scheduler)->broadcast(std::move(task));

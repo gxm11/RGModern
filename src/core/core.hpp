@@ -38,6 +38,6 @@
  * 以将基类指针 scheduler<co_type>* 转型成派生类 T* */
 #define RGMENGINE(T)                                                    \
   template <>                                                           \
-  struct rgm::core::scheduler_cast<rgm::core::scheduler<T::co_type>*> { \
+  struct rgm::core::scheduler_cast<T::co_type> { \
     using type = T*;                                                    \
   }
