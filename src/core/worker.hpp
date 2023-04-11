@@ -93,10 +93,11 @@ struct worker {
   void before() {
     if constexpr (config::build_mode < 2) {
       int size = sizeof(typename T_kernel<T_kernel_tasks>::T_variants);
-      printf("INFO: block size = %d\n", size);
+      printf("INFO: worker<%lld> starts running...\n", co_index);
+      printf("INFO: cooperation type = %d\n", static_cast<int>(co_type));
+      printf("INFO: queue block size = %d\n", size);
       printf("INFO: kernel task size = %lld\n",
              std::tuple_size_v<T_kernel_tasks>);
-      printf("INFO: cooperation type = %d\n", static_cast<int>(co_type));
     }
     p_data = std::make_unique<T_data>();
     traits::for_each<T_tasks>::before(*this);

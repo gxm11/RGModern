@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
 
   rgm::config::load_ini();
 
-  cen::log_info("rgm start running...");
+  cen::log_info("rgm starts running...");
   if (rgm::config::synchronized) {
     rgm::engine_sync_t engine;
     engine.run();
