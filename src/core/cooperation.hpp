@@ -23,7 +23,7 @@
 namespace rgm::core {
 enum class cooperation { asynchronous, exclusive, concurrent };
 
-enum worker_type { ruby, render, audio, table, steam, network, ai, other };
+enum worker_type { ruby, render, audio, table, steam, network, physics, ai};
 
 template <size_t index>
 struct as_flag {

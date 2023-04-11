@@ -30,7 +30,7 @@ def rgss_main
 
   # wait for other threads
   RGM::Config::Max_Threads.times do |i|
-    RGM::Base.synchronize(i)
+    RGM::Base.synchronize(i) if i != 0
   end
 
   # load Scripts.rxdata and eval

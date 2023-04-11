@@ -40,7 +40,7 @@ BEGIN {
 
 at_exit do
   RGM::Config::Max_Threads.times do |i|
-    RGM::Base.synchronize(i)
+    RGM::Base.synchronize(i) if i != 0
   end
   puts 'exit ruby.'
 end

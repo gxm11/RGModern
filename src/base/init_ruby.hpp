@@ -63,8 +63,8 @@ struct init_config {
                  config::btest ? Qtrue : Qfalse);
     rb_const_set(rb_mRGM_Config, rb_intern("Debug"),
                  config::debug ? Qtrue : Qfalse);
-    rb_const_set(rb_mRGM_Config, rb_intern("Asynchronized"),
-                 config::asynchronized ? Qtrue : Qfalse);
+    rb_const_set(rb_mRGM_Config, rb_intern("Synchronized"),
+                 config::synchronized ? Qtrue : Qfalse);
     rb_const_set(rb_mRGM_Config, rb_intern("Game_Title"),
                  rb_utf8_str_new_cstr(config::game_title.data()));
     rb_const_set(rb_mRGM_Config, rb_intern("Resource_Prefix"),

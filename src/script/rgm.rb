@@ -35,7 +35,7 @@ module RGM
 
     # Battle_Test
     # Debug
-    # Asynchronized
+    # Synchronized
     # Game_Title = "RGModern"
     # Resource_Prefix = "resource://"
     # Window_Width

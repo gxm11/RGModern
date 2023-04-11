@@ -42,17 +42,17 @@ RGMENGINE(engine_sync_t);
 
 // 异步的 scheduler 和 worker，特征是 task 里包含了 core::synchronize_signal
 using worker_main_async =
-    core::worker<worker_main_sync::kernel_type, core::synchronize_signal<0>,
-                 worker_main_sync::T_tasks>;
+    core::worker<base::kernel_ruby, core::synchronize_signal<0>,
+                 base::tasks_main, rmxp::tasks_main>;
 using worker_render_async =
-    core::worker<worker_render_sync::kernel_type, core::synchronize_signal<1>,
-                 worker_render_sync::T_tasks>;
+    core::worker<core::kernel_passive, core::synchronize_signal<1>,
+                 base::tasks_render, rmxp::tasks_render>;
 using worker_audio_async =
-    core::worker<worker_audio_sync::kernel_type, core::synchronize_signal<2>,
-                 worker_audio_sync::T_tasks>;
+    core::worker<core::kernel_passive, core::synchronize_signal<2>,
+                 base::tasks_audio, rmxp::tasks_audio>;
 using worker_table_async =
-    core::worker<worker_table_sync::kernel_type, core::synchronize_signal<3>,
-                 worker_table_sync::T_tasks>;
+    core::worker<core::kernel_passive, core::synchronize_signal<3>,
+                 base::tasks_table, rmxp::tasks_table>;
 
 using engine_async_t = core::scheduler<worker_render_async, worker_audio_async,
                                        worker_main_async, worker_table_async>;

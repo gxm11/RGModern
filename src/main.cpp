@@ -37,11 +37,11 @@ int main(int argc, char* argv[]) {
   rgm::config::load_ini();
 
   cen::log_info("rgm start running...");
-  if (rgm::config::asynchronized) {
-    rgm::engine_async_t engine;
+  if (rgm::config::synchronized) {
+    rgm::engine_sync_t engine;
     engine.run();
   } else {
-    rgm::engine_sync_t engine;
+    rgm::engine_async_t engine;
     engine.run();
   }
   cen::log_info("rgm terminated.");
