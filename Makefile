@@ -28,7 +28,7 @@ Data ?= ./Project1/Data
 
 slient = 1>/dev/null
 zip_embeded = ./embeded.zip
-zip_publish = ./publish_$(RGM_VERSION).zip
+zip_publish = ./publish_v$(RGM_VERSION).zip
 zip_temp_add := 7z a -tzip -mx9 -p'$(PASSWORD)' $(zip_embeded) $(slient)
 zip_publish_add := 7z a -tzip $(zip_publish) $(slient)
 
@@ -151,10 +151,10 @@ clean :
 envs : $(deps)
 	@make envs -f $(deps)
 
-publish : Game.exe main.exe
+publish : main.exe Game.exe Gamew.exe
 	@echo "pack $(zip_publish)"
 	@rm -f $(zip_publish)
-	@$(zip_publish_add) Game.exe main.exe src Project1
+	@$(zip_publish_add) main.exe src Project1
 
 misc.7z :
 	wget https://7niu.gxmatmars.com/p1/RGModern/misc.7z
