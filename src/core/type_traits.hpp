@@ -53,8 +53,7 @@ consteval auto unique_tuple(std::tuple<First, Rest...>) {
   if constexpr (sizeof...(Rest) == 0) {
     return std::tuple<First>{};
   } else if constexpr (is_unique<First, Rest...>()) {
-    return std::tuple_cat(std::tuple<First>{},
-                          unique_tuple(std::tuple<Rest...>{}));
+    return append_tuple(First{}, unique_tuple(std::tuple<Rest...>{}));
   } else {
     return unique_tuple(std::tuple<Rest...>{});
   }
@@ -78,9 +77,9 @@ consteval auto remove_dummy_tuple(T_worker*, std::tuple<T_task, Rest...>) {
     if constexpr (sizeof...(Rest) == 0) {
       return std::tuple<T_task>{};
     } else {
-      return std::tuple_cat(std::tuple<T_task>{},
-                            remove_dummy_tuple(static_cast<T_worker*>(nullptr),
-                                               std::tuple<Rest...>{}));
+      return append_tuple(T_task{},
+                          remove_dummy_tuple(static_cast<T_worker*>(nullptr),
+                                             std::tuple<Rest...>{}));
     }
   }
 }

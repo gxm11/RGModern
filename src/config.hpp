@@ -76,12 +76,21 @@ int screen_height = 480;
 
 enum class driver_type { software, opengl, direct3d9, direct3d11 };
 driver_type driver;
-std::string driver_name = "software";
+std::string driver_name = "opengl";
 
 void load_data(std::map<std::string, section_t>& data) {
-#define Set(item, section, key)                          \
-  if (data[section][key].index() != 0) {                 \
-    item = std::get<decltype(item)>(data[section][key]); \
+#define Set(item, section, key)                                \
+  if (data[section][key].index() != 0) {                       \
+    try {                                                      \
+      item = std::get<decltype(item)>(data[section][key]);     \
+    } catch (std::bad_variant_access const&) {                 \
+      cen::message_box::show(                                  \
+          "RGModern",                                          \
+          "The invalid value of " #key " in section " #section \
+          " is ignored. \nRemember to check the config.ini "   \
+          "next time!",                                        \
+          cen::message_box_type::error);                       \
+    }                                                          \
   }
 
   Set(game_title, "Game", "Title");
@@ -107,7 +116,9 @@ void load_data(std::map<std::string, section_t>& data) {
 bool load_args(int argc, char* argv[]) {
   if (argc == 2 && strncmp(argv[1], "-v", 2) == 0) {
     printf("RGM %s [BuildMode = %d]\n\n", RGM_FULLVERSION, RGM_BUILDMODE);
-    printf("Modern Ruby Game Engine (RGM) is licensed under zlib License.\n");
+    printf(
+        "Modern Ruby Game Engine (RGM) is licensed under the zlib "
+        "License.\n");
     printf("copyright (C) 2023 Guoxiaomi and Krimiston\n\n");
     printf("Repository: https://github.com/gxm11/RGModern\n\n");
     printf("Compiler: %s\n\n", CC_VERSION);
@@ -121,7 +132,9 @@ bool load_args(int argc, char* argv[]) {
     printf(" - SDL TTF %d.%d.%d\n", GETVERSION(TTF));
     printf(" - SDL Mixer %d.%d.%d\n", GETVERSION(MIXER));
 #undef GETVERSION
-    printf(" - centurion, concurrentqueue, incbin, xorstr, libzip, etc.\n");
+    printf(
+        " - centurion, concurrentqueue, incbin, xorstr, libzip, "
+        "etc.\n");
     return false;
   }
 

@@ -38,6 +38,7 @@ def rgss_main
     script = Zlib::Inflate.inflate(data)
     force_utf8_encode(script)
     begin
+      raise
       eval script, nil, title
     rescue SignalException
       puts 'The interrupt signal is catched, program stops safely.'
@@ -55,6 +56,8 @@ def rgss_main
         f << Time.now << "\n"
         f << msg.join("\n")
       end
+      msgbox "Error occurs when load Data/Scripts.rxdata.\n" +
+             'Please check the error.log for more infomation.'
       return
     end
   end

@@ -171,8 +171,8 @@ struct init_sdl2 {
 
   static void before(auto& worker) {
     SDL_RendererInfo& info = RGMDATA(cen_library).renderer_info;
-    cen::log_info("[Driver] use %s for rendering\n", info.name);
-    cen::log_info("[Driver] max texture %d x %d\n", info.max_texture_width,
+    cen::log_warn("[Driver] use %s for rendering\n", info.name);
+    cen::log_warn("[Driver] max texture %d x %d\n", info.max_texture_width,
                   info.max_texture_height);
   }
 
