@@ -20,6 +20,10 @@
 
 module RGM
   module Ext
+    # def textinput_edit_text; end
+    # def textinput_edit_pos; end
+    # def textinput_start(x, y, width, height); end
+    # def textinput_stop; end
     class TextBox
       # usage:
       # class Scene_Title
@@ -42,11 +46,6 @@ module RGM
       @@need_refresh = false
 
       Text = Struct.new(:left, :edit, :right)
-      class Text
-        def to_s
-          '' << left << edit << right
-        end
-      end
 
       attr_reader :last_text
       attr_accessor :enable_toggle, :enable_clear, :background_color, :text_color, :default_text
@@ -90,7 +89,8 @@ module RGM
           if Input.trigger?(Input::TEXT_CONFIRM)
             # confirm 键清空输入，并修改 last_text 的值
             disable
-            @last_text = @text.to_s
+            @last_text.clear
+            @last_text << @text.left << @text.edit << @text.right
             clear_text
           elsif Input.trigger?(Input::TEXT_TOGGLE) && enable_toggle
             # toggle 键禁用输入法，但是保存 text 的状态
