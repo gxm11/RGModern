@@ -162,7 +162,6 @@ misc.7z :
 misc : misc.7z
 	@7z x -y $^
 
-
 %.o : %.hpp
 	@g++ -x c++-header -c -o /dev/null $< $(cflags)
 

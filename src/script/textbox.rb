@@ -42,7 +42,7 @@ module RGM
       @@need_refresh = false
 
       Text = Struct.new(:left, :edit, :right)
-      class << Text
+      class Text
         def to_s
           '' << left << edit << right
         end

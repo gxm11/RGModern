@@ -41,6 +41,14 @@ pkgs_msys2 = $(addprefix $(MINGW_PACKAGE_PREFIX)-,$(pkgs))
 pkgs_msys2 += bison libffi gmp upx p7zip vim unzip
 
 # -----------------------------------------------
+# miscs
+# -----------------------------------------------
+miscs = history resource 
+miscs += third_party/ruby$(RUBY_M_VERSION) Doxyfile
+miscs += Project1/Audio Project1/Graphics Project1/Graphics.zip
+miscs += Project1/RGSS103J.dll Project1/RGSS104E.dll Project1/RPGXP.chm Project1/RPGXP.chw 
+
+# -----------------------------------------------
 # tasks
 # -----------------------------------------------
 .PHONY: all envs ruby
@@ -78,4 +86,4 @@ endif
 	cp -r $(lib_ruby)/script/* ./src/script
 
 misc.7z :
-	7z a $@ history Project1/Audio Project1/Graphics Project1/RGSS103J.dll Project1/RGSS104E.dll Project1/RPGXP.chm Project1/RPGXP.chw resource third_party/ruby$(RUBY_M_VERSION) Doxyfile
+	7z a $@ $(miscs)

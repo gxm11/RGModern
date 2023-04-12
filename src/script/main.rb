@@ -38,7 +38,6 @@ def rgss_main
     script = Zlib::Inflate.inflate(data)
     force_utf8_encode(script)
     begin
-      raise
       eval script, nil, title
     rescue SignalException
       puts 'The interrupt signal is catched, program stops safely.'

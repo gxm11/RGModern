@@ -134,9 +134,9 @@ return data[index];
 
 # 20230410-todo
 - [ ] rgm 小助手
-- [ ] 范例中增加输入法和外部resource读取
+- [x] 范例中增加输入法和外部resource读取
   1. 工作室放一个宝箱，提醒用户输入密码打开特定图片
   2. 工作室下水道的二维码更新一下
 - [ ] 用AI放大处理一下素材：https://bigjpg.com/zh
 - [ ] 文档和注释
-- [ ] 给worker添加co_type
+- [x] 给worker添加co_type
