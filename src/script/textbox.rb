@@ -89,7 +89,6 @@ module RGM
           if Input.trigger?(Input::TEXT_CONFIRM)
             # confirm 键清空输入，并修改 last_text 的值
             disable
-            @last_text.clear
             @last_text << @text.left << @text.edit << @text.right
             clear_text
           elsif Input.trigger?(Input::TEXT_TOGGLE) && enable_toggle
