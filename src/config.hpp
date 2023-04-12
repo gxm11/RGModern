@@ -27,6 +27,8 @@
 #include <string_view>
 #include <variant>
 
+#include "base/cen_library.hpp"
+
 #ifndef RGM_BUILDMODE
 #define RGM_BUILDMODE 1
 #endif

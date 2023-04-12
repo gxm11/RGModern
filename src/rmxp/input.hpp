@@ -22,6 +22,7 @@
 #include <set>
 
 #include "base/base.hpp"
+#include "detail.hpp"
 
 namespace rgm::rmxp {
 /**

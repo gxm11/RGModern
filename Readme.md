@@ -1,6 +1,6 @@
 # Modern Ruby Game Engine (RGModern)
 
-当前版本：v1.0.0-RC1
+当前版本：v1.0.0-RC2
 
 在线文档：[RGModern使用指南](https://docs.qq.com/doc/DUklCTWNvdmVEdVhY)
 

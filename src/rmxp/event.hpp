@@ -20,6 +20,7 @@
 
 #pragma once
 #include "base/base.hpp"
+#include "controller.hpp"
 #include "input.hpp"
 #include "textinput.hpp"
 
