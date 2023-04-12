@@ -32,14 +32,18 @@ namespace rgm::core {
  * @tparam T_kernel 任务执行的逻辑，分为主动模式和被动模式。
  * @tparam Args 可以执行的任务列表。
  */
-template <template <typename> class T_kernel, typename T_flag, typename... Args>
+template <typename T_flag, template <typename> class T_kernel, typename... Args>
 struct worker {
   template <typename T>
   using kernel_type = T_kernel<T>;
 
   using T_all_tasks = decltype(traits::expand_tuples(std::declval<Args>()...));
-  using T_all_tasks_with_flag = decltype(traits::append_tuple(
-      std::declval<T_flag>(), std::declval<T_all_tasks>()));
+  using T_all_tasks_with_flag = std::conditional_t<
+      T_flag::co_type == cooperation::asynchronous,
+      decltype(traits::append_tuple(
+          std::declval<synchronize_signal<T_flag::co_index>>(),
+          std::declval<T_all_tasks>())),
+      T_all_tasks>;
   using T_tasks =
       decltype(traits::unique_tuple(std::declval<T_all_tasks_with_flag>()));
   using T_kernel_tasks = decltype(traits::remove_dummy_tuple(
