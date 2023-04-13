@@ -45,10 +45,6 @@
 #define CC_VERSION "CC_VERSION"
 #endif
 
-// extern "C" {
-// void ruby_show_version();
-// }
-
 namespace rgm::config {
 using section_t =
     std::map<std::string, std::variant<std::monostate, bool, int, std::string>>;

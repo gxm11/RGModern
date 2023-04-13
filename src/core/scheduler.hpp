@@ -127,7 +127,7 @@ struct scheduler<First, Rest...> : scheduler<> {
     if constexpr (config::develop) {
       if (!ret) {
         /** 因为使用了 typeid，编译时不能关掉 rtti */
-        printf("WARN: There's ingored task <%s>, check your code.\n",
+        cen::log_warn("There's ingored task <%s>, check your code.\n",
                typeid(T_task).name());
       }
     }

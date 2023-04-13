@@ -106,7 +106,7 @@ struct shader_base<opengl> {
         std::string log;
         log.resize(logLength);
         glGetShaderInfoLog(shaderID, logLength, &logLength, log.data());
-        std::cout << "Shader compile log:" << log.data() << std::endl;
+        cen::log_error("Shader compile log: %s", log.data());
       }
       glDeleteShader(shaderID);
       return 0;

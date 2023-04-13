@@ -98,9 +98,9 @@ struct worker {
   void before() {
     if constexpr (config::build_mode < 2) {
       int size = sizeof(typename T_kernel<T_kernel_tasks>::T_variants);
-      printf("INFO: worker %lld starts running...\n", co_index);
-      printf(
-          "INFO: worker %lld has cooperation type = %d, queue block size = %d "
+      cen::log_info("worker %lld starts running...\n", co_index);
+      cen::log_info(
+          "worker %lld has cooperation type = %d, queue block size = %d "
           "and kernel task size = %lld.\n",
           co_index, static_cast<int>(co_type), size,
           std::tuple_size_v<T_kernel_tasks>);

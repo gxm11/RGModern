@@ -225,9 +225,10 @@ struct init_drawable {
 
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
-    char method_name[32] = {0};
-    snprintf(method_name, 31, "%s_%s", T_Drawable::name, "create");
-    rb_define_module_function(rb_mRGM_Base, method_name, wrapper::create, 1);
+    std::string method_name = T_Drawable::name;
+    method_name += "_create";
+    rb_define_module_function(rb_mRGM_Base, method_name.data(), wrapper::create,
+                              1);
   }
 };
 }  // namespace rgm::rmxp
