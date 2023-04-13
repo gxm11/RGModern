@@ -27,9 +27,9 @@ template <typename T, typename... Args>
 consteval auto append_tuple(T, std::tuple<Args...>) {
   return std::tuple<T, Args...>{};
 }
-template <typename T, typename... Args>
+template <typename Item, typename Tuple>
 using append_tuple_t = decltype(append_tuple(
-    std::declval<T>(), std::declval<std::tuple<Args...>>()));
+    std::declval<Item>(), std::declval<Tuple>()));
 
 template <typename... Ts>
 consteval auto expand_tuples(Ts... tuples) {
@@ -59,8 +59,8 @@ consteval auto unique_tuple(std::tuple<First, Rest...>) {
   }
 }
 
-template <typename T>
-using unique_tuple_t = decltype(unique_tuple(std::declval<T>()));
+template <typename Tuple>
+using unique_tuple_t = decltype(unique_tuple(std::declval<Tuple>()));
 
 template <typename T_worker, typename T_task>
 consteval bool is_dummy_task() {
@@ -117,8 +117,8 @@ consteval auto make_data_tuple(std::tuple<T_task, Rest...>) {
   }
 }
 
-template<typename T>
-using make_data_t = decltype(make_data_tuple(std::declval<T>()));
+template<typename T_tasks>
+using make_data_t = decltype(make_data_tuple(std::declval<T_tasks>()));
 
 template <typename... Ts>
 consteval auto tuple_to_variant(std::tuple<Ts...>) {
