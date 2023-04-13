@@ -41,7 +41,7 @@
 
 namespace rgm::base {
 /** @brief 执行逻辑流程的 task，运行 ruby 脚本 */
-using tasks_main =
+using tasks_ruby =
     std::tuple<init_ruby, init_synchronize, init_counter, init_surfaces,
                init_music, init_sound, init_ping, init_config, interrupt_signal,
                music_finish_callback, controller_axis_reset, ruby_callback>;

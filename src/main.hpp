@@ -24,9 +24,9 @@
 
 namespace rgm {
 /** @brief 运行逻辑流程的 worker */
-using worker_main_sync =
-    core::worker<core::flag_ex<0>, base::kernel_ruby, base::tasks_main,
-                 rmxp::tasks_main, ext::tasks_main>;
+using worker_ruby_sync =
+    core::worker<core::flag_ex<0>, base::kernel_ruby, base::tasks_ruby,
+                 rmxp::tasks_ruby, ext::tasks_ruby>;
 /** @brief 运行渲染流程的 worker */
 using worker_render_sync =
     core::worker<core::flag_ex<1>, core::kernel_passive, base::tasks_render,
@@ -42,13 +42,13 @@ using worker_table_sync =
 
 /** @brief 最终引擎由多个 worker 组合而来 */
 using engine_sync_t = core::scheduler<worker_render_sync, worker_audio_sync,
-                                      worker_main_sync, worker_table_sync>;
+                                      worker_ruby_sync, worker_table_sync>;
 // magic_cast 的特化处理
 RGMENGINE(engine_sync_t);
 
 // 异步的 scheduler 和 worker，特征是 task 里包含了 core::synchronize_signal
-using worker_main_async = core::worker<core::flag_as<0>, base::kernel_ruby,
-                                       base::tasks_main, ext::tasks_main>;
+using worker_ruby_async = core::worker<core::flag_as<0>, base::kernel_ruby,
+                                       base::tasks_ruby, ext::tasks_ruby>;
 using worker_render_async =
     core::worker<core::flag_as<1>, core::kernel_passive, base::tasks_render,
                  rmxp::tasks_render, ext::tasks_render>;
@@ -60,7 +60,7 @@ using worker_table_async =
                  rmxp::tasks_table, ext::tasks_table>;
 
 using engine_async_t = core::scheduler<worker_render_async, worker_audio_async,
-                                       worker_main_async, worker_table_async>;
+                                       worker_ruby_async, worker_table_async>;
 
 RGMENGINE(engine_async_t);
 }  // namespace rgm
