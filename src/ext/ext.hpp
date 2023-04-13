@@ -23,7 +23,7 @@
 #include "external.hpp"
 #include "mouse.hpp"
 #include "ping.hpp"
-#include "ruby_async.hpp"
+#include "ruby_wrapper.hpp"
 #include "textinput.hpp"
 
 namespace rgm::ext {

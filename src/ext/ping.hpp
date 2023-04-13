@@ -20,7 +20,7 @@
 
 #pragma once
 #include "base/base.hpp"
-#include "ruby_async.hpp"
+#include "ruby_wrapper.hpp"
 
 namespace rgm::ext {
 struct ping {
