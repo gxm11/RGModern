@@ -35,13 +35,12 @@ struct init_palette {
 
         if (height_ == Qnil) {
           RGMLOAD2(path, const char*, width_);
+          std::string_view view(path);
 
-          int ret = strncmp(config::resource_prefix.data(), path,
-                            config::resource_prefix.size());
           std::unique_ptr<cen::surface> ptr;
-          if (ret == 0) {
+          if (view.starts_with(config::resource_prefix)) {
             const char* path2 = path + config::resource_prefix.size();
-            zip_data_external& z = RGMDATA(zip_data_external);
+            ext::zip_data_external& z = RGMDATA(ext::zip_data_external);
             SDL_Surface* ptr2 = z.load_surface(path2);
             ptr = std::make_unique<cen::surface>(ptr2);
             cen::log_info("[Palette] id = %lld, is created from external://%s",

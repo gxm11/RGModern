@@ -22,9 +22,9 @@
 #include "base/base.hpp"
 #include "blend_type.hpp"
 #include "builtin.hpp"
+#include "ext/external.hpp"
 #include "font.hpp"
 #include "shader/shader.hpp"
-#include "zip.hpp"
 
 namespace rgm::rmxp {
 /**
@@ -111,7 +111,7 @@ struct bitmap_create<3> {
 
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
     base::renderstack& stack = RGMDATA(base::renderstack);
-    zip_data_external& z = RGMDATA(zip_data_external);
+    ext::zip_data_external& z = RGMDATA(ext::zip_data_external);
 
     SDL_Texture* ptr = z.load_texture(path, renderer);
     cen::texture texture{ptr};
@@ -527,10 +527,8 @@ struct init_bitmap {
 
         if (height_ == Qnil) {
           RGMLOAD2(path, const char*, width_);
-
-          int ret = strncmp(config::resource_prefix.data(), path,
-                            config::resource_prefix.size());
-          if (ret == 0) {
+          std::string_view view(path);
+          if (view.starts_with(config::resource_prefix)) {
             // 增加指针的值，相当于截取字符串的后半部分。
             const char* path2 = path + config::resource_prefix.size();
             worker >> bitmap_create<3>{id, path2};
