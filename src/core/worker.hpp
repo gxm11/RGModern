@@ -37,19 +37,15 @@ struct worker {
   template <typename T>
   using kernel_type = T_kernel<T>;
 
-  using T_all_tasks = decltype(traits::expand_tuples(std::declval<Args>()...));
+  using T_all_tasks = traits::expand_tuples_t<Args...>;
   using T_all_tasks_with_flag = std::conditional_t<
       T_flag::co_type == cooperation::asynchronous,
-      decltype(traits::append_tuple(
-          std::declval<synchronize_signal<T_flag::co_index>>(),
-          std::declval<T_all_tasks>())),
+      traits::append_tuple_t<synchronize_signal<T_flag::co_index>, T_all_tasks>,
       T_all_tasks>;
-  using T_tasks =
-      decltype(traits::unique_tuple(std::declval<T_all_tasks_with_flag>()));
-  using T_kernel_tasks = decltype(traits::remove_dummy_tuple(
-      static_cast<worker*>(nullptr), std::declval<T_tasks>()));
-  using T_all_data = decltype(traits::make_data_tuple(std::declval<T_tasks>()));
-  using T_data = decltype(traits::unique_tuple(std::declval<T_all_data>()));
+  using T_tasks = traits::unique_tuple_t<T_all_tasks_with_flag>;
+  using T_kernel_tasks = traits::remove_dummy_t<worker, T_tasks>;
+  using T_all_data = traits::make_data_t<T_tasks>;
+  using T_data =traits::unique_tuple_t<T_all_data>;
 
   static constexpr cooperation co_type = T_flag::co_type;
   static constexpr size_t co_index = T_flag::co_index;

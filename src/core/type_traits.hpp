@@ -27,6 +27,9 @@ template <typename T, typename... Args>
 consteval auto append_tuple(T, std::tuple<Args...>) {
   return std::tuple<T, Args...>{};
 }
+template <typename T, typename... Args>
+using append_tuple_t = decltype(append_tuple(
+    std::declval<T>(), std::declval<std::tuple<Args...>>()));
 
 template <typename... Ts>
 consteval auto expand_tuples(Ts... tuples) {
@@ -34,6 +37,9 @@ consteval auto expand_tuples(Ts... tuples) {
 
   return std::tuple_cat(std::forward<Ts>(tuples)...);
 }
+
+template <typename... Ts>
+using expand_tuples_t = decltype(expand_tuples(std::declval<Ts>()...));
 
 template <typename First, typename... Rest>
 consteval bool is_unique() {
@@ -52,6 +58,9 @@ consteval auto unique_tuple(std::tuple<First, Rest...>) {
     return unique_tuple(std::tuple<Rest...>{});
   }
 }
+
+template <typename T>
+using unique_tuple_t = decltype(unique_tuple(std::declval<T>()));
 
 template <typename T_worker, typename T_task>
 consteval bool is_dummy_task() {
@@ -78,6 +87,10 @@ consteval auto remove_dummy_tuple(T_worker*, std::tuple<T_task, Rest...>) {
   }
 }
 
+template <typename T_worker, typename T_tasks>
+using remove_dummy_t =
+    decltype(remove_dummy_tuple(static_cast<T_worker*>(nullptr), std::declval<T_tasks>()));
+
 template <typename T_task>
 consteval bool is_storage_task() {
   return (requires { typename T_task::data; });
@@ -103,6 +116,9 @@ consteval auto make_data_tuple(std::tuple<T_task, Rest...>) {
     }
   }
 }
+
+template<typename T>
+using make_data_t = decltype(make_data_tuple(std::declval<T>()));
 
 template <typename... Ts>
 consteval auto tuple_to_variant(std::tuple<Ts...>) {
