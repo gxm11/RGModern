@@ -25,10 +25,10 @@ path_script := ./src/script
 deps := ./ext/deps.mk
 Script := ./src/script ./src/config.ini
 Data ?= ./Project1/Data
-
-slient = 1>/dev/null
-zip_embeded = ./embeded.zip
-zip_publish = ./publish_v$(RGM_VERSION).zip
+libgch := ./src/lib/lib.hpp.gch
+slient := 1>/dev/null
+zip_embeded := ./embeded.zip
+zip_publish := ./publish_v$(RGM_VERSION).zip
 zip_temp_add := 7z a -tzip -mx9 -p'$(PASSWORD)' $(zip_embeded) $(slient)
 zip_publish_add := 7z a -tzip $(zip_publish) $(slient)
 
@@ -111,12 +111,13 @@ clibs += $(addprefix -l,$(libs))
 
 all : main.exe
 
-main.exe : ./src/main.cpp Makefile icon.o
+main.exe : ./src/main.cpp Makefile icon.o $(libgch)
 	@echo "compile $@"
 	@time $(cc) $< -o $@ $(cflags) $(clibs) $(cflags_develop)
 
 debug.exe : ./src/main.cpp Makefile icon.o
 	@echo "compile $@"
+	@rm $(libgch)
 	@$(cc) $< -o $@ $(cflags) $(clibs) $(cflags_debug)
 
 Game.exe : ./src/main.cpp Makefile icon.o
@@ -146,14 +147,15 @@ clean :
 	@rm -f main.d debug.d Game.d Gamew.d
 	@rm -f main.exe debug.exe Game.exe Gamew.exe
 	@rm -f *.log *.png
-	@rm -f embeded.zip config.ini icon.o
+	@rm -f $(zip_embeded) $(libgch)
+	@rm -f config.ini icon.o
 
 envs : $(deps)
 	@make envs -f $(deps)
 
 publish : main.exe Game.exe Gamew.exe
 	@echo "pack $(zip_publish)"
-	@rm -f $(zip_publish)
+	@rm -f $(zip_publish) $(libgch)
 	@cp ./src/config.ini ./Project1/
 	@$(zip_publish_add) main.exe src Project1
 
@@ -162,6 +164,10 @@ misc.7z :
 
 misc : misc.7z
 	@7z x -y $^
+
+$(libgch) : ./src/lib/lib.hpp
+	@echo "compile $@"
+	@g++ -x c++-header -c $< $(cflags) $(cflags_develop)
 
 %.o : %.hpp
 	@g++ -x c++-header -c -o /dev/null $< $(cflags)
