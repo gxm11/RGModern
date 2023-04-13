@@ -23,6 +23,7 @@
 #include "core/core.hpp"
 #include "counter.hpp"
 #include "detail.hpp"
+#include "embeded.hpp"
 #include "init_ruby.hpp"
 #include "init_sdl2.hpp"
 #include "kernel_ruby.hpp"
@@ -37,7 +38,6 @@
 #include "surface.hpp"
 #include "texture.hpp"
 #include "timer.hpp"
-#include "zip.hpp"
 
 namespace rgm::base {
 /** @brief 执行逻辑流程的 task，运行 ruby 脚本 */
