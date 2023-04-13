@@ -46,12 +46,14 @@
 #include <variant>
 #include <vector>
 
+#include "blockingconcurrentqueue.h"
 #include "cen_library.hpp"
 #include "incbin.hpp"
 #include "ruby.hpp"
 #define JM_XORSTR_DISABLE_AVX_INTRINSICS
-#include <xorstr.hpp>
 #include <zip.h>
+
+#include <xorstr.hpp>
 
 extern "C" {
 void rb_call_builtin_inits();
