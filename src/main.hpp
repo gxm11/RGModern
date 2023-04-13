@@ -24,17 +24,21 @@
 
 namespace rgm {
 /** @brief 运行逻辑流程的 worker */
-using worker_main_sync = core::worker<core::flag_ex<0>, base::kernel_ruby,
-                                      base::tasks_main, rmxp::tasks_main>;
+using worker_main_sync =
+    core::worker<core::flag_ex<0>, base::kernel_ruby, base::tasks_main,
+                 rmxp::tasks_main, ext::tasks_main>;
 /** @brief 运行渲染流程的 worker */
-using worker_render_sync = core::worker<core::flag_ex<1>, core::kernel_passive,
-                                        base::tasks_render, rmxp::tasks_render>;
+using worker_render_sync =
+    core::worker<core::flag_ex<1>, core::kernel_passive, base::tasks_render,
+                 rmxp::tasks_render, ext::tasks_render>;
 /** @brief 播放音乐音效的 worker */
-using worker_audio_sync = core::worker<core::flag_ex<2>, core::kernel_passive,
-                                       base::tasks_audio, rmxp::tasks_audio>;
+using worker_audio_sync =
+    core::worker<core::flag_ex<2>, core::kernel_passive, base::tasks_audio,
+                 rmxp::tasks_audio, ext::tasks_audio>;
 /** @brief 进行异步计算的 worker */
-using worker_table_sync = core::worker<core::flag_ex<3>, core::kernel_passive,
-                                       base::tasks_table, rmxp::tasks_table>;
+using worker_table_sync =
+    core::worker<core::flag_ex<3>, core::kernel_passive, base::tasks_table,
+                 rmxp::tasks_table, ext::tasks_table>;
 
 /** @brief 最终引擎由多个 worker 组合而来 */
 using engine_sync_t = core::scheduler<worker_render_sync, worker_audio_sync,
@@ -44,14 +48,16 @@ RGMENGINE(engine_sync_t);
 
 // 异步的 scheduler 和 worker，特征是 task 里包含了 core::synchronize_signal
 using worker_main_async = core::worker<core::flag_as<0>, base::kernel_ruby,
-                                       base::tasks_main, rmxp::tasks_main>;
+                                       base::tasks_main, ext::tasks_main>;
 using worker_render_async =
     core::worker<core::flag_as<1>, core::kernel_passive, base::tasks_render,
-                 rmxp::tasks_render>;
-using worker_audio_async = core::worker<core::flag_as<2>, core::kernel_passive,
-                                        base::tasks_audio, rmxp::tasks_audio>;
-using worker_table_async = core::worker<core::flag_as<3>, core::kernel_passive,
-                                        base::tasks_table, rmxp::tasks_table>;
+                 rmxp::tasks_render, ext::tasks_render>;
+using worker_audio_async =
+    core::worker<core::flag_as<2>, core::kernel_passive, base::tasks_audio,
+                 rmxp::tasks_audio, ext::tasks_audio>;
+using worker_table_async =
+    core::worker<core::flag_as<3>, core::kernel_passive, base::tasks_table,
+                 rmxp::tasks_table, ext::tasks_table>;
 
 using engine_async_t = core::scheduler<worker_render_async, worker_audio_async,
                                        worker_main_async, worker_table_async>;

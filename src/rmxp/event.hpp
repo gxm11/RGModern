@@ -22,7 +22,6 @@
 #include "base/base.hpp"
 #include "controller.hpp"
 #include "input.hpp"
-#include "textinput.hpp"
 
 namespace rgm::rmxp {
 /**
@@ -73,20 +72,6 @@ struct init_event {
             cen::log_debug("[Input] mouse button '%s' is pressed",
                            cen::to_string(e.button()).data());
           }
-        });
-
-    d.bind<cen::text_editing_event>().to(
-        [&worker](const cen::text_editing_event& e) {
-          cen::log_debug("[Input] text edit\n");
-
-          worker >> text_edit{std::string{e.text()}, e.start()};
-        });
-
-    d.bind<cen::text_input_event>().to(
-        [&worker](const cen::text_input_event& e) {
-          cen::log_info("[Input] text input '%s'\n", e.text_utf8().data());
-
-          worker >> text_input{std::string{e.text_utf8()}};
         });
 
     d.bind<cen::controller_axis_event>().to(

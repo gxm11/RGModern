@@ -21,5 +21,11 @@
 #pragma once
 #include "base/base.hpp"
 #include "mouse.hpp"
+#include "textinput.hpp"
 
-namespace rgm::ext {}
+namespace rgm::ext {
+using tasks_main = std::tuple<init_textinput, text_input, text_edit>;
+using tasks_render = std::tuple<init_event, textinput_start, textinput_stop>;
+using tasks_audio = std::tuple<>;
+using tasks_table = std::tuple<>;
+}

@@ -20,9 +20,8 @@
 
 #pragma once
 #include "base/base.hpp"
-#include "detail.hpp"
 
-namespace rgm::rmxp {
+namespace rgm::ext {
 struct textinput_start {
   int x;
   int y;
@@ -87,6 +86,27 @@ struct text_edit {
   }
 };
 
+struct init_event {
+  static void before(auto& worker) {
+    base::cen_library::event_dispatcher_t& d =
+        RGMDATA(base::cen_library).event_dispatcher;
+
+    d.bind<cen::text_editing_event>().to(
+        [&worker](const cen::text_editing_event& e) {
+          cen::log_debug("[Input] text edit\n");
+
+          worker >> text_edit{std::string{e.text()}, e.start()};
+        });
+
+    d.bind<cen::text_input_event>().to(
+        [&worker](const cen::text_input_event& e) {
+          cen::log_info("[Input] text input '%s'\n", e.text_utf8().data());
+
+          worker >> text_input{std::string{e.text_utf8()}};
+        });
+  }
+};
+
 struct init_textinput {
   using data = std::tuple<textinput_state>;
 
@@ -130,4 +150,4 @@ struct init_textinput {
     RGMDATA(textinput_state).setup();
   }
 };
-}  // namespace rgm::rmxp
+}  // namespace rgm::ext
