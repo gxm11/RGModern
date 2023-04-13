@@ -25,9 +25,10 @@
 #include "textinput.hpp"
 
 namespace rgm::ext {
-using tasks_main = std::tuple<init_textinput, init_external, text_input, text_edit>;
-using tasks_render = std::tuple<init_event, textinput_start, textinput_stop,
-                                regist_external_data<1>>;
+using tasks_main =
+    std::tuple<init_textinput, init_external, text_input, text_edit>;
+using tasks_render = std::tuple<init_text_event, init_mouse_event, textinput_start,
+                                textinput_stop, regist_external_data<1>>;
 using tasks_audio = std::tuple<>;
 using tasks_table = std::tuple<>;
 }  // namespace rgm::ext

@@ -86,7 +86,7 @@ struct text_edit {
   }
 };
 
-struct init_event {
+struct init_text_event {
   static void before(auto& worker) {
     base::cen_library::event_dispatcher_t& d =
         RGMDATA(base::cen_library).event_dispatcher;

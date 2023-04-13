@@ -23,5 +23,21 @@
 
 // TODO(guoxiaomi): 鼠标功能
 namespace rgm::ext {
-struct mouse {};
-}
+struct init_mouse_event {
+  static void before(auto& worker) {
+    base::cen_library::event_dispatcher_t& d =
+        RGMDATA(base::cen_library).event_dispatcher;
+
+    d.bind<cen::mouse_button_event>().to(
+        [&worker](const cen::mouse_button_event& e) {
+          if (e.released()) {
+            cen::log_debug("[Input] mouse button '%s' is released",
+                           cen::to_string(e.button()).data());
+          } else if (e.pressed()) {
+            cen::log_debug("[Input] mouse button '%s' is pressed",
+                           cen::to_string(e.button()).data());
+          }
+        });
+  }
+};
+}  // namespace rgm::ext
