@@ -47,8 +47,9 @@ using engine_sync_t = core::scheduler<worker_render_sync, worker_audio_sync,
 RGMENGINE(engine_sync_t);
 
 // 异步的 scheduler 和 worker，特征是 task 里包含了 core::synchronize_signal
-using worker_ruby_async = core::worker<core::flag_as<0>, base::kernel_ruby,
-                                       base::tasks_ruby, ext::tasks_ruby>;
+using worker_ruby_async =
+    core::worker<core::flag_as<0>, base::kernel_ruby, base::tasks_ruby,
+                 rmxp::tasks_ruby, ext::tasks_ruby>;
 using worker_render_async =
     core::worker<core::flag_as<1>, core::kernel_passive, base::tasks_render,
                  rmxp::tasks_render, ext::tasks_render>;

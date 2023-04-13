@@ -18,8 +18,8 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "core/core.hpp"
 #pragma once
+#include "core/core.hpp"
 #include "detail.hpp"
 #include "ruby_wrapper.hpp"
 
