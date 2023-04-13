@@ -19,9 +19,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
-#include <list>
-#include <vector>
-
 #include "core/core.hpp"
 #include "init_sdl2.hpp"
 

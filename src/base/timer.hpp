@@ -19,8 +19,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
-#include <ctime>
-
 #include "init_sdl2.hpp"
 
 #if defined(_WIN32)

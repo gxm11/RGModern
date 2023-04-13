@@ -19,8 +19,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
-#include <thread>
-
 #include "config.hpp"
 #include "cooperation.hpp"
 #include "type_traits.hpp"

@@ -19,8 +19,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
-#include <set>
-
 #include "base/base.hpp"
 #include "drawable.hpp"
 #include "table.hpp"

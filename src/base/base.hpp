@@ -23,7 +23,6 @@
 #include "core/core.hpp"
 #include "counter.hpp"
 #include "detail.hpp"
-#include "incbin.hpp"
 #include "init_ruby.hpp"
 #include "init_sdl2.hpp"
 #include "kernel_ruby.hpp"

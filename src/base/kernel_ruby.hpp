@@ -19,8 +19,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
-#include <iostream>  // cerr
-
 #include "core/core.hpp"
 #include "init_ruby.hpp"
 

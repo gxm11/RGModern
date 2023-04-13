@@ -23,5 +23,3 @@
 #define INCBIN_STYLE INCBIN_STYLE_SNAKE
 #define INCBIN_PREFIX rgm_
 #include <incbin.h>
-#define JM_XORSTR_DISABLE_AVX_INTRINSICS
-#include <xorstr.hpp>

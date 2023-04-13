@@ -19,7 +19,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
-#include <cstddef>
 
 namespace rgm::core {
 /// @brief worker 的合作模式：异步多线程 / 排他单线程 / 协程单线程。

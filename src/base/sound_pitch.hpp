@@ -25,9 +25,7 @@
  *      Author: Carlos Faruolo
  */
 #pragma once
-#include <cmath>
-#include <cstdlib>
-#include <iostream>
+#include "core/core.hpp"
 
 namespace rgm::base {
 struct sound_pitch {

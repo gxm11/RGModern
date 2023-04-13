@@ -19,10 +19,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
-#include <atomic>
-#include <condition_variable>
-#include <mutex>
-
 #include "cooperation.hpp"
 
 namespace rgm::core {

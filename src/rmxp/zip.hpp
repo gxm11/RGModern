@@ -19,10 +19,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
-#include <zip.h>
-
-#include <string>
-
 #include "base/base.hpp"
 #include "detail.hpp"
 

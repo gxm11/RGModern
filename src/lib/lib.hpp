@@ -19,8 +19,41 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
+#include <array>
+#include <atomic>
+#include <chrono>
+#include <cmath>
+#include <concepts>
+#include <condition_variable>
+#include <cstddef>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <list>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <optional>
+#include <set>
+#include <string>
+#include <string_view>
+#include <thread>
+#include <tuple>
+#include <type_traits>
+#include <unordered_map>
+#include <variant>
+#include <vector>
+
 #include "cen_library.hpp"
+#include "incbin.hpp"
 #include "ruby.hpp"
+#define JM_XORSTR_DISABLE_AVX_INTRINSICS
+#include <xorstr.hpp>
+#include <zip.h>
 
 extern "C" {
 void rb_call_builtin_inits();

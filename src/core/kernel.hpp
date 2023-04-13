@@ -19,10 +19,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
-#include <optional>
-#include <thread>
-#include <variant>
-
 #include "blockingconcurrentqueue.h"
 #include "semaphore.hpp"
 #include "type_traits.hpp"

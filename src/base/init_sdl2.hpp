@@ -21,9 +21,6 @@
 #pragma once
 #include <SDL_syswm.h>
 
-#include <map>
-#include <memory>
-
 #include "controller.hpp"
 #include "core/core.hpp"
 #include "sound_pitch.hpp"
