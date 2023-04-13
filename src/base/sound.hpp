@@ -21,7 +21,6 @@
 #pragma once
 #include <map>
 
-#include "cen_library.hpp"
 #include "core/core.hpp"
 #include "detail.hpp"
 #include "ruby_wrapper.hpp"

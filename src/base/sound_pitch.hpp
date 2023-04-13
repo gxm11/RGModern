@@ -29,9 +29,6 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "cen_library.hpp"
-// #include "core/core.hpp"
-
 namespace rgm::base {
 struct sound_pitch {
   static Uint16 audioFormat;  // current audio format constant

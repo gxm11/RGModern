@@ -22,7 +22,6 @@
 #include <cstdint>
 
 #include "core/core.hpp"
-#include "ruby.hpp"
 
 namespace rgm::base {
 /** @brief 计数器，用于生成递增的 ID。*/

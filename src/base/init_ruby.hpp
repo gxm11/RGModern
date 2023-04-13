@@ -23,11 +23,6 @@
 #include <iostream>
 
 #include "core/core.hpp"
-#include "ruby.hpp"
-
-extern "C" {
-void rb_call_builtin_inits();
-}
 
 namespace rgm::base {
 /** @brief 将 ruby_library 类型的变量添加到 worker 的 datalist 中 */

@@ -22,7 +22,6 @@
 #include <cstdint>
 #include <unordered_map>
 
-#include "cen_library.hpp"
 #include "core/core.hpp"
 
 namespace rgm::base {

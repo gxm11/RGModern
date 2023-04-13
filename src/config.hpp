@@ -27,7 +27,7 @@
 #include <string_view>
 #include <variant>
 
-#include "base/cen_library.hpp"
+#include "lib/lib.hpp"
 
 #ifndef RGM_BUILDMODE
 #define RGM_BUILDMODE 1
@@ -45,9 +45,9 @@
 #define CC_VERSION "CC_VERSION"
 #endif
 
-extern "C" {
-void ruby_show_version();
-}
+// extern "C" {
+// void ruby_show_version();
+// }
 
 namespace rgm::config {
 using section_t =

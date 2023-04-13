@@ -21,7 +21,6 @@
 #pragma once
 #include "core/core.hpp"
 #include "detail.hpp"
-#include "ruby.hpp"
 #include "timer.hpp"
 
 namespace rgm::base {

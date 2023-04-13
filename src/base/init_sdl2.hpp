@@ -24,7 +24,6 @@
 #include <map>
 #include <memory>
 
-#include "cen_library.hpp"
 #include "controller.hpp"
 #include "core/core.hpp"
 #include "sound_pitch.hpp"

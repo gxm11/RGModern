@@ -19,20 +19,9 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
-#include <array>
+#include "cen_library.hpp"
+#include "ruby.hpp"
 
-#include "core/core.hpp"
-
-namespace rgm::base {
-constexpr size_t controller_maxsize = 8;
-
-using controller_axisstate =
-    std::array<int, static_cast<size_t>(cen::controller_axis::max) *
-                        controller_maxsize>;
-
-struct controller_axis_reset {
-  using data = std::tuple<controller_axisstate>;
-
-  void run(auto& worker) { RGMDATA(controller_axisstate).fill(0); }
-};
-}  // namespace rgm::base
+extern "C" {
+void rb_call_builtin_inits();
+}

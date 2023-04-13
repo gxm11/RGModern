@@ -19,7 +19,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
-#include "cen_library.hpp"
 #include "controller.hpp"
 #include "core/core.hpp"
 #include "counter.hpp"
@@ -32,7 +31,6 @@
 #include "ping.hpp"
 #include "render.hpp"
 #include "renderstack.hpp"
-#include "ruby.hpp"
 #include "ruby_wrapper.hpp"
 #include "signal.hpp"
 #include "sound.hpp"

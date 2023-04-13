@@ -22,7 +22,6 @@
 #include <vector>
 
 #include "core/core.hpp"
-#include "ruby.hpp"
 
 namespace rgm::base {
 /**
