@@ -23,10 +23,18 @@
 #include "rmxp/rmxp.hpp"
 
 namespace rgm {
-using tasks_ruby = core::traits::expand_tuples_t<base::tasks_ruby, rmxp::tasks_ruby, ext::tasks_ruby>;
-using tasks_render = core::traits::expand_tuples_t<base::tasks_render, rmxp::tasks_render, ext::tasks_render>;
-using tasks_audio = core::traits::expand_tuples_t<base::tasks_audio, rmxp::tasks_audio, ext::tasks_audio>;
-using tasks_table = core::traits::expand_tuples_t<base::tasks_table, rmxp::tasks_table, ext::tasks_table>;
+using tasks_ruby =
+    core::traits::expand_tuples_t<base::tasks_ruby, rmxp::tasks_ruby,
+                                  ext::tasks_ruby>;
+using tasks_render =
+    core::traits::expand_tuples_t<base::tasks_render, rmxp::tasks_render,
+                                  ext::tasks_render>;
+using tasks_audio =
+    core::traits::expand_tuples_t<base::tasks_audio, rmxp::tasks_audio,
+                                  ext::tasks_audio>;
+using tasks_table =
+    core::traits::expand_tuples_t<base::tasks_table, rmxp::tasks_table,
+                                  ext::tasks_table>;
 
 /** @brief 运行逻辑流程的 worker */
 using worker_ruby_sync =
