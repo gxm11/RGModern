@@ -28,16 +28,16 @@
 #include "type_traits.hpp"
 #include "worker.hpp"
 
-/** 宏 RGMDATA 调用 worker 的 get 方法，以取出特定类型的数据 */
+/// @brief 宏 RGMDATA 调用 worker 的 get 方法，以取出特定类型的数据
 #define RGMDATA(type) worker.template get<type>()
 
-/** 宏 RGMWAIT 调用 worker 的 wait 方法，等待指定线程的同步信号 */
+/// @brief 宏 RGMWAIT 调用 worker 的 wait 方法，等待指定线程的同步信号
 #define RGMWAIT(id) worker.template wait<id>()
 
-/** 宏 RGMENGINE 特化 scheduler_cast，
- * 以将基类指针 scheduler<co_type>* 转型成派生类 T* */
-#define RGMENGINE(T)                                                    \
-  template <>                                                           \
+/// @brief 宏 RGMENGINE 是 scheduler_cast 的特化处理，
+/// 将基类指针 scheduler<>* 转型成派生类 T*，对应 scheduler<T_workers...>
+#define RGMENGINE(T)                             \
+  template <>                                    \
   struct rgm::core::scheduler_cast<T::co_type> { \
-    using type = T*;                                                    \
+    using type = T*;                             \
   }

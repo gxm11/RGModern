@@ -154,6 +154,7 @@ envs : $(deps)
 publish : main.exe Game.exe Gamew.exe
 	@echo "pack $(zip_publish)"
 	@rm -f $(zip_publish)
+	@cp ./src/config.ini ./Project1/
 	@$(zip_publish_add) main.exe src Project1
 
 misc.7z :

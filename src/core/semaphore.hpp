@@ -27,6 +27,7 @@
 
 namespace rgm::core {
 #if 1
+/// @brief 以原子变量实现的信号量
 struct semaphore {
   std::atomic<int> count;
 
@@ -39,10 +40,11 @@ struct semaphore {
 
   void release() {
     count.fetch_add(-1);
-    count.notify_one();
+    count.notify_all();
   }
 };
 #else
+/// @brief 以条件变量实现的信号量
 struct semaphore {
   std::mutex mutex;
   std::condition_variable cv;
@@ -59,18 +61,24 @@ struct semaphore {
   void release() {
     std::scoped_lock lock(mutex);
     --count;
-    cv.notify_one();
+    cv.notify_all();
   }
 };
 #endif
 
-/** @brief 任务：使 ruby 线程恢复运行 */
+/// @brief 此任务用于线程间的同步，只在异步多线程模式下被用到
+/// @name 任务类
+/// @tparam index 目标 worker 的索引
 template <size_t index>
 struct synchronize_signal {
   static constexpr cooperation co_type = cooperation::asynchronous;
   static constexpr size_t co_index = index;
 
+  /// @brief 发送此任务的 worker 的信号量指针
   semaphore* pause;
+
+  /// @brief 解除 pause 所属的 worker 的阻塞，使其恢复运行
+  /// @param 执行此任务的 worker 对象，被忽略
   void run(auto&) { pause->release(); }
 };
 }  // namespace rgm::core
