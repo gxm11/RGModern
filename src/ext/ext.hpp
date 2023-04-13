@@ -22,14 +22,16 @@
 #include "base/base.hpp"
 #include "external.hpp"
 #include "mouse.hpp"
+#include "ping.hpp"
+#include "ruby_async.hpp"
 #include "textinput.hpp"
 
 namespace rgm::ext {
-using tasks_ruby =
-    std::tuple<init_textinput, init_external, text_input, text_edit>;
+using tasks_ruby = std::tuple<init_textinput, init_external, init_ping,
+                              text_input, text_edit, ruby_callback>;
 using tasks_render =
     std::tuple<init_text_event, init_mouse_event, textinput_start,
                textinput_stop, regist_external_data<1>>;
 using tasks_audio = std::tuple<>;
-using tasks_table = std::tuple<>;
+using tasks_table = std::tuple<ruby_async<ping>>;
 }  // namespace rgm::ext

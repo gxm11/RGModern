@@ -64,15 +64,14 @@ module RGM
     # 控制器相关函数
     # def controller_rumble(joy_index, low, high, duration); end
     # def controller_rumble_trigger(joy_index, left, right, duration); end
+  end
 
-    # RGM::Base.send(:async_ping, 100) { |ret| p ret.size, ret }
-    # RGM::Base.send(:message_show, 'hi')
+  module Ext
+    module_function
+
+    # RGM::Ext.send(:async_ping, 100) { |ret| p ret.size, ret }
     def send(method_name, *args, &block)
-      if block_given?
-        method(method_name).call(*args, async_bind(&block))
-      else
-        method(method_name).call(*args)
-      end
+      method(method_name).call(*args, async_bind(&block))
     end
 
     Callback_Blocks = {}

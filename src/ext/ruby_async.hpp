@@ -19,12 +19,38 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
-#include "core/core.hpp"
-#include "detail.hpp"
+#include "base/base.hpp"
 
-namespace rgm::base {
+namespace rgm::ext {
+struct ruby_callback {
+  int id;
+  std::string buf;
+
+  void run(auto&) {
+    VALUE object = rb_str_new(buf.data(), buf.size());
+    VALUE rb_mRGM = rb_define_module("RGM");
+    VALUE rb_mRGM_Ext = rb_define_module_under(rb_mRGM, "Ext");
+
+    rb_funcall(rb_mRGM_Ext, rb_intern("async_callback"), 2, INT2FIX(id),
+               object);
+  }
+};
+
+template <typename T>
+struct ruby_async {
+  int id;
+  T t;
+
+  void run(auto& worker) {
+    std::string out = "";
+    t.run(worker, out);
+    worker >> ruby_callback{id, std::move(out)};
+  }
+};
+
 template <typename T_worker>
 struct ruby_wrapper {
+  using detail = base::detail;
   // type to convert all input args into VALUE
   template <typename>
   struct value {
@@ -32,8 +58,10 @@ struct ruby_wrapper {
   };
 
   template <typename T, typename... Args>
-  static VALUE send(VALUE, value<Args>::type... args) {
-    T_worker::template send<T>(T{detail::get<Args>(args)...});
+  static VALUE send(VALUE, value<Args>::type... args, VALUE id_) {
+    using U = ruby_async<T>;
+    T_worker::template send<U>(
+        U{detail::get<int>(id_), T{detail::get<Args>(args)...}});
     return Qnil;
   }
 
@@ -45,11 +73,11 @@ struct ruby_wrapper {
     };
 
     auto* fp = helper(static_cast<U*>(nullptr));
-    rb_define_module_function(module, name, fp, arity);
+    rb_define_module_function(module, name, fp, arity + 1);
   }
 };
-}  // namespace rgm::base
+}  // namespace rgm::ext
 
-#define RGMBIND(module, method, struct, arity)                         \
-  rgm::base::ruby_wrapper<std::remove_reference_t<decltype(worker)>>:: \
+#define RGMBIND2(module, method, struct, arity)                       \
+  rgm::ext::ruby_wrapper<std::remove_reference_t<decltype(worker)>>:: \
       template bind<struct, arity>(module, method)

@@ -28,7 +28,6 @@
 #include "init_sdl2.hpp"
 #include "kernel_ruby.hpp"
 #include "music.hpp"
-#include "ping.hpp"
 #include "render.hpp"
 #include "renderstack.hpp"
 #include "ruby_wrapper.hpp"
@@ -43,8 +42,8 @@ namespace rgm::base {
 /** @brief 执行逻辑流程的 task，运行 ruby 脚本 */
 using tasks_ruby =
     std::tuple<init_ruby, init_synchronize, init_counter, init_surfaces,
-               init_music, init_sound, init_ping, init_config, interrupt_signal,
-               music_finish_callback, controller_axis_reset, ruby_callback>;
+               init_music, init_sound, init_config, interrupt_signal,
+               music_finish_callback, controller_axis_reset>;
 /** @brief 执行渲染流程的 task，使用 SDL2 创建窗口，绘制画面 */
 using tasks_render =
     std::tuple<init_sdl2, init_renderstack, init_textures, poll_event,
@@ -60,5 +59,5 @@ using tasks_audio =
                sound_set_volume, sound_set_pitch, sound_get_state,
                sound_get_channel>;
 
-using tasks_table = std::tuple<ruby_async<ping>>;
+using tasks_table = std::tuple<>;
 }  // namespace rgm::base

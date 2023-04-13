@@ -19,11 +19,10 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
-#include "core/core.hpp"
-#include "init_ruby.hpp"
-#include "ruby_wrapper.hpp"
+#include "base/base.hpp"
+#include "ruby_async.hpp"
 
-namespace rgm::base {
+namespace rgm::ext {
 struct ping {
   int hint;
 
@@ -34,9 +33,9 @@ struct init_ping {
   static void before(auto& this_worker) {
     static decltype(auto) worker = this_worker;
     VALUE rb_mRGM = rb_define_module("RGM");
-    VALUE rb_mRGM_BASE = rb_define_module_under(rb_mRGM, "Base");
+    VALUE rb_mRGM_Ext = rb_define_module_under(rb_mRGM, "Ext");
 
-    RGMBIND2(rb_mRGM_BASE, "async_ping", ping, 1);
+    RGMBIND2(rb_mRGM_Ext, "async_ping", ping, 1);
   }
 };
-}  // namespace rgm::base
+}  // namespace rgm::ext
