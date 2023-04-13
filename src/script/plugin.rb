@@ -17,18 +17,3 @@
 # 2. Altered source versions must be plainly marked as such, and must not be
 #    misrepresented as being the original software.
 # 3. This notice may not be removed or altered from any source distribution.
-
-i = 0
-loop do
-  puts i / 60 if i % 60 == 0
-  i += 1
-  exit if i == 6000
-
-  Graphics.update
-  Input.update
-  100.times do
-    RGM::Base.synchronize(1)
-    RGM::Base.synchronize(2)
-    RGM::Base.synchronize(3)
-  end
-end

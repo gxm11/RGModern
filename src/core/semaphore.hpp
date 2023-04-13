@@ -26,8 +26,25 @@
 #include "cooperation.hpp"
 
 namespace rgm::core {
-#if 1
+#if 0
 /// @brief 以原子变量实现的信号量
+/// 这个实现似乎仍然有些问题，可能导致无法唤醒，测试代码：
+/* ruby
+i = 0
+loop do
+  puts i / 60 if i % 60 == 0
+  i += 1
+  exit if i == 6000
+
+  Graphics.update
+  Input.update
+  100.times do
+    RGM::Base.synchronize(1)
+    RGM::Base.synchronize(2)
+    RGM::Base.synchronize(3)
+  end
+end
+*/
 struct semaphore {
   std::atomic<int> count;
 
