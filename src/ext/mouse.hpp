@@ -22,4 +22,6 @@
 #include "base/base.hpp"
 
 // TODO(guoxiaomi): 鼠标功能
-namespace rgm::rmxp {}
+namespace rgm::ext {
+struct mouse {};
+}

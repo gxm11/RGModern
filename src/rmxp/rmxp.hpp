@@ -34,7 +34,6 @@
 #include "init_drawable.hpp"
 #include "input.hpp"
 #include "messagebox.hpp"
-#include "mouse.hpp"
 #include "overlayer.hpp"
 #include "palette.hpp"
 #include "render_base.hpp"

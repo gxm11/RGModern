@@ -18,6 +18,8 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
+#pragma once
+#include "ext/ext.hpp"
 #include "rmxp/rmxp.hpp"
 
 namespace rgm {
