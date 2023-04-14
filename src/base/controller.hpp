@@ -22,12 +22,19 @@
 #include "core/core.hpp"
 
 namespace rgm::base {
+/// @brief 最多支持的 controller 的数量
 constexpr size_t controller_maxsize = 8;
 
+/// @brief 存储 controller 的 axis state 的数组
+/// @name data
+/// controller 的 axis 一般是摇杆或者扳机键，值一般在 -32768 ~ 32767 之间。
 using controller_axisstate =
     std::array<int, static_cast<size_t>(cen::controller_axis::max) *
                         controller_maxsize>;
 
+/// @brief 重置所有 controller 的 axis state
+/// @name task
+/// 在检查到 controller 的插入或者移除时触发。
 struct controller_axis_reset {
   using data = std::tuple<controller_axisstate>;
 

@@ -39,17 +39,19 @@
 #include "timer.hpp"
 
 namespace rgm::base {
-/// @brief 执行 ruby 脚本的 task，运行游戏的主要逻辑，
+/// @brief 执行 ruby 脚本的 task，运行游戏的主要逻辑（即 RGSS 脚本）
 using tasks_ruby =
     std::tuple<init_ruby, init_embeded, init_synchronize, init_counter,
                init_surfaces, init_music, init_sound, init_config,
                interrupt_signal, music_finish_callback, controller_axis_reset>;
-/** @brief 执行渲染流程的 task，使用 SDL2 创建窗口，绘制画面 */
+
+/// @brief 执行渲染流程的 task，使用 SDL2 创建窗口，绘制画面并处理事件
 using tasks_render =
     std::tuple<init_sdl2, init_renderstack, init_textures, poll_event,
                clear_screen, present_window, resize_window, resize_screen,
                set_title, set_fullscreen>;
-/** @brief 执行音乐播放的 task，使用 SDL2 Mixer 播放音乐和音效 */
+
+/// @brief 执行音乐播放的 task，使用 SDL2 Mixer 播放音乐和音效
 using tasks_audio =
     std::tuple<music_create, music_dispose, music_play, music_fade_in,
                music_set_volume, music_set_position, music_resume, music_pause,
@@ -59,5 +61,7 @@ using tasks_audio =
                sound_set_volume, sound_set_pitch, sound_get_state,
                sound_get_channel>;
 
+/// @brief 执行 Table 操作的 task，这个 worker 用于一些耗时的计算
+/// @name todo
 using tasks_table = std::tuple<>;
 }  // namespace rgm::base

@@ -22,56 +22,53 @@
 #include "core/core.hpp"
 
 namespace rgm::base {
-/**
- * @brief 管理 ruby 的 VALUE 和 C++ 内各数值类型的转换
- * @note 内含全局变量 id_table 用于缓存 ruby 中 Symbol 的 ID 以提升查找效率。
- */
+/// @brief 管理 ruby 的 VALUE 和 C++ 内各数值类型的转换的类
+/// @name meta
+/// 部分数据会在 ruby 和 C++ 层各存储一份，只在特定时机同步。
+/// detail 类负责这些 ruby 和 C++ 中类型匹配的数据的自动转换。
 struct detail {
-  /** 静态成员变量 id_table，缓存 ruby 中 Symbol 的 ID 提升查找效率。*/
-  static std::vector<ID> id_table;
+  /* 静态成员变量 id_table，缓存 ruby 中各 Symbol 的 ID 提升查找效率。*/
+  inline static std::vector<ID> id_table = {};
 
-  /**
-   * @brief 将 ruby 对象（VALUE 类型）转换成 T 类型。
-   *
-   * @tparam T 目标类型
-   * @param value_ ruby 对象的 VALUE
-   * @return T 返回 T 类型的变量，T必须是数值或布尔值。
-   */
+  /// @brief from_ruby 的模板声明，将 ruby 中的 VALUE 转换成 T 类型
+  /// @tparam T C++ 层的数据类型
+  /// @param VALUE 类型的变量表示 ruby 中的 object 或即时值
+  /// @return 转换后 T 类型的数据
   template <typename T>
   static T from_ruby(const VALUE);
 
-  /**
-   * @brief 一般整型变量的特化处理，包括 int / short / uint8_t 等。
-   *
-   * @tparam T 目标类型
-   * @param value_ ruby 对象的 VALUE
-   * @return T 返回 T 类型的变量，T必须是整型数值。
-   */
+  /// @brief from_ruby 对一般整型变量的特化处理
+  /// @tparam T 目标类型，受到 std::integral 约束
+  /// @param value_ 关联 ruby 对象的 VALUE
+  /// @return 转换后 T 类型的数据
+  /// T_FIXNUM 限制了值的范围必须在 -0x4000_0000 ~ 0x3fff_ffff 之间
+  /// 所以这里只包括部分 int32_t 和 short / uint8_t 等短类型。
   template <std::integral T>
   static std::remove_const_t<T> from_ruby(const VALUE value_) {
     Check_Type(value_, T_FIXNUM);
     return FIX2INT(value_);
   }
 
+  /// @brief detail 类被调用时的接口函数，被子类继承并重载不同模板类型的版本
+  /// @tparam T 返回值类型
+  /// @param object 关联 ruby 对象的 VALUE
+  /// @return 转换后 T 类型的数据
   template <typename T>
   static T get(VALUE object) {
     return from_ruby<T>(object);
   }
 };
-/** 全局变量 id_table */
-std::vector<ID> detail::id_table = {};
 
-/**
- * @brief const uint64_t 类型变量的特化处理。该变量代表 ruby 层的对象。
- * @note 如果对象为 nil，返回 0，否则返回对象的 object_id。
- * 目前只有 Bitmap 和 Table 类的对象需要用此方法获取 id。
- * 虽然 drawable 的 z_index::id 的类型也是 uint64_t，
- * 但是 z_index 是“隐藏”的成员，它不需要通过实例变量访问。
- * @param value_ ruby 对象的 VALUE
- * @return uint64_t 返回 0 或者对象 object_id 的值。
- */
+/// @brief from_ruby 对 const uint64_t 类型变量的特化处理。
+/// @return uint64_t 返回 0 或者 ruby 对象的 object_id 的值。
+/// @see src/rmxp/drawable.hpp
+/// 对于 ruby 中的类，其属性如果是 object 而不是数值，在 C++ 层中匹配的成员
+/// 变量是 const uint64_t 类型，储存该属性的 object_id。
+/// 如果对象不为 nil，此特化形式获取 ruby 对象的 object_id 并返回。
+/// 如果对象为 nil，返回 0 而不是 Qnil（=4）。
 template <>
 uint64_t detail::from_ruby<const uint64_t>(const VALUE value_) {
+  /* 多数情况下这个对象不会是 nil */
   if (value_ != Qnil) [[likely]] {
     return NUM2ULL(rb_obj_id(value_));
   } else [[unlikely]] {

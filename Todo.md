@@ -142,4 +142,5 @@ return data[index];
   1. 使用 doxygen 格式的注释时，用 /// 开头
   2. 其他格式的注释使用 /**/ 的形式
   3. license 使用 // 的形式注释
+  4. @name 包含 task / data / todo / meta（元编程相关）
 - [x] 给worker添加co_type

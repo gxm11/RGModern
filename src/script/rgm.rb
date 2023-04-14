@@ -64,6 +64,8 @@ module RGM
     # 控制器相关函数
     # def controller_rumble(joy_index, low, high, duration); end
     # def controller_rumble_trigger(joy_index, left, right, duration); end
+
+    # def new_id; end
   end
 
   module Ext
