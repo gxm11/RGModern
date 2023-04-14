@@ -72,7 +72,7 @@ struct zip_data_embeded {
  * @brief 创建读取内嵌 zip 的 ruby 方法
  */
 
-struct init_zip {
+struct init_embeded {
   using data = std::tuple<zip_data_embeded>;
 
   static void before(auto& this_worker) {
