@@ -58,10 +58,10 @@ struct scheduler<First, Rest...> : scheduler<> {
   /// 在 main.cpp 中，首先创建了 scheduler 的对象创建
   /// 然后立刻调用此函数，执行主流程。此函数退出时，程序结束。
   void run() {
-    /** 所有 worker 的合作模式必须相同 */
+    /* 所有 worker 的合作模式必须相同 */
     static_assert(((Rest::co_type == co_type) && ...));
 
-    /** 将 this 作为基类指针赋值给 worker 的 p_scheduler 对象 */
+    /* 将 this 作为基类指针赋值给 worker 的 p_scheduler 对象 */
     std::apply([this](auto&... worker) { ((worker.p_scheduler = this), ...); },
                workers);
 
@@ -105,7 +105,7 @@ struct scheduler<First, Rest...> : scheduler<> {
   bool broadcast(T_task&& task) {
     auto set_task = [&task](auto&... worker) {
       auto get_task = []<typename T_worker>(T_worker& worker, T_task& task) {
-        /** 查询 worker 的 kernel 是否支持此任务类型 */
+        /* 查询 worker 的 kernel 是否支持此任务类型 */
         if constexpr (traits::tuple_include<typename T_worker::T_kernel_tasks,
                                             T_task>()) {
           worker << std::move(task);
@@ -118,15 +118,15 @@ struct scheduler<First, Rest...> : scheduler<> {
       return (get_task(worker, task) || ...);
     };
 
-    /** 遍历所有的 workers 并执行 set_task 操作 */
+    /* 遍历所有的 workers 并执行 set_task 操作 */
     bool ret = std::apply(set_task, workers);
 
-    /** 只在 main.exe 和 debug.exe 下会提醒开发者某个 task 分配失败 */
+    /* 只在 main.exe 和 debug.exe 下会提醒开发者某个 task 分配失败 */
     if constexpr (config::develop) {
       if (!ret) {
-        /** 因为使用了 typeid，编译时不能关掉 rtti */
+        /* 因为使用了 typeid，编译时不能关掉 rtti */
         cen::log_warn("There's ingored task <%s>, check your code.\n",
-               typeid(T_task).name());
+                      typeid(T_task).name());
       }
     }
     return ret;

@@ -56,7 +56,7 @@ struct kernel {
   /// @param worker 拥有此 kernel 的 worker
   /// worker 将作为入参传递给各个 task 的 run 函数。
   void flush(auto& worker) {
-    /** 所有的 worker 都共享同一个 stop_source */
+    /* 所有的 worker 都共享同一个 stop_source */
     auto stop_token = worker.get_stop_token();
 
     auto visitor = [&worker]<typename T>(T& item) {
@@ -65,14 +65,14 @@ struct kernel {
       }
     };
 
-    /** 查看 stop_source 的状态，及时退出运行 */
+    /* 查看 stop_source 的状态，及时退出运行 */
     while (!stop_token.stop_requested()) {
       T_variants item;
       if constexpr (active) {
-        /** 主动模式下队列为空就退出循环 */
+        /* 主动模式下队列为空就退出循环 */
         if (!m_queue.try_dequeue(item)) break;
       } else {
-        /** 被动模式下队列为空则阻塞 1ms，然后继续获取任务 */
+        /* 被动模式下队列为空则阻塞 1ms，然后继续获取任务 */
         m_queue.wait_dequeue_timed(item, std::chrono::milliseconds{1});
       }
 
@@ -80,7 +80,7 @@ struct kernel {
     }
   }
 
-  /// @brief 默认的 run 函数就是清空队列 
+  /// @brief 默认的 run 函数就是清空队列
   /// @param worker 拥有此 kernel 的 worker
   /// 被动线程将使用此函数，主动线程需要覆写此函数以执行特定任务。
   void run(auto& worker) { flush(worker); }

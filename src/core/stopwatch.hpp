@@ -111,7 +111,7 @@ struct stopwatch_normal {
 
   /// @brief 标记计时的起点
   void start() {
-    counts++;
+    ++counts;
     if (counts < 0) return;
     data[0].now = std::chrono::steady_clock::now();
   }
