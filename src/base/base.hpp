@@ -1,15 +1,15 @@
 // zlib License
-
+//
 // copyright (C) 2023 Guoxiaomi and Krimiston
-
+//
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
 // arising from the use of this software.
-
+//
 // Permission is granted to anyone to use this software for any purpose,
 // including commercial applications, and to alter it and redistribute it
 // freely, subject to the following restrictions:
-
+//
 // 1. The origin of this software must not be misrepresented; you must not
 //    claim that you wrote the original software. If you use this software
 //    in a product, an acknowledgment in the product documentation would be
@@ -39,10 +39,10 @@
 #include "timer.hpp"
 
 namespace rgm::base {
-/** @brief 执行逻辑流程的 task，运行 ruby 脚本 */
+/// @brief 执行 ruby 脚本的 task，运行游戏的主要逻辑，
 using tasks_ruby =
     std::tuple<init_ruby, init_embeded, init_synchronize, init_counter,
-               init_surfaces, init_music, init_sound, init_config, 
+               init_surfaces, init_music, init_sound, init_config,
                interrupt_signal, music_finish_callback, controller_axis_reset>;
 /** @brief 执行渲染流程的 task，使用 SDL2 创建窗口，绘制画面 */
 using tasks_render =

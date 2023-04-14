@@ -1,15 +1,15 @@
 // zlib License
-
+//
 // copyright (C) 2023 Guoxiaomi and Krimiston
-
+//
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
 // arising from the use of this software.
-
+//
 // Permission is granted to anyone to use this software for any purpose,
 // including commercial applications, and to alter it and redistribute it
 // freely, subject to the following restrictions:
-
+//
 // 1. The origin of this software must not be misrepresented; you must not
 //    claim that you wrote the original software. If you use this software
 //    in a product, an acknowledgment in the product documentation would be
@@ -209,7 +209,7 @@ consteval bool tuple_include() {
 template <typename>
 struct for_each;
 
-/// @brief for_each 模板类，用于依次任务的 before 和 after 函数
+/// @brief for_each 模板类，用于依次执行任务的 before 和 after 函数
 /// @tparam std::tuple<Args...> 传入的任务列表
 template <typename... Args>
 struct for_each<std::tuple<Args...>> {
@@ -218,14 +218,13 @@ struct for_each<std::tuple<Args...>> {
       /*
        * 这里不把 requires 语句写到下面的 constexpr if 条件中，
        * 是为了让 MSVC 能顺利运行。否则 MSVC 会错误地忽略 before 函数。
+       * 下面 after 函数的处理也是一样。
        */
       constexpr bool condition = requires { T::before(worker); };
       if constexpr (condition) {
         T::before(worker);
       }
-      /*
-       * 检查开发者是否遗忘了写 before 的 worker 参数，给出编译期提示。
-       */
+      /* 检查开发者是否遗忘了写 before 的 worker 参数，给出编译期提示 */
       static_assert(
           !(requires { T::before(); }),
           "The static function before() without parameters will be ignored. "
@@ -240,6 +239,7 @@ struct for_each<std::tuple<Args...>> {
       if constexpr (condition) {
         T::after(worker);
       }
+      /* 检查开发者是否遗忘了写 after 的 worker 参数，给出编译期提示 */
       static_assert(
           !(requires { T::after(); }),
           "The static function after() without parameters will be ignored. "
