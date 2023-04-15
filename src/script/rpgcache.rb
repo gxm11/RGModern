@@ -24,6 +24,7 @@
 module RPG
   module Cache
     def self.reload
+      count = 0
       @cache.each_pair do |key, value|
         next unless key.is_a?(String)
         next if value.disposed?
@@ -37,6 +38,7 @@ module RPG
                  end
         value.blt(0, 0, bitmap, value.rect, 255)
         RGM::Base.bitmap_reload_autotile(value.id, false)
+        count += 1
       end
 
       @cache.each_pair do |key, value|
@@ -49,7 +51,10 @@ module RPG
         bitmap = @cache[path].clone
         bitmap.hue_change(hue)
         value.blt(0, 0, bitmap, value.rect, 255)
+        count += 1
       end
+
+      puts "Reload #{count} bitmaps in total."
     end
 
     def self.tileset(filename)

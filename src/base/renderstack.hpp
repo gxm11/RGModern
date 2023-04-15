@@ -23,80 +23,107 @@
 #include "init_sdl2.hpp"
 
 namespace rgm::base {
-/**
- * @brief 管理渲染方式的数据结构。
- */
+/// @brief 管理分层渲染，内置 stack 数据结构并提供缓存避免频繁申请 texture
+/// @name data
 struct renderstack {
-  /**
-   * @brief 存放多级渲染结构对应 texture 的栈。
-   * @note 可能的结构，从底到顶如下：
-   * 1. window，实际上不在栈中
-   * 2. screen
-   * 3. viewport
-   * 4. sprite
-   */
+  /*
+  渲染栈（Stack）的层级：
+  +---------------------------------------------+
+  |   Drawables 的原始纹理（texture），不在栈中   |
+  +---------------------------------------------+
+  |             Drawables 的效果处理             |
+  +---------------------------------------------+
+  |              有视口的 Drawables              |
+  +---------------------------------------------+
+  |     视口（Viewport）和无视口的 Drawables*     |
+  +---------------------------------------------+
+  |                 屏幕（Screen）               |
+  +---------------------------------------------+
+  |             窗口（Window），不在栈中          |
+  +---------------------------------------------+
+  * 其中无视口的 Drawables 所有级别都向下一移动层
+
+  渲染栈会依次绘制所有的 Drawables。
+  存在视口时，相应的内容绘制到视口上，否则绘制到屏幕上。
+  视口内的 Drawables 绘制完毕时，视口退栈，其画面绘制到屏幕上。
+  所有内容绘制完毕时，屏幕的内容绘制到窗口上。
+  渲染未开始时，渲染栈只存在屏幕这一层。
+  */
+
+  /// @brief 缓存使用的图片大小基数
+  static constexpr int cache_base_size = 48;
+
+  /// @brief 缓存使用的图片大小每次膨胀的倍数
+  static constexpr int cache_extend_ratio = 2;
+
+  /// @brief 渲染器支持的最大 texture size
+  static constexpr int max_texture_size = 32768;
+
+  /// @brief 渲染栈，存放多层渲染结构对应的 texture
   std::vector<cen::texture> stack;
 
-  /** @brief 缓存一定大小的 texture 避免重复申请内存或显存 */
+  /// @brief 缓存一定大小的 texture 避免重复申请内存或显存
   std::list<cen::texture> cache;
 
+  /// @brief 渲染器的 handle，没有所有权
   cen::renderer_handle renderer;
 
-  /**
-   * @brief 返回不小于当前的长和宽的2的最小幂次。
-   *
-   * @param width 图片的宽。
-   * @param height 图片的长。
-   * @return constexpr int 刚好能放下这个图片的最小 texture 的大小。
-   */
+  /// @brief 辅助计算返回不小于当前的长和宽的2的最小幂次
+  /// @param width 图片的宽
+  /// @param height 图片的高
+  /// @return int 能放下这个图片的最小正方形 texture 的大小
   constexpr static int best_value(int width, int height) {
-    int least_value = (width > height) ? width : height;
-    if (least_value > 65535) {
-      throw std::invalid_argument("Texture size must be less than 65535.");
+    int least_value = std::max(width, height);
+    if (least_value > max_texture_size) {
+      throw std::invalid_argument("Texture size must be less than 32768.");
     }
-    int value = 32;
+    int value = cache_base_size;
     while (value < least_value) {
-      value *= 2;
+      value *= cache_extend_ratio;
     }
     return value;
   }
 
-  /** @brief 因为构造时 SDL 还没有初始化，所以不执行任何操作 */
+  /// @brief 构造函数，不执行任何操作，初始化操作在 setup 里 */
   explicit renderstack() : stack(), cache(), renderer(nullptr) {}
 
-  /**
-   * @brief 配置 renderstack
-   *
-   * @param renderer
-   * @param window
-   * @note 包括以下内容：
-   * 1. 创建缓存 cache
-   * 2. 创建与屏幕大小相同的 screen 并放入 stack 中
-   */
+  /// @brief 配置 renderstack，进行初始化操作
+  /// @param renderer SDL2 渲染器的引用
+  /// @param width 屏幕的宽度
+  /// @param height 屏幕的高度
   void setup(cen::renderer& renderer, int width, int height) {
+    /* 给 renderer_handle 成员赋值 */
     this->renderer = cen::renderer_handle(renderer);
 
-    for (int size : {48, 96, 192, 384, 768}) {
+    /*  创建缓存 cache，初始有 5 个 texture 在缓存中 */
+    int size = cache_base_size;
+    for (size_t i = 0; i < 5; ++i) {
       cen::texture empty = make_empty_texture(size, size);
       cache.push_back(std::move(empty));
+      size *= cache_extend_ratio;
     }
 
+    /* 创建与屏幕大小相同的 screen 并放入 stack 中 */
     cen::texture screen = make_empty_texture(width, height);
     screen.set_scale_mode(cen::scale_mode::nearest);
     stack.push_back(std::move(screen));
   }
 
+  /// @brief 创建一个指定大小的空 texture
+  /// @param width 图片的宽
+  /// @param height 图片的高
+  /// 创建空 texture 的通用方案
   cen::texture make_empty_texture(int width, int height) {
     cen::texture empty = renderer.make_texture(cen::iarea{width, height},
                                                cen::pixel_format::bgra32,
                                                cen::texture_access::target);
     empty.set_blend_mode(cen::blend_mode::none);
 
+    /* 清空 texture 的内容 */
     renderer.set_target(empty);
     renderer.set_blend_mode(cen::blend_mode::none);
     renderer.clear_with(cen::colors::transparent);
 
-    // copy elision here
     return empty;
   }
 

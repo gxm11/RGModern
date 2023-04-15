@@ -153,8 +153,8 @@ module Graphics
     RGM::Base.graphics_resize_window(width.to_i, height.to_i, scale_mode.to_i)
 
     # resize window 后，现存的 bitmap 可能会损坏，需要重新读取 Cache
-    # 使用 Direct3D11 看上去不会损坏现存的 bitmap
-    # 所以 resize_window 尽可能在程序最前方，或者使用 config.ini 来控制
+    # 所以 resize_window 需尽可能在程序开始时
+    # 使用 Direct3D11 渲染不会损坏现存的 bitmap
     puts '[Warning] resize window might destory all bitmaps.'
     puts 'Bitmaps in RPG::Cache are automatically reloaded.'
 
