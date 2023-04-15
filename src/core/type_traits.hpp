@@ -30,6 +30,7 @@ consteval auto append_tuple(T, std::tuple<Args...>) {
 /// @brief 将一个类型添加到 std::tuple 中，作为其第一个元素
 /// @tparam Item 新添加的类型
 /// @tparam Tuple 目标 std::tuple 类型
+/// @name meta
 template <typename Item, typename Tuple>
 using append_tuple_t =
     decltype(append_tuple(std::declval<Item>(), std::declval<Tuple>()));
@@ -43,6 +44,7 @@ consteval auto expand_tuples(Ts... tuples) {
 
 /// @brief 将多个 std::tuple 的内容合并到新的 std::tuple 中
 /// @tparam Ts... 接受多个 std::tuple 类型
+/// @name meta
 template <typename... Ts>
 using expand_tuples_t = decltype(expand_tuples(std::declval<Ts>()...));
 
@@ -66,6 +68,7 @@ consteval auto unique_tuple(std::tuple<First, Rest...>) {
 
 /// @brief 移除 std::tuple 中重复的元素
 /// @tparam Tuple 目标 std::tuple
+/// @name meta
 template <typename Tuple>
 using unique_tuple_t = decltype(unique_tuple(std::declval<Tuple>()));
 
@@ -97,6 +100,7 @@ consteval auto remove_dummy_tuple(T_worker*, std::tuple<T_task, Rest...>) {
 /// @brief 用于将任务列表中的 dummy 任务（即未定义 run 函数的任务）移除
 /// @tparam T_tasks 任务列表对应的 std::tuple
 /// @tparam T_worker 执行此任务的 worker 类型
+/// @name meta
 template <typename T_worker, typename T_tasks>
 using remove_dummy_t = decltype(remove_dummy_tuple(
     static_cast<T_worker*>(nullptr), std::declval<T_tasks>()));
@@ -129,6 +133,7 @@ consteval auto make_data_tuple(std::tuple<T_task, Rest...>) {
 
 /// @brief 用于将任务列表中的任务的 data 类型提取出来，返回新的 std::tuple
 /// @tparam T_tasks 待提取 data 的任务列表
+/// @name meta
 template <typename T_tasks>
 using make_data_t = decltype(make_data_tuple(std::declval<T_tasks>()));
 
@@ -139,7 +144,8 @@ consteval auto tuple_to_variant(std::tuple<Ts...>) {
 }
 
 /// @brief 利用结构化绑定，将 struct 映射为相应的 std::tuple
-/// 在宏 RGMBIND 中使用，至多支持 8 个成员变量。
+/// @name meta
+/// 在宏 RGMBIND 和 RGMBIND2 中使用，至多支持 8 个成员变量。
 template <size_t n>
 consteval auto struct_to_tuple(auto&& s) {
   static_assert(n >= 0 && n <= 8,
@@ -183,6 +189,7 @@ consteval auto struct_to_tuple(auto&& s) {
 /// @tparam Item 要查找的类型
 /// @return 若存在则返回 Item 在 Tuple 的类型参数列表里的位置，否则返回 Tuple
 /// 的大小
+/// @name meta
 template <typename Tuple, typename Item>
 consteval size_t tuple_index() {
   auto tuple_find = []<typename... Args>(std::tuple<Args...>*) -> size_t {
@@ -197,6 +204,7 @@ consteval size_t tuple_index() {
 /// @tparam Tuple 目标 std::tuple
 /// @tparam Item 要查找的类型
 /// @return 若存在则返回 true 否则返回 false
+/// @name meta
 template <typename Tuple, typename Item>
 consteval bool tuple_include() {
   return tuple_index<Tuple, Item>() != std::tuple_size_v<Tuple>;
@@ -211,6 +219,7 @@ struct for_each;
 
 /// @brief for_each 模板类，用于依次执行任务的 before 和 after 函数
 /// @tparam std::tuple<Args...> 传入的任务列表
+/// @name meta
 template <typename... Args>
 struct for_each<std::tuple<Args...>> {
   static void before(auto& worker) {
