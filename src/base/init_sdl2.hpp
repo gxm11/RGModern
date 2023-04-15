@@ -101,6 +101,9 @@ struct cen_library {
   /// joystick_index -> controller
   std::map<int, cen::controller> controllers;
 
+  /// @brief screen 绘制到 window 上的缩放模式
+  int scale_mode;
+
   /// @brief 初始化 SDL2 运行环境，创建并显示窗口
   explicit cen_library()
       : sdl(),
@@ -114,7 +117,8 @@ struct cen_library {
                hint.window_flag),
         /* 构造 cen::renderer */
         renderer(window.make_renderer()),
-        event_dispatcher() {
+        event_dispatcher(),
+        scale_mode(0) {
     /* 绘制透明的初始画面 */
     renderer.reset_target();
     renderer.clear_with(cen::colors::transparent);

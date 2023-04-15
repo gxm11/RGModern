@@ -61,6 +61,10 @@ File.open(RGM::Config::Config_Path, 'r') do |f|
       Audio.disable_sound if line == 'Sound=OFF'
       Graphics.set_fullscreen(Regexp.last_match(1).to_i) if line =~ /^FullScreen=(\d+)/
       Graphics.enable_low_fps(Regexp.last_match(1).to_i) if line =~ /^LowFPSRatio=(\d+)/
+      if line =~ /^ScreenScaleMode=(\d+)/
+        Graphics.resize_window(RGM::Config::Window_Width, RGM::Config::Window_Height,
+                               Regexp.last_match(1).to_i)
+      end
       if line == 'MessageBox=ON'
         def p(*args)
           msgbox(args.collect(&:to_s).join("\n"))

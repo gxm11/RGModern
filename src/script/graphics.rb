@@ -141,19 +141,20 @@ module Graphics
   end
 
   def present
-    RGM::Base.graphics_present(@@scale_mode)
+    RGM::Base.graphics_present
     RGM::Base.check_delay(Graphics.frame_rate)
     @@frame_count += 1
   end
 
   def resize_window(width, height, scale_mode = 0)
-    @@scale_mode = scale_mode.to_i
+    # scale_mode 设置成 0,1,2 对应不同的缩放模式：nearest/linear/best
+    # 设置成其它的值将不会缩放，而是居中显示
 
-    RGM::Base.graphics_resize_window(width.to_i, height.to_i)
+    RGM::Base.graphics_resize_window(width.to_i, height.to_i, scale_mode.to_i)
+
     # resize window 后，现存的 bitmap 可能会损坏，需要重新读取 Cache
-    # autotiles 由于特殊的设计，无法在这里重新读取，需要切换一次地图。
-    # 如此就利用了 RGSS 里 autotitles 会在切换地图时释放 bitmap 的特性。
-    # 尝试在 clear 里开个口？
+    # 使用 Direct3D11 看上去不会损坏现存的 bitmap
+    # 所以 resize_window 尽可能在程序最前方，或者使用 config.ini 来控制
     puts '[Warning] resize window might destory all bitmaps.'
     puts 'Bitmaps in RPG::Cache are automatically reloaded.'
 
@@ -229,9 +230,6 @@ module Graphics
   @@freeze_bitmap = nil
   @@current_bitmap = nil
   @@flag_synchronize = false
-  # 设置成 0,1,2 对应不同的缩放模式：nearest/linear/best
-  # 设置成以外的值将不会缩放，而是居中显示
-  @@scale_mode = 0
 
   @@title = RGM::Config::Game_Title
   @@show_fps = (RGM::Config::Build_Mode < 2)

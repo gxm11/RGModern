@@ -37,7 +37,7 @@ struct resize_screen {
   int height;
 
   void run(auto& worker) {
-    base::renderstack& stack = RGMDATA(base::renderstack);
+    renderstack& stack = RGMDATA(renderstack);
 
     /* 开发模式检查是否有 renderstack 的出入栈错误 */
     if constexpr (config::develop) {
@@ -58,9 +58,23 @@ struct resize_screen {
 struct resize_window {
   int width;
   int height;
+  int scale_mode;
 
   void run(auto& worker) {
-    cen::window& window = RGMDATA(base::cen_library).window;
+    cen::window& window = RGMDATA(cen_library).window;
+    renderstack& stack = RGMDATA(renderstack);
+
+    RGMDATA(cen_library).scale_mode = scale_mode;
+
+    /* 开发模式检查是否有 renderstack 的出入栈错误 */
+    if constexpr (config::develop) {
+      if (stack.stack.size() != 1) {
+        cen::log_error(
+            "resize screen failed, the stack depth is not equal to 1!");
+        throw std::length_error{"renderstack in resize screen"};
+      }
+    }
+
     window.set_x(window.x() + (window.width() - width) / 2);
     window.set_y(window.y() + (window.height() - height) / 2);
     window.set_size(cen::iarea{width, height});
@@ -93,14 +107,14 @@ struct clear_screen {
  * @brief 任务：渲染结束的处理，解锁 ruby 线程并等待垂直同步信息更新画面。
  */
 struct present_window {
-  int scale_mode;
-
   void run(auto& worker) {
     render_timer.step(3);
 
-    cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
-    cen::window& window = RGMDATA(base::cen_library).window;
-    base::renderstack& stack = RGMDATA(base::renderstack);
+    cen::renderer& renderer = RGMDATA(cen_library).renderer;
+    cen::window& window = RGMDATA(cen_library).window;
+    renderstack& stack = RGMDATA(renderstack);
+    int scale_mode = RGMDATA(cen_library).scale_mode;
+
     if constexpr (config::develop) {
       if (stack.stack.size() != 1) {
         cen::log_error(
