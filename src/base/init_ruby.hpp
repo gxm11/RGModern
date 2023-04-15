@@ -22,7 +22,7 @@
 #include "core/core.hpp"
 
 namespace rgm::base {
-/** @brief 将 ruby_library 类型的变量添加到 worker 的 datalist 中 */
+/// @brief ruby 相关的初始化类，初始化 ruby 的运行环境
 struct init_ruby {
   static void before(auto&) {
     int argc = 0;
@@ -37,6 +37,8 @@ struct init_ruby {
   }
 };
 
+/// @brief Config 相关的初始化类，定义了 RGM::Config 下的常量
+/// 这些常量对应 rgm::config 中的变量，部分读取自 config.ini 文件
 struct init_config {
   static void before(auto&) {
     VALUE rb_mRGM = rb_define_module("RGM");
@@ -47,8 +49,8 @@ struct init_config {
                  INT2FIX(config::build_mode));
     rb_const_set(rb_mRGM_Config, rb_intern("Controller_Axis_Threshold"),
                  INT2FIX(config::controller_axis_threshold));
-    rb_const_set(rb_mRGM_Config, rb_intern("Max_Threads"),
-                 INT2FIX(config::max_threads));
+    rb_const_set(rb_mRGM_Config, rb_intern("Max_Workers"),
+                 INT2FIX(config::max_workers));
     rb_const_set(rb_mRGM_Config, rb_intern("Tileset_Texture_Height"),
                  INT2FIX(config::tileset_texture_height));
     rb_const_set(rb_mRGM_Config, rb_intern("Battle_Test"),

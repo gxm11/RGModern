@@ -43,7 +43,7 @@ struct counter {
   }
 };
 
-/// @brief 数据类 counter 相关的初始化方法
+/// @brief 数据类 counter 相关的初始化类
 /// @name task
 struct init_counter {
   using data = std::tuple<counter>;
@@ -61,8 +61,8 @@ struct init_counter {
     };
 
     VALUE rb_mRGM = rb_define_module("RGM");
-    VALUE rb_mRGM_BASE = rb_define_module_under(rb_mRGM, "Base");
-    rb_define_module_function(rb_mRGM_BASE, "new_id", wrapper::new_id, 0);
+    VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
+    rb_define_module_function(rb_mRGM_Base, "new_id", wrapper::new_id, 0);
   }
 };
 }  // namespace rgm::base

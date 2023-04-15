@@ -147,18 +147,18 @@ struct init_palette {
     };
 
     VALUE rb_mRGM = rb_define_module("RGM");
-    VALUE rb_mRGM_BASE = rb_define_module_under(rb_mRGM, "Base");
-    rb_define_module_function(rb_mRGM_BASE, "palette_create", wrapper::create,
+    VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
+    rb_define_module_function(rb_mRGM_Base, "palette_create", wrapper::create,
                               3);
-    rb_define_module_function(rb_mRGM_BASE, "palette_dispose", wrapper::dispose,
+    rb_define_module_function(rb_mRGM_Base, "palette_dispose", wrapper::dispose,
                               1);
-    rb_define_module_function(rb_mRGM_BASE, "palette_get_pixel",
+    rb_define_module_function(rb_mRGM_Base, "palette_get_pixel",
                               wrapper::get_pixel, 3);
-    rb_define_module_function(rb_mRGM_BASE, "palette_set_pixel",
+    rb_define_module_function(rb_mRGM_Base, "palette_set_pixel",
                               wrapper::set_pixel, 4);
-    rb_define_module_function(rb_mRGM_BASE, "palette_save_png",
+    rb_define_module_function(rb_mRGM_Base, "palette_save_png",
                               wrapper::save_png, 2);
-    rb_define_module_function(rb_mRGM_BASE, "palette_convert_to_bitmap",
+    rb_define_module_function(rb_mRGM_Base, "palette_convert_to_bitmap",
                               wrapper::convert_to_bitmap, 3);
   }
 };

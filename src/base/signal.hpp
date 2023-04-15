@@ -42,16 +42,16 @@ struct init_synchronize {
     /** wrapper 类，创建静态方法供 ruby 的模块绑定 */
     struct wrapper {
       /** RGM::Base.synchronize 方法 */
-      static VALUE synchronize(VALUE, VALUE thread_id_) {
-        RGMLOAD(thread_id, int);
+      static VALUE synchronize(VALUE, VALUE worker_id_) {
+        RGMLOAD(worker_id, int);
 
-        if (thread_id > config::max_threads) {
+        if (worker_id > config::max_workers) {
           rb_raise(rb_eArgError,
                    "There're too many threads, please change "
-                   "config::max_threads.\n");
+                   "config::max_workers.\n");
         }
 
-        switch (thread_id) {
+        switch (worker_id) {
           default:
             break;
           case 1:

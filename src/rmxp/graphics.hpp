@@ -184,7 +184,6 @@ struct init_graphics {
     RGMBIND(rb_mRGM_Base, "graphics_present", base::present_window, 1);
     RGMBIND(rb_mRGM_Base, "graphics_resize_screen", base::resize_screen, 2);
     RGMBIND(rb_mRGM_Base, "graphics_resize_window", base::resize_window, 2);
-    RGMBIND(rb_mRGM_Base, "graphics_set_fullscreen", base::set_fullscreen, 1);
   }
 };
 }  // namespace rgm::rmxp

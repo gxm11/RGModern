@@ -71,7 +71,7 @@ struct zip_data_embeded {
   }
 };
 
-/// @brief 数据类 zip_data_embeded 相关的初始化方法
+/// @brief 数据类 zip_data_embeded 相关的初始化类
 /// @name task
 struct init_embeded {
   using data = std::tuple<zip_data_embeded>;
@@ -116,7 +116,6 @@ struct init_embeded {
         auto buf = z.load_string(path);
         if (!buf) return Qnil;
 
-        /// @todo 这里似乎有一次复制，看看能否移动堆上数据？
         VALUE object = rb_str_new(buf->data(), buf->size());
 
         return object;

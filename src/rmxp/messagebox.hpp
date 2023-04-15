@@ -47,8 +47,8 @@ struct init_message {
     };
 
     VALUE rb_mRGM = rb_define_module("RGM");
-    VALUE rb_mRGM_BASE = rb_define_module_under(rb_mRGM, "Base");
-    rb_define_module_function(rb_mRGM_BASE, "message_show", wrapper::show, 1);
+    VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
+    rb_define_module_function(rb_mRGM_Base, "message_show", wrapper::show, 1);
   }
 };
 }  // namespace rgm::rmxp

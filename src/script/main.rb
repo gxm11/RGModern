@@ -20,18 +20,13 @@
 # entry of RGSS
 
 def rgss_main
-  # clear screen
-  background = Plane.new
-  background.bitmap = Bitmap.new(32, 32)
-  color = Color.new(0, 0, 0, 255)
-  background.bitmap.fill_rect(0, 0, 32, 32, color)
-  Graphics.update
-  background.dispose
-
   # wait for other threads
-  RGM::Config::Max_Threads.times do |i|
+  RGM::Config::Max_Workers.times do |i|
     RGM::Base.synchronize(i) if i != 0
   end
+
+  # clear screen
+  Graphics.update
 
   # load Scripts.rxdata and eval
   load_data('Data/Scripts.rxdata').each do |_id, title, data|

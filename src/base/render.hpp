@@ -23,14 +23,23 @@
 #include "renderstack.hpp"
 
 namespace rgm::base {
+/// @brief 秒表 render，统计每帧渲染花费的时间
+/// 起点在 clear_screen 中，终点在 present_window 中
 core::stopwatch render_timer("render");
 
+/// @brief 重新设置绘制屏幕的大小
+/// 屏幕上的内容会被缩放到窗口上，然后再经过一次全屏的缩放展示给玩家
 struct resize_screen {
+  /// @brief 屏幕的宽
   int width;
+
+  /// @brief 屏幕的高度
   int height;
 
   void run(auto& worker) {
     base::renderstack& stack = RGMDATA(base::renderstack);
+
+    /* 开发模式检查是否有 renderstack 的出入栈错误 */
     if constexpr (config::develop) {
       if (stack.stack.size() != 1) {
         cen::log_error(
@@ -75,7 +84,7 @@ struct clear_screen {
     }
     renderer.set_target(stack.current());
     renderer.set_blend_mode(cen::blend_mode::none);
-    renderer.clear_with(cen::colors::transparent);
+    renderer.clear_with(config::screen_background_color);
     render_timer.step(2);
   }
 };

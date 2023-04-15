@@ -205,7 +205,7 @@ module Graphics
   end
 
   def set_fullscreen(mode)
-    RGM::Base.graphics_set_fullscreen(mode.to_i)
+    RGM::Base.set_fullscreen(mode.to_i)
   end
 
   def enable_low_fps(ratio)

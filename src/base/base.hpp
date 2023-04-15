@@ -37,12 +37,13 @@
 #include "surface.hpp"
 #include "texture.hpp"
 #include "timer.hpp"
+#include "window.hpp"
 
 namespace rgm::base {
 /// @brief 执行 ruby 脚本的 task，运行游戏的主要逻辑（即 RGSS 脚本）
 using tasks_ruby =
     std::tuple<init_ruby, init_embeded, init_synchronize, init_counter,
-               init_surfaces, init_music, init_sound, init_config,
+               init_surfaces, init_music, init_sound, init_config, init_window,
                interrupt_signal, music_finish_callback, controller_axis_reset>;
 
 /// @brief 执行渲染流程的 task，使用 SDL2 创建窗口，绘制画面并处理事件

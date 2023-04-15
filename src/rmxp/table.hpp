@@ -172,15 +172,15 @@ struct init_table {
     };
 
     VALUE rb_mRGM = rb_define_module("RGM");
-    VALUE rb_mRGM_BASE = rb_define_module_under(rb_mRGM, "Base");
-    rb_define_module_function(rb_mRGM_BASE, "table_create", wrapper::create, 4);
-    rb_define_module_function(rb_mRGM_BASE, "table_dispose", wrapper::dispose,
+    VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
+    rb_define_module_function(rb_mRGM_Base, "table_create", wrapper::create, 4);
+    rb_define_module_function(rb_mRGM_Base, "table_dispose", wrapper::dispose,
                               1);
-    rb_define_module_function(rb_mRGM_BASE, "table_load", wrapper::load, 2);
-    rb_define_module_function(rb_mRGM_BASE, "table_dump", wrapper::dump, 1);
-    rb_define_module_function(rb_mRGM_BASE, "table_get", wrapper::get, 2);
-    rb_define_module_function(rb_mRGM_BASE, "table_set", wrapper::set, 3);
-    rb_define_module_function(rb_mRGM_BASE, "table_resize", wrapper::resize, 4);
+    rb_define_module_function(rb_mRGM_Base, "table_load", wrapper::load, 2);
+    rb_define_module_function(rb_mRGM_Base, "table_dump", wrapper::dump, 1);
+    rb_define_module_function(rb_mRGM_Base, "table_get", wrapper::get, 2);
+    rb_define_module_function(rb_mRGM_Base, "table_set", wrapper::set, 3);
+    rb_define_module_function(rb_mRGM_Base, "table_resize", wrapper::resize, 4);
   }
 
   static void after(auto& worker) { RGMDATA(tables).clear(); }

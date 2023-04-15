@@ -26,12 +26,12 @@ module RGM
     # 控制器的 Axis 超过此阈值才会触发特定的按键效果
     # Controller_Axis_Threshold = 8000
 
+    # 包含 ruby 线程外的最多线程数，如果超过此值需要修改 base/signal.hpp 源码
+    # Max_Workers = 8
+
     # 折叠过长的 tileset，使其高度不超过此值。此值不可修改。
     # 参见 rpgcache.rb 中的 RPG::Cache.tileset 方法
     # Tileset_Texture_Height = 8192
-
-    # 除了 ruby 线程外的最多线程数，如果超过此值需要修改 base/signal.hpp 源码
-    # Max_Threads = 8
 
     # Battle_Test
     # Debug
@@ -61,11 +61,28 @@ module RGM
     # 音乐播放结束后的自动回调，已在 Audio 模块中重新定义
     # def music_finish_callback; end
 
+    # 其他音乐相关函数
+    # def music_get_volume; end
+    # def music_get_position(id); end
+    # def music_create(id, path); end
+    # def music_dispose(id); end
+    # def music_play(id, iteration); end
+    # def music_fade_in(id, iteration, duration); end
+    # def music_set_volume(volumn); end
+    # def music_set_position(position); end
+    # def music_resume; end
+    # def music_pause; end
+    # def music_hale; end
+    # def music_rewind; end
+    # def music_fade_out(duration); end
+
     # 控制器相关函数
     # def controller_rumble(joy_index, low, high, duration); end
     # def controller_rumble_trigger(joy_index, left, right, duration); end
 
     # def new_id; end
+    # def load_script(path); end
+    # def load_embeded_file(path); end
   end
 
   module Ext

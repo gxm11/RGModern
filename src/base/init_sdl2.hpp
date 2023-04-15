@@ -26,58 +26,25 @@
 #include "sound_pitch.hpp"
 
 namespace rgm::base {
+/// @brief 辅助设定 SDL Hint 的类，在 cen_library 中使用
 struct sdl_hint {
   cen::window::window_flags window_flag;
 
   sdl_hint() : window_flag{cen::window::window_flags::hidden} {
+    /* 提示 SDL 选择合适的渲染器 */
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, config::driver_name.data());
+
+    /* 显示输入法的 UI */
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 
+    /* 对于 opengl 渲染器，需要给 window_flags 添加 opengl 项 */
     if (config::driver == config::driver_type::opengl) {
       window_flag = static_cast<cen::window::window_flags>(
           static_cast<size_t>(window_flag) |
           static_cast<size_t>(cen::window::window_flags::opengl));
     }
-  }
-};
 
-/** @brief 利用 RAII 机制管理 SDL2 初始化和退出的类 */
-struct cen_library {
-  cen::sdl sdl;
-  sdl_hint hint;
-
-  cen::img img;
-  cen::ttf ttf;
-  cen::mix mix;
-
-  /** @brief 当前的窗口 */
-  cen::window window;
-  /** @brief 当前的渲染器 */
-  cen::renderer renderer;
-  /** @brief 管理事件的分配器 */
-  using event_dispatcher_t = cen::event_dispatcher<
-      cen::quit_event, cen::window_event, cen::keyboard_event,
-      cen::mouse_button_event, cen::text_editing_event, cen::text_input_event,
-      cen::controller_axis_event, cen::controller_button_event>;
-
-  event_dispatcher_t event_dispatcher;
-
-  SDL_SysWMinfo window_info;
-  SDL_RendererInfo renderer_info;
-  /** @brief joystick_index -> controller */
-  std::map<int, cen::controller> controllers;
-  /** @brief 初始化 SDL2 运行环境，创建并显示窗口 */
-  explicit cen_library()
-      : sdl(),
-        hint(),
-        img(),
-        ttf(),
-        mix(),
-        window(config::game_title,
-               cen::iarea{config::window_width, config::window_height},
-               hint.window_flag),
-        renderer(window.make_renderer()),
-        event_dispatcher() {
+    /* 设置日志输出的级别 */
     if (config::build_mode <= 0) {
       cen::set_priority(cen::log_priority::debug);
     } else if (config::build_mode == 1) {
@@ -87,31 +54,103 @@ struct cen_library {
       cen::set_priority(config::debug ? cen::log_priority::info
                                       : cen::log_priority::warn);
     }
+  }
+};
 
+/// @brief 封装了 SDL2 的数据的类
+/// @name data
+/// 此类还会利用 RAII 机制管理 SDL2 初始化和退出
+struct cen_library {
+  /// @brief SDL 库
+  cen::sdl sdl;
+
+  /// @brief SDL Hints
+  sdl_hint hint;
+
+  /// @brief SDL_IMAGE
+  cen::img img;
+
+  /// @brief SDL_TTF
+  cen::ttf ttf;
+
+  /// @brief SDL_MIXER
+  cen::mix mix;
+
+  /// @brief 当前的窗口
+  cen::window window;
+
+  /// @brief 当前的渲染器
+  cen::renderer renderer;
+
+  /// @brief 管理所有窗口事件回调的类，不在这里注册类型就不能定义事件回调
+  using event_dispatcher_t = cen::event_dispatcher<
+      cen::quit_event, cen::window_event, cen::keyboard_event,
+      cen::mouse_button_event, cen::text_editing_event, cen::text_input_event,
+      cen::controller_axis_event, cen::controller_button_event>;
+
+  /// @brief 管理事件回调的分配器
+  event_dispatcher_t event_dispatcher;
+
+  /// @brief 储存窗口的信息
+  SDL_SysWMinfo window_info;
+
+  /// @brief 储存渲染器的信息
+  SDL_RendererInfo renderer_info;
+
+  /// @brief 管理所有控制器的容器
+  /// joystick_index -> controller
+  std::map<int, cen::controller> controllers;
+
+  /// @brief 初始化 SDL2 运行环境，创建并显示窗口
+  explicit cen_library()
+      : sdl(),
+        hint(),
+        img(),
+        ttf(),
+        mix(),
+        /* 构造 cen::window */
+        window(config::game_title,
+               cen::iarea{config::window_width, config::window_height},
+               hint.window_flag),
+        /* 构造 cen::renderer */
+        renderer(window.make_renderer()),
+        event_dispatcher() {
+    /* 绘制透明的初始画面 */
     renderer.reset_target();
     renderer.clear_with(cen::colors::transparent);
     renderer.present();
 
+    /* 显示窗口 */
     window.show();
 
+    /* 设置 SDL_MIXER 的频率调制器 */
     sound_pitch::setup();
 
+    /*
+     * 处理当前堆积的窗口事件
+     * 实际上此时没有任何窗口事件的回调函数被定义，所以什么也不会发生
+     */
     event_dispatcher.poll();
 
+    /* 读取窗口和渲染器的信息 */
     SDL_VERSION(&window_info.version);
     SDL_GetWindowWMInfo(window.get(), &window_info);
     SDL_GetRendererInfo(renderer.get(), &renderer_info);
   }
 };
 
-/** @brief 任务：处理 SDL 事件 */
+/// @brief 任务：处理 SDL 事件
+/// @name task
 struct poll_event {
   void run(auto& worker) {
+    /* 处理当前堆积的窗口事件 */
     RGMDATA(cen_library).event_dispatcher.poll();
-    // 处理 controller
+
+    /* 处理 controller 的插入和拔出事件 */
     std::map<int, cen::controller>& cs = RGMDATA(cen_library).controllers;
 
     bool changed = false;
+
     for (int i = 0; i < static_cast<int>(cs.size()); ++i) {
       if (!cen::controller::supported(i)) {
         cen::log_warn("[Input] Controller %d is disconnected.", i);
@@ -119,6 +158,7 @@ struct poll_event {
         changed = true;
       }
     }
+
     const int joystick_numbers = SDL_NumJoysticks();
     for (int i = 0; i < joystick_numbers; ++i) {
       if (cs.find(i) != cs.end()) continue;
@@ -126,42 +166,14 @@ struct poll_event {
       cs.emplace(i, cen::controller(i));
       changed = true;
     }
+
+    /* 当 controller 的数量发生变化时，重置所有 controller 的 axis state */
     if (changed) worker >> controller_axis_reset{};
   }
 };
 
-struct set_title {
-  std::string title;
-
-  void run(auto& worker) {
-    cen::window& window = RGMDATA(cen_library).window;
-
-    window.set_title(title);
-  }
-};
-
-struct set_fullscreen {
-  int mode;
-
-  void run(auto& worker) {
-    cen::window& window = RGMDATA(cen_library).window;
-
-    switch (mode) {
-      case 1:
-        SDL_SetWindowFullscreen(window.get(), SDL_WINDOW_FULLSCREEN);
-        return;
-      case 2:
-        SDL_SetWindowFullscreen(window.get(), SDL_WINDOW_FULLSCREEN_DESKTOP);
-        return;
-      default:
-      case 0:
-        SDL_SetWindowFullscreen(window.get(), 0);
-        return;
-    }
-  }
-};
-
-/** @brief 将 cen_library 类型的变量添加到 worker 的 datalist 中 */
+/// @brief 数据类 cen_library 相关的初始化类
+/// @name task
 struct init_sdl2 {
   using data = std::tuple<cen_library>;
 

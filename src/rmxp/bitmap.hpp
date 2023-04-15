@@ -661,27 +661,27 @@ struct init_bitmap {
     };
 
     VALUE rb_mRGM = rb_define_module("RGM");
-    VALUE rb_mRGM_BASE = rb_define_module_under(rb_mRGM, "Base");
-    rb_define_module_function(rb_mRGM_BASE, "bitmap_create", wrapper::create,
+    VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
+    rb_define_module_function(rb_mRGM_Base, "bitmap_create", wrapper::create,
                               3);
-    rb_define_module_function(rb_mRGM_BASE, "bitmap_dispose", wrapper::dispose,
+    rb_define_module_function(rb_mRGM_Base, "bitmap_dispose", wrapper::dispose,
                               1);
-    rb_define_module_function(rb_mRGM_BASE, "bitmap_blt", wrapper::blt, 6);
-    rb_define_module_function(rb_mRGM_BASE, "bitmap_stretch_blt",
+    rb_define_module_function(rb_mRGM_Base, "bitmap_blt", wrapper::blt, 6);
+    rb_define_module_function(rb_mRGM_Base, "bitmap_stretch_blt",
                               wrapper::stretch_blt, 5);
-    rb_define_module_function(rb_mRGM_BASE, "bitmap_fill_rect",
+    rb_define_module_function(rb_mRGM_Base, "bitmap_fill_rect",
                               wrapper::fill_rect, 3);
-    rb_define_module_function(rb_mRGM_BASE, "bitmap_draw_text",
+    rb_define_module_function(rb_mRGM_Base, "bitmap_draw_text",
                               wrapper::draw_text, 5);
-    rb_define_module_function(rb_mRGM_BASE, "bitmap_text_size",
+    rb_define_module_function(rb_mRGM_Base, "bitmap_text_size",
                               wrapper::text_size, 2);
-    rb_define_module_function(rb_mRGM_BASE, "bitmap_get_pixel",
+    rb_define_module_function(rb_mRGM_Base, "bitmap_get_pixel",
                               wrapper::get_pixel, 3);
 
-    RGMBIND(rb_mRGM_BASE, "bitmap_hue_change", bitmap_hue_change, 2);
-    RGMBIND(rb_mRGM_BASE, "bitmap_save_png", bitmap_save_png, 2);
-    RGMBIND(rb_mRGM_BASE, "bitmap_capture_screen", bitmap_capture_screen, 1);
-    RGMBIND(rb_mRGM_BASE, "bitmap_reload_autotile", bitmap_reload_autotile, 2);
+    RGMBIND(rb_mRGM_Base, "bitmap_hue_change", bitmap_hue_change, 2);
+    RGMBIND(rb_mRGM_Base, "bitmap_save_png", bitmap_save_png, 2);
+    RGMBIND(rb_mRGM_Base, "bitmap_capture_screen", bitmap_capture_screen, 1);
+    RGMBIND(rb_mRGM_Base, "bitmap_reload_autotile", bitmap_reload_autotile, 2);
   }
 };
 }  // namespace rgm::rmxp

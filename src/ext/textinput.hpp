@@ -55,8 +55,8 @@ struct textinput_state {
 
   void setup() {
     VALUE rb_mRGM = rb_define_module("RGM");
-    VALUE rb_mRGM_EXT = rb_define_module_under(rb_mRGM, "Ext");
-    rb_cTextBox = rb_define_class_under(rb_mRGM_EXT, "TextBox", rb_cObject);
+    VALUE rb_mRGM_Ext = rb_define_module_under(rb_mRGM, "Ext");
+    rb_cTextBox = rb_define_class_under(rb_mRGM_Ext, "TextBox", rb_cObject);
     rb_sym_need_refresh = rb_intern("@@need_refresh");
   }
 
