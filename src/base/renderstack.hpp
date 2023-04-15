@@ -127,33 +127,28 @@ struct renderstack {
     return empty;
   }
 
-  /**
-   * @brief 从缓存中获取一个尺寸不小于 width x height 的 texture。
-   *
-   * @param width texture 的最小宽度。
-   * @param height texture 的最小高度。
-   * @return true 获取成功，并且放置此 texture 到 stack 的栈顶。
-   * @return false 获取失败，需要创建新的 texture。
-   */
+  /// @brief 将一个尺寸不小于 width x height 的 texture，添加到栈顶
+  /// @param width texture 的最小宽度
+  /// @param height texture 的最小高度
   void push_texture(int width, int height) {
+    /* 优先从缓存中查找是否有满足条件的 texture */
     auto condition = [=](auto& x) {
       return x.width() >= width && x.height() >= height;
     };
     auto it = std::find_if(cache.begin(), cache.end(), condition);
-    if (it != cache.end()) {
+
+    if (it != cache.end()) [[likely]] {
       stack.push_back(std::move(*it));
       cache.erase(it);
-    } else {
+    } else [[unlikely]] {
+      /* 少数的情况下，缓存中的 texture 都太小了，则创建一个足够大的 */
       const int size = best_value(width, height);
       cen::texture empty = make_empty_texture(size, size);
       stack.push_back(std::move(empty));
     }
   }
 
-  /**
-   * @brief 将栈顶的最后一个 texture 放回到缓存里
-   *
-   */
+  /// @brief 将栈顶的 texture 放回到缓存里，并按照顺序排好
   void pop_texture() {
     int width = stack.back().width();
     int height = stack.back().height();
@@ -165,14 +160,10 @@ struct renderstack {
     stack.pop_back();
   }
 
-  /**
-   * @brief 将一个尺寸不小于 width x height 的 texture 放到栈顶
-   *
-   * @param renderer
-   * @param width texture 的最小宽度。
-   * @param height texture 的最小高度。
-   * @note texture 会被设置为渲染目标，其内容会被清空。
-   */
+  /// @brief 将一个尺寸不小于 width x height 的 texture 放到栈顶
+  /// @param width texture 的最小宽度。
+  /// @param height texture 的最小高度。
+  /// 此 texture 的内容会被清空，且设置为渲染目标，并设置 clip 限制绘制区域。
   void push_empty_layer(int width, int height) {
     push_texture(width, height);
 
@@ -183,15 +174,12 @@ struct renderstack {
     renderer.clear_with(cen::colors::transparent);
   }
 
-  /**
-   * @brief 取出当前栈顶 texture 的特定区域作为新的 texture 放到栈顶
-   *
-   * @param renderer
-   * @param x 区域左上角的横坐标
-   * @param y 区域左上角的纵坐标
-   * @param width 区域的宽
-   * @param height 区域的高
-   */
+  /// @brief 取出当前栈顶 texture 的特定区域作为新的 texture 放到栈顶
+  /// @param x 区域左上角的横坐标
+  /// @param y 区域左上角的纵坐标
+  /// @param width 区域的宽
+  /// @param height 区域的高
+  /// 当前栈顶 texture 的此区域的内容会被绘制到新的 texture 中
   void push_capture_layer(int x, int y, int width, int height) {
     cen::texture& last = current();
     last.set_blend_mode(cen::blend_mode::none);
@@ -201,16 +189,16 @@ struct renderstack {
                     cen::irect(0, 0, width, height));
   }
 
-  /** @brief 合并上下两个 texture 的方案 */
+  /// @brief 合并两个 texture 的方案的类，输入参数是 up 和 down 两个 texture
+  /// 此方案的目标是把 up 的内容绘制到 down 上，方案通常是一个 lambda 表达式。
   using process_t = std::function<void(cen::texture& up, cen::texture& down)>;
 
-  /**
-   * @brief 将栈顶的 texture 绘制到下一层，并移除栈顶的 texture。
-   *
-   * @param process 绘制方案。
-   */
+  /// @brief 将栈顶的 texture 绘制到下一层，并移除栈顶的 texture。
+  /// @param process 合并方案
   void merge(process_t process) {
     size_t depth = stack.size();
+
+    /* 开发模式检查是否有 renderstack 的出入栈错误 */
     if constexpr (config::develop) {
       if (depth < 2) {
         cen::log_error("Merge failed, the stack depth is less than 2!");
@@ -221,12 +209,9 @@ struct renderstack {
     pop_texture();
   }
 
-  /**
-   * @brief 将目标 texture 绘制到栈顶的 texture 之上。
-   *
-   * @param process 绘制方案。
-   * @param texture 目标 texture
-   */
+  /// @brief 将目标 texture 绘制到栈顶的 texture 之上。
+  /// @param process 合并方案
+  /// @param texture 目标 texture
   void merge(process_t process, cen::texture& texture) {
     if constexpr (config::develop) {
       if (stack.empty()) {
@@ -237,17 +222,18 @@ struct renderstack {
     process(texture, stack.back());
   }
 
-  /** @brief 返回对栈顶的 texture 的引用 */
+  /// @brief 返回对栈顶的 texture 的引用
   cen::texture& current() { return stack.back(); }
 
-  /** @brief 清空储存的内容 */
+  /// @brief 清空 stack 和 缓存的 textures
   void clear() {
     stack.clear();
     cache.clear();
   }
 };
 
-/** @brief 将 renderstack 类型的变量添加到 worker 的 datalist 中 */
+/// @brief 数据类 renderstack 相关的初始化类
+/// @name task
 struct init_renderstack {
   using data = std::tuple<renderstack>;
 
@@ -255,6 +241,7 @@ struct init_renderstack {
     cen::renderer& renderer = RGMDATA(cen_library).renderer;
     renderstack& stack = RGMDATA(renderstack);
 
+    /* stack 的底层大小正是 screen 的大小 */
     stack.setup(renderer, config::screen_width, config::screen_height);
   }
 

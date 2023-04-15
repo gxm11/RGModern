@@ -76,6 +76,18 @@ module RGM
     # def music_rewind; end
     # def music_fade_out(duration); end
 
+    # 音效相关函数
+    # def sound_get_state(id); end
+    # def sound_get_channel(id); end
+    # def sound_create(id, path); end
+    # def sound_dispose(id); end
+    # def sound_play(id, iteration); end
+    # def sound_stop(id); end
+    # def sound_fade_in(id, duration); end
+    # def sound_fade_out(id, duration); end
+    # def sound_set_volume(id, volume); end
+    # def sound_set_pitch(id, speed, loop); end
+
     # 控制器相关函数
     # def controller_rumble(joy_index, low, high, duration); end
     # def controller_rumble_trigger(joy_index, left, right, duration); end
@@ -83,6 +95,9 @@ module RGM
     # def new_id; end
     # def load_script(path); end
     # def load_embeded_file(path); end
+
+    # def synchronize(worker_id); end
+    # def check_delay(frame_rate); end
   end
 
   module Ext

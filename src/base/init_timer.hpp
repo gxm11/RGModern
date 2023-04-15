@@ -24,24 +24,18 @@
 #include "timer.hpp"
 
 namespace rgm::base {
-
-/** @brief 任务：使 ruby 线程抛出 Interrupt 异常 */
-struct interrupt_signal {
-  void run(auto&) {
-    rb_raise(rb_eInterrupt, "Interrupted by another thread.\n");
-  }
-};
-
-/** @brief 创建 synchronize 相关的 ruby 方法 */
-struct init_synchronize {
+/// @brief 数据类 timer 相关的初始化类
+/// @see src/base/timer.hpp
+struct init_timer {
   using data = std::tuple<timer>;
 
   static void before(auto& this_worker) {
+    /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 
-    /** wrapper 类，创建静态方法供 ruby 的模块绑定 */
+    /* wrapper 类，创建静态方法供 ruby 的模块绑定 */
     struct wrapper {
-      /** RGM::Base.synchronize 方法 */
+      /** ruby method: Base#synchronize -> RGMWAIT */
       static VALUE synchronize(VALUE, VALUE worker_id_) {
         RGMLOAD(worker_id, int);
 
@@ -84,8 +78,11 @@ struct init_synchronize {
         return Qnil;
       }
 
+      /* ruby method: Base#check_delay -> timer::tick */
       static VALUE check_delay(VALUE, VALUE frame_rate_) {
-        double freq = 1.0 / detail::from_ruby<double>(frame_rate_);
+        RGMLOAD(frame_rate, double);
+
+        double freq = 1 / frame_rate;
         RGMDATA(timer).tick(freq);
         return Qnil;
       }
@@ -97,6 +94,8 @@ struct init_synchronize {
                               1);
     rb_define_module_function(rb_mRGM_Base, "check_delay", wrapper::check_delay,
                               1);
+
+    /* 在此处重置 timer */
     RGMDATA(timer).reset();
   }
 };

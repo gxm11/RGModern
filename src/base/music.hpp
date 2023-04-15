@@ -151,7 +151,7 @@ struct music_get_volume {
   void run(auto&) { *p_volume = cen::music::volume(); }
 };
 
-/// @brief 设置获取当前播放的音乐的音量大小
+/// @brief 设置当前播放的音乐的音量大小
 /// @name task
 struct music_set_volume {
   /// @brief 要设置的音量大小

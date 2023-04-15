@@ -27,6 +27,7 @@
 #pragma once
 #include "core/core.hpp"
 
+/* 这段代码是其他人写的插件，用于修改 Sound 的声调，尽量保持原样 */
 namespace rgm::base {
 struct sound_pitch {
   static Uint16 audioFormat;  // current audio format constant

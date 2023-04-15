@@ -22,12 +22,12 @@
 #include "core/core.hpp"
 
 namespace rgm::base {
-/**
- * @brief 管理所有 texture 的哈希表，继承自 unordered_map 以区分不同的类型。
- */
+/// @brief 存储所有 cen::texture，即位图（Bitmap）对象的类
+/// @name data
 using textures = std::unordered_map<uint64_t, cen::texture>;
 
-/** @brief 将 textures 类型的变量添加到 worker 的 datalist 中 */
+/// @brief 数据类 textures 相关的初始化类
+/// @name task
 struct init_textures {
   using data = std::tuple<textures>;
 

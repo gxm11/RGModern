@@ -25,22 +25,32 @@
 #include "sound_pitch.hpp"
 
 namespace rgm::base {
+/// @brief 存储所有 cen::sound_effect，即音效对象的类
 using sounds = std::map<uint64_t, cen::sound_effect>;
+
+/// @brief 存储所有音效的 channel 的速度的容器
 using sound_speeds = std::array<float, 32>;
 
+/// @brief 创建 RGM::Sound 对象对应的 C++ 对象
+/// @name task
 struct sound_create {
   using data = std::tuple<sounds>;
-
+  /// @brief 音效对象的 id，在 sounds 中作为键使用
   uint64_t id;
-  const char* path;
+
+  /// @brief 音效对象的文件路径
+  std::string_view path;
 
   void run(auto& worker) {
     sounds& data = RGMDATA(sounds);
-    data.emplace(id, cen::sound_effect(path));
+    data.emplace(id, cen::sound_effect(path.data()));
   }
 };
 
+/// @brief 释放 RGM::Music 对象对应的 C++ 对象
+/// @name task
 struct sound_dispose {
+  /// @brief 音效对象的 id，在 sounds 中作为键使用
   uint64_t id;
 
   void run(auto& worker) {
@@ -49,8 +59,13 @@ struct sound_dispose {
   }
 };
 
+/// @brief 播放音效
+/// @name task
 struct sound_play {
+  /// @brief 音效对象的 id，在 sounds 中作为键使用
   uint64_t id;
+
+  /// @brief 播放次数，-1 表示循环播放，0或1 表示播放一次
   int iteration;
 
   void run(auto& worker) {
@@ -59,7 +74,10 @@ struct sound_play {
   }
 };
 
+/// @brief 停止音效
+/// @name task
 struct sound_stop {
+  /// @brief 音效对象的 id，在 sounds 中作为键使用
   uint64_t id;
 
   void run(auto& worker) {
@@ -68,8 +86,13 @@ struct sound_stop {
   }
 };
 
+/// @brief 淡入音效
+/// @name task
 struct sound_fade_in {
+  /// @brief 音效对象的 id，在 sounds 中作为键使用
   uint64_t id;
+
+  /// @brief 淡入时间，单位是毫秒（ms）
   int duration;
 
   void run(auto& worker) {
@@ -78,8 +101,13 @@ struct sound_fade_in {
   }
 };
 
+/// @brief 淡出音效
+/// @name task
 struct sound_fade_out {
+  /// @brief 音效对象的 id，在 sounds 中作为键使用
   uint64_t id;
+
+  /// @brief 淡入时间，单位是毫秒（ms）
   int duration;
 
   void run(auto& worker) {
@@ -88,8 +116,13 @@ struct sound_fade_out {
   }
 };
 
+/// @brief 设置音效的音量大小
+/// @name task
 struct sound_set_volume {
+  /// @brief 音效对象的 id，在 sounds 中作为键使用
   uint64_t id;
+
+  /// @brief 要设置的音量大小
   int volume;
 
   void run(auto& worker) {
@@ -98,11 +131,18 @@ struct sound_set_volume {
   }
 };
 
+/// @brief 设置音效的频率高低
+/// @name task
 struct sound_set_pitch {
   using data = std::tuple<sound_speeds>;
 
+  /// @brief 音效对象的 id，在 sounds 中作为键使用
   uint64_t id;
+
+  /// @brief 要设置的音调比例，100 为不变
   int pitch;
+
+  /// @brief 设置是否为循环播放音效（如 BGS）
   bool loop;
 
   void run(auto& worker) {
@@ -118,8 +158,16 @@ struct sound_set_pitch {
   }
 };
 
+/// @brief 获取音效的播放状态
+/// @name task
+/// 每一个比特位代表了不同的状态：
+/// 1 -> is_playing
+/// 2 -> is_fading
 struct sound_get_state {
+  /// @brief 音效对象的 id，在 sounds 中作为键使用
   uint64_t id;
+
+  /// @brief 储存状态的变量的指针
   int* p_state;
 
   void run(auto& worker) {
@@ -130,8 +178,13 @@ struct sound_get_state {
   }
 };
 
+/// @brief 获取音效所属的通道
+/// @name task
 struct sound_get_channel {
+  /// @brief 音效对象的 id，在 sounds 中作为键使用
   uint64_t id;
+
+  /// @brief 储存通道的变量的指针
   int* channel;
 
   void run(auto& worker) {
@@ -140,20 +193,28 @@ struct sound_get_channel {
   }
 };
 
+/// @brief 音效播放相关的初始化类
+/// @name task
 struct init_sound {
   static void before(auto& this_worker) {
+    /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 
+    /* wrapper 类，创建静态方法供 ruby 的模块绑定 */
     struct wrapper {
+      /* ruby method: Base#sound_get_state -> sound_get_state */
       static VALUE sound_get_state(VALUE, VALUE id_) {
         RGMLOAD(id, uint64_t);
+
         int state;
         worker >> base::sound_get_state{id, &state};
         return INT2FIX(state);
       }
 
+      /* ruby method: Base#sound_get_channel -> sound_get_channel */
       static VALUE sound_get_channel(VALUE, VALUE id_) {
         RGMLOAD(id, uint64_t);
+
         int channel;
         worker >> base::sound_get_channel{id, &channel};
         return INT2FIX(channel);

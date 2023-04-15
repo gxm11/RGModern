@@ -19,7 +19,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
-#include "init_sdl2.hpp"
+#include "core/core.hpp"
 
 #if defined(_WIN32)
 #include <timeapi.h>
@@ -32,6 +32,8 @@
 #endif  // _WIN32
 
 namespace rgm::base {
+/// @brief 用来精确卡帧率的类
+/// 没有使用自旋锁，所以性能开销很低。
 struct timer {
   uint64_t counter;
   uint64_t frequency;
