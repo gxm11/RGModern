@@ -46,48 +46,48 @@ struct zip_data_external {
     }
   }
 
-  bool check(const char* path) {
+  bool check(const char* path) const {
     zip_stat_t sb;
     int ret = zip_stat(archive, path, ZIP_FL_ENC_STRICT, &sb);
     return ret == 0;
   }
 
-  const std::string load_string(const char* path) {
+  std::optional<std::string> load_string(const char* path) const {
     std::string buf;
 
     zip_stat_t sb;
     int ret = zip_stat(archive, path, ZIP_FL_ENC_STRICT, &sb);
-    if (ret != 0) return buf;
+    if (ret != 0) return std::nullopt;
 
     zip_file_t* file = zip_fopen(archive, path, ZIP_FL_ENC_STRICT);
-    if (!file) return buf;
+    if (!file) return std::nullopt;
 
-    buf.resize(sb.size + 1, '\0');
+    buf.resize(sb.size);
     zip_fread(file, buf.data(), sb.size);
 
     zip_fclose(file);
     return buf;
   }
 
-  SDL_Texture* load_texture(const char* path, cen::renderer& renderer) {
+  SDL_Texture* load_texture(const char* path, cen::renderer& renderer) const {
     if (!archive) return nullptr;
 
-    const std::string buf = load_string(path);
-    if (buf.empty()) return nullptr;
+    auto buf = load_string(path);
+    if (!buf) return nullptr;
 
-    SDL_RWops* src = SDL_RWFromConstMem(buf.data(), buf.size() - 1);
+    SDL_RWops* src = SDL_RWFromConstMem(buf->data(), buf->size());
 
     // Load an image from an SDL data source into a GPU texture.
     return IMG_LoadTexture_RW(renderer.get(), src, 1);
   }
 
-  SDL_Surface* load_surface(const char* path) {
+  SDL_Surface* load_surface(const char* path) const {
     if (!archive) return nullptr;
 
-    const std::string buf = load_string(path);
-    if (buf.empty()) return nullptr;
+    auto buf = load_string(path);
+    if (!buf) return nullptr;
 
-    SDL_RWops* src = SDL_RWFromConstMem(buf.data(), buf.size() - 1);
+    SDL_RWops* src = SDL_RWFromConstMem(buf->data(), buf->size());
 
     // Load an image from an SDL data source into a software surface.
     return IMG_Load_RW(src, 1);
@@ -146,10 +146,10 @@ struct init_external {
         zip_data_external& z = RGMDATA(zip_data_external);
 
         const char* path2 = path + config::resource_prefix.size();
-        const std::string buf = z.load_string(path2);
-        if (buf.empty()) return Qnil;
+        auto buf = z.load_string(path2);
+        if (!buf) return Qnil;
 
-        VALUE object = rb_str_new(buf.data(), buf.size() - 1);
+        VALUE object = rb_str_new(buf->data(), buf->size());
 
         return object;
       }

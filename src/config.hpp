@@ -26,7 +26,7 @@
 #endif
 
 #if RGM_BUILDMODE >= 2
-#define RGM_EMBEDED_ZIP
+#define RGM_EMBEDED_ZIP "embeded.zip"
 #endif
 
 #ifndef RGM_FULLVERSION

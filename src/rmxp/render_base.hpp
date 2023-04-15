@@ -57,27 +57,27 @@ struct render_tone_helper {
 
     if ((t.red == 0) && (t.green == 0) && (t.blue == 0)) return;
 
-    if (auto c_add = t.color_add(); c_add.has_value()) {
+    if (auto c_add = t.color_add(); c_add) {
       renderer.set_blend_mode(blend_type::add);
       if (r) {
-        renderer.set_color(c_add.value());
+        renderer.set_color(*c_add);
         renderer.fill_rect(*r);
       } else {
-        renderer.fill_with(c_add.value());
+        renderer.fill_with(*c_add);
       }
     }
 
-    if (auto c_sub = t.color_sub(); c_sub.has_value()) {
+    if (auto c_sub = t.color_sub(); c_sub) {
       if (config::driver == config::driver_type::opengl) {
         renderer.set_blend_mode(blend_type::reverse);
         renderer.fill_with(cen::colors::white);
 
         renderer.set_blend_mode(blend_type::add);
         if (r) {
-          renderer.set_color(c_sub.value());
+          renderer.set_color(*c_sub);
           renderer.fill_rect(*r);
         } else {
-          renderer.fill_with(c_sub.value());
+          renderer.fill_with(*c_sub);
         }
 
         renderer.set_blend_mode(blend_type::reverse);
@@ -85,10 +85,10 @@ struct render_tone_helper {
       } else {
         renderer.set_blend_mode(blend_type::sub);
         if (r) {
-          renderer.set_color(c_sub.value());
+          renderer.set_color(*c_sub);
           renderer.fill_rect(*r);
         } else {
-          renderer.fill_with(c_sub.value());
+          renderer.fill_with(*c_sub);
         }
       }
     }
