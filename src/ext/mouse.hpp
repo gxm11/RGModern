@@ -21,13 +21,16 @@
 #pragma once
 #include "base/base.hpp"
 
-// TODO(guoxiaomi): 鼠标功能
 namespace rgm::ext {
+/// @brief 鼠标相关的初始化类
+/// @name task
+/// @todo 完善鼠标的功能
 struct init_mouse_event {
   static void before(auto& worker) {
     base::cen_library::event_dispatcher_t& d =
         RGMDATA(base::cen_library).event_dispatcher;
 
+    /* 绑定鼠标按键事件 */
     d.bind<cen::mouse_button_event>().to(
         [&worker](const cen::mouse_button_event& e) {
           if (e.released()) {

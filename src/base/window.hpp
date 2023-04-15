@@ -26,6 +26,7 @@ namespace rgm::base {
 /// @brief 设置窗口的标题
 /// @name task
 struct set_title {
+  /// @brief 窗口的标题，这里复制了一份 ruby 中的字符串
   std::string title;
 
   void run(auto& worker) {

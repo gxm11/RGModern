@@ -144,3 +144,4 @@ return data[index];
   3. license 使用 // 的形式注释
   4. @name 包含 task / data / todo / meta（元编程相关）
 - [x] 给worker添加co_type
+- [ ] 注释中 return 的格式规范一下，每种不同的 return 各自占一行。

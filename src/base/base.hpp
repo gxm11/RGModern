@@ -41,12 +41,14 @@
 
 namespace rgm::base {
 /// @brief 执行 ruby 脚本的 task，运行游戏的主要逻辑（即 RGSS 脚本）
+/// init_ruby 必须是第一个！
 using tasks_ruby =
     std::tuple<init_ruby, init_embeded, init_timer, init_counter, init_surfaces,
-               init_music, init_sound, init_config, init_window,
+               init_music, init_sound, init_config, init_render, init_window,
                interrupt_signal, music_finish_callback, controller_axis_reset>;
 
 /// @brief 执行渲染流程的 task，使用 SDL2 创建窗口，绘制画面并处理事件
+/// init_sdl2 必须是第一个！
 using tasks_render =
     std::tuple<init_sdl2, init_renderstack, init_textures, poll_event,
                clear_screen, present_window, resize_window, resize_screen,

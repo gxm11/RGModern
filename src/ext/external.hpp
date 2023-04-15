@@ -22,36 +22,52 @@
 #include "base/base.hpp"
 
 namespace rgm::ext {
+/// @brief 管理外部 zip 资源包的类
+/// @name data
+/// 可以直接从外部资源包读取 texture 和 surface，对应为 ruby 中的
+/// Bitmap 和 Palette。此方法用于实现图像素材的加密。
 struct zip_data_external {
+  /// @brief 管理外部资源文件的指针
   zip_t* archive;
 
+  /// @brief 在构造函数中什么也不做
   explicit zip_data_external() : archive(nullptr) {}
 
+  /// @brief 在析构函数中释放保存的资源
   ~zip_data_external() {
     if (archive) zip_close(archive);
   }
 
-  void regist(const char* path, const char* password) {
+  /// @brief 注册某个 zip 包为外部资源包
+  /// @param path 外部资源包的路径
+  /// @param password 外部资源包的密码
+  void regist(std::string_view path, std::string_view password) {
     zip_error_t error;
     zip_source_t* zs;
 
     if (archive) zip_close(archive);
 
-    if (strlen(path) != 0) {
-      zs = zip_source_file_create(path, 0, 0, &error);
+    if (path.size() != 0) {
+      zs = zip_source_file_create(path.data(), 0, 0, &error);
       archive = zip_open_from_source(zs, ZIP_RDONLY, &error);
     }
-    if (strlen(password) != 0) {
-      zip_set_default_password(archive, password);
+    if (password.size() != 0) {
+      zip_set_default_password(archive, password.data());
     }
   }
 
-  bool check(const char* path) const {
+  /// @brief 检查某个路径是否位于外部资源包中
+  /// @param path 要检查的文件名称
+  /// @return 如果该文件存在，则 true，否则 false
+  bool check(std::string_view path) const {
     zip_stat_t sb;
-    int ret = zip_stat(archive, path, ZIP_FL_ENC_STRICT, &sb);
+    int ret = zip_stat(archive, path.data(), ZIP_FL_ENC_STRICT, &sb);
     return ret == 0;
   }
 
+  /// @brief 读取外部资源包中指定的文件的内容
+  /// @param path 外部资源包中的文件路径
+  /// @return 成功则 std::string 中存储了文件的内容，失败返回 std::nullopt
   std::optional<std::string> load_string(const char* path) const {
     std::string buf;
 
@@ -69,10 +85,15 @@ struct zip_data_external {
     return buf;
   }
 
-  SDL_Texture* load_texture(const char* path, cen::renderer& renderer) const {
+  /// @brief 直接读取外部资源包中的图像文件为 SDL_Texture*
+  /// @param path 外部资源包中的图像文件路径
+  /// @param renderer SDL 的渲染器
+  /// @return 成功则返回新创建的 SDL_Texture*，失败则返回 nullptr。
+  SDL_Texture* load_texture(std::string_view path,
+                            cen::renderer& renderer) const {
     if (!archive) return nullptr;
 
-    auto buf = load_string(path);
+    auto buf = load_string(path.data());
     if (!buf) return nullptr;
 
     SDL_RWops* src = SDL_RWFromConstMem(buf->data(), buf->size());
@@ -81,10 +102,14 @@ struct zip_data_external {
     return IMG_LoadTexture_RW(renderer.get(), src, 1);
   }
 
-  SDL_Surface* load_surface(const char* path) const {
+  /// @brief 直接读取外部资源包中的图像文件为 SDL_Surface*
+  /// @param path 外部资源包中的图像文件路径
+  /// @param renderer SDL 的渲染器
+  /// @return 成功则返回新创建的 SDL_Surface*，失败则返回 nullptr。
+  SDL_Surface* load_surface(std::string_view path) const {
     if (!archive) return nullptr;
 
-    auto buf = load_string(path);
+    auto buf = load_string(path.data());
     if (!buf) return nullptr;
 
     SDL_RWops* src = SDL_RWFromConstMem(buf->data(), buf->size());
@@ -94,45 +119,58 @@ struct zip_data_external {
   }
 };
 
-template <size_t>
+/// @brief 注册外部资源包
+/// @name task
+/// 自动附带了数据 zip_data_external。
+template <size_t worker_id = 0>
 struct regist_external_data {
   using data = std::tuple<zip_data_external>;
 
-  const char* path;
-  const char* password;
+  /// @brief path 外部资源包的路径
+  std::string path;
+
+  /// @brief password 外部资源包的密码
+  std::string password;
 
   void run(auto& worker) {
     zip_data_external& z = RGMDATA(zip_data_external);
 
     z.regist(path, password);
+
+    /* 递归广播此任务给下一个 worker */
+    if constexpr (worker_id < config::max_workers) {
+      worker >> regist_external_data<worker_id + 1>{std::move(path),
+                                                    std::move(password)};
+    }
   }
 };
 
+/// @brief 数据类 zip_data_external 相关的初始化类
+/// @name task
 struct init_external {
-  using data = std::tuple<zip_data_external>;
-
   static void before(auto& this_worker) {
+    /* 需要使用 base::detail 完成 ruby 到 C++ 类型的转换 */
     using detail = base::detail;
 
+    /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 
     struct wrapper {
+      /* ruby method: Ext#external_regist -> regist_external_data */
       static VALUE external_regist(VALUE, VALUE path_, VALUE password_) {
-        RGMLOAD(path, const char*);
-        RGMLOAD(password, const char*);
+        RGMLOAD(path, std::string);
+        RGMLOAD(password, std::string);
 
-        // 等待渲染线程结束任务
-        worker >> regist_external_data<1>{path, password};
-        RGMWAIT(1);
+        /* 这里不能用 worker >> 送到队列中，需要立刻执行 */
+        regist_external_data<0>{path, password}.run(worker);
 
-        zip_data_external& z = RGMDATA(zip_data_external);
-
-        z.regist(path, password);
         return Qnil;
       }
 
+      /* ruby method: Ext#external_check -> zip_data_external::check */
       static VALUE external_check(VALUE, VALUE path_) {
-        RGMLOAD(path, const char*);
+        RGMLOAD(path, std::string_view);
+
         zip_data_external& z = RGMDATA(zip_data_external);
 
         if (!z.archive) return Qfalse;
@@ -141,11 +179,13 @@ struct init_external {
         return valid ? Qtrue : Qfalse;
       }
 
+      /* ruby method: Ext#external_load -> zip_data_external::load_string */
       static VALUE external_load(VALUE, VALUE path_) {
-        RGMLOAD(path, const char*);
+        RGMLOAD(path, std::string_view);
+
         zip_data_external& z = RGMDATA(zip_data_external);
 
-        const char* path2 = path + config::resource_prefix.size();
+        const char* path2 = path.data() + config::resource_prefix.size();
         auto buf = z.load_string(path2);
         if (!buf) return Qnil;
 

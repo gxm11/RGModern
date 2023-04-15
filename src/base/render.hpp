@@ -177,4 +177,17 @@ struct present_window {
     render_timer.step(5);
   }
 };
+
+/// @brief 窗口、画面相关的初始化类
+/// @name task
+struct init_render {
+  static void before(auto& worker) {
+    VALUE rb_mRGM = rb_define_module("RGM");
+    VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
+
+    RGMBIND(rb_mRGM_Base, "present_window", base::present_window, 0);
+    RGMBIND(rb_mRGM_Base, "resize_screen", base::resize_screen, 2);
+    RGMBIND(rb_mRGM_Base, "resize_window", base::resize_window, 3);
+  }
+};
 }  // namespace rgm::base

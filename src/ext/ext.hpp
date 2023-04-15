@@ -27,11 +27,18 @@
 #include "textinput.hpp"
 
 namespace rgm::ext {
-using tasks_ruby = std::tuple<init_textinput, init_external, init_ping,
-                              text_input, text_edit, ruby_callback>;
+/// @brief 执行 ruby 脚本的 task，运行游戏的主要逻辑（即 RGSS 脚本）
+using tasks_ruby = std::tuple<init_textinput, init_external, init_ping, text_input,
+                              text_edit, ruby_callback, regist_external_data<0>>;
+
+/// @brief 执行渲染流程的 task，使用 SDL2 创建窗口，绘制画面并处理事件
 using tasks_render =
     std::tuple<init_text_event, init_mouse_event, textinput_start,
                textinput_stop, regist_external_data<1>>;
-using tasks_audio = std::tuple<>;
-using tasks_table = std::tuple<ruby_async<ping>>;
+
+/// @brief 执行音乐播放的 task，使用 SDL2 Mixer 播放音乐和音效
+using tasks_audio = std::tuple<regist_external_data<2>>;
+
+/// @brief 执行 Table 操作的 task，这个 worker 用于一些耗时的计算
+using tasks_table = std::tuple<ruby_async<ping>, regist_external_data<3>>;
 }  // namespace rgm::ext

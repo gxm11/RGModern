@@ -106,8 +106,8 @@ struct bitmap_create<3> {
   const char* path;
 
   void run(auto& worker) {
-    cen::log_info("[Bitmap] id = %lld, is created from external://%s", id,
-                  path);
+    cen::log_info("[Bitmap] id = %lld, is created from %s%s", id,
+                  config::resource_prefix.data(), path);
 
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
     base::renderstack& stack = RGMDATA(base::renderstack);

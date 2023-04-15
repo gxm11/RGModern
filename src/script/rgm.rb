@@ -98,10 +98,28 @@ module RGM
 
     # def synchronize(worker_id); end
     # def check_delay(frame_rate); end
+
+    # def set_title(title); end
+    # def set_fullscreen(mode); end
+    # def present_window; end
+    # def resize_screen(width, height); end
+    # def resize_window(width, height, scale_mode); end
   end
 
   module Ext
     module_function
+
+    # 外部资源包相关函数
+    # def external_check(path); end
+    # def external_regist(path, password); end
+    # def external_load(path); end
+
+    # 输入法相关函数
+    # def textinput_edit_text; end
+    # def textinput_edit_pos; end
+    # def textinput_edit_clear; end
+    # def textinput_start(x, y, width, height); end
+    # def textinput_stop; end
 
     # RGM::Ext.send(:async_ping, 100) { |ret| p ret.size, ret }
     def send(method_name, *args, &block)

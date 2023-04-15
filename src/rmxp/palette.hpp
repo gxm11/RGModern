@@ -43,8 +43,8 @@ struct init_palette {
             ext::zip_data_external& z = RGMDATA(ext::zip_data_external);
             SDL_Surface* ptr2 = z.load_surface(path2);
             ptr = std::make_unique<cen::surface>(ptr2);
-            cen::log_info("[Palette] id = %lld, is created from external://%s",
-                          id, path2);
+            cen::log_info("[Palette] id = %lld, is created from %s%s",
+                          id, config::resource_prefix.data(), path2);
           } else {
             ptr = std::make_unique<cen::surface>(path);
             cen::log_info("[Palette] id = %lld, is created from %s", id, path);
