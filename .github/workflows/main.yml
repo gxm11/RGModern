@@ -1,5 +1,7 @@
 name: Build in MSYS2 UCRT Environment
 on:
+  release:
+    types: [published]
   push:
     branches: |
       master
