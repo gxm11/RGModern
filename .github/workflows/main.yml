@@ -11,7 +11,7 @@ jobs:
       with:
         msystem: UCRT64
         update: true
-        install: <-
+        install:
           git
           mingw-w64-ucrt-x86_64-gcc
           mingw-w64-ucrt-x86_64-make
