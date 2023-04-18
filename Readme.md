@@ -1,8 +1,7 @@
 # Modern Ruby Game Engine (RGModern)
 
 [![CodeFactor](https://www.codefactor.io/repository/github/gxm11/rgmodern/badge)](https://www.codefactor.io/repository/github/gxm11/rgmodern)
-![master build](https://github.com/github/docs/actions/workflows/main.yml/badge.svg?branch=master)
-![dev build](https://github.com/github/docs/actions/workflows/main.yml/badge.svg?branch=dev)
+![master build](https://github.com/gxm11/RGModern/actions/workflows/main.yml/badge.svg?branch=master)
 
 当前版本：v1.0.0-RC3
 
