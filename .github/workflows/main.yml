@@ -1,0 +1,38 @@
+name: Build in MSYS2 UCRT Environment
+on: workflow_call
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+        
+    steps:    
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2    
+      with:
+        msystem: UCRT64
+        update: true
+        install: <-
+          git
+          mingw-w64-ucrt-x86_64-gcc
+          mingw-w64-ucrt-x86_64-make
+          
+    - name: Copy Make
+      run: cp /ucrt64/bin/mingw32-make /ucrt64/bin/make
+      
+    - name: checkout master  
+      uses: actions/checkout@v3    
+      with:
+        ref: master
+        submodules: recursive
+        
+    - name: Setup Deps
+      run: |        
+        make misc
+        make deps -f ext/deps.mk
+
+    - name: Build
+      run: |        
+        make
