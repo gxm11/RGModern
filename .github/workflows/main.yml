@@ -4,13 +4,10 @@ on: [push]
 jobs:
   build:
     runs-on: windows-latest
-    defaults:
-      run:
-        shell: msys2 {0}
-        
-    steps:    
+
+    steps:
     - name: Setup MSYS2
-      uses: msys2/setup-msys2@v2    
+      uses: msys2/setup-msys2@v2
       with:
         msystem: UCRT64
         update: true
@@ -18,23 +15,27 @@ jobs:
           git
           mingw-w64-ucrt-x86_64-gcc
           mingw-w64-ucrt-x86_64-make
-          
-    - name: Copy Make
-      run: |
-        pacman -S --noconfirm --noprogressbar git mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-make
-        cp /ucrt64/bin/mingw32-make /ucrt64/bin/make
-      
-    - name: Checkout Master  
-      uses: actions/checkout@v3    
+
+    - name: Checkout Master
+      uses: actions/checkout@v3
       with:
         ref: master
         submodules: recursive
-        
+
+
+    - name: Copy Make
+      shell: msys2 {0}
+      run: |
+        pacman -S --noconfirm --noprogressbar git mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-make
+        cp /ucrt64/bin/mingw32-make /ucrt64/bin/make
+
     - name: Setup Deps
+      shell: msys2 {0}
       run: |
         make misc
         make deps -f ext/deps.mk
 
     - name: Build
+      shell: msys2 {0}
       run: |
         make
