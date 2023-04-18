@@ -1,5 +1,12 @@
 name: Build in MSYS2 UCRT Environment
-on: [push]
+on:
+  release:
+    types: [published]
+  push:
+    branches: 
+      master
+      dev
+    tags: v1.**
 
 jobs:
   build:
@@ -22,7 +29,6 @@ jobs:
         ref: master
         submodules: recursive
 
-
     - name: Make Envs
       shell: msys2 {0}
       run: |
@@ -30,12 +36,11 @@ jobs:
         cp /ucrt64/bin/mingw32-make /ucrt64/bin/make
         make envs
 
-    - name: Setup Miscs
+    - name: Download Miscs
       shell: msys2 {0}
       run: |        
-        wget -q https://7niu.gxmatmars.com/p1/RGModern/misc.7z
+        wget -q http://7niu.gxmatmars.com/p1/RGModern/misc.7z
         make misc
-        
 
     - name: Build
       shell: msys2 {0}
