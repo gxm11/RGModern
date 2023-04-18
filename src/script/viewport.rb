@@ -95,7 +95,7 @@ class Viewport
   end
 
   def oy=(oy)
-    ox = ox.to_i
+    oy = oy.to_i
     if @oy != oy
       @oy = oy
       RGM::Base.viewport_refresh_value(self, RGM::Word::Attribute_oy)
