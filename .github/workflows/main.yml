@@ -23,16 +23,16 @@ jobs:
         submodules: recursive
 
 
-    - name: Copy Make
+    - name: Make Envs
       shell: msys2 {0}
       run: |
         pacman -S --noconfirm --noprogressbar git mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-make
         cp /ucrt64/bin/mingw32-make /ucrt64/bin/make
+        make envs
 
-    - name: Setup Deps
+    - name: Setup Miscs
       shell: msys2 {0}
-      run: |
-        make deps -f ext/deps.mk
+      run: |        
         wget -q https://7niu.gxmatmars.com/p1/RGModern/misc.7z
         make misc
         
