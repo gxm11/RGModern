@@ -32,8 +32,10 @@ jobs:
     - name: Setup Deps
       shell: msys2 {0}
       run: |
-        make misc
         make deps -f ext/deps.mk
+        wget -q https://7niu.gxmatmars.com/p1/RGModern/misc.7z
+        make misc
+        
 
     - name: Build
       shell: msys2 {0}
