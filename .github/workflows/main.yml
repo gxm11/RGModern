@@ -1,5 +1,5 @@
 name: Build in MSYS2 UCRT Environment
-on: workflow_call
+on: [push]
 
 jobs:
   build:
