@@ -127,7 +127,7 @@ module RGM
 
           if Input.repeat?(Input::TEXT_BACKSPACE) && !@text.left.empty?
             chs = @text.left.scan(/./)
-            ch = chs.pop
+            chs.pop
             @text.left = chs.join
 
             @need_refresh = true

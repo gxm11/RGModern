@@ -30,7 +30,7 @@ class Font
   @@default_solid = false
 
   class << self
-    def exist?(name)
+    def self.exist?(name)
       !!Finder.find(name, :font)
     end
 
@@ -44,8 +44,8 @@ class Font
       end
     END
 
-    %w[name size bold italic color].each do |attribute|
-      eval(Code_Default.gsub('key', attribute))
+    %w[name size bold italic color underlined strikethrough solid].each do |attribute|
+      class_eval(Code_Default.gsub('key', attribute))
     end
   end
 
@@ -76,8 +76,8 @@ class Font
 
     raise 'Default font not found.' if font_name == @@default_name
 
-    puts 'Font not found, use default font instead.'
-    puts @@default_name
+    puts "Font #{font_name}> not found, use default font (#{@@default_name}) instead."
+
     self.name = @@default_name
   end
 end

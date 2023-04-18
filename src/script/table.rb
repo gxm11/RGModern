@@ -82,7 +82,6 @@ class Table
 
   def self._load(s)
     obj = Table.new(*s[4...16].unpack('L3'))
-    size = obj.xsize * obj.ysize * obj.zsize
     RGM::Base.table_load(obj.id, s)
     obj
   end
