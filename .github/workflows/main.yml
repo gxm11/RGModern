@@ -20,19 +20,21 @@ jobs:
           mingw-w64-ucrt-x86_64-make
           
     - name: Copy Make
-      run: cp /ucrt64/bin/mingw32-make /ucrt64/bin/make
+      run: |
+        pacman -S --noconfirm --noprogressbar git mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-make
+        cp /ucrt64/bin/mingw32-make /ucrt64/bin/make
       
-    - name: checkout master  
+    - name: Checkout Master  
       uses: actions/checkout@v3    
       with:
         ref: master
         submodules: recursive
         
     - name: Setup Deps
-      run: |        
+      run: |
         make misc
         make deps -f ext/deps.mk
 
     - name: Build
-      run: |        
+      run: |
         make
