@@ -1,0 +1,48 @@
+name: Build in MSYS2 UCRT Environment
+on:
+  release:
+    types: [published]
+  push:
+    branches: 
+      master
+      dev
+    tags: v1.**
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: UCRT64
+        update: true
+        install:
+          git
+          mingw-w64-ucrt-x86_64-gcc
+          mingw-w64-ucrt-x86_64-make
+
+    - name: Checkout Master
+      uses: actions/checkout@v3
+      with:
+        ref: master
+        submodules: recursive
+
+    - name: Make Envs
+      shell: msys2 {0}
+      run: |
+        pacman -S --noconfirm --noprogressbar git mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-make
+        cp /ucrt64/bin/mingw32-make /ucrt64/bin/make
+        make envs
+
+    - name: Download Miscs
+      shell: msys2 {0}
+      run: |        
+        wget -q http://7niu.gxmatmars.com/p1/RGModern/misc.7z
+        make misc
+
+    - name: Build
+      shell: msys2 {0}
+      run: |
+        make
