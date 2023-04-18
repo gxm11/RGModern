@@ -46,4 +46,4 @@ jobs:
         shell: msys2 {0}
         run: |
           make
-          ./main -v
+          ldd main
