@@ -32,7 +32,7 @@ jobs:
       - name: Make Envs
         shell: msys2 {0}
         run: |
-          pacman -S --noconfirm --noprogressbar git mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-make
+          pacman -S --noconfirm --needed --quiet --noprogressbar git mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-make
           cp /ucrt64/bin/mingw32-make /ucrt64/bin/make
           make envs
 

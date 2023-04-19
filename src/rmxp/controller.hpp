@@ -50,23 +50,61 @@ struct controller_axis_move {
                          (config::controller_right_arrow &&
                           axis == cen::controller_axis::right_y));
 
-    constexpr int t = config::controller_axis_threshold;
-    const bool negative_greater = (old_value < -t && -t <= value);
-    const bool negative_less = (value <= -t && -t < old_value);
-    const bool postive_greater = (old_value < t && t <= value);
-    const bool postive_less = (value <= t && t < old_value);
+    enum class state {
+      no_change,
+      negative_greater,
+      negative_less,
+      postive_greater,
+      postive_less
+    };
+
+    state s = [](int before, int after) -> state {
+      constexpr int t = config::controller_axis_threshold;
+
+      if (before < -t && -t <= after) return state::negative_greater;
+      if (after <= -t && -t < before) return state::negative_less;
+      if (before < t && t <= after) return state::postive_greater;
+      if (after <= t && t < before) return state::postive_less;
+
+      return state::no_change;
+    }(old_value, value);
 
     if (x_axis) {
-      if (negative_greater) worker >> key_release{SDLK_LEFT};
-      if (negative_less) worker >> key_press{SDLK_LEFT};
-      if (postive_greater) worker >> key_press{SDLK_RIGHT};
-      if (postive_less) worker >> key_release{SDLK_RIGHT};
+      switch (s) {
+        default:
+          break;
+        case state::negative_greater:
+          worker >> key_release{SDLK_LEFT};
+          break;
+        case state::negative_less:
+          worker >> key_press{SDLK_LEFT};
+          break;
+        case state::postive_greater:
+          worker >> key_press{SDLK_RIGHT};
+          break;
+        case state::postive_less:
+          worker >> key_release{SDLK_RIGHT};
+          break;
+      }
     }
+
     if (y_axis) {
-      if (negative_greater) worker >> key_release{SDLK_UP};
-      if (negative_less) worker >> key_press{SDLK_UP};
-      if (postive_greater) worker >> key_press{SDLK_DOWN};
-      if (postive_less) worker >> key_release{SDLK_DOWN};
+      switch (s) {
+        default:
+          break;
+        case state::negative_greater:
+          worker >> key_release{SDLK_UP};
+          break;
+        case state::negative_less:
+          worker >> key_press{SDLK_UP};
+          break;
+        case state::postive_greater:
+          worker >> key_press{SDLK_DOWN};
+          break;
+        case state::postive_less:
+          worker >> key_release{SDLK_DOWN};
+          break;
+      }
     }
   }
 };

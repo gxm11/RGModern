@@ -54,7 +54,7 @@ miscs += Project1/RGSS103J.dll Project1/RGSS104E.dll Project1/RPGXP.chm Project1
 .PHONY: all envs ruby
 
 envs:
-	pacman -S --noconfirm --needed --quiet $(pkgs_msys2)
+	pacman -S --noconfirm --needed --quiet --noprogressbar $(pkgs_msys2)
 	mkdir -p $(path_download) $(path_vendors)
 
 ruby : $(lib_ruby)

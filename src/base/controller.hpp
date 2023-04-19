@@ -32,12 +32,33 @@ using controller_axisstate =
     std::array<int, static_cast<size_t>(cen::controller_axis::max) *
                         controller_maxsize>;
 
-/// @brief 重置所有 controller 的 axis state
+/// @brief controller 插入时的回调事件
 /// @name task
-/// 在检查到 controller 的插入或者移除时触发。
-struct controller_axis_reset {
+struct controller_connect {
   using data = std::tuple<controller_axisstate>;
 
-  void run(auto& worker) { RGMDATA(controller_axisstate).fill(0); }
+  int joy_index;
+
+  void run(auto& worker) {
+    cen::log_warn("[Input] Controller %d is connected.", joy_index);
+
+    /* 重置所有 controller 的 axis state */
+    RGMDATA(controller_axisstate).fill(0);
+  }
+};
+
+/// @brief controller 拔出时的回调事件
+/// @name task
+struct controller_disconnect {
+  using data = std::tuple<controller_axisstate>;
+
+  int joy_index;
+
+  void run(auto& worker) {
+    cen::log_warn("[Input] Controller %d is disconnected.", joy_index);
+
+    /* 重置所有 controller 的 axis state */
+    RGMDATA(controller_axisstate).fill(0);
+  }
 };
 }  // namespace rgm::base

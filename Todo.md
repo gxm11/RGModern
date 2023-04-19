@@ -132,16 +132,21 @@ return data[index];
 - [x] 渐变突然没了？修复渐变消失的问题。
 - [x] 增加 config::driver_name 和 RGM::Driver_Name 常量
 
-# 20230410-todo
+# 20230419-todo
 - [ ] rgm 小助手
-- [x] 范例中增加输入法和外部resource读取
-  1. 工作室放一个宝箱，提醒用户输入密码打开特定图片
-  2. 工作室下水道的二维码更新一下
 - [ ] 用AI放大处理一下素材：https://bigjpg.com/zh
 - [ ] 文档和注释，注释规则：
   1. 使用 doxygen 格式的注释时，用 /// 开头
   2. 其他格式的注释使用 /**/ 的形式
   3. license 使用 // 的形式注释
   4. @name 包含 task / data / todo / meta（元编程相关）
-- [x] 给worker添加co_type
 - [ ] 注释中 return 的格式规范一下，每种不同的 return 各自占一行。
+- [ ] 使用 std::string_view 代表 ruby 传过来的字符串
+- [ ] Regist 外部资源后触发 reload
+  1. 等待渲染线程
+  2. 清空 finder 的缓存
+  3. reload 资源
+- [x] 增加 detail 里转换为 T* 的处理（做不了）
+- [x] wget 加上 -q，pacman 加上 --noprogressbar
+- [x] 不存在 config.ini 时自动创建，这个逻辑放到 init_config 的 before 里执行（做不了）
+- [x] controller 的几个按键条件是排他的，可以用一个uint8的不同位表示。

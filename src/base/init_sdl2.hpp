@@ -153,26 +153,19 @@ struct poll_event {
     /* 处理 controller 的插入和拔出事件 */
     std::map<int, cen::controller>& cs = RGMDATA(cen_library).controllers;
 
-    bool changed = false;
-
     for (int i = 0; i < static_cast<int>(cs.size()); ++i) {
       if (!cen::controller::supported(i)) {
-        cen::log_warn("[Input] Controller %d is disconnected.", i);
         cs.erase(i);
-        changed = true;
+        worker >> controller_disconnect{i};
       }
     }
 
     const int joystick_numbers = SDL_NumJoysticks();
     for (int i = 0; i < joystick_numbers; ++i) {
       if (cs.find(i) != cs.end()) continue;
-      cen::log_warn("[Input] Controller %d is connected.", i);
       cs.emplace(i, cen::controller(i));
-      changed = true;
+      worker >> controller_connect{i};
     }
-
-    /* 当 controller 的数量发生变化时，重置所有 controller 的 axis state */
-    if (changed) worker >> controller_axis_reset{};
   }
 };
 

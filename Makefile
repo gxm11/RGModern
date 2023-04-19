@@ -160,7 +160,7 @@ publish : main.exe Game.exe Gamew.exe
 	@$(zip_publish_add) main.exe src Project1
 
 misc.7z :
-	wget https://7niu.gxmatmars.com/p1/RGModern/misc.7z
+	wget -q https://7niu.gxmatmars.com/p1/RGModern/misc.7z
 
 misc : misc.7z
 	@7z x -y $^
