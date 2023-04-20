@@ -222,11 +222,11 @@ struct bitmap_blt {
 /// @name task
 /// 对应于 RGSS 中的 Bitmap#stretch_blt
 struct bitmap_stretch_blt {
-  /// @brief 从源上截取的部分区域，作为绘制内容
-  rect src_r;
-
   /// @brief 绘制的目标区域
   rect dst_r;
+
+  /// @brief 从源上截取的部分区域，作为绘制内容
+  rect src_r;
 
   /// @brief Bitmap 的 ID。当前 Bitmap 是绘制的目标
   uint64_t id;
@@ -577,9 +577,10 @@ struct bitmap_capture_screen {
     /* 注意这里是 stack.current()，也就是上一帧绘制的内容 */
     renderer.set_target(bitmap);
     renderer.set_blend_mode(cen::blend_mode::none);
-    renderer.render(stack.current(),
-                    cen::irect{0, 0, stack.current().width(), stack.current().height()},
-                    cen::irect{0, 0, bitmap.width(), bitmap.height()});
+    renderer.render(
+        stack.current(),
+        cen::irect{0, 0, stack.current().width(), stack.current().height()},
+        cen::irect{0, 0, bitmap.width(), bitmap.height()});
 
     /* 还原 target 为渲染栈的栈顶 */
     renderer.set_target(stack.current());
