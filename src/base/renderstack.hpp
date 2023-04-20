@@ -26,7 +26,7 @@ namespace rgm::base {
 /// @brief 管理分层渲染，内置 stack 数据结构并提供缓存避免频繁申请 texture
 /// @name data
 struct renderstack {
-  /* 
+  /*
   渲染栈（Stack）的层级：
   +---------------------------------------------+
   |   Drawables 的原始纹理（texture），不在栈中   |
@@ -114,6 +114,7 @@ struct renderstack {
   /// @param height 图片的高
   /// 创建空 texture 的通用方案
   cen::texture make_empty_texture(int width, int height) {
+    /* texture 使用 bgra32 格式 */
     cen::texture empty = renderer.make_texture(cen::iarea{width, height},
                                                cen::pixel_format::bgra32,
                                                cen::texture_access::target);

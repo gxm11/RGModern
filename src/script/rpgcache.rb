@@ -37,7 +37,7 @@ module RPG
                    Bitmap.new(key)
                  end
         value.blt(0, 0, bitmap, value.rect, 255)
-        RGM::Base.bitmap_reload_autotile(value.id, false)
+        RGM::Base.bitmap_reload_autotile(value.id)
         count += 1
       end
 

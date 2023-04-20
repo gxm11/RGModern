@@ -154,7 +154,7 @@ struct init_drawable_base {
           viewport& v = std::get<viewport>(data[v_zi]);
           p_data = &v.m_data;
         }
-        std::visit(visitor_refresh, p_data->operator[](zi));
+        std::visit(visitor_refresh, p_data->at(zi));
         return Qnil;
       }
     };
@@ -210,8 +210,7 @@ struct init_drawable {
         p_data->emplace(zi, std::move(drawable));
         // fixed delta_z overlayer 的处理
         if constexpr (requires { T_Drawable::fixed_overlayer_zs; }) {
-          T_Drawable* p_drawable =
-              &std::get<T_Drawable>(p_data->operator[](zi));
+          T_Drawable* p_drawable = &std::get<T_Drawable>(p_data->at(zi));
           size_t index = 0;
           for (uint16_t delta_z : T_Drawable::fixed_overlayer_zs) {
             p_data->emplace(z_index{zi.z + delta_z, zi.id},

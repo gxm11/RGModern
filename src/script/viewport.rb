@@ -82,14 +82,14 @@ class Viewport
   def z=(z)
     return @z if @z == z
 
-    @z = RGM::Base.viewport_set_z(self, z.to_i)
+    @z = RGM::Base.viewport_set_z(self, z.to_i) unless @disposed
   end
 
   def ox=(ox)
     ox = ox.to_i
     if @ox != ox
       @ox = ox
-      RGM::Base.viewport_refresh_value(self, RGM::Word::Attribute_ox)
+      RGM::Base.viewport_refresh_value(self, RGM::Word::Attribute_ox) unless @disposed
     end
     @ox
   end
@@ -98,7 +98,7 @@ class Viewport
     oy = oy.to_i
     if @oy != oy
       @oy = oy
-      RGM::Base.viewport_refresh_value(self, RGM::Word::Attribute_oy)
+      RGM::Base.viewport_refresh_value(self, RGM::Word::Attribute_oy) unless @disposed
     end
     @oy
   end
@@ -115,7 +115,7 @@ class Viewport
       @flash_color.set(0, 0, 0, 0)
       @flash_hidden = true
     end
-    RGM::Base.viewport_refresh_value(self, RGM::Word::Attribute_flash_hidden)
+    RGM::Base.viewport_refresh_value(self, RGM::Word::Attribute_flash_hidden) unless @disposed
   end
 
   def update
@@ -127,7 +127,7 @@ class Viewport
         @flash_type = 0
         @flash_color.set(0, 0, 0, 0)
         @flash_hidden = false
-        RGM::Base.viewport_refresh_value(self, RGM::Word::Attribute_flash_hidden)
+        RGM::Base.viewport_refresh_value(self, RGM::Word::Attribute_flash_hidden) unless @disposed
       end
     end
   end
