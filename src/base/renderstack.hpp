@@ -115,9 +115,9 @@ struct renderstack {
   /// 创建空 texture 的通用方案
   cen::texture make_empty_texture(int width, int height) {
     /* texture 使用 bgra32 格式 */
-    cen::texture empty = renderer.make_texture(cen::iarea{width, height},
-                                               cen::pixel_format::bgra32,
-                                               cen::texture_access::target);
+    cen::texture empty =
+        renderer.make_texture(cen::iarea{width, height}, config::texture_format,
+                              cen::texture_access::target);
     empty.set_blend_mode(cen::blend_mode::none);
 
     /* 清空 texture 的内容 */

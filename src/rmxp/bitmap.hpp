@@ -526,8 +526,8 @@ struct bitmap_get_pixel {
     /* 一次性可以获取目标矩形里的全部像素值，但是这里矩形的长和宽都是 1 */
     SDL_Rect rect{x, y, 1, 1};
     SDL_RenderReadPixels(renderer.get(), &rect,
-                         static_cast<uint32_t>(cen::pixel_format::bgra32),
-                         p_pixel, bitmap.width() * 4);
+                         static_cast<uint32_t>(config::texture_format), p_pixel,
+                         bitmap.width() * 4);
 
     /* 还原 target 为渲染栈的栈顶 */
     renderer.set_target(stack.current());
@@ -570,7 +570,7 @@ struct bitmap_save_png {
     renderer.render(bitmap, cen::ipoint(0, 0));
 
     /* 截取并存储 */
-    renderer.capture(cen::pixel_format::bgra32).save_as_png(path.data());
+    renderer.capture(config::texture_format).save_as_png(path.data());
 
     /* 还原 target 为渲染栈的栈顶 */
     renderer.set_target(stack.current());

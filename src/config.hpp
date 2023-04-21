@@ -49,6 +49,8 @@ constexpr int controller_axis_threshold = 8000;
 constexpr int max_workers = 8;
 constexpr int tileset_texture_height = 8192;
 constexpr cen::color screen_background_color = cen::colors::black;
+constexpr cen::pixel_format texture_format = cen::pixel_format::bgra32;
+constexpr cen::pixel_format surface_format = cen::pixel_format::rgba32;
 
 // configs from command line args
 bool btest = false;

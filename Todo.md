@@ -150,6 +150,6 @@ return data[index];
 - [x] wget 加上 -q，pacman 加上 --noprogressbar
 - [x] 不存在 config.ini 时自动创建，这个逻辑放到 init_config 的 before 里执行（做不了）
 - [x] controller 的几个按键条件是排他的，可以用一个uint8的不同位表示。
-- [ ] bitmap 使用 bgra，palette 使用 rgba，这些 format 可以在 config 里用常数来表示
+- [x] bitmap 使用 bgra，palette 使用 rgba，这些 format 可以在 config 里用常数来表示
 - [x] 添加 bitmap.grayscale，对于shader操作，可能可以写一个模板
 - [ ] 在drawables里用 @data 保存原始指针了，refresh时可以避免查询操作

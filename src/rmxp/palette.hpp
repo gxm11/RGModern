@@ -43,13 +43,13 @@ struct init_palette {
             ext::zip_data_external& z = RGMDATA(ext::zip_data_external);
             SDL_Surface* ptr2 = z.load_surface(path2);
             ptr = std::make_unique<cen::surface>(ptr2);
-            cen::log_info("[Palette] id = %lld, is created from %s%s",
-                          id, config::resource_prefix.data(), path2);
+            cen::log_info("[Palette] id = %lld, is created from %s%s", id,
+                          config::resource_prefix.data(), path2);
           } else {
             ptr = std::make_unique<cen::surface>(path);
             cen::log_info("[Palette] id = %lld, is created from %s", id, path);
           }
-          cen::surface s2 = ptr->convert_to(cen::pixel_format::rgba32);
+          cen::surface s2 = ptr->convert_to(config::surface_format);
           surfaces.emplace(id, std::move(s2));
         } else {
           RGMLOAD(width, int);
@@ -58,7 +58,7 @@ struct init_palette {
           cen::log_debug("[Palette] id = %lld, is created with area %d x %d",
                          id, width, height);
 
-          cen::surface s(cen::iarea{width, height}, cen::pixel_format::rgba32);
+          cen::surface s(cen::iarea{width, height}, config::surface_format);
           surfaces.emplace(id, std::move(s));
         }
         return Qnil;
@@ -135,7 +135,7 @@ struct init_palette {
         cen::surface& s = surfaces.at(id);
 
         auto ptr = std::make_unique<cen::surface>(cen::iarea{r.width, r.height},
-                                                  cen::pixel_format::rgba32);
+                                                  config::surface_format);
         SDL_Rect src{r.x, r.y, r.width, r.height};
         SDL_Rect dst{0, 0, r.width, r.height};
         SDL_BlitSurface(s.get(), &src, ptr->get(), &dst);
