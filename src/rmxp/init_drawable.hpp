@@ -79,7 +79,7 @@ struct init_drawable_base {
         auto opt = cache_z.find(id);
         if (!opt) return Qnil;
 
-        int z = *opt;
+        int z = opt.value();
         cache_z.erase(id);
         // 从 tilemap_manager 中移除 infos
         RGMDATA(tilemap_manager).infos.erase(id);

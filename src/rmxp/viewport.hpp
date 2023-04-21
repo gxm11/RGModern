@@ -63,7 +63,7 @@ struct init_viewport {
         auto opt = cache_z.find(id);
         if (!opt) return Qnil;
 
-        int z = *opt;
+        int z = opt.value();
         cache_z.erase(id);
 
         // 从 cache_z 中移除所有内部元素
