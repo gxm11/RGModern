@@ -212,4 +212,8 @@ class Bitmap
   def capture_screen
     RGM::Base.bitmap_capture_screen(@id)
   end
+
+  def grayscale
+    RGM::Base.bitmap_grayscale(@id)
+  end
 end

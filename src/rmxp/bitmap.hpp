@@ -291,27 +291,22 @@ struct bitmap_fill_rect {
   }
 };
 
-/// @brief 修改 Bitmap 的色相
-/// @name task
-/// 此任务会调用 shader_hue 修改 Bitmap 中所有的像素。
-/// 此任务并不在 Graphics.update 中使用，而是在普通的场合使用，
-/// 可作为使用自定义 shader 的范例。
-/// 对应于 RGSS 中的 Bitmap#hue_change
+/// @brief bitmap_shader_helper
+/// @tparam shader 的类型，目前有 shader_gray / shader_hue 两种可用
+/// @tparam ...Args shader 的构造函数所需的参数类型
+/// @name meta
+/// 此模板任务会调用 T_shader 修改 Bitmap 中所有的像素。
+/// 使用方法见 bitmap_hue_change 和 bitmap_grayscale。
+/// 此模板任务不在 Graphics.update 中被自动调用，而是立即生效。
 /// @see ./src/shader/shader_base.hpp
-struct bitmap_hue_change {
-  /// @brief Bitmap 的 ID
-  uint64_t id;
-
-  /// @brief 色相的变化值，以 360 为周期
-  int hue;
-
-  void run(auto& worker) {
-    if (hue % 360 == 0) return;
-
+template <typename T_shader, typename... Args>
+struct bitmap_shader_helper {
+  template <typename T_worker>
+  static void apply(T_worker& worker, uint64_t bitmap_id, Args... args) {
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
     base::renderstack& stack = RGMDATA(base::renderstack);
 
-    cen::texture& bitmap = RGMDATA(base::textures).at(id);
+    cen::texture& bitmap = RGMDATA(base::textures).at(bitmap_id);
 
     /* 使用 base::renderstack::make_empty_texture 创建空白的 texture */
     cen::texture empty =
@@ -333,18 +328,52 @@ struct bitmap_hue_change {
        * 实际上这里 bind empty 或者 bitmap 都无所谓。
        */
       SDL_GL_BindTexture(empty.get(), nullptr, nullptr);
-      shader_hue shader(hue);
+      /* 构造 shader 对象 */
+      T_shader shader(args...);
 
       renderer.render(empty, cen::ipoint(0, 0));
       SDL_GL_UnbindTexture(empty.get());
     } else {
-      shader_hue shader(hue);
+      /* 构造 shader 对象 */
+      T_shader shader(args...);
 
       renderer.render(empty, cen::ipoint(0, 0));
     }
 
     /* 还原 target 为渲染栈的栈顶 */
     renderer.set_target(stack.current());
+  }
+};
+
+/// @brief 修改 Bitmap 的色相
+/// @name task
+/// 此任务会调用 shader_hue 修改 Bitmap 中所有的像素。
+/// 对应于 RGSS 中的 Bitmap#hue_change
+/// @see bitmap_shader_helper
+struct bitmap_hue_change {
+  /// @brief Bitmap 的 ID
+  uint64_t id;
+
+  /// @brief 色相的变化值，以 360 为周期
+  int hue;
+
+  void run(auto& worker) {
+    if (hue % 360 == 0) return;
+
+    bitmap_shader_helper<shader_hue, int>::apply(worker, id, hue);
+  }
+};
+
+/// @brief 将 Bitmap 变成灰度图
+/// @name task
+/// 此任务会调用 shader_grayscale 修改 Bitmap 中所有的像素。
+/// 对应于 RGSS 中的 Bitmap#grayscale
+/// @see bitmap_shader_helper
+struct bitmap_grayscale {
+  uint64_t id;
+
+  void run(auto& worker) {
+    bitmap_shader_helper<shader_gray>::apply(worker, id);
   }
 };
 
@@ -914,6 +943,7 @@ struct init_bitmap {
 
     RGMBIND(rb_mRGM_Base, "bitmap_dispose", bitmap_dispose, 1);
     RGMBIND(rb_mRGM_Base, "bitmap_hue_change", bitmap_hue_change, 2);
+    RGMBIND(rb_mRGM_Base, "bitmap_grayscale", bitmap_grayscale, 1);
     RGMBIND(rb_mRGM_Base, "bitmap_save_png", bitmap_save_png, 2);
     RGMBIND(rb_mRGM_Base, "bitmap_capture_screen", bitmap_capture_screen, 1);
     RGMBIND(rb_mRGM_Base, "bitmap_reload_autotile", bitmap_reload_autotile, 1);

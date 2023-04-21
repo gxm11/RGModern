@@ -65,12 +65,13 @@ using tasks_render = std::tuple<
     init_shader, init_event, init_blend_type, init_font<false>,
     bitmap_create<1>, bitmap_create<2>, bitmap_create<3>, bitmap_dispose,
     bitmap_save_png, bitmap_capture_screen, bitmap_blt, bitmap_stretch_blt,
-    bitmap_fill_rect, bitmap_hue_change, bitmap_draw_text, bitmap_get_pixel,
-    bitmap_capture_palette, bitmap_make_autotile, bitmap_reload_autotile,
-    before_render_viewport, after_render_viewport, render<sprite>,
-    render<plane>, render<window>, render<overlayer<window>>, render<tilemap>,
-    render<overlayer<tilemap>>, render_transition<1>, render_transition<2>,
-    message_show, controller_rumble, controller_rumble_triggers>;
+    bitmap_fill_rect, bitmap_hue_change, bitmap_grayscale, bitmap_draw_text,
+    bitmap_get_pixel, bitmap_capture_palette, bitmap_make_autotile,
+    bitmap_reload_autotile, before_render_viewport, after_render_viewport,
+    render<sprite>, render<plane>, render<window>, render<overlayer<window>>,
+    render<tilemap>, render<overlayer<tilemap>>, render_transition<1>,
+    render_transition<2>, message_show, controller_rumble,
+    controller_rumble_triggers>;
 
 using tasks_audio = std::tuple<>;
 
