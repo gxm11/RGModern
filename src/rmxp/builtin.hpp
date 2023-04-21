@@ -32,26 +32,24 @@ namespace rgm::rmxp {
 /// 可用于快速判断。
 struct id2z {
   /// @brief 用 unordered_map 存储数据
-  std::unordered_map<uint64_t, int> data;
-
-  explicit id2z() : data() {}
+  std::unordered_map<uint64_t, int> m_data;
 
   /// @brief 添加一个数据，或者重设其 z 值
   /// @param id drawable 的 id
   /// @param z  drawable 的 z 值
-  void insert(uint64_t id, int z) { data.insert_or_assign(id, z); }
+  void insert(uint64_t id, int z) { m_data.insert_or_assign(id, z); }
 
   /// @brief 移除特定 id 对应的数据
   /// @param id drawable 的 id
-  void erase(uint64_t id) { data.erase(id); }
+  void erase(uint64_t id) { m_data.erase(id); }
 
   /// @brief 查找是否储存了某个 id，返回 z 值
   /// @param id 待查找的 drawable 的 id
   /// @return 存在则返回 z 值，不存在则返回 nullopt
-  std::optional<int> find(uint64_t id) {
-    auto it = data.find(id);
+  std::optional<int> find_z(uint64_t id) {
+    auto it = m_data.find(id);
     /* 多数情况下这个 id 是存在的 */
-    if (it != data.end()) [[likely]] {
+    if (it != m_data.end()) [[likely]] {
       return it->second;
     } else [[unlikely]] {
       return std::nullopt;

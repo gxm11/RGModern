@@ -76,7 +76,7 @@ struct init_drawable_base {
         RGMLOAD(id, uint64_t);
 
         // 如果 cache_z 中没有这个 id，那么相应的 drawable 已经析构。
-        auto opt = cache_z.find(id);
+        auto opt = cache_z.find_z(id);
         if (!opt) return Qnil;
 
         int z = opt.value();
@@ -116,7 +116,7 @@ struct init_drawable_base {
         RGMLOAD(z, int);
         int new_z = z;
 
-        auto opt = cache_z.find(zi.id);
+        auto opt = cache_z.find_z(zi.id);
         if (!opt) return z_;
 
         cache_z.insert(zi.id, new_z);
