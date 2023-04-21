@@ -66,10 +66,10 @@ struct scheduler<First, Rest...> : scheduler<> {
                workers);
 
     if constexpr (co_type == cooperation::asynchronous) {
-      cen::log_warn("[Kernel] the cooperation type is asynchronous");
+      cen::log_warn("[Kernel] the cooperation type is asynchronous.");
       run_asynchronous();
     } else if constexpr (co_type == cooperation::exclusive) {
-      cen::log_warn("[Kernel] the cooperation type is exclusive");
+      cen::log_warn("[Kernel] the cooperation type is exclusive.");
       run_exclusive();
     }
   }

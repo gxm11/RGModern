@@ -75,13 +75,12 @@ struct init_drawable_base {
 
         RGMLOAD(id, uint64_t);
 
-        auto it = cache_z.find(id);
-
         // 如果 cache_z 中没有这个 id，那么相应的 drawable 已经析构。
-        if (it == cache_z.end()) return Qnil;
+        auto opt = cache_z.find(id);
+        if (!opt) return Qnil;
 
-        int z = it->second;
-        cache_z.erase(it);
+        int z = *opt;
+        cache_z.erase(id);
         // 从 tilemap_manager 中移除 infos
         RGMDATA(tilemap_manager).infos.erase(id);
 
@@ -117,9 +116,10 @@ struct init_drawable_base {
         RGMLOAD(z, int);
         int new_z = z;
 
-        auto it = cache_z.find(zi.id);
-        if (it == cache_z.end()) return z_;
-        it->second = new_z;
+        auto opt = cache_z.find(zi.id);
+        if (!opt) return z_;
+
+        cache_z.insert(zi.id, new_z);
 
         drawables* p_data = &data;
         if (viewport_ != Qnil) {
@@ -163,7 +163,7 @@ struct init_drawable {
         drawable << drawable_;
 
         // 注册到 cache_z 中。
-        cache_z.insert({zi.id, zi.z});
+        cache_z.insert(zi.id, zi.z);
         // tilemap 的处理，添加 info 到 tilemap_manager 中
         if constexpr (std::same_as<T_Drawable, tilemap>) {
           tilemap_manager& tm = RGMDATA(tilemap_manager);

@@ -46,7 +46,7 @@ struct init_viewport {
         viewport v;
         v_zi << viewport_;
         v << viewport_;
-        cache_z.insert({v_zi.id, v_zi.z});
+        cache_z.insert(v_zi.id, v_zi.z);
         data.emplace(std::move(v_zi), std::move(v));
 
         viewport* data_ptr = &std::get<viewport>(data.at(v_zi));
@@ -59,13 +59,13 @@ struct init_viewport {
 
         RGMLOAD(id, uint64_t);
 
-        auto it = cache_z.find(id);
-
         // 如果 cache_z 中没有这个 id，那么相应的 viewport 已经析构。
-        if (it == cache_z.end()) return Qnil;
+        auto opt = cache_z.find(id);
+        if (!opt) return Qnil;
 
-        int z = it->second;
-        cache_z.erase(it);
+        int z = *opt;
+        cache_z.erase(id);
+
         // 从 cache_z 中移除所有内部元素
         drawable& item = data[z_index{z, id}];
         viewport& v = std::get<viewport>(item);
@@ -88,9 +88,9 @@ struct init_viewport {
         RGMLOAD(z, int);
         int new_z = z;
 
-        auto it = cache_z.find(zi.id);
-        if (it == cache_z.end()) return z_;
-        it->second = new_z;
+        auto opt = cache_z.find(zi.id);
+        if (!opt) return z_;
+        cache_z.insert(zi.id, new_z);
 
         data.set_z(zi, new_z);
         return z_;

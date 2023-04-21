@@ -117,7 +117,7 @@ main.exe : ./src/main.cpp Makefile icon.o $(libgch)
 
 debug.exe : ./src/main.cpp Makefile icon.o
 	@echo "compile $@"
-	@rm $(libgch)
+	@rm -f $(libgch)
 	@$(cc) $< -o $@ $(cflags) $(clibs) $(cflags_debug)
 
 Game.exe : ./src/main.cpp Makefile icon.o
