@@ -33,7 +33,7 @@ BEGIN {
   puts "resource prefix = #{RGM::Config::Resource_Prefix}"
   puts "render driver = #{RGM::Config::Render_Driver_Name} (#{RGM::Config::Render_Driver})"
   puts "build mode = #{RGM::Config::Build_Mode}"
-
+  puts "runing mode = #{RGM::Config::Synchronized ? 'synchronized' : 'asynchronized'}"
   $BTEST = RGM::Config::Battle_Test
   $DEBUG = RGM::Config::Debug
 }

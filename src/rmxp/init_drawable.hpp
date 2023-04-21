@@ -131,32 +131,6 @@ struct init_drawable_base {
         p_data->set_z(zi, new_z);
         return z_;
       }
-
-      static VALUE refresh_value(VALUE, VALUE drawable_, VALUE viewport_,
-                                 VALUE type_) {
-        drawables& data = RGMDATA(drawables);
-        z_index zi;
-        zi << drawable_;
-
-        Check_Type(type_, T_FIXNUM);
-        auto type = static_cast<word>(FIX2INT(type_));
-
-        auto visitor_refresh = [=]<typename T>(T& item) {
-          if constexpr (std::is_base_of_v<drawable_object<T>, T>) {
-            item.refresh_value(type);
-          }
-        };
-
-        drawables* p_data = &data;
-        if (viewport_ != Qnil) {
-          z_index v_zi;
-          v_zi << viewport_;
-          viewport& v = std::get<viewport>(data[v_zi]);
-          p_data = &v.m_data;
-        }
-        std::visit(visitor_refresh, p_data->at(zi));
-        return Qnil;
-      }
     };
 
     VALUE rb_mRGM = rb_define_module("RGM");
@@ -165,13 +139,11 @@ struct init_drawable_base {
                               wrapper::dispose, 2);
     rb_define_module_function(rb_mRGM_Base, "drawable_set_z", wrapper::set_z,
                               3);
-    rb_define_module_function(rb_mRGM_Base, "drawable_refresh_value",
-                              wrapper::refresh_value, 3);
   }
 };
 
 /**
- * @brief 创建 drawable 专用的 ruby 方法，目前只有 create_xxx 方法
+ * @brief 创建 drawable 专用的 ruby 方法，目前有 create 和 refresh_value 方法
  *
  * @tparam T_Drawable 目标类型
  */
@@ -218,16 +190,32 @@ struct init_drawable {
             ++index;
           }
         }
+
+        // 返回 drawable 里蕴含的指针
+        T_Drawable* data_ptr = &std::get<T_Drawable>(p_data->at(zi));
+        return ULL2NUM(reinterpret_cast<uint64_t>(data_ptr));
+      }
+
+      static VALUE refresh_value(VALUE, VALUE data_, VALUE type_) {
+        if (data_ != Qnil) {
+          RGMLOAD(type, int);
+
+          T_Drawable* data = reinterpret_cast<T_Drawable*>(NUM2ULL(data_));
+
+          data->refresh_value(static_cast<word>(type));
+        }
         return Qnil;
       }
     };
 
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
-    std::string method_name = T_Drawable::name;
-    method_name += "_create";
-    rb_define_module_function(rb_mRGM_Base, method_name.data(), wrapper::create,
-                              1);
+    std::string name = std::string{T_Drawable::name} + "_create";
+    rb_define_module_function(rb_mRGM_Base, name.data(), wrapper::create, 1);
+
+    std::string name2 = std::string{T_Drawable::name} + "_refresh_value";
+    rb_define_module_function(rb_mRGM_Base, name2.data(),
+                              wrapper::refresh_value, 2);
   }
 };
 }  // namespace rgm::rmxp

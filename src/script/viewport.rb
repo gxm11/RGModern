@@ -58,7 +58,7 @@ class Viewport
     @flash_color = Color.new(0, 0, 0, 0)
 
     # constructor / destructor
-    RGM::Base.viewport_create(self)
+    @data = RGM::Base.viewport_create(self)
     ObjectSpace.define_finalizer(self, self.class.create_finalizer(@id))
   end
 
@@ -89,7 +89,7 @@ class Viewport
     ox = ox.to_i
     if @ox != ox
       @ox = ox
-      RGM::Base.viewport_refresh_value(self, RGM::Word::Attribute_ox) unless @disposed
+      RGM::Base.viewport_refresh_value(@data, RGM::Word::Attribute_ox) unless @disposed
     end
     @ox
   end
@@ -98,7 +98,7 @@ class Viewport
     oy = oy.to_i
     if @oy != oy
       @oy = oy
-      RGM::Base.viewport_refresh_value(self, RGM::Word::Attribute_oy) unless @disposed
+      RGM::Base.viewport_refresh_value(@data, RGM::Word::Attribute_oy) unless @disposed
     end
     @oy
   end
@@ -115,7 +115,7 @@ class Viewport
       @flash_color.set(0, 0, 0, 0)
       @flash_hidden = true
     end
-    RGM::Base.viewport_refresh_value(self, RGM::Word::Attribute_flash_hidden) unless @disposed
+    RGM::Base.viewport_refresh_value(@data, RGM::Word::Attribute_flash_hidden) unless @disposed
   end
 
   def update
@@ -127,7 +127,7 @@ class Viewport
         @flash_type = 0
         @flash_color.set(0, 0, 0, 0)
         @flash_hidden = false
-        RGM::Base.viewport_refresh_value(self, RGM::Word::Attribute_flash_hidden) unless @disposed
+        RGM::Base.viewport_refresh_value(@data, RGM::Word::Attribute_flash_hidden) unless @disposed
       end
     end
   end

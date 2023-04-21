@@ -48,7 +48,9 @@ struct init_viewport {
         v << viewport_;
         cache_z.insert({v_zi.id, v_zi.z});
         data.emplace(std::move(v_zi), std::move(v));
-        return Qnil;
+
+        viewport* data_ptr = &std::get<viewport>(data.at(v_zi));
+        return ULL2NUM(reinterpret_cast<uint64_t>(data_ptr));
       }
 
       static VALUE dispose(VALUE, VALUE id_) {
@@ -83,7 +85,6 @@ struct init_viewport {
         z_index zi;
         zi << viewport_;
 
-        // Check_Type(z_, T_FIXNUM);
         RGMLOAD(z, int);
         int new_z = z;
 
@@ -95,16 +96,14 @@ struct init_viewport {
         return z_;
       }
 
-      static VALUE refresh_value(VALUE, VALUE viewport_, VALUE type_) {
-        drawables& data = RGMDATA(drawables);
-        z_index zi;
-        zi << viewport_;
+      static VALUE refresh_value(VALUE, VALUE data_, VALUE type_) {
+        if (data_ != Qnil) {
+          RGMLOAD(type, int);
 
-        Check_Type(type_, T_FIXNUM);
-        auto type = static_cast<word>(FIX2INT(type_));
+          viewport* data = reinterpret_cast<viewport*>(NUM2ULL(data_));
 
-        viewport& v = std::get<viewport>(data[zi]);
-        v.refresh_value(type);
+          data->refresh_value(static_cast<word>(type));
+        }
         return Qnil;
       }
     };
