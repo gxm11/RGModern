@@ -32,64 +32,86 @@ namespace rgm::rmxp {
 // 为了避免不透明度平方的问题，在viewport绘制到最终窗口上时，少乘一次opacity
 // Alpha叠加 Blend：s.rgb + (1-s.a)*d.rgb = [1, +, 1-S] [1, +, 1-S.a] = blend2
 
-/**
- * @brief 混合模式，封装了若干 SDL 默认的混合模式以及常用的自定义混合模式
- */
+/// @brief 自定义混合模式
+/// 封装了若干自定义混合模式，在实现各种绘制效果时用到
 struct blend_type {
-  static cen::blend_mode add;
-  static cen::blend_mode sub;
-  static cen::blend_mode reverse;
-  static cen::blend_mode alpha;
-  static cen::blend_mode color;
-  static cen::blend_mode blend2;
+  /// @brief 加法叠加
+  /// 公式：rgb = s.a * s.rgb + d.rgb, a = d.a
+  inline static cen::blend_mode add;
+
+  /// @brief 减法叠加
+  /// 公式：rgb = s.a * s.rgb - d.rgb, a = d.a
+  inline static cen::blend_mode sub;
+
+  /// @brief 反色
+  /// 公式：rgb = (1 - d.rgb) * s.rgb, a = d.a
+  /// 用于实现减法，s.rgb 始终为 1
+  inline static cen::blend_mode reverse;
+
+  /// @brief 透明度修饰
+  /// 公式：rgb = d.rgb, a = s.a * d.a
+  /// 用于实现 Sprite 的 bush_depth 效果
+  inline static cen::blend_mode alpha;
+
+  /// @brief 颜色修饰，alpha 叠加，但是不计算透明度
+  /// 公式：rgb = s.a * s.rgb + (1 - s.a) * d.rgb, a = d.a
+  /// 用于实现 Sprite 等的 color 效果
+  inline static cen::blend_mode color;
+
+  /// @brief alpha 叠加 2
+  /// 公式：rgb = s.rgb + (1 - s.a) * d.rgb，a = s.a + (1 - s.a) * d.a
+  /// alpha 叠加公式：rgb = s.a * s.rgb + (1 - s.a) * d.rgb
+  /// 与标准的 alpha 叠加相比少计算一次透明度，s.rgb 没有乘以自身的透明度。
+  /// 用于绘制 window 的 contents。
+  inline static cen::blend_mode blend2;
 
   static void setup() {
-    // 加法叠加
-    // 公式：rgb = s.alpha * s.rgb + 1 * d.rgb, a = 0 * s.a + 1 * d.a
+    /* 加法叠加 */
     add = cen::compose_blend_mode(
         cen::blend_task{cen::blend_factor::src_alpha, cen::blend_factor::one,
                         cen::blend_op::add},
         cen::blend_task{cen::blend_factor::zero, cen::blend_factor::one,
                         cen::blend_op::add});
 
-    // 减法叠加
-    // 公式：rgb = s.a * s.rgb - 1 * d.rgb, a = 0 * s.a + 1 * d.a
+    /* 减法叠加 */
     sub = cen::compose_blend_mode(
         cen::blend_task{cen::blend_factor::src_alpha, cen::blend_factor::one,
                         cen::blend_op::reverse_sub},
         cen::blend_task{cen::blend_factor::zero, cen::blend_factor::one,
                         cen::blend_op::add});
 
-    // 反色：(1 - d.rgb) * s.rgb = [1 - d, +, 0] [0, +, 1]
-    // 这里用来实现减法，取 s.rgb 恒为 1，从而操作一次后会变成 1 - d，透明度 d.a
-    // 比如已知 u, v，要获得 u - v
-    // 首先获得 1 - u                     | 透明度 u.a
-    // 然后获得 v + (1 - u)               | 透明度 u.a
-    // 最后获得 1 - (v + (1 - u)) = u - v | 透明度 u.a
+    /*
+     * 反色：
+     * 这里用来实现减法，取 s.rgb 恒为 1，从而操作一次后会变成 1 - d，透明度 d.a
+     * 比如已知 u, v，要获得 u - v
+     * 首先获得 1 - u                     | 透明度 u.a
+     * 然后获得 v + (1 - u)               | 透明度 u.a
+     * 最后获得 1 - (v + (1 - u)) = u - v | 透明度 u.a
+     */
     reverse = cen::compose_blend_mode(
         cen::blend_task{cen::blend_factor::one_minus_dst_color,
                         cen::blend_factor::zero, cen::blend_op::add},
         cen::blend_task{cen::blend_factor::zero, cen::blend_factor::one,
                         cen::blend_op::add});
 
-    // 修改透明度，用于实现 Sprite 的 bush_depth 效果
-    // 公式：rgb = 0 * s.rgb + 1 * d.rgb, a = 0 * s.a + s.a * d.a
+    /* 透明度修饰 */
     alpha = cen::compose_blend_mode(
         cen::blend_task{cen::blend_factor::zero, cen::blend_factor::one,
                         cen::blend_op::add},
         cen::blend_task{cen::blend_factor::zero, cen::blend_factor::src_alpha,
                         cen::blend_op::add});
-    // Alpha 叠加（仅颜色），用于实现 Sprite 等的 color 效果
-    // 公式：rgb = s.a * s.rgb + (1 - s.a) * d.rgb, a = 0 * s.a + 1 * d.a
+    /* 颜色修饰 */
     color = cen::compose_blend_mode(
         cen::blend_task{cen::blend_factor::src_alpha,
                         cen::blend_factor::one_minus_src_alpha,
                         cen::blend_op::add},
         cen::blend_task{cen::blend_factor::zero, cen::blend_factor::one,
                         cen::blend_op::add});
-    // 与 Blend 不同，少乘一次opacity。在绘制window的contents使用。
-    // Alpha叠加 Blend：s.rgb + (1-s.a)*d.rgb = [1, +, 1-S] [1, +, 1-S.a] =
-    // blend2
+
+    /*
+     * alpha 叠加 2，但是少计算一次透明度
+     * 与 Blend 不同之处在于，少乘一次opacity
+     */
     blend2 = cen::compose_blend_mode(
         cen::blend_task{cen::blend_factor::one,
                         cen::blend_factor::one_minus_src_alpha,
@@ -99,13 +121,9 @@ struct blend_type {
                         cen::blend_op::add});
   }
 };
-cen::blend_mode blend_type::add;
-cen::blend_mode blend_type::sub;
-cen::blend_mode blend_type::reverse;
-cen::blend_mode blend_type::color;
-cen::blend_mode blend_type::alpha;
-cen::blend_mode blend_type::blend2;
 
+/// @brief 定义各种自定义的混合模式
+/// @name task
 struct init_blend_type {
   static void before(auto&) { blend_type::setup(); }
 };
