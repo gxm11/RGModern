@@ -186,7 +186,7 @@ struct init_input {
 
         if (input_key_ == Qnil) {
           auto begin = map.lower_bound({sdl_key, 0});
-          auto end = map.lower_bound({sdl_key + 1, 0})++;
+          auto end = map.lower_bound({sdl_key + 1, 0});
           map.erase(begin, end);
         } else {
           RGMLOAD(input_key, int);
