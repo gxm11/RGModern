@@ -20,7 +20,7 @@
 
 #pragma once
 #include "base/base.hpp"
-#include "detail.hpp"
+#include "word.hpp"
 
 namespace rgm::rmxp {
 // 这是一个全局变量，存储了所有字体的路径。

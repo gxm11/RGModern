@@ -20,7 +20,7 @@
 
 #pragma once
 #include "base/base.hpp"
-#include "detail.hpp"
+#include "word.hpp"
 
 // drawable base class
 namespace rgm::rmxp {

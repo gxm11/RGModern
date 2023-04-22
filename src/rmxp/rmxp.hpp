@@ -24,7 +24,6 @@
 #include "blend_type.hpp"
 #include "builtin.hpp"
 #include "controller.hpp"
-#include "detail.hpp"
 #include "drawable.hpp"
 #include "drawable_object.hpp"
 #include "event.hpp"
@@ -52,7 +51,7 @@
 namespace rgm::rmxp {
 /** @brief 逻辑流程的 worker 的可执行任务列表 */
 using tasks_ruby =
-    std::tuple<init_extension, init_detail, init_bitmap, init_table,
+    std::tuple<init_extension, init_word, init_bitmap, init_table,
                init_tilemap_manager, init_viewport, init_graphics, init_input,
                init_controller, init_drawable_base, init_drawable<sprite>,
                init_drawable<window>, init_drawable<plane>,

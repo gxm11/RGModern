@@ -20,7 +20,7 @@
 
 #pragma once
 #include "base/base.hpp"
-#include "detail.hpp"
+#include "word.hpp"
 
 namespace rgm::rmxp {
 /// @brief 管理从 Drawable 的 ID 对应到 Drawable 的 z 值的映射

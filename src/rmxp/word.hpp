@@ -92,7 +92,9 @@ enum class word {
 
   total
 };
-}  // namespace rgm::rmxp
+
+/* 需要使用 base::detail_ext 完成 ruby 到 C++ 类型的转换 */
+using detail = base::detail_ext<word>;
 
 #ifndef ITERATE_BUILTINS
 // builtin 第 1 行：z, id, viewport, visible 是全部 drawable 的共有属性
@@ -176,3 +178,42 @@ enum class word {
   T(src_rect);             \
   T(tone)
 #endif
+
+/**
+ * @brief 建立实例变量对应的 symbol，定义相关常量
+ */
+struct init_word {
+  /**
+   * @brief 将字符串中的小写字母转换成大写字母
+   *
+   * @param str 目标字符串
+   * @return std::array<char, 32> 输出std::array
+   */
+
+#define DO_DEFINE_CONST(key)                               \
+  rb_const_set(rb_mRGM_Word, rb_intern("Attribute_" #key), \
+               INT2FIX(static_cast<int>(word::key)))
+#define DO_DEFINE_IV(key) \
+  id_table[static_cast<size_t>(word::key)] = rb_intern("@" #key)
+
+  static void before(auto&) {
+    /**
+     * @brief 初始化 id_table，定义实例变量的名称对应的 symbol
+     */
+    auto& id_table = detail::id_table;
+    id_table.resize(static_cast<size_t>(word::total) + 1, 0);
+    ITERATE_BUILTINS(DO_DEFINE_IV);
+    ITERATE_VALUES(DO_DEFINE_IV);
+    ITERATE_OBJECTS(DO_DEFINE_IV);
+
+    // 定义实例变量的名称对应的常量
+    VALUE rb_mRGM = rb_define_module("RGM");
+    VALUE rb_mRGM_Word = rb_define_module_under(rb_mRGM, "Word");
+
+    ITERATE_VALUES(DO_DEFINE_CONST);
+  }
+
+#undef DO_DEFINE_IV
+#undef DO_DEFINE_CONST
+};
+}  // namespace rgm::rmxp
