@@ -68,13 +68,17 @@ namespace rgm::rmxp {
 /* viewport 类的声明 */
 struct viewport;
 
+/* drawables 类的声明 */
+struct drawables;
+
 template <typename T_Drawable>
 struct drawable_object {
   /// @brief 对应 ruby 中对象的 VALUE
-  VALUE ruby_object;
+  VALUE ruby_object = Qnil;
 
   /// @brief 保管自身所属 viewport 的指针
-  viewport* p_viewport;
+  /// 禁止修改 Drawable 绑定的 Viewport
+  const viewport* p_viewport = nullptr;
 
   /// @brief 读取 ruby 对象中各个实例变量，更新自身的成员变量
   /// @param object 目标 ruby 对象，通常是任意的 Drawable 类型

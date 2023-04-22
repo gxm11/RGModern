@@ -44,12 +44,15 @@ struct init_viewport {
 
         z_index v_zi;
         viewport v;
+        v.p_drawables = std::make_unique<drawables>();
+
         v_zi << viewport_;
         v << viewport_;
-        cache_z.insert(v_zi.id, v_zi.z);
-        data.emplace(std::move(v_zi), std::move(v));
 
-        viewport* data_ptr = &std::get<viewport>(data.at(v_zi));
+        cache_z.insert(v_zi.id, v_zi.z);
+        data.m_data.emplace(std::move(v_zi), std::move(v));
+
+        viewport* data_ptr = &std::get<viewport>(data.m_data[v_zi]);
         return ULL2NUM(reinterpret_cast<uint64_t>(data_ptr));
       }
 
@@ -67,14 +70,14 @@ struct init_viewport {
         cache_z.erase(id);
 
         // 从 cache_z 中移除所有内部元素
-        drawable& item = data[z_index{z, id}];
+        drawable& item = data.m_data[z_index{z, id}];
         viewport& v = std::get<viewport>(item);
-        for (auto& [sub_zi, sub_item] : v.m_data) {
+        for (auto& [sub_zi, sub_item] : v.p_drawables->m_data) {
           cache_z.erase(sub_zi.id);
         }
-        v.m_data.clear();
+        v.p_drawables->m_data.clear();
         // 从 drawables 中移除 viewport，此后 m_data 也会析构
-        data.erase(z_index{z, id});
+        data.m_data.erase(z_index{z, id});
         return Qnil;
       }
 

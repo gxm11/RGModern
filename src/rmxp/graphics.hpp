@@ -113,7 +113,7 @@ struct init_graphics {
         worker >> base::clear_screen{};
         // 遍历 drawables，如果是 Viewport，则再遍历一层
         drawables& data = RGMDATA(drawables);
-        for (auto& [zi, item] : data) {
+        for (auto& [zi, item] : data.m_data) {
           if (std::visit(visitor_skip, item)) continue;
           update_tilemap(zi);
 
@@ -129,7 +129,7 @@ struct init_graphics {
           v.refresh_object();
 
           worker >> before_render_viewport{v_ptr};
-          for (auto& [sub_zi, sub_item] : v.m_data) {
+          for (auto& [sub_zi, sub_item] : v.p_drawables->m_data) {
             if (std::visit(visitor_skip, sub_item)) continue;
             update_tilemap(sub_zi, v_ptr);
 

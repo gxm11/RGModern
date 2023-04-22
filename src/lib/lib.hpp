@@ -34,6 +34,7 @@
 #include <list>
 #include <map>
 #include <memory>
+#include <memory_resource>
 #include <mutex>
 #include <optional>
 #include <set>

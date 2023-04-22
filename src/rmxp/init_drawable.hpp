@@ -24,36 +24,6 @@
 #include "tilemap_manager.hpp"
 
 namespace rgm::rmxp {
-void drawables::set_z(const z_index& key, const int new_z) {
-  auto node = extract(key);
-
-  // fixed delta_z overlayer 的处理
-  auto set_z_visitor = [=, &key, this]([[maybe_unused]] auto&& item) {
-    if constexpr (requires { item.fixed_overlayer_zs; }) {
-      for (uint16_t delta_z : item.fixed_overlayer_zs) {
-        set_z(z_index{key.z + delta_z, key.id}, new_z + delta_z);
-      }
-    }
-  };
-  std::visit(set_z_visitor, node.mapped());
-
-  if (!node.empty()) {
-    node.key() = z_index{new_z, key.id};
-    insert(std::move(node));
-  }
-}
-
-size_t drawables::total_size() {
-  size_t size = this->size();
-  for (auto& [zi, item] : *this) {
-    if (std::holds_alternative<viewport>(item)) {
-      viewport& v = std::get<viewport>(item);
-      size += v.m_data.total_size();
-    }
-  }
-  return size;
-}
-
 /**
  * @brief 创建 drawable 通用的 ruby 方法
  * @note 方法包括：
@@ -88,16 +58,16 @@ struct init_drawable_base {
         if (viewport_ != Qnil) {
           z_index v_zi;
           v_zi << viewport_;
-          viewport& v = std::get<viewport>(data[v_zi]);
-          p_data = &v.m_data;
+          viewport& v = std::get<viewport>(data.m_data[v_zi]);
+          p_data = v.p_drawables.get();
         }
-        auto node = p_data->extract(z_index{z, id});
+        auto node = p_data->m_data.extract(z_index{z, id});
         if (!node.empty()) {
           // fixed delta_z overlayer 的处理
           auto erase_visitor = [=]([[maybe_unused]] auto&& item) {
             if constexpr (requires { item.fixed_overlayer_zs; }) {
               for (uint16_t delta_z : item.fixed_overlayer_zs) {
-                p_data->erase(z_index{z + delta_z, id});
+                p_data->m_data.erase(z_index{z + delta_z, id});
               }
             }
           };
@@ -125,8 +95,8 @@ struct init_drawable_base {
         if (viewport_ != Qnil) {
           z_index v_zi;
           v_zi << viewport_;
-          viewport& v = std::get<viewport>(data[v_zi]);
-          p_data = &v.m_data;
+          viewport& v = std::get<viewport>(data.m_data[v_zi]);
+          p_data = v.p_drawables.get();
         }
         p_data->set_z(zi, new_z);
         return z_;
@@ -176,23 +146,23 @@ struct init_drawable {
         if (viewport_ != Qnil) {
           z_index v_zi;
           v_zi << viewport_;
-          viewport& v = std::get<viewport>(data[v_zi]);
-          p_data = &v.m_data;
+          viewport& v = std::get<viewport>(data.m_data[v_zi]);
+          p_data = v.p_drawables.get();
         }
-        p_data->emplace(zi, std::move(drawable));
+        p_data->m_data.emplace(zi, std::move(drawable));
         // fixed delta_z overlayer 的处理
         if constexpr (requires { T_Drawable::fixed_overlayer_zs; }) {
-          T_Drawable* p_drawable = &std::get<T_Drawable>(p_data->at(zi));
+          T_Drawable* p_drawable = &std::get<T_Drawable>(p_data->m_data[zi]);
           size_t index = 0;
           for (uint16_t delta_z : T_Drawable::fixed_overlayer_zs) {
-            p_data->emplace(z_index{zi.z + delta_z, zi.id},
-                            overlayer<T_Drawable>{p_drawable, index});
+            p_data->m_data.emplace(z_index{zi.z + delta_z, zi.id},
+                                   overlayer<T_Drawable>{p_drawable, index});
             ++index;
           }
         }
 
         // 返回 drawable 里蕴含的指针
-        T_Drawable* data_ptr = &std::get<T_Drawable>(p_data->at(zi));
+        T_Drawable* data_ptr = &std::get<T_Drawable>(p_data->m_data[zi]);
         return ULL2NUM(reinterpret_cast<uint64_t>(data_ptr));
       }
 
