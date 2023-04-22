@@ -37,14 +37,7 @@ template <bool owner>
 struct font_manager {
   /// @brief 存储所有字体的 map 容器，{字体ID, 字号} => font对象
   /// 字体的数量相对会少很多，这里使用 map 来管理，较 hash 更好。
-  std::map<std::pair<int, int>, cen::font> data;
-
-  /// @brief 构造函数
-  explicit font_manager() : data() {
-    if constexpr (owner) {
-      font_paths.reserve(32);
-    }
-  }
+  std::map<std::pair<int, int>, cen::font> m_data;
 
   /// @brief 向 font_paths 中添加一个字体的路径
   /// @return 返回这个路径在 font_paths 中的位置
@@ -65,16 +58,16 @@ struct font_manager {
 
   /// @brief 使用 font id 和 font size 获取对应的 cen::font 对象
   cen::font& get(int id, int font_size) {
-    /* 先在 data 中查找，若找到了返回结果 */
-    auto it = data.find({id, font_size});
-    if (it != data.end()) return it->second;
+    /* 先在 m_data 中查找，若找到了返回结果 */
+    auto it = m_data.find({id, font_size});
+    if (it != m_data.end()) return it->second;
 
-    /* 将新的 cen::font 对象添加到 data 中 */
-    data.emplace(std::pair{id, font_size},
-                 cen::font(font_paths.at(id), font_size));
+    /* 将新的 cen::font 对象添加到 m_data 中 */
+    m_data.emplace(std::pair{id, font_size},
+                   cen::font(font_paths.at(id), font_size));
 
     /* 再次查找并返回结果 */
-    return data.find({id, font_size})->second;
+    return m_data.find({id, font_size})->second;
   }
 };
 
@@ -108,8 +101,14 @@ struct init_font {
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
     rb_define_module_function(rb_mRGM_Base, "font_create", wrapper::create, 1);
+
+    /* 预留一些空间，减少内存分配次数 */
+    font_paths.reserve(32);
   }
 
-  static void after(auto& worker) { RGMDATA(font_manager<owner>).data.clear(); }
+  static void after(auto& worker) {
+    /* cen::font 要提前释放，否则会导致 Segmentation fault */
+    RGMDATA(font_manager<owner>).m_data.clear();
+  }
 };
 }  // namespace rgm::rmxp
