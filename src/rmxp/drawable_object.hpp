@@ -58,12 +58,13 @@ namespace rgm::rmxp {
 /// @tparam T_Drawable 派生类的类型
 /// 所谓 Drawable，对应于会在画面上显示的对象。此对象在 ruby 和 C++ 层各存有一份
 /// 数据。需要通过 refresh_value 和 refresh_object 函数将数据同步到 C++ 层。
-/// C++ 层的数据比 ruby 层的数据少了以下 4 种属性：@z，@id，@visible 和
-/// @disposed。原因如下：
+/// C++ 层的数据比 ruby 层的数据少了以下 4 种属性：@z，@id，@visible，@disposed
+/// 和 @viewport。原因如下：
 /// 1. @z 和 @id 作为 z_index 类型的索引使用，不需要保存在 Drawable 中；
 /// 2. @visible 在绘制的每帧都需要查询，没有保存的必要；
 /// 3. @disposed 对应 Drawable 是否存在，当 ruby 中对应的对象 dispose 时，C++
 ///    层的对象会随之销毁。所以只要对象存在，该值始终是 true，没有保存的必要。
+/// 4. @viewport 看上去可以存，目前没实现。TODO。
 template <typename T_Drawable>
 struct drawable_object {
   /// @brief 对应 ruby 中对象的 VALUE

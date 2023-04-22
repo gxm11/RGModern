@@ -24,28 +24,26 @@
 #include "drawable_object.hpp"
 #include "overlayer.hpp"
 
-// RGM 里强制约定，所有 C++ 的映射类型中，类型为 uint64_t 的成员变量，
-// 都对应于一个 ruby 中对象类型的属性，其值为该属性的 object_id。
-// 在 detail 中有特殊的处理，使用 get 时会自动转换类型参数为 const uint64_t。
-// 此时会尝试获取 ruby 对象的 object_id，而不是调用 NUM2ULL。
-// detail 的 get 会在 drawable_object 中的宏里被调用，请参阅。
 namespace rgm::rmxp {
-/**
- * @brief 对应于 RGSS 中的 Sprite 类
- * @note The sprite class. Sprites are the basic concept used to display
- * characters, etc. on the game screen.
- */
-struct sprite : drawable_object<sprite> {
-  static constexpr const char* name = "sprite";
+/* viewport 类的声明 */
+struct viewport;
 
-  // 以下对应于 Sprite 中对象类型的属性的成员变量
+/// @brief 对应于 RGSS 中的 Sprite 类
+/// The sprite class. Sprites are the basic concept used to display
+/// characters, etc. on the game screen.
+struct sprite : drawable_object<sprite> {
+  static constexpr std::string_view name = "sprite";
+
+  /* 以下对应于 Sprite 中对象类型的属性的成员变量 */
   color flash_color;
   color color;
   tone tone;
   rect src_rect;
 
-  // 以下对应于 Sprite 中值类型的属性的成员变量
+  /* 以下对应于 Sprite 中 ID 类型的属性的成员变量 */
   uint64_t bitmap;
+
+  /* 以下对应于 Sprite 中值类型的属性的成员变量 */
   double zoom_x;
   double zoom_y;
   double angle;
@@ -60,14 +58,12 @@ struct sprite : drawable_object<sprite> {
   bool mirror;
   bool flash_hidden;
 
-  /**
-   * @brief 重载父类的同名方法
-   * @note 在以下几种情况下跳过绘制：
-   * 1. 没有设置 bitmap
-   * 2. 透明度为 0
-   * 3. x 或者 y 方向的 zoom 小于或等于 0
-   * 4. 由于闪烁效果导致的短暂消失
-   */
+  /// @brief 重载父类的同名方法
+  /// 在以下几种情况下跳过绘制：
+  /// 1. 没有设置 bitmap
+  /// 2. 透明度为 0
+  /// 3. x 或者 y 方向的 zoom 小于或等于 0
+  /// 4. 由于闪烁效果导致的短暂消失
   bool visible() const {
     if (bitmap == 0) return false;
     if (opacity == 0) return false;
@@ -78,20 +74,20 @@ struct sprite : drawable_object<sprite> {
   }
 };
 
-/**
- * @brief 对应于 RGSS 中的 Plane 类
- * @note The Plane class. Planes are special sprites that tile bitmap patterns
- * across the entire screen, and are used to display panoramas and fog.
- */
+/// @brief 对应于 RGSS 中的 Plane 类
+/// The Plane class. Planes are special sprites that tile bitmap patterns
+/// across the entire screen, and are used to display panoramas and fog.
 struct plane : drawable_object<plane> {
-  static constexpr const char* name = "plane";
+  static constexpr std::string_view name = "plane";
 
-  // 以下对应于 Plane 中对象类型的属性的成员变量
+  /* 以下对应于 Plane 中对象类型的属性的成员变量 */
   color color;
   tone tone;
 
-  // 以下对应于 Plane 中值类型的属性的成员变量
+  /* 以下对应于 Plane 中 ID 类型的属性的成员变量 */
   uint64_t bitmap;
+
+  /* 以下对应于 Plane 中值类型的属性的成员变量 */
   double zoom_x;
   double zoom_y;
   int ox;
@@ -100,13 +96,11 @@ struct plane : drawable_object<plane> {
   uint8_t blend_type;
   uint8_t scale_mode;
 
-  /**
-   * @brief 重载父类的同名方法
-   * @note 在以下几种情况下跳过绘制：
-   * 1. 没有设置 bitmap
-   * 2. 透明度为 0
-   * 3. x 或者 y 方向的 zoom 小于或等于 0
-   */
+  /// @brief 重载父类的同名方法
+  /// 在以下几种情况下跳过绘制：
+  /// 1. 没有设置 bitmap
+  /// 2. 透明度为 0
+  /// 3. x 或者 y 方向的 zoom 小于或等于 0
   bool visible() const {
     if (bitmap == 0) return false;
     if (opacity == 0) return false;
@@ -116,20 +110,21 @@ struct plane : drawable_object<plane> {
   }
 };
 
-/**
- * @brief 对应于 RGSS 中的 Window 类
- * @note The game window class. Created internally from multiple sprites.
- */
+/// @brief 对应于 RGSS 中的 Window 类
+/// The game window class. Created internally from multiple sprites.
+/// 实际的实现并没有依赖多个 sprites，而是分成 2 层绘制。
 struct window : drawable_object<window> {
-  static constexpr const char* name = "window";
+  static constexpr std::string_view name = "window";
   static constexpr uint16_t fixed_overlayer_zs[] = {2};
 
-  // 以下对应于 Window 中对象类型的属性的成员变量
+  /* 以下对应于 Window 中对象类型的属性的成员变量 */
   rect cursor_rect;
 
-  // 以下对应于 Window 中值类型的属性的成员变量
+  /* 以下对应于 Window 中 ID 类型的属性的成员变量 */
   uint64_t windowskin;
   uint64_t contents;
+
+  /* 以下对应于 Window 中值类型的属性的成员变量 */
   int x;
   int y;
   int width;
@@ -145,18 +140,19 @@ struct window : drawable_object<window> {
   bool active;
   bool pause;
 
-  /**
-   * @brief 重载父类的同名方法
-   * @note 在以下几种情况下跳过绘制：
-   * 1. 窗口没有设置 windowskin
-   * 2. 窗口的长或宽为 0
-   */
+  /// @brief 重载父类的同名方法
+  /// 在以下几种情况下跳过绘制：
+  /// 1. 窗口没有设置 windowskin
+  /// 2. 窗口的长或宽为 0
   bool visible() const {
     if (windowskin == 0) return false;
     if (width == 0 || height == 0) return false;
     return true;
   }
 
+  /// @brief 可以获取 Viewport 的 rect 时的重载
+  /// 在以下几种情况下跳过绘制：
+  /// 1. 窗口在 Viewport 外
   bool visible(const rect& r) const {
     if (x + width < r.x) return false;
     if (x > r.x + r.width) return false;
@@ -166,51 +162,57 @@ struct window : drawable_object<window> {
   }
 };
 
+/// @brief window 的上一层，比 window 的 z 值高 2。
+/// overlayer 不继承自 drawable_object，须实现 skip() 接口。
 template <>
 struct overlayer<window> {
+  /// @brief window 的数据
+  /// overlayer 层没有数据的所有权，用常指针访问 window 类的成员。
   const window* p_drawable;
+
+  /// @brief overlayer 的层数
   const size_t m_index;
 
+  /// @brief 实现 skip() 接口
+  /// @return 返回 true 时将跳过绘制，否则将绘制此对象。
   bool skip() const {
     bool visible = detail::get<word::visible, bool>(p_drawable->ruby_object);
     return !visible;
   }
 };
 
-/**
- * @brief 对应于 RGSS 中的 Tilemap 类
- * @note The class governing tilemaps. Tilemaps are a specialized concept used
- * in 2D game map displays, created internally from multiple sprites.
- */
+/// @brief 对应于 RGSS 中的 Tilemap 类
+/// The class governing tilemaps. Tilemaps are a specialized concept used
+/// in 2D game map displays, created internally from multiple sprites.
+/// 实际的实现并没有依赖多个 sprites，而是分成很多层绘制。
+/// RGSS 的 tilemap 没有用 overlayer 层实现。
+/// @see ./src/rmxp/tilemap_manager.hpp
 struct tilemap : drawable_object<tilemap> {
-  static constexpr const char* name = "tilemap";
+  static constexpr std::string_view name = "tilemap";
 
-  // 以下对应于 Tilemap 中对象类型的属性的成员变量
+  /* 以下对应于 Tilemap 中对象类型的属性的成员变量 */
 
-  /**
-   * @brief 存储自动原件的数组，元素为对应 Bitmap 的 ID
-   * @note Refers to the bitmap (Bitmap) used as an autotile with an index
-   * number from 0 to 6.
-   */
+  /// @brief 存储自动原件的数组，元素为对应 Bitmap 的 ID
+  /// @see ./src/rmxp/builtin.hpp
   autotiles autotiles;
 
-  // 以下对应于 Window 中值类型的属性的成员变量
+  /* 以下对应于 Tilemap 中 ID 类型的属性的成员变量 */
   uint64_t tileset;
   uint64_t map_data;
   uint64_t flash_data;
   uint64_t priorities;
+
+  /* 以下对应于 Tilemap 中值类型的属性的成员变量 */
   int ox;
   int oy;
   int update_count;
   bool repeat_x;
   bool repeat_y;
 
-  /**
-   * @brief 重载父类的同名方法
-   * @note 在以下几种情况下跳过绘制：
-   * 1. 没有设置 tileset
-   * 2. 没有设置图块数据
-   */
+  /// @brief 重载父类的同名方法
+  /// 在以下几种情况下跳过绘制：
+  /// 1. 没有设置 tileset
+  /// 2. 没有设置图块数据
   bool visible() const {
     if (tileset == 0) return false;
     if (map_data == 0) return false;
@@ -218,35 +220,28 @@ struct tilemap : drawable_object<tilemap> {
   }
 };
 
-/**
- * @brief 对应于 RGSS 中的 Animation 类
- * @note 尚未完成
- */
+/// @brief 对应于 RGSS 中的 Animation 类
+/// @todo 实现 Animation 类更高效的绘制。
 struct animation : drawable_object<animation> {
-  static constexpr const char* name = "animation";
+  static constexpr std::string_view name = "animation";
 };
 
-/**
- * @brief 对应于 RGSS 中的 Weather 类
- * @note 尚未完成
- */
+/// @brief 对应于 RGSS 中的 Weather 类
+/// @todo 实现 Weather 类更高效的绘制。
+/// Class for weather effects (rain, storm, snow) displayed via
+/// RPGXP's Event command.
 struct weather : drawable_object<weather> {
-  static constexpr const char* name = "weather";
+  static constexpr std::string_view name = "weather";
 };
 
-// 声明，具体实现见下
-struct viewport;
-
-/**
- * @brief 所有 Drawable 类型组成的 std::variant
- */
+/// @brief 可存储所有 Drawable 类型的 std::variant
 using drawable = std::variant<viewport, sprite, plane, window, tilemap,
                               overlayer<window>, animation, weather>;
 
-/**
- * @brief 存储所有 Drawable 的 map
- * @note 索引是 z_index
- */
+/// @brief 存储所有 Drawable 的 map
+/// @name data
+/// Drawables 是有序的，索引是 z_index
+/// @todo 改写成组合的形式。
 struct drawables : std::map<z_index, drawable> {
   /**
    * @brief 默认构造函数必须不包含任何参数
@@ -261,43 +256,40 @@ struct drawables : std::map<z_index, drawable> {
   size_t total_size();
 };
 
-/**
- * @brief 对应于 RGSS 中的 Viewport 类
- * @note The viewport class. Used when displaying sprites in one portion of the
- * screen, with no overflow into other regions.
- */
+/// @brief 对应于 RGSS 中的 Viewport 类
+/// The viewport class. Used when displaying sprites in one portion of the
+/// screen, with no overflow into other regions.
 struct viewport : drawable_object<viewport> {
-  static constexpr const char* name = "viewport";
+  static constexpr std::string_view name = "viewport";
 
-  /**
-   * @brief 存储了所有绑定到该 Viewport 的 Drawable
-   * @note 禁止修改 Drawable 绑定的 Viewport
-   */
+  /// @brief 存储了所有绑定到该 Viewport 的 Drawable
+  /// 禁止修改 Drawable 绑定的 Viewport
   drawables m_data;
 
-  // 以下对应于 Window 中对象类型的属性的成员变量
+  // 以下对应于 Viewport 中对象类型的属性的成员变量
   color flash_color;
   rect rect;
   color color;
   tone tone;
 
-  // 以下对应于 Window 中值类型的属性的成员变量
+  // 以下对应于 Viewport 中值类型的属性的成员变量
   int ox;
   int oy;
   bool flash_hidden;
 
-  /**
-   * @brief 重载父类的同名方法
-   * @note 在以下几种情况下跳过绘制：
-   * 1. rect 的长或宽为 0
-   * 2. 由于闪烁效果导致的短暂消失
-   */
+  /// @brief 重载父类的同名方法
+  /// 在以下几种情况下跳过绘制：
+  /// 1. rect 的长或宽为 0
+  /// 2. 由于闪烁效果导致的短暂消失
   bool visible() const {
     if (rect.width <= 0 || rect.height <= 0) return false;
     if (flash_hidden) return false;
     return true;
   }
 
+  /// @brief 可以获取 Screen 的 rect 时的重载
+  /// 在以下几种情况下跳过绘制：
+  /// 1. Viewport 在 Screen 外
   bool visible(const rmxp::rect& r) const {
     if (rect.x + rect.width < r.x) return false;
     if (rect.x > r.x + r.width) return false;
