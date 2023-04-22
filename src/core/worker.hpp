@@ -106,9 +106,9 @@ struct worker {
     if constexpr (config::develop) {
       int size = sizeof(typename T_kernel<T_kernel_tasks>::T_variants);
       cen::log_info(
-          "worker %lld has cooperation type = %d, queue block size = %d "
-          "total task size = %lld and kernel task size = %lld.\n",
-          co_index, static_cast<int>(co_type), size, std::tuple_size_v<T_tasks>,
+          "worker %lld's kernel has a queue with block size = %d, "
+          "total %lld tasks and %lld kernel tasks.\n",
+          co_index, size, std::tuple_size_v<T_tasks>,
           std::tuple_size_v<T_kernel_tasks>);
     }
     p_data = std::make_unique<T_data>();

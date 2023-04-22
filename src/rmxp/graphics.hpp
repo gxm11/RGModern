@@ -95,7 +95,7 @@ struct init_graphics {
             worker >> render<T>{&item, v_ptr, p_tables};
             // 刷新在 tm 中的存储的 tilemap_info
             z_index zi;
-            zi << item.object;
+            zi << item.ruby_object;
             size_t depth = v_ptr ? 1 : 0;
             tm.setup(zi, item, depth);
           } else {
@@ -180,6 +180,6 @@ struct init_graphics {
                               2);
     rb_define_module_function(rb_mRGM_Base, "graphics_transition",
                               wrapper::transition, 5);
-    }
+  }
 };
 }  // namespace rgm::rmxp

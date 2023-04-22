@@ -22,147 +22,107 @@
 #include "base/base.hpp"
 #include "word.hpp"
 
-// drawable base class
 namespace rgm::rmxp {
-/** 宏：更新当前 item 的 key 属性，key 必须对应一个对象类别的属性 */
-#define DO_REFRESH_OBJECT(key)                  \
-  if constexpr (requires { item.key; }) {       \
-    item.key << detail::get<word::key>(object); \
+/// @brief 刷新 C++ 层变量的值，作为 ITERATE_VALUES 的参数。
+/// 对于 uint64_t 类型的变量，按照 const uint64_t 类型处理，读取其 object_id。
+#define DO_REFRESH_VALUE(key)                                               \
+  if constexpr (requires { item.key; }) {                                   \
+    using T = decltype(item.key);                                           \
+    using U =                                                               \
+        std::conditional_t<std::is_same_v<T, uint64_t>, const uint64_t, T>; \
+    item.key = detail::get<word::key, U>(ruby_object);                      \
   }
 
-/*
- * 注意这里不能直接调用 detail::get<word::id, uint64_t>
- * get 对第二个参数为 uint64_t 会按照 const uint64_t 处理，
- * 从而获得的是 object_id，导致错误。
- */
-/** 宏：更新当前 item 的 key 属性，key 必须对应一个值类别的属性 */
-#define DO_REFRESH_VALUE(key)                                    \
-  if constexpr (requires { item.key; }) {                        \
-    using T = decltype(item.key);                                \
-    if constexpr (std::is_same_v<T, uint64_t>) {                 \
-      item.key = detail::get<word::key, const uint64_t>(object); \
-    } else {                                                     \
-      item.key = detail::get<word::key, T>(object);              \
-    }                                                            \
+/// @brief 刷新 C++ 层变量的值，作为 ITERATE_OBJECTS 的参数。
+#define DO_REFRESH_OBJECT(key)                       \
+  if constexpr (requires { item.key; }) {            \
+    item.key << detail::get<word::key>(ruby_object); \
   }
 
-/** 宏：case 分支，根据当前的 key 更新对应的属性，key 必须对应一个对象别的属性
- */
-#define DO_CASE_BRANCH(key)                                        \
-  case word::key:                                                  \
-    if constexpr (requires { item.key; }) {                        \
-      using T = decltype(item.key);                                \
-      if constexpr (std::is_same_v<T, uint64_t>) {                 \
-        item.key = detail::get<word::key, const uint64_t>(object); \
-      } else {                                                     \
-        item.key = detail::get<word::key, T>(object);              \
-      }                                                            \
-    }                                                              \
+/// @brief case 分支，根据当前的 key 更新对应的成员变量
+/// 同样是用于刷新 C++ 层变量的值，作为 ITERATE_OBJECTS 的参数使用。
+/// 对于 uint64_t 类型的变量，按照 const uint64_t 类型处理，读取其 object_id。
+/// 此处 `if constexpr (requires { item.key; })` 的含义是：
+/// 如果 item 没有名称为 key 的成员变量，此 case 分支直接返回。
+#define DO_CASE_BRANCH(key)                                                   \
+  case word::key:                                                             \
+    if constexpr (requires { item.key; }) {                                   \
+      using T = decltype(item.key);                                           \
+      using U =                                                               \
+          std::conditional_t<std::is_same_v<T, uint64_t>, const uint64_t, T>; \
+      item.key = detail::get<word::key, U>(ruby_object);                      \
+    }                                                                         \
     return
 
-/**
- * @brief 所有 Drawable 的基类，派生类以 CRTP 的形式继承。
- *
- * @tparam T_Drawable 派生类的类型，必须对应 ruby 里的某个 Drawable
- *
- * @note 这是所有 drawable_object 的基类，相应的派生类以 CRTP
- * 的形式实现，且必须与 ruby 中某个 Drawable
- * 关联。由于使用了静态多态的技巧，派生类只需要定义特定的成员变 量，以及重载
- * visible 方法，其余的操作都在基类里实现。 注：
- * 1. ruby 中某个 Drawable 是指创建对象实例后会渲染到画面上的类，包括
- * Sprite，Plane， Window，Tilemap 和 Viewport，也包括 Animation 和 Weather。
- * 2. ruby 中的 Drawable 的 @z 和 @id 属性代表了绘制的顺序，而在 T_Drawable
- * 中不存 在相应的变量。所有的 T_Drawable 都保存在以 z_index 为 key 的 map
- * 中，并且在每次绘 制画面时都要按顺序遍历整个 map 执行渲染操作。
- * 3. ruby 中的 Drawable 的 @disposed 属性也不在 T_Drawable 中。@disposed
- * 是一个纯 ruby 的变量。Drawable 在创建时，相应的 T_Drawable 加入 map，Drawable
- * 被垃圾回收时， 相应的 T_Drawable 离开 map。Drawable
- * 被释放时，只是做了一个标记。这一设计是考虑到 RGSS 中每当场景切换时 Drawable
- * 才会被释放，并且很快就进入垃圾回收。
- * 4. ruby 中的 Drawable 的 @visible 属性也不在 T_Drawable 中。@visible
- * 属性每次绘制 都需要判断一次，所以无需花费空间存下来。基类中的 skip 函数和
- * visible 函数是为了尽可 能跳过无效绘制而使用。T_Drawable 需要定义自己的
- * visible 函数，用来告知基类除了
- * @visible = false 以外是否还有其他可以跳过绘制的情况。
- * 5. ruby 中的 Drawable 剩下的属性被分为 2
- * 种类型：值类型，对象类型。值类型中又有一个 特别的类，为 ID
- * 类型。对于值类型的属性，ruby 中会定义对应的 setter 方法，每次调用该
- * 方法会同步修改对应的 T_Drawable 中的数据。而对象类型的属性没有定义特别的
- * setter 方法， 直接设置为 accessor。但是在每次绘制之前，都会同步修改
- * T_Drawable 中相应的变量。
- * 6. ID 类型也是值类型，但是其在 ruby 层中并不是一个数值，而是 Bitmap 或 Table
- * 等类型的 对象。这些对象的真实数据存储在 C++ 层的容器中，使用数字 ID
- * 为索引，而其 ruby 层只是简单的封装。如果该类型属性的值为 nil，则其 ID = 0。
- * 7. 得益于 RGSS 的特殊设计，各个 Drawable
- * 之间的属性，如果其变量名相同，则其类型也相同。 从而我们无需逐个 T_Drawable
- * 定义 refresh_value 和 refresh_object 函数。
- */
+/// @brief 所有 Drawable 的基类，派生类以 CRTP 的形式继承。
+/// @tparam T_Drawable 派生类的类型
+/// 所谓 Drawable，对应于会在画面上显示的对象。此对象在 ruby 和 C++ 层各存有一份
+/// 数据。需要通过 refresh_value 和 refresh_object 函数将数据同步到 C++ 层。
+/// C++ 层的数据比 ruby 层的数据少了以下 4 种属性：@z，@id，@visible 和
+/// @disposed。原因如下：
+/// 1. @z 和 @id 作为 z_index 类型的索引使用，不需要保存在 Drawable 中；
+/// 2. @visible 在绘制的每帧都需要查询，没有保存的必要；
+/// 3. @disposed 对应 Drawable 是否存在，当 ruby 中对应的对象 dispose 时，C++
+///    层的对象会随之销毁。所以只要对象存在，该值始终是 true，没有保存的必要。
 template <typename T_Drawable>
 struct drawable_object {
-  /** @brief 对应 ruby 中对象的 VALUE */
-  VALUE object;
+  /// @brief 对应 ruby 中对象的 VALUE
+  VALUE ruby_object;
 
-  /**
-   * @brief 用 ruby 对象的各个属性更新自身的成员变量的值
-   *
-   * @param object 目标 ruby 对象，通常是任意的 Drawable 类型
-   * @return T_Drawable& 返回对自身的引用
-   */
+  /// @brief 读取 ruby 对象中各个实例变量，更新自身的成员变量
+  /// @param object 目标 ruby 对象，通常是任意的 Drawable 类型
+  /// @return T_Drawable& 返回对自身的引用
   T_Drawable& operator<<(const VALUE object) {
-    T_Drawable& item = *static_cast<T_Drawable*>(this);
+    ruby_object = object;
 
-    item.object = object;
-    item.refresh_value();
-    item.refresh_object();
-    return item;
+    /* 读取 ruby object 的实例变量，设置自身的成员变量 */
+    refresh_value();
+    refresh_object();
+
+    /* 返回派生类型的引用 */
+    return *static_cast<T_Drawable*>(this);
   }
 
-  /**
-   * @brief 表示该对象是否可见，派生类需要重载此方法。
-   *
-   * @return true 默认值，表示总是可见
-   */
+  /// @brief 表示该对象是否可见，派生类需要重载此方法，否则永远可见。
   bool visible() const { return true; }
 
-  /**
-   * @brief 表示对该对象的绘制是否应该跳过。
-   * @note 先判断 @visible 属性，再调用了派生类的 visible 方法。
-   * @return true 该对象不可见，跳过其绘制。
-   * @return false 不能跳过绘制。
-   */
+  /// @brief 表示对该对象的绘制是否应该跳过。
+  /// @return true 该对象不可见，跳过其绘制，否则不能跳过绘制。
+  /// 此函数才是用来判断是否绘制的接口，与 visible 不同名为了防止递归调用。
   bool skip() const {
-    if (!detail::get<word::visible, bool>(object)) return true;
-    return !static_cast<const T_Drawable*>(this)->visible();
+    /* 判断 @visible 属性 */
+    bool visible = detail::get<word::visible, bool>(ruby_object);
+    if (!visible) return true;
+
+    /* 调用派生类的 visible 方法 */
+    const T_Drawable& item = *static_cast<const T_Drawable*>(this);
+
+    return !item.visible();
   }
 
-  /**
-   * @brief 更新所有对象类型的属性所对应的成员变量。
-   * @note
-   * 注意宏里其实遍历了所有可能的对象类型的属性名，但实际上只会处理类中存在的成员变量。
-   */
-  void refresh_object() {
-    T_Drawable& item = *static_cast<T_Drawable*>(this);
-    ITERATE_OBJECTS(DO_REFRESH_OBJECT);
-  }
-
-  /**
-   * @brief 更新所有值类型的属性所对应的成员变量。
-   * @note
-   * 注意宏里其实遍历了所有可能的值类型的属性名，但实际上只会处理类中存在的成员变量。
-   */
+  /// @brief 更新所有值类型和 ID 类型的实例变量所对应的成员变量。
   void refresh_value() {
     T_Drawable& item = *static_cast<T_Drawable*>(this);
+
     ITERATE_VALUES(DO_REFRESH_VALUE);
   }
 
-  /**
-   * @brief 更新特定名称的值类型的属性所对应的成员变量。
-   * @note
-   * 注意宏里其实遍历了所有可能的值类型的属性名，但实际上只会处理类中存在的成员变量。
-   * @param type 枚举类 word 的成员，表示对应的属性名。
-   */
+  /// @brief 更新所有对象类型的实例变量所对应的成员变量。
+  void refresh_object() {
+    T_Drawable& item = *static_cast<T_Drawable*>(this);
+
+    ITERATE_OBJECTS(DO_REFRESH_OBJECT);
+  }
+
+  /// @brief 更新特定名称的值类型的属性所对应的成员变量。
+  /// @param type 枚举类 word 的元素，表示对应的属性名。
   void refresh_value(word type) {
     T_Drawable& item = *static_cast<T_Drawable*>(this);
+
+    /*
+     * 比起为每一个 Drawable 类型的每一个成员变量定义 setter 方法，
+     * 使用 switch 可能有一点点性能损失，但大大简化了编码。
+     */
     switch (type) {
       ITERATE_VALUES(DO_CASE_BRANCH);
       default:
@@ -173,4 +133,6 @@ struct drawable_object {
 #undef DO_REFRESH_OBJECT
 #undef DO_REFRESH_VALUE
 #undef DO_CASE_BRANCH
+#undef ITERATE_VALUES
+#undef ITERATE_OBJECTS
 }  // namespace rgm::rmxp

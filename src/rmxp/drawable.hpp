@@ -172,7 +172,7 @@ struct overlayer<window> {
   const size_t m_index;
 
   bool skip() const {
-    bool visible = detail::get<word::visible, bool>(p_drawable->object);
+    bool visible = detail::get<word::visible, bool>(p_drawable->ruby_object);
     return !visible;
   }
 };

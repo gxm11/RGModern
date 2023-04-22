@@ -27,9 +27,6 @@ namespace rgm::base {
 /// 部分数据会在 ruby 和 c++ 中各存储一份，只在特定时机同步。
 /// detail 类负责这些 ruby 和 C++ 中类型匹配的数据的自动转换。
 struct detail {
-  /* 静态成员变量 id_table，缓存 ruby 中各 Symbol 的 ID 提升查找效率。*/
-  inline static std::vector<ID> id_table = {};
-
   /// @brief from_ruby 的模板声明，将 ruby 中的 VALUE 转换成 T 类型
   /// @tparam T c++ 中的数据类型
   /// @param VALUE 类型的变量表示 ruby 中的 object 或即时值
@@ -54,7 +51,7 @@ struct detail {
   /// @param value_ 关联 ruby 对象的 VALUE
   /// @return 转换后 T 类型的数据
   template <typename T>
-    requires (std::is_pointer_v<T>)
+    requires(std::is_pointer_v<T>)
   static T from_ruby(const VALUE value_) {
     /* nil 的特殊处理，转换为空指针 */
     if (value_ == Qnil) return nullptr;
@@ -179,11 +176,8 @@ struct detail_ext : detail {
   /* 继承了基类 detail 的 get 函数 */
   using detail::get;
 
-  /*
-   * 继承了基类 detail 的 id_table 变量。
-   * 多个 detail_ext<word> 类使用的 id_table 是同一个对象。
-   */
-  using detail::id_table;
+  /* 静态成员变量 id_table，缓存 ruby 中各 Symbol 的 ID 提升查找效率。*/
+  inline static std::vector<ID> id_table = {};
 
   /// @brief 获取 ruby 对象中名称为 w 的实例变量。
   /// @tparam w 枚举值，其名称与实例变量的名称相同，如 id, color
@@ -200,7 +194,8 @@ struct detail_ext : detail {
   /// @tparam w 枚举值，其名称与实例变量的名称相同，如 id
   /// @tparam T 转换后类型，对象必须是此类型在 ruby 中的对应类型
   /// @param object 目标 ruby 对象的 VALUE
-  /// @return T 返回实例变量相应类型的值或 object_id（若目标类型为 const uint64_t）
+  /// @return T 返回实例变量相应类型的值或 object_id（若目标类型为 const
+  /// uint64_t）
   template <word w, typename T>
   static T get(VALUE value_) {
     return from_ruby<T>(get<w>(value_));
