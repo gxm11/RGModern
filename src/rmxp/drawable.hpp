@@ -147,9 +147,9 @@ struct window : drawable_object<window> {
     return true;
   }
 
-  /// @brief 可以获取 Viewport 的 rect 时的重载
+  /// @brief 可以获取 Viewport 或 Screen 的 rect 时的重载
   /// 在以下几种情况下跳过绘制：
-  /// 1. 窗口在 Viewport 外
+  /// 1. 窗口在 Viewport 或 Screen 外
   bool visible(const rect& r) const {
     if (x + width < r.x) return false;
     if (x > r.x + r.width) return false;
@@ -262,6 +262,7 @@ struct viewport : drawable_object<viewport> {
   bool visible() const {
     if (rect.width <= 0 || rect.height <= 0) return false;
     if (flash_hidden) return false;
+
     return true;
   }
 
@@ -277,19 +278,36 @@ struct viewport : drawable_object<viewport> {
   }
 };
 
-/// @brief 存储所有 Drawable 的 map
+/// @brief 存储所有 Drawable 的 map，并用 std::pmr 管理内存
 /// @name data
 /// Drawables 是有序的，索引是 z_index
 struct drawables {
-  /// @brief 线程不安全的资源池，所有的 drawables 共用这个资源池
-  static std::pmr::unsynchronized_pool_resource pool;
+  /// @brief 作为内存池的 vector
+  /// 默认对每个 drawables 分配 1M 资源。
+  std::vector<char> vector;
+
+  /// @brief 封装 vector 为上游资源池。
+  /// std::pmr::monotonic_buffer_resource 没有移动构造函数，
+  /// 无法放入 std::tuple 中，故使用 unique_ptr 管理。
+  std::unique_ptr<std::pmr::monotonic_buffer_resource> buffer_resource;
+
+  /// @brief 线程不安全的资源池，其上游是 buffer。
+  /// std::pmr::unsynchronized_pool_resource 没有移动构造函数，
+  /// 无法放入 std::tuple 中，故使用 unique_ptr 管理。
+  std::unique_ptr<std::pmr::unsynchronized_pool_resource> pool_resource;
 
   /// @brief 存储 drawable 的 map
   /// 所有的 drawable 按照 z_index 有序排列。
   std::pmr::map<z_index, drawable> m_data;
 
-  /// @brief 构造函数
-  explicit drawables() : m_data(&pool) {}
+  /// @brief 构造函数，初始化资源池和 map
+  explicit drawables()
+      : vector(1024 * 1024),
+        buffer_resource(std::make_unique<std::pmr::monotonic_buffer_resource>(
+            vector.data(), vector.size())),
+        pool_resource(std::make_unique<std::pmr::unsynchronized_pool_resource>(
+            std::pmr::pool_options(256, 256), buffer_resource.get())),
+        m_data(pool_resource.get()) {}
 
   /// @brief 设置某个 drawable 的新 z 值。
   /// 需要从 map 中取出再放回。
@@ -312,17 +330,11 @@ struct drawables {
     /* 修改 overlayer 的 z 值 */
     std::visit(set_z_visitor, node.mapped());
 
-    /* 修改节点对应的 key，重新放回 map */    
+    /* 修改节点对应的 key，重新放回 map */
     node.key() = z_index{new_z, key.id};
-    m_data.insert(std::move(node));    
+    m_data.insert(std::move(node));
   }
 };
-/// @brief 初始化资源池
-/// std::pmr::pool_options 中的 1024 代表每次从上游取出的 block 数量，
-/// 128 代表资源池允许申请资源大小，超过此值就会从上游分配。
-/// @ref https://en.cppreference.com/w/cpp/memory/pool_options
-std::pmr::unsynchronized_pool_resource drawables::pool(std::pmr::pool_options{
-    1024, 128});
 
 // constexpr auto x0 = sizeof(z_index);   // 16
 // constexpr auto x1 = sizeof(sprite);    // 112
