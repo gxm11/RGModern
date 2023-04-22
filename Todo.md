@@ -146,7 +146,7 @@ return data[index];
   1. 等待渲染线程
   2. 清空 finder 的缓存
   3. reload 资源
-- [x] 增加 detail 里转换为 T* 的处理（做不了）
+- [x] 增加 detail 里转换为 T* 的处理
 - [x] wget 加上 -q，pacman 加上 --noprogressbar
 - [x] 不存在 config.ini 时自动创建，这个逻辑放到 init_config 的 before 里执行（做不了）
 - [x] controller 的几个按键条件是排他的，可以用一个uint8的不同位表示。

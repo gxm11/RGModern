@@ -26,7 +26,7 @@ namespace rgm::rmxp {
 /// @brief 全局变量，储存了所有字体与其路径的映射关系
 /// @name data
 /// 只有拥有数据 font_manager<true> 的 worker 能独写此变量，
-/// 其他 orker 只能读。
+/// 其他 worker 只能读。
 std::vector<std::string> font_paths = {};
 
 /// @brief 管理字体的数据类
