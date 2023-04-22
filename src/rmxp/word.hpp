@@ -103,6 +103,7 @@ enum class word {
   contents_opacity,
   cursor_count,
   cursor_rect,
+  data,
   flash_color,
   flash_data,
   flash_hidden,
@@ -178,6 +179,7 @@ using detail = base::detail_ext<word>;
   T(contents);            \
   T(contents_opacity);    \
   T(cursor_count);        \
+  T(data);                \
   T(flash_data);          \
   T(flash_hidden);        \
   T(gray);                \

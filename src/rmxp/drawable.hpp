@@ -25,9 +25,6 @@
 #include "overlayer.hpp"
 
 namespace rgm::rmxp {
-/* viewport 类的声明 */
-struct viewport;
-
 /// @brief 对应于 RGSS 中的 Sprite 类
 /// The sprite class. Sprites are the basic concept used to display
 /// characters, etc. on the game screen.
@@ -298,11 +295,11 @@ struct viewport : drawable_object<viewport> {
     return true;
   }
 };
-// constexpr auto x0 = sizeof(z_index); // 16
-// constexpr auto x1 = sizeof(sprite); // 104
-// constexpr auto x2 = sizeof(plane); // 64
-// constexpr auto x3 = sizeof(window); // 80
-// constexpr auto x4 = sizeof(tilemap); // 80
-// constexpr auto x5 = sizeof(viewport); // 104
-// constexpr auto x6 = sizeof(drawable); // 112
+// constexpr auto x0 = sizeof(z_index);   // 16
+// constexpr auto x1 = sizeof(sprite);    // 104
+// constexpr auto x2 = sizeof(plane);     // 64
+// constexpr auto x3 = sizeof(window);    // 88
+// constexpr auto x4 = sizeof(tilemap);   // 80
+// constexpr auto x5 = sizeof(viewport);  // 104
+// constexpr auto x6 = sizeof(drawable);  // 112
 }  // namespace rgm::rmxp

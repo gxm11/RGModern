@@ -58,30 +58,47 @@ namespace rgm::rmxp {
 /// @tparam T_Drawable 派生类的类型
 /// 所谓 Drawable，对应于会在画面上显示的对象。此对象在 ruby 和 C++ 层各存有一份
 /// 数据。需要通过 refresh_value 和 refresh_object 函数将数据同步到 C++ 层。
-/// C++ 层的数据比 ruby 层的数据少了以下 4 种属性：@z，@id，@visible，@disposed
-/// 和 @viewport。原因如下：
+/// C++ 层的数据比 ruby 层的数据少了以下 4 种：@z，@id，@visible 和 @disposed。
+/// 原因如下：
 /// 1. @z 和 @id 作为 z_index 类型的索引使用，不需要保存在 Drawable 中；
 /// 2. @visible 在绘制的每帧都需要查询，没有保存的必要；
 /// 3. @disposed 对应 Drawable 是否存在，当 ruby 中对应的对象 dispose 时，C++
 ///    层的对象会随之销毁。所以只要对象存在，该值始终是 true，没有保存的必要。
-/// 4. @viewport 看上去可以存，目前没实现。TODO。
+
+/* viewport 类的声明 */
+struct viewport;
+
 template <typename T_Drawable>
 struct drawable_object {
   /// @brief 对应 ruby 中对象的 VALUE
   VALUE ruby_object;
 
+  /// @brief 保管自身所属 viewport 的指针
+  viewport* p_viewport;
+
   /// @brief 读取 ruby 对象中各个实例变量，更新自身的成员变量
   /// @param object 目标 ruby 对象，通常是任意的 Drawable 类型
   /// @return T_Drawable& 返回对自身的引用
   T_Drawable& operator<<(const VALUE object) {
+    /* 设置关联的 ruby object */
     ruby_object = object;
 
     /* 读取 ruby object 的实例变量，设置自身的成员变量 */
     refresh_value();
     refresh_object();
 
+    /* 设置 viewport 指针，读取自 @viewport 的 @data */
+    VALUE viewport_ = detail::get<word::viewport>(ruby_object);
+    if (viewport_ == Qnil) {
+      p_viewport = nullptr;
+    } else {
+      VALUE data_ = detail::get<word::data>(viewport_);
+      p_viewport = detail::get<viewport*>(data_);
+    }
+
     /* 返回派生类型的引用 */
-    return *static_cast<T_Drawable*>(this);
+    T_Drawable& item = *static_cast<T_Drawable*>(this);
+    return item;
   }
 
   /// @brief 表示该对象是否可见，派生类需要重载此方法，否则永远可见。
