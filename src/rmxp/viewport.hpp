@@ -97,11 +97,10 @@ struct init_viewport {
       }
 
       static VALUE refresh_value(VALUE, VALUE data_, VALUE type_) {
-        if (data_ != Qnil) {
-          RGMLOAD(type, int);
+        RGMLOAD(type, int);
+        RGMLOAD(data, viewport*);
 
-          viewport* data = reinterpret_cast<viewport*>(NUM2ULL(data_));
-
+        if (data) {
           data->refresh_value(static_cast<word>(type));
         }
         return Qnil;

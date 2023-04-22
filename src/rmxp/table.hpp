@@ -117,17 +117,17 @@ struct init_table {
 
       static VALUE get(VALUE, VALUE data_, VALUE index_) {
         RGMLOAD(index, int);
+        RGMLOAD(data, int16_t*);
 
-        int16_t* data_ptr = reinterpret_cast<int16_t*>(NUM2ULL(data_));
-        return INT2FIX(data_ptr[index]);
+        return INT2FIX(data[index]);
       }
 
       static VALUE set(VALUE, VALUE data_, VALUE index_, VALUE value_) {
         RGMLOAD(index, int);
         RGMLOAD(value, int);
+        RGMLOAD(data, int16_t*);
 
-        int16_t* data_ptr = reinterpret_cast<int16_t*>(NUM2ULL(data_));
-        data_ptr[index] = value;
+        data[index] = value;
         return value_;
       }
 

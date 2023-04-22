@@ -197,11 +197,10 @@ struct init_drawable {
       }
 
       static VALUE refresh_value(VALUE, VALUE data_, VALUE type_) {
-        if (data_ != Qnil) {
-          RGMLOAD(type, int);
+        RGMLOAD(type, int);
+        RGMLOAD(data, T_Drawable*);
 
-          T_Drawable* data = reinterpret_cast<T_Drawable*>(NUM2ULL(data_));
-
+        if (data) {
           data->refresh_value(static_cast<word>(type));
         }
         return Qnil;

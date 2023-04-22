@@ -49,6 +49,19 @@ struct detail {
     return FIX2INT(value_);
   }
 
+  /// @brief from_ruby 对指针类型变量的特化处理
+  /// @tparam T 目标类型，必须是指针
+  /// @param value_ 关联 ruby 对象的 VALUE
+  /// @return 转换后 T 类型的数据
+  template <typename T>
+    requires (std::is_pointer_v<T>)
+  static T from_ruby(const VALUE value_) {
+    /* nil 的特殊处理，转换为空指针 */
+    if (value_ == Qnil) return nullptr;
+
+    return reinterpret_cast<T>(NUM2ULL(value_));
+  }
+
   /// @brief detail 类被调用时的接口函数，被子类继承并重载不同模板类型的版本
   /// @tparam T 返回值类型
   /// @param object 关联 ruby 对象的 VALUE
@@ -187,15 +200,10 @@ struct detail_ext : detail {
   /// @tparam w 枚举值，其名称与实例变量的名称相同，如 id
   /// @tparam T 转换后类型，对象必须是此类型在 ruby 中的对应类型
   /// @param object 目标 ruby 对象的 VALUE
-  /// @return T 返回实例变量相应类型的值或 object_id（若目标类型为 uint64_t）
-  /// 如果目标类型为 uint64_t 则当成 const uint64_t 处理，返回其 object_id。
+  /// @return T 返回实例变量相应类型的值或 object_id（若目标类型为 const uint64_t）
   template <word w, typename T>
   static T get(VALUE value_) {
-    if constexpr (std::same_as<T, uint64_t>) {
-      return from_ruby<const uint64_t>(get<w>(value_));
-    } else {
-      return from_ruby<T>(get<w>(value_));
-    }
+    return from_ruby<T>(get<w>(value_));
   }
 };
 }  // namespace rgm::base

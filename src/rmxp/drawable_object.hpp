@@ -30,19 +30,34 @@ namespace rgm::rmxp {
     item.key << detail::get<word::key>(object); \
   }
 
+/*
+ * 注意这里不能直接调用 detail::get<word::id, uint64_t>
+ * get 对第二个参数为 uint64_t 会按照 const uint64_t 处理，
+ * 从而获得的是 object_id，导致错误。
+ */
 /** 宏：更新当前 item 的 key 属性，key 必须对应一个值类别的属性 */
-#define DO_REFRESH_VALUE(key)                                      \
-  if constexpr (requires { item.key; }) {                          \
-    item.key = detail::get<word::key, decltype(item.key)>(object); \
+#define DO_REFRESH_VALUE(key)                                    \
+  if constexpr (requires { item.key; }) {                        \
+    using T = decltype(item.key);                                \
+    if constexpr (std::is_same_v<T, uint64_t>) {                 \
+      item.key = detail::get<word::key, const uint64_t>(object); \
+    } else {                                                     \
+      item.key = detail::get<word::key, T>(object);              \
+    }                                                            \
   }
 
 /** 宏：case 分支，根据当前的 key 更新对应的属性，key 必须对应一个对象别的属性
  */
-#define DO_CASE_BRANCH(key)                                          \
-  case word::key:                                                    \
-    if constexpr (requires { item.key; }) {                          \
-      item.key = detail::get<word::key, decltype(item.key)>(object); \
-    }                                                                \
+#define DO_CASE_BRANCH(key)                                        \
+  case word::key:                                                  \
+    if constexpr (requires { item.key; }) {                        \
+      using T = decltype(item.key);                                \
+      if constexpr (std::is_same_v<T, uint64_t>) {                 \
+        item.key = detail::get<word::key, const uint64_t>(object); \
+      } else {                                                     \
+        item.key = detail::get<word::key, T>(object);              \
+      }                                                            \
+    }                                                              \
     return
 
 /**

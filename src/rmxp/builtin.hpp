@@ -75,12 +75,7 @@ struct z_index {
   /// @return z_index& 返回对自身的引用
   z_index& operator<<(const VALUE object) {
     z = detail::get<word::z, int>(object);
-    /*
-     * 注意这里不能直接调用 detail::get<word::id, uint64_t>
-     * get 对第二个参数为 uint64_t 会按照 const uint64_t 处理，
-     * 从而获得的是 object_id，导致错误。
-     */
-    id = detail::get<uint64_t>(detail::get<word::id>(object));
+    id = detail::get<word::id, uint64_t>(object);
 
     return *this;
   }
