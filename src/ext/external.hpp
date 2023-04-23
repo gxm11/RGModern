@@ -68,14 +68,14 @@ struct zip_data_external {
   /// @brief 读取外部资源包中指定的文件的内容
   /// @param path 外部资源包中的文件路径
   /// @return 成功则 std::string 中存储了文件的内容，失败返回 std::nullopt
-  std::optional<std::string> load_string(const char* path) const {
+  std::optional<std::string> load_string(std::string_view path) const {
     std::string buf;
 
     zip_stat_t sb;
-    int ret = zip_stat(archive, path, ZIP_FL_ENC_STRICT, &sb);
+    int ret = zip_stat(archive, path.data(), ZIP_FL_ENC_STRICT, &sb);
     if (ret != 0) return std::nullopt;
 
-    zip_file_t* file = zip_fopen(archive, path, ZIP_FL_ENC_STRICT);
+    zip_file_t* file = zip_fopen(archive, path.data(), ZIP_FL_ENC_STRICT);
     if (!file) return std::nullopt;
 
     buf.resize(sb.size);
@@ -93,7 +93,7 @@ struct zip_data_external {
                             cen::renderer& renderer) const {
     if (!archive) return nullptr;
 
-    auto buf = load_string(path.data());
+    auto buf = load_string(path);
     if (!buf) return nullptr;
 
     SDL_RWops* src = SDL_RWFromConstMem(buf->data(), buf->size());
@@ -109,7 +109,7 @@ struct zip_data_external {
   SDL_Surface* load_surface(std::string_view path) const {
     if (!archive) return nullptr;
 
-    auto buf = load_string(path.data());
+    auto buf = load_string(path);
     if (!buf) return nullptr;
 
     SDL_RWops* src = SDL_RWFromConstMem(buf->data(), buf->size());
@@ -185,7 +185,7 @@ struct init_external {
 
         zip_data_external& z = RGMDATA(zip_data_external);
 
-        const char* path2 = path.data() + config::resource_prefix.size();
+        std::string_view path2 = path.substr(config::resource_prefix.size());
         auto buf = z.load_string(path2);
         if (!buf) return Qnil;
 

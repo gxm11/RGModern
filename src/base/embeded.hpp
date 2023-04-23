@@ -53,14 +53,14 @@ struct zip_data_embeded {
   /// @brief 读取内嵌资源包中指定的文件的内容
   /// @param path 内嵌资源包中的文件路径
   /// @return 成功则 std::string 中存储了文件的内容，失败返回 std::nullopt
-  std::optional<std::string> load_string(const char* path) const {
+  std::optional<std::string> load_string(std::string_view path) const {
     std::string buf;
 
     zip_stat_t sb;
-    int ret = zip_stat(archive, path, ZIP_FL_ENC_STRICT, &sb);
+    int ret = zip_stat(archive, path.data(), ZIP_FL_ENC_STRICT, &sb);
     if (ret != 0) return std::nullopt;
 
-    zip_file_t* file = zip_fopen(archive, path, ZIP_FL_ENC_STRICT);
+    zip_file_t* file = zip_fopen(archive, path.data(), ZIP_FL_ENC_STRICT);
     if (!file) return std::nullopt;
 
     buf.resize(sb.size);
@@ -84,12 +84,12 @@ struct init_embeded {
     struct wrapper {
       /* ruby method: Base#load_scirpt -> zip_data_embeded::load_string */
       static VALUE load_scirpt(VALUE, VALUE path_) {
-        RGMLOAD(path, const char*);
+        RGMLOAD(path, std::string_view);
         zip_data_embeded& z = RGMDATA(zip_data_embeded);
 
         auto buf = z.load_string(path);
         if (!buf) {
-          rb_raise(rb_eArgError, "Cannot find embeded script `%s'.\n", path);
+          rb_raise(rb_eArgError, "Cannot find embeded script `%s'.\n", path.data());
           return Qnil;
         }
 
@@ -101,7 +101,7 @@ struct init_embeded {
           cen::log_error(rb_string_value_ptr(&rbError));
 
           rb_raise(rb_eLoadError,
-                   "ERROR: Failed to load embeded script `%s'.\n", path);
+                   "ERROR: Failed to load embeded script `%s'.\n", path.data());
           return Qnil;
         }
 
@@ -110,7 +110,7 @@ struct init_embeded {
 
       /* ruby method: Base#load_file -> zip_data_embeded::load_string */
       static VALUE load_file(VALUE, VALUE path_) {
-        RGMLOAD(path, const char*);
+        RGMLOAD(path, std::string_view);
         zip_data_embeded& z = RGMDATA(zip_data_embeded);
 
         auto buf = z.load_string(path);
@@ -126,8 +126,8 @@ struct init_embeded {
     VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
     rb_define_module_function(rb_mRGM_Base, "load_script", wrapper::load_scirpt,
                               1);
-    rb_define_module_function(rb_mRGM_Base, "load_embeded_file",
-                              wrapper::load_file, 1);
+    rb_define_module_function(rb_mRGM_Base, "embeded_load", wrapper::load_file,
+                              1);
   }
 };
 }  // namespace rgm::base
@@ -135,21 +135,20 @@ struct init_embeded {
 namespace rgm::base {
 /// @brief 在未定义宏 RGM_EMBEDED_ZIP 的场合，替代的 init_embeded 类
 /// @name task
-/// 定义了 ruby 中的函数 load_script 和 load_embeded_file，都始终返回 nil。
+/// 定义了 ruby 中的函数 load_script 和 embeded_load，都始终返回 nil。
 struct init_embeded {
   static void before(auto&) {
     /* wrapper 类，创建静态方法供 ruby 的模块绑定 */
     struct wrapper {
       /* ruby method: Base#load_script -> empty */
-      /* ruby method: Base#load_embeded_file -> empty */
+      /* ruby method: Base#embeded_load -> empty */
       static VALUE empty(VALUE, VALUE) { return Qnil; }
     };
 
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
     rb_define_module_function(rb_mRGM_Base, "load_script", wrapper::empty, 1);
-    rb_define_module_function(rb_mRGM_Base, "load_embeded_file", wrapper::empty,
-                              1);
+    rb_define_module_function(rb_mRGM_Base, "embeded_load", wrapper::empty, 1);
   }
 };
 }  // namespace rgm::base

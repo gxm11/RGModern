@@ -42,7 +42,7 @@ struct font_manager {
   /// @brief 向 font_paths 中添加一个字体的路径
   /// @return 返回这个路径在 font_paths 中的位置
   /// 只在 owner 为 true 时，此函数有定义。
-  int try_insert(std::string_view path)
+  int get_id(std::string_view path)
     requires(owner)
   {
     auto it = std::find(font_paths.begin(), font_paths.end(), path);
@@ -86,14 +86,14 @@ struct init_font {
 
     /* wrapper 类，创建静态方法供 ruby 的模块绑定 */
     struct wrapper {
-      /* ruby method: Base#font_create -> font_manager::try_insert */
+      /* ruby method: Base#font_create -> font_manager::get_id */
       static VALUE create(VALUE, VALUE path_) {
         RGMLOAD(path, std::string_view);
 
-        /* 只有 owner = true 的 font_manager 才有 try_insert 函数 */
+        /* 只有 owner = true 的 font_manager 才有 get_id 函数 */
         font_manager<true>& fonts = RGMDATA(font_manager<true>);
 
-        int id = fonts.try_insert(path);
+        int id = fonts.get_id(path);
         return INT2FIX(id);
       }
     };

@@ -94,7 +94,7 @@ module RGM
 
     # def new_id; end
     # def load_script(path); end
-    # def load_embeded_file(path); end
+    # def embeded_load(path); end
 
     # def synchronize(worker_id); end
     # def check_delay(frame_rate); end
@@ -206,7 +206,7 @@ if RGM::Config::Build_Mode >= 3
   def load_data(fn)
     data = nil
     if fn.start_with?('Data/')
-      bin = RGM::Base.load_embeded_file(fn)
+      bin = RGM::Base.embeded_load(fn)
       data = Marshal.load(bin)
     else
       fn = Finder.find(fn, :data)
@@ -221,7 +221,7 @@ end
 
 if RGM::Config::Build_Mode >= 2
   def load_file(fn)
-    RGM::Base.load_embeded_file(fn)
+    RGM::Base.embeded_load(fn)
   end
 end
 

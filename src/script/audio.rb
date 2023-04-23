@@ -53,10 +53,6 @@ module Audio
     Flag_ME_Playing = 3
     Flag_ME_Fading = 4
 
-    Type_Unknown = 0
-    Type_BGM = 1
-    Type_ME = 2
-
     BGM_Queue = []
     ME_Queue = []
 
@@ -64,78 +60,74 @@ module Audio
 
     module_function
 
-    def play(type, music)
-      if type == Type_BGM
-        case @@state
-        when Flag_Stop
-          music.play(-1)
-          BGM_Queue << music
-          @@state = Flag_BGM_Playing
-        when Flag_BGM_Playing
-          if music == BGM_Queue.first
-            RGM::Base.music_set_volume(music.volume)
-            RGM::Base.music_set_position(music.position) if music.position != -1
-          else
-            RGM::Base.music_fade_out(Default_Fade_Time)
-            BGM_Queue << music
-            @@state = Flag_BGM_Fading
-          end
-        when Flag_BGM_Fading, Flag_ME_Playing, Flag_ME_Fading
-          BGM_Queue << music
-        end
-      end
-
-      if type == Type_ME
-        ME_Queue << music
-
-        case @@state
-        when Flag_Stop
-          music.play(0)
-          @@state = Flag_ME_Playing
-        when Flag_BGM_Playing
-          current = BGM_Queue.first
-          current.update
+    def play_bgm(music)
+      case @@state
+      when Flag_Stop
+        music.play(-1)
+        BGM_Queue << music
+        @@state = Flag_BGM_Playing
+      when Flag_BGM_Playing
+        if music == BGM_Queue.first
+          RGM::Base.music_set_volume(music.volume)
+          RGM::Base.music_set_position(music.position) if music.position != -1
+        else
           RGM::Base.music_fade_out(Default_Fade_Time)
-          BGM_Queue << RGM::Music.new(current.path, current.volume, current.position)
+          BGM_Queue << music
           @@state = Flag_BGM_Fading
-        when Flag_ME_Playing
-          RGM::Base.music_halt
-          @@state = Flag_ME_Fading
         end
+      when Flag_BGM_Fading, Flag_ME_Playing, Flag_ME_Fading
+        BGM_Queue << music
       end
     end
 
-    def fade(type, time = 0)
-      if type == Type_BGM
-        case @@state
-        when Flag_BGM_Playing
-          if time > 0
-            RGM::Base.music_fade_out(time)
-          else
-            RGM::Base.music_halt
-          end
-          @@state = Flag_BGM_Fading
-        when Flag_BGM_Fading
-          BGM_Queue.pop(BGM_Queue.size - 1)
-        when Flag_ME_Playing, Flag_ME_Fading
-          BGM_Queue.clear
-        end
-      end
+    def play_me(music)
+      ME_Queue << music
 
-      if type == Type_ME
-        case @@state
-        when Flag_BGM_Playing, Flag_BGM_Fading
-          ME_Queue.clear
-        when Flag_ME_Playing
-          if time > 0
-            RGM::Base.music_fade_out(time)
-          else
-            RGM::Base.music_halt
-          end
-          @@state = Flag_ME_Fading
-        when Flag_ME_Fading
-          ME_Queue.pop(ME_Queue.size - 1)
+      case @@state
+      when Flag_Stop
+        music.play(0)
+        @@state = Flag_ME_Playing
+      when Flag_BGM_Playing
+        current = BGM_Queue.first
+        current.update
+        RGM::Base.music_fade_out(Default_Fade_Time)
+        BGM_Queue << RGM::Music.new(current.path, current.volume, current.position)
+        @@state = Flag_BGM_Fading
+      when Flag_ME_Playing
+        RGM::Base.music_halt
+        @@state = Flag_ME_Fading
+      end
+    end
+
+    def fade_bgm(time = 0)
+      case @@state
+      when Flag_BGM_Playing
+        if time > 0
+          RGM::Base.music_fade_out(time)
+        else
+          RGM::Base.music_halt
         end
+        @@state = Flag_BGM_Fading
+      when Flag_BGM_Fading
+        BGM_Queue.pop(BGM_Queue.size - 1)
+      when Flag_ME_Playing, Flag_ME_Fading
+        BGM_Queue.clear
+      end
+    end
+
+    def fade_me(time = 0)
+      case @@state
+      when Flag_BGM_Playing, Flag_BGM_Fading
+        ME_Queue.clear
+      when Flag_ME_Playing
+        if time > 0
+          RGM::Base.music_fade_out(time)
+        else
+          RGM::Base.music_halt
+        end
+        @@state = Flag_ME_Fading
+      when Flag_ME_Fading
+        ME_Queue.pop(ME_Queue.size - 1)
       end
     end
 
@@ -174,45 +166,41 @@ module Audio
   module Sound_Manager
     Sound_List = []
 
-    Type_Unknown = 0
-    Type_BGS = 1
-    Type_SE = 2
+    Type_BGS = 0
+    Type_SE = 1
 
     Max_Channel = 8
 
     module_function
 
-    def play(type, sound)
+    def play_bgs(sound)
       clean if Sound_List.size >= Max_Channel
 
       # 播放 BGS 需要先 fade out 其他的 BGS
-      if type == Type_BGS
-        Sound_List.each do |type2, sound|
-          sound.fade_out(Default_Fade_Time) if type2 == Type_BGS
-        end
-        Sound_List << [type, sound]
-        sound.play(-1)
+      Sound_List.each do |type, sound|
+        sound.fade_out(Default_Fade_Time) if type == Type_BGS
       end
+      Sound_List << [Type_BGS, sound]
+      sound.play(-1)
+    end
 
-      if type == Type_SE
-        # 播放 SE 直接操作即可
-        Sound_List << [type, sound]
+    def play_se(sound)
+      clean if Sound_List.size >= Max_Channel
+      # 播放 SE 直接操作即可
+      Sound_List << [Type_SE, sound]
 
-        sound.play(0)
+      sound.play(0)
+    end
+
+    def fade_bgs(time = 0)
+      Sound_List.each do |type, sound|
+        sound.fade_out(time) if type == Type_BGS
       end
     end
 
-    def fade(type, time = 0)
-      if type == Type_BGS
-        Sound_List.each do |type2, sound|
-          sound.fade_out(time) if type2 == Type_BGS
-        end
-      end
-
-      if type == Type_SE
-        Sound_List.each do |type2, sound|
-          sound.stop if type2 == Type_SE
-        end
+    def fade_se(_time = 0)
+      Sound_List.each do |type, sound|
+        sound.stop if type == Type_SE
       end
     end
 
@@ -241,13 +229,13 @@ module Audio
     puts 'ignoring the pitch setting for bgm.' if pitch != 100
     path = Finder.find(filename, :music)
     music = RGM::Music.new(path, volume, pos)
-    Music_Manager.play(Music_Manager::Type_BGM, music)
+    Music_Manager.play_bgm(music)
   end
 
   def bgm_fade(time)
     return if @@disable_music
 
-    Music_Manager.fade(Music_Manager::Type_BGM, time)
+    Music_Manager.fade_bgm(time)
   end
 
   def bgm_stop
@@ -270,13 +258,13 @@ module Audio
     puts 'ignoring the pitch setting for bgm.' if pitch != 100
     path = Finder.find(filename, :music)
     music = RGM::Music.new(path, volume)
-    Music_Manager.play(Music_Manager::Type_ME, music)
+    Music_Manager.play_me(music)
   end
 
   def me_fade(time)
     return if @@disable_music
 
-    Music_Manager.fade(Music_Manager::Type_ME, time)
+    Music_Manager.fade_me(time)
   end
 
   def me_stop
@@ -290,7 +278,7 @@ module Audio
 
     path = Finder.find(filename, :sound)
     sound = RGM::Sound.new(path, volume, pitch)
-    Sound_Manager.play(Sound_Manager::Type_BGS, sound)
+    Sound_Manager.play_bgs(sound)
   end
 
   def bgs_stop
@@ -302,7 +290,7 @@ module Audio
   def bgs_fade(time)
     return if @@disable_sound
 
-    Sound_Manager.fade(Sound_Manager::Type_BGS, time)
+    Sound_Manager.fade_bgs(time)
   end
 
   def se_play(filename, volume = 80, pitch = 100)
@@ -310,13 +298,13 @@ module Audio
 
     path = Finder.find(filename, :sound)
     sound = RGM::Sound.new(path, volume, pitch)
-    Sound_Manager.play(Sound_Manager::Type_SE, sound)
+    Sound_Manager.play_se(sound)
   end
 
   def se_stop
     return if @@disable_sound
 
-    Sound_Manager.fade(Sound_Manager::Type_SE, 0)
+    Sound_Manager.fade_se(0)
   end
 
   def disable_music
