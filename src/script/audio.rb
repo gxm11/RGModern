@@ -159,6 +159,14 @@ module Audio
         @@state = Flag_BGM_Playing
       end
     end
+
+    def set_soundfont(path)
+      paths = []
+      path.split(',').each do |sf_path|
+        paths << Finder.find(sf_path, :soundfont)
+      end
+      RGM::Base.music_set_soundfont(paths.compact.join(','))
+    end
   end
 
   # sound中，BGS是循环播放的。SE在播放前，需要clean一下当前的SE数量

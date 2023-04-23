@@ -64,6 +64,8 @@ module Input
     RGM::Ext.textinput_edit_clear
     # Updates input data. As a rule, this method is called once per frame.
     RGM::Base.input_update
+    # Enable debug mode
+    debug(binding) if $DEBUG || RGM::Config::Build_Mode == 0
   end
 
   def reset

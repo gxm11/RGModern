@@ -52,12 +52,12 @@ struct init_event {
     /* 键盘事件 */
     d.bind<cen::keyboard_event>().to([&worker](const cen::keyboard_event& e) {
       if (e.released()) {
-        cen::log_debug("[Input] key '%s' is pressed", e.key().name().data());
+        cen::log_debug("[Input] key '%s' is released", e.key().name().data());
 
         const int32_t key = static_cast<int32_t>(e.key().get());
         worker >> key_release{key};
       } else if (e.pressed()) {
-        cen::log_debug("[Input] key '%s' is released", e.key().name().data());
+        cen::log_debug("[Input] key '%s' is pressed", e.key().name().data());
 
         const int32_t key = static_cast<int32_t>(e.key().get());
         worker >> key_press{key};

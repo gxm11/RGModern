@@ -153,3 +153,4 @@ return data[index];
 - [x] bitmap 使用 bgra，palette 使用 rgba，这些 format 可以在 config 里用常数来表示
 - [x] 添加 bitmap.grayscale，对于shader操作，可能可以写一个模板
 - [x] 在drawables里用 @data 保存原始指针了，refresh时可以避免查询操作
+- [ ] 可以用 timidity.cfg 指定 SF2 音源

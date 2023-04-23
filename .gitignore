@@ -63,3 +63,5 @@ resource/
 screenshot/
 Doxyfile
 build*/
+Save*.rxdata
+timidity.cfg

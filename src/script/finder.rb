@@ -26,6 +26,7 @@ module Finder
     image: [nil],
     music: [nil],
     sound: [nil],
+    soundfont: [nil],
     data: [nil],
     none: [nil]
   }
@@ -43,6 +44,7 @@ module Finder
     image: ['', '.png', '.jpg', '.bmp', '.webp', '.gif', '.tiff'],
     music: ['', '.mp3', '.wav', '.ogg', '.mid'],
     sound: ['', '.wav', '.ogg'],
+    soundfont: ['', '.sf2'],
     data: ['', '.rxdata'],
     none: ['']
   }
@@ -62,7 +64,7 @@ module Finder
         next unless RGM::Ext.external_check(path)
 
         Cache[filename] = RGM::Config::Resource_Prefix + path
-        # puts "#{filename} -> #{Cache[filename]}"
+
         return Cache[filename]
       end
     end
@@ -82,6 +84,8 @@ module Finder
     case key
     when :font
       puts "[警告] 找不到字体: #{filename}"
+    when :soundfont
+      puts "[警告] 找不到音色库文件: #{filename}"
     else
       raise "Finder cannot find valid path for #{filename}"
     end
