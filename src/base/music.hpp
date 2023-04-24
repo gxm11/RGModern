@@ -226,12 +226,12 @@ struct music_get_state {
 
 /// @brief 设置 MIDI 音乐的 SoundFont 库
 /// @name task
-struct music_set_soundfont {
-  /// @brief soundfont 的路径
+struct music_set_soundfonts {
+  /// @brief soundfonts 的路径
   std::string_view path;
 
   void run(auto&) {
-    cen::log_info("Soundfonts is loaded from: %s.", path.data());
+    cen::log_info("Soundfonts is loaded from: %s", path.data());
 
     Mix_SetSoundFonts(path.data());
   }
@@ -292,7 +292,7 @@ struct init_music {
     RGMBIND(rb_mRGM_Base, "music_halt", music_halt, 0);
     RGMBIND(rb_mRGM_Base, "music_rewind", music_rewind, 0);
     RGMBIND(rb_mRGM_Base, "music_fade_out", music_fade_out, 1);
-    RGMBIND(rb_mRGM_Base, "music_set_soundfont", music_set_soundfont, 1);
+    RGMBIND(rb_mRGM_Base, "music_set_soundfonts", music_set_soundfonts, 1);
   }
 };
 }  // namespace rgm::base

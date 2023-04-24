@@ -96,8 +96,8 @@ struct drawable_object {
     if (viewport_ == Qnil) {
       p_viewport = nullptr;
     } else {
-      VALUE data_ = detail::get<word::data>(viewport_);
-      p_viewport = detail::get<viewport*>(data_);
+      VALUE data_ptr_ = detail::get<word::data_ptr>(viewport_);
+      p_viewport = detail::get<viewport*>(data_ptr_);
     }
 
     /* 返回派生类型的引用 */

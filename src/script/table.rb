@@ -24,9 +24,9 @@ class Table
   # when handling large amounts of data, hence the inclusion of this class.
 
   # 在 C++ 层中数据存储在 std::vector<int16_t> 中，而所有的 vector 都存储在 Hash 中。
-  # 不会通过哈希表查找 Table 对应的 vector，而是通过 @data 里记录的 &vector.front()
+  # 不会通过哈希表查找 Table 对应的 vector，而是通过 @data_ptr 里记录的 &vector.front()
   # 位置，加上偏移进行数据访问。在 STL 的 vector 实现下只有 create 和 resize 可能会改
-  # 变 &vector.front() 的地址，这两个函数都会返回新的 @data 的值，从而合法访问数据。
+  # 变 &vector.front() 的地址，这两个函数都会返回新的 @data_ptr 的值，从而合法访问数据。
 
   attr_reader :id, :xsize, :ysize, :zsize
 
@@ -45,7 +45,7 @@ class Table
     @ysize = ysize
     @zsize = zsize
 
-    @data = RGM::Base.table_create(@id, xsize, ysize, zsize)
+    @data_ptr = RGM::Base.table_create(@id, xsize, ysize, zsize)
     ObjectSpace.define_finalizer(self, self.class.create_finalizer)
   end
 
@@ -55,7 +55,7 @@ class Table
     @xsize = xsize
     @ysize = ysize
     @zsize = zsize
-    @data = RGM::Base.table_resize(@id, xsize, ysize, zsize)
+    @data_ptr = RGM::Base.table_resize(@id, xsize, ysize, zsize)
   end
 
   def [](x, y = 0, z = 0)
@@ -63,7 +63,7 @@ class Table
       nil
     else
       index = x + @xsize * (y + @ysize * z)
-      RGM::Base.table_get(@data, index)
+      RGM::Base.table_get(@data_ptr, index)
     end
   end
 
@@ -72,12 +72,12 @@ class Table
       raise 'Invalid element index of table'
     else
       index = x + @xsize * (y + @ysize * z)
-      RGM::Base.table_set(@data, index, value)
+      RGM::Base.table_set(@data_ptr, index, value)
     end
   end
 
   def inspect
-    format('#<Table:%d> [%d x %d x %d] (0x%016x)', object_id, @xsize, @ysize, @zsize, @data)
+    format('#<Table:%d> [%d x %d x %d] (0x%016x)', object_id, @xsize, @ysize, @zsize, @data_ptr)
   end
 
   def self._load(s)

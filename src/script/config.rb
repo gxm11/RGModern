@@ -59,7 +59,7 @@ File.open(RGM::Config::Config_Path, 'r') do |f|
     if flag == :System
       Audio.disable_music if line == 'Music=OFF'
       Audio.disable_sound if line == 'Sound=OFF'
-      Audio::Music_Manager.set_soundfont(Regexp.last_match(1)) if line =~ /SoundFont=(.+)/
+      Audio::Music_Manager.set_soundfonts(Regexp.last_match(1)) if line =~ /SoundFonts=(.+)/
       Graphics.set_fullscreen(Regexp.last_match(1).to_i) if line =~ /^FullScreen=(\d+)/
       Graphics.enable_low_fps(Regexp.last_match(1).to_i) if line =~ /^LowFPSRatio=(\d+)/
       if line =~ /^ScreenScaleMode=(\d+)/

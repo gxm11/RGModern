@@ -52,7 +52,7 @@ class Sprite
     @flash_hidden = false
     @flash_color = Color.new(0, 0, 0, 0)
     # C++ 层对象的内存地址
-    @data = nil
+    @data_ptr = nil
   end
 
   def flash(color, duration)
@@ -67,7 +67,7 @@ class Sprite
       @flash_color.set(0, 0, 0, 0)
       @flash_hidden = true
     end
-    RGM::Base.sprite_refresh_value(@data, RGM::Word::Attribute_flash_hidden)
+    RGM::Base.sprite_refresh_value(@data_ptr, RGM::Word::Attribute_flash_hidden)
   end
 
   def update
@@ -79,7 +79,7 @@ class Sprite
         @flash_type = 0
         @flash_color.set(0, 0, 0, 0)
         @flash_hidden = false
-        RGM::Base.sprite_refresh_value(@data, RGM::Word::Attribute_flash_hidden)
+        RGM::Base.sprite_refresh_value(@data_ptr, RGM::Word::Attribute_flash_hidden)
       end
     end
   end
@@ -108,7 +108,7 @@ class Plane
     @color = Color.new(0, 0, 0, 0)
     @tone = Tone.new(0, 0, 0, 0)
     # C++ 层对象的内存地址
-    @data = nil
+    @data_ptr = nil
   end
 end
 
@@ -137,14 +137,14 @@ class Window
     # object
     @cursor_rect = Rect.new(0, 0, 0, 0)
     # C++ 层对象的内存地址
-    @data = nil
+    @data_ptr = nil
   end
 
   def update
     @update_count = (@update_count + 1) % 32
     @cursor_count = @active ? (@cursor_count + 1) % 32 : 15
-    RGM::Base.window_refresh_value(@data, RGM::Word::Attribute_update_count)
-    RGM::Base.window_refresh_value(@data, RGM::Word::Attribute_cursor_count)
+    RGM::Base.window_refresh_value(@data_ptr, RGM::Word::Attribute_update_count)
+    RGM::Base.window_refresh_value(@data_ptr, RGM::Word::Attribute_cursor_count)
   end
 end
 
@@ -171,12 +171,12 @@ class Tilemap
     @repeat_y = true
     @update_count = 0
     # C++ 层对象的内存地址
-    @data = nil
+    @data_ptr = nil
   end
 
   def update
     @update_count = (@update_count + 1) % 1_073_741_824
-    RGM::Base.tilemap_refresh_value(@data, RGM::Word::Attribute_update_count)
+    RGM::Base.tilemap_refresh_value(@data_ptr, RGM::Word::Attribute_update_count)
   end
 end
 
@@ -192,7 +192,7 @@ class Sprite
 
     if @bitmap != bitmap
       @bitmap = bitmap
-      RGM::Base.sprite_refresh_value(@data, RGM::Word::Attribute_bitmap) unless @disposed
+      RGM::Base.sprite_refresh_value(@data_ptr, RGM::Word::Attribute_bitmap) unless @disposed
       # 在更新 bitmap 后，重设 src_rect
       @src_rect = @bitmap.rect if @bitmap
     end

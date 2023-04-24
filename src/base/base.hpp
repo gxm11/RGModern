@@ -60,7 +60,7 @@ using tasks_audio =
     std::tuple<music_create, music_dispose, music_play, music_fade_in,
                music_set_volume, music_set_position, music_resume, music_pause,
                music_halt, music_rewind, music_fade_out, music_get_volume,
-               music_get_position, music_get_state, music_set_soundfont,
+               music_get_position, music_get_state, music_set_soundfonts,
                sound_create, sound_dispose, sound_play, sound_stop,
                sound_fade_in, sound_fade_out, sound_set_volume, sound_set_pitch,
                sound_get_state, sound_get_channel>;

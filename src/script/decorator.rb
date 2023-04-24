@@ -82,7 +82,7 @@ module RGM::Base
         origin_initialize
 
         # 构建 C++ 层的 Drawable 对象并互相绑定
-        @data = drawable_create(self)
+        @data_ptr = drawable_create(self)
 
         # 定义 finalizer 使得自身被垃圾回收时，C++ 层的 Drawable 对象也被析构
         # 由于 finalizer 只会被触发一次，所以不会造成多次析构
@@ -100,7 +100,7 @@ module RGM::Base
         #    而现在的设计则不会导致此类报错，从而无需在访问属性前判断是否已经被释放，提升效率。
         @visible = false
         @disposed = true
-        @data = nil
+        @data_ptr = nil
         RGM::Base.drawable_dispose(@viewport, @id)
       end
 
@@ -144,7 +144,7 @@ module RGM::Base
         value = @__attr__.is_a?(Integer) ? value.to_i : value
         if @__attr__ != value
           @__attr__ = value
-          RGM::Base.__class___refresh_value(@data, RGM::Word::Attribute___attr__) unless @disposed
+          RGM::Base.__class___refresh_value(@data_ptr, RGM::Word::Attribute___attr__) unless @disposed
         end
         @__attr__
       end
@@ -157,7 +157,7 @@ module RGM::Base
         raise ArgumentError, 'Argument 1 should be nil or Bitmap.' if bitmap && !bitmap.is_a?(Bitmap)
         if @__attr__ != bitmap
           @__attr__ = bitmap
-          RGM::Base.__class___refresh_value(@data, RGM::Word::Attribute___attr__) unless @disposed
+          RGM::Base.__class___refresh_value(@data_ptr, RGM::Word::Attribute___attr__) unless @disposed
         end
         @__attr__
       end
@@ -170,7 +170,7 @@ module RGM::Base
         raise ArgumentError, 'Argument 1 should be nil or Table.' if table && !table.is_a?(Table)
         if @__attr__ != table
           @__attr__ = table
-          RGM::Base.__class___refresh_value(@data, RGM::Word::Attribute___attr__) unless @disposed
+          RGM::Base.__class___refresh_value(@data_ptr, RGM::Word::Attribute___attr__) unless @disposed
         end
         @__attr__
       end
@@ -186,7 +186,7 @@ module RGM::Base
 
         if @__attr__ != opacity
           @__attr__ = opacity
-          RGM::Base.__class___refresh_value(@data, RGM::Word::Attribute___attr__) unless @disposed
+          RGM::Base.__class___refresh_value(@data_ptr, RGM::Word::Attribute___attr__) unless @disposed
         end
         @__attr__
       end

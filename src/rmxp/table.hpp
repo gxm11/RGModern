@@ -102,9 +102,9 @@ struct init_table {
         tables& data = RGMDATA(tables);
 
         table t(x_size, y_size, z_size);
-        VALUE data_ = ULL2NUM(reinterpret_cast<uint64_t>(t.data_ptr()));
+        VALUE data_ptr_ = ULL2NUM(reinterpret_cast<uint64_t>(t.data_ptr()));
         data.emplace(id, std::move(t));
-        return data_;
+        return data_ptr_;
       }
 
       static VALUE dispose(VALUE, VALUE id_) {
@@ -115,19 +115,19 @@ struct init_table {
         return Qnil;
       }
 
-      static VALUE get(VALUE, VALUE data_, VALUE index_) {
+      static VALUE get(VALUE, VALUE data_ptr_, VALUE index_) {
         RGMLOAD(index, int);
-        RGMLOAD(data, int16_t*);
+        RGMLOAD(data_ptr, int16_t*);
 
-        return INT2FIX(data[index]);
+        return INT2FIX(data_ptr[index]);
       }
 
-      static VALUE set(VALUE, VALUE data_, VALUE index_, VALUE value_) {
+      static VALUE set(VALUE, VALUE data_ptr_, VALUE index_, VALUE value_) {
         RGMLOAD(index, int);
         RGMLOAD(value, int);
-        RGMLOAD(data, int16_t*);
+        RGMLOAD(data_ptr, int16_t*);
 
-        data[index] = value;
+        data_ptr[index] = value;
         return value_;
       }
 

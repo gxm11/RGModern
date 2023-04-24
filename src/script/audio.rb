@@ -160,12 +160,12 @@ module Audio
       end
     end
 
-    def set_soundfont(path)
+    def set_soundfonts(path)
       paths = []
       path.split(',').each do |sf_path|
         paths << Finder.find(sf_path, :soundfont)
       end
-      RGM::Base.music_set_soundfont(paths.compact.join(','))
+      RGM::Base.music_set_soundfonts(paths.compact.join(','))
     end
   end
 

@@ -190,7 +190,7 @@ def load_data(fn)
   data
 end
 
-def save_data(fn, obj)
+def save_data(obj, fn)
   File.open(fn, 'wb') do |f|
     Marshal.dump(obj, f)
   end

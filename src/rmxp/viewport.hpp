@@ -99,12 +99,12 @@ struct init_viewport {
         return z_;
       }
 
-      static VALUE refresh_value(VALUE, VALUE data_, VALUE type_) {
+      static VALUE refresh_value(VALUE, VALUE data_ptr_, VALUE type_) {
         RGMLOAD(type, int);
-        RGMLOAD(data, viewport*);
+        RGMLOAD(data_ptr, viewport*);
 
-        if (data) {
-          data->refresh_value(static_cast<word>(type));
+        if (data_ptr) {
+          data_ptr->refresh_value(static_cast<word>(type));
         }
         return Qnil;
       }

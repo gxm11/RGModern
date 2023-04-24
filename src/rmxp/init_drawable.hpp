@@ -166,12 +166,12 @@ struct init_drawable {
         return ULL2NUM(reinterpret_cast<uint64_t>(data_ptr));
       }
 
-      static VALUE refresh_value(VALUE, VALUE data_, VALUE type_) {
+      static VALUE refresh_value(VALUE, VALUE data_ptr_, VALUE type_) {
         RGMLOAD(type, int);
-        RGMLOAD(data, T_Drawable*);
+        RGMLOAD(data_ptr, T_Drawable*);
 
-        if (data) {
-          data->refresh_value(static_cast<word>(type));
+        if (data_ptr) {
+          data_ptr->refresh_value(static_cast<word>(type));
         }
         return Qnil;
       }
