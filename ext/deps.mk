@@ -51,7 +51,7 @@ miscs += Project1/RGSS103J.dll Project1/RGSS104E.dll Project1/RPGXP.chm Project1
 # -----------------------------------------------
 # tasks
 # -----------------------------------------------
-.PHONY: all envs ruby
+.PHONY: all envs ruby doc
 
 envs:
 	pacman -S --noconfirm --needed --quiet --noprogressbar $(pkgs_msys2)
@@ -87,3 +87,6 @@ endif
 
 misc.7z :
 	7z a $@ $(miscs)
+
+doc : manual.md
+	curl https://api.csswg.org/bikeshed/ -F file=@manual.md -F force=1 > manual.html
