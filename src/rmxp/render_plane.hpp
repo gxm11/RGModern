@@ -38,22 +38,24 @@ struct render<plane> {
 
     if (v) {
       total_x = v->rect.width;
-      start_x = (-v->ox - p->ox) % total_x;
-      if (start_x > 0) start_x -= total_x;
-
       total_y = v->rect.height;
-      start_y = (-v->oy - p->oy) % total_y;
-      if (start_y > 0) start_y -= total_y;
       renderer.set_clip(cen::irect(0, 0, total_x, total_y));
+
+      start_x = (-v->ox - p->ox) % step_x;
+      if (start_x > 0) start_x -= step_x;
+
+      start_y = (-v->oy - p->oy) % step_y;
+      if (start_y > 0) start_y -= step_y;
     } else {
       total_x = down.width();
-      start_x = (-p->ox) % total_x;
-      if (start_x > 0) start_x -= total_x;
-
       total_y = down.height();
-      start_y = (-p->oy) % total_y;
-      if (start_y > 0) start_y -= total_y;
       renderer.reset_clip();
+
+      start_x = (-p->ox) % step_x;
+      if (start_x > 0) start_x -= step_x;
+
+      start_y = (-p->oy) % step_y;
+      if (start_y > 0) start_y -= step_y;
     }
 
     renderer.set_target(down);
