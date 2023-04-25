@@ -78,7 +78,7 @@ struct drawable_object {
 
   /// @brief 保管自身所属 viewport 的指针
   /// 禁止修改 Drawable 绑定的 Viewport
-  const viewport* p_viewport = nullptr;
+  viewport* p_viewport = nullptr;
 
   /// @brief 读取 ruby 对象中各个实例变量，更新自身的成员变量
   /// @param object 目标 ruby 对象，通常是任意的 Drawable 类型

@@ -24,20 +24,22 @@
 #include "drawable.hpp"
 
 namespace rgm::rmxp {
-/**
-* @brief 创建 viewport 通用的 ruby 方法
-* @note 方法包括：
-* 1. create，创建 viewport，添加到 drawables 中
-* 2. dispose，将 viewport 从 drawables 中移除，释放相关资源，
-     同时释放所有绑定到该 viewport 的其他 drawable
-* 3. set_z，修改 viewport 的 z 值
-* 4. refresh_value，同步更新值类型的属性
-*/
+/// @brief 创建 viewport 通用的 ruby 方法
+/// 包括：
+/// 1. create，创建 viewport，添加到 drawables 中
+/// 2. dispose，将 viewport 从 drawables 中移除，释放相关资源，
+///    同时释放所有绑定到该 viewport 的其他 drawable。
+/// 3. set_z，修改 viewport 的 z 值
+/// 4. refresh_value，同步更新值类型的属性
+/// @see ./src/rmxp/init_drawable.hpp
 struct init_viewport {
   static void before(auto& this_worker) {
+    /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 
+    /* wrapper 类，创建静态方法供 ruby 的模块绑定 */
     struct wrapper {
+      /* ruby method: Base#viewport_create -> drawables::insert */
       static VALUE create(VALUE, VALUE viewport_) {
         drawables& data = RGMDATA(drawables);
         id2z& cache_z = RGMDATA(id2z);
@@ -49,38 +51,45 @@ struct init_viewport {
         v_zi << viewport_;
         v << viewport_;
 
+        /* id 在 drawables 中等价于 id 在 cache_z 中 */
         cache_z.insert(v_zi.id, v_zi.z);
         data.m_data.emplace(std::move(v_zi), std::move(v));
 
+        /* 返回 viewport 里蕴含的指针 */
         viewport* data_ptr = &std::get<viewport>(data.m_data[v_zi]);
         return ULL2NUM(reinterpret_cast<uint64_t>(data_ptr));
       }
 
+      /* ruby method: Base#viewport_dispose -> drawables::erase */
       static VALUE dispose(VALUE, VALUE id_) {
         drawables& data = RGMDATA(drawables);
         id2z& cache_z = RGMDATA(id2z);
 
         RGMLOAD(id, uint64_t);
 
-        // 如果 cache_z 中没有这个 id，那么相应的 viewport 已经析构。
+        /* id 不在 cache_z 中等价于 id 不在 drawables 中 */
         auto opt = cache_z.find_z(id);
         if (!opt) return Qnil;
 
-        int z = opt.value();
+        /* 从 cache_z 中移除 id */
         cache_z.erase(id);
 
-        // 从 cache_z 中移除所有内部元素
+        int z = opt.value();
+
+        /* 从 cache_z 中移除所有属于此 viewport 的元素 */
         drawable& item = data.m_data[z_index{z, id}];
         viewport& v = std::get<viewport>(item);
         for (auto& [sub_zi, sub_item] : v.p_drawables->m_data) {
           cache_z.erase(sub_zi.id);
         }
         v.p_drawables->m_data.clear();
-        // 从 drawables 中移除 viewport，此后 m_data 也会析构
+
+        /* 从 drawables 中移除 viewport */
         data.m_data.erase(z_index{z, id});
         return Qnil;
       }
 
+      /* ruby method: Base#viewport_set_z -> drawables::set_z */
       static VALUE set_z(VALUE, VALUE viewport_, VALUE z_) {
         drawables& data = RGMDATA(drawables);
         id2z& cache_z = RGMDATA(id2z);
@@ -99,6 +108,7 @@ struct init_viewport {
         return z_;
       }
 
+      /* ruby method: Base#viewport_refresh_value -> viewport::refresh_value */
       static VALUE refresh_value(VALUE, VALUE data_ptr_, VALUE type_) {
         RGMLOAD(type, int);
         RGMLOAD(data_ptr, viewport*);

@@ -155,3 +155,4 @@ return data[index];
 - [x] 在drawables里用 @data 保存原始指针了，refresh时可以避免查询操作
 - [x] 可以用 soundfonts 指定 SF2 音源
 - [x] @data改名为@data_ptr，避免重名
+- [ ] render等任务不再需要v_ptr的参数。此外，drawables需要一个默认的ptr，当drawable的viewport*是空指针时，调用这个ptr。这个ptr会随着screen变化而变化，并且是全局变量，或者指向drawables的静态成员。

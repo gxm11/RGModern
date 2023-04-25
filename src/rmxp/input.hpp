@@ -23,95 +23,134 @@
 #include "word.hpp"
 
 namespace rgm::rmxp {
-/**
- * @brief 按键映射组合，其中的元素是 { SDL_Key, RMXP Input Key }
- */
-struct keymap : std::set<std::pair<int32_t, int>> {
-  explicit keymap() : std::set<std::pair<int32_t, int>>() {}
+/// @brief 记录键盘按键与 RGSS 中虚拟按键的映射关系
+/// @name data
+/// 同一个键盘按键可以对应多个虚拟按键，当此键盘按键按下或抬起时，
+/// 会触发此按键对应的全部虚拟按键的按下或抬起。
+/// RGSS 中可以调用 Input.trigger? 等方法检测相应的虚拟按键。
+struct keymap {
+  /// @brief 储存映射关系的 set，有序排放
+  /// pair 中第一个元素是 SDL_Key，
+  /// 第二个元素是 RGSS 虚拟按键，即 RMXP Input Key。
+  std::set<std::pair<int32_t, int>> m_data;
 
-  /**
-   * @brief 遍历所有的 { SDL_Key, RMXP Input Key } 组合，执行特定函数
-   * @param sdl_key 组合的第一项必须等于该值
-   * @param callback 只接受一个参数，即 RMXP Input Key
-   */
+  /// @brief 遍历所有的 { SDL_Key, RMXP Input Key } 组合，执行特定函数
+  /// @param 组合的第一项必须等于该值
+  /// @param callback 只接受一个 int 类型的参数，即 RMXP Input Key
+  /// callback 通常是修改 RMXP Input Key 按下或抬起的状态。
   void iterate(int32_t sdl_key, std::function<void(int)> callback) {
-    auto it = lower_bound({sdl_key, 0});
-    while (it != end()) {
+    /*
+     * 查询不小于 {sdl_key, 0} 的那个元素
+     * 此元素显然是 {sdl_key, i}，i 对应绑定的值最小的那个虚拟按键值
+     * 若 sdl_key 未有任何绑定，则返回 end()
+     */
+    auto it = m_data.lower_bound({sdl_key, 0});
+
+    while (it != m_data.end()) {
+      /* 当键盘按键不再是 sdl_key 时，结束循环 */
       if (it->first != sdl_key) break;
+
+      /* 使用绑定的虚拟按键触发回调 */
       callback(it->second);
+
       ++it;
     }
   }
+
+  /// @brief 重置特定键盘按键的全部映射，使其不再对应任何虚拟按键
+  /// 即从 set 中移除 {sdl_key, i}，i 是任意的 int
+  void erase(int32_t sdl_key) {
+    /*
+     * 查询不小于 {sdl_key, 0} 的那个元素
+     * 此元素显然是 {sdl_key, i}，i 对应绑定的值最小的那个虚拟按键值
+     * 若 sdl_key 未有任何绑定，则返回 end()
+     */
+    auto begin = m_data.lower_bound({sdl_key, 0});
+
+    if (begin == m_data.end()) return;
+
+    /*
+     * 查询不小于 {sdl_key + 1, 0} 的那个元素
+     * 此元素显然是 {sdl_key_next, ?}，其中 sdl_key_next > sdl_key。
+     */
+    auto end = m_data.lower_bound({sdl_key + 1, 0});
+
+    /* STL 中算法遵循前闭后开原则，begin 会被移除而 end 不会被移除 */
+    m_data.erase(begin, end);
+  }
+
+  /// @brief 添加一组映射关系
+  /// @param sdl_key 键盘按键
+  /// @param key RGSS 虚拟按键
+  void insert(int32_t sdl_key, int key) { m_data.insert({sdl_key, key}); }
 };
 
-/**
- * @brief keystate 是一个数组，索引代表相应的按键，值代表按键的状态
- * @note 值的每一位代表每一帧该按键是否按下，0 表示松开，1 表示按下。
- * 最后一位（最低位）代表当前帧的情况，倒数第 N 位代表向前推算 N - 1 帧的情况。
- */
+/// @brief keystate 存储了虚拟按键按下或抬起的状态。
+/// @name data
 struct keystate {
+  /// @brief 最多支持的虚拟按键数量，设置为 256 应该足够。
   static constexpr size_t max = 256;
-  std::array<uint32_t, max> data;
 
+  /// @brief 存储按键状态的数组，索引代表相应的按键，值代表按键的状态。
+  /// 值的每一位代表每一帧该按键是否按下，0 表示松开，1 表示按下。最后一位
+  /// （最低位）代表当前帧的情况，倒数第 N 位代表向前推算 N - 1 帧的情况。
+  /// 比如 0b00000000_00000000_00000000_00000001，代表此帧是刚刚按下对应按键。
+  std::array<uint32_t, max> m_data;
+
+  /// @brief 记录最后一次按键按下事件对应的 SDL_Key
   int32_t last_press;
+
+  /// @brief 记录最后一次按键抬起事件对应的 SDL_Key
   int32_t last_release;
 
-  explicit keystate() : data() {}
-
-  /**
-   * @brief 更新按键当前帧状态，默认延续上一帧的状态
-   * @note S0 -> S00, S1 -> S11。在此之后需要读取 press 和 release
-   * 的信息进一步更新。
-   */
+  /// @brief 更新按键当前帧状态，默认延续上一帧的状态。
+  /// S0 -> S00，S1 -> S11
+  /// 在此之后才会执行 key_press 和 key_release 的事件继续更新。
   void update() {
     for (size_t i = 0; i < max; ++i) {
-      const uint32_t value = data[i];
-      data[i] = (value & 1) | (value << 1);
+      const uint32_t value = m_data[i];
+
+      m_data[i] = (value & 1) | (value << 1);
     }
   }
 
-  /**
-   * @brief 将按键当前帧的状态改为按下，S? -> S1
-   * @param key 目标按键
-   */
-  void press(int key) { data[key % max] |= 0b01; }
+  /// @brief 将按键当前帧的状态改为按下
+  /// @param key 目标按键
+  /// S? -> S1
+  void press(int key) { m_data[key % max] |= 0b01; }
 
-  /**
-   * @brief 将按键当前帧的状态改为松开，S? -> S0
-   * @param key 目标按键
-   */
-  void release(int key) { data[key % max] ^= (data[key % max] & 1); }
+  /// @brief 将按键当前帧的状态改为松开
+  /// @param key 目标按键
+  /// S? -> S0
+  void release(int key) { m_data[key % max] ^= (m_data[key % max] & 1); }
 
-  /**
-   * @brief 判断按键是否刚刚按下，只需检测最低 2 位是否为 01
-   * @param key 目标按键
-   */
-  bool is_trigger(int key) { return (data[key % max] & 0b11) == 0b01; }
+  /// @brief 判断按键是否刚刚按下，只需检测最低 2 位是否为 01
+  /// @param key 目标按键
+  /// @return 返回 true 表示此按键刚刚按下
+  bool is_trigger(int key) { return (m_data[key % max] & 0b11) == 0b01; }
 
-  /**
-   * @brief 判断按键是否正在按下，只需检测最低 1 位是否为 1
-   * @param key 目标按键
-   */
-  bool is_press(int key) { return (data[key % max] & 0b01) == 0b01; }
+  /// @brief 判断按键是否正在按下，只需检测最低 1 位是否为 1
+  /// @param key 目标按键
+  /// @return 返回 true 表示此按键正在按下
+  bool is_press(int key) { return (m_data[key % max] & 0b01) == 0b01; }
 
-  /**
-   * @brief 判断按键是否正在按下，但是每 interval 帧只会有 1 帧返回 true
-   * @param key 目标按键
-   * @note 实现方案：
-   * RMXP 内置的 repeat 方案，是从 trigger 的那一帧算起（设为1），第 16 + 4x
-   * 帧触发。 并且 trigger 那一帧也算。从而满足以下pattern时触发：
-   * 1. 后两位是 0b01，即 trigger 触发时
-   * 2. 后16位是 0b1111'1111'1111'1111
-   * 3. 后16位是 0b1110'1111'1111'1111
-   * 从而在满足 0b1111'1111'1111'1111 时，修改按键的状态为
-   * 0b1110'1111'1111'1111， 4 帧后又会再次触发。而前两次触发则出现在 trigger
-   * 的当前帧，和那之后的第 15 帧。 interval_a 和 interval_b 可以修改。
-   */
-
+  /// @brief 判断按键是否正在重复按下
+  /// @param key 目标按键
+  /// 和按下的判断条件相同，但是连续的若干帧里只会有 1 帧返回 true。
+  /// RMXP 内置的 repeat 方案，是从 trigger 的那一帧算起（设为1），
+  /// 第 16 + 4x 帧触发。并且 trigger 那一帧也算。
+  /// 考虑以下 pattern 时触发：
+  /// 1. 后两位是 0b01，即 trigger 触发时
+  /// 2. 后16位是 0b1111'1111'1111'1111
+  /// 3. 后16位是 0b1110'1111'1111'1111
+  /// 且在满足(2)时，修改按键的状态为 0b1110'1111'1111'1111，持续 4
+  /// 帧后又会再次触发。
   bool is_repeat(int key) {
-    /** 按键按下时，重复触发的周期为 a + bx，单位：帧 */
+    /* 按键按下时，重复触发的周期为 a + bx，单位：帧 */
     constexpr int interval_a = 16;
     constexpr int interval_b = 4;
+
+    /* 根据重复触发的周期，设置键值匹配的模式 */
     constexpr uint32_t pattern_1 = (1 << interval_a) - 1;
     constexpr uint32_t pattern_2 = pattern_1 ^ (1 << (interval_a - interval_b));
 
@@ -120,119 +159,148 @@ struct keystate {
     static_assert(interval_b < interval_a - 4,
                   "Value of interval_b must be less than interval_a - 4.\n");
 
-    uint32_t& value = data[key % max];
+    uint32_t& value = m_data[key % max];
 
+    /* 对应上面第 1 种模式 */
     if ((value & 0b11) == 0b01) return true;
+    /* 对应上面第 3 种模式 */
     if ((value & pattern_1) == pattern_2) return true;
+    /* 对应上面第 2 种模式 */
     if ((value & pattern_1) == pattern_1) {
+      /* 修改按键的状态为满足第 3 种模式 */
       value = value & pattern_2;
       return true;
     }
     return false;
   }
 
+  /// @brief 重置所有的按键状态为抬起，清空上次按键的记忆
   void reset() {
-    data.fill(0);
+    m_data.fill(0);
     last_press = 0;
     last_release = 0;
   }
 };
 
-/**
- * @brief 任务：按键按下
- */
+/// @brief 按键按下的事件
+/// @name task
 struct key_press {
+  /// @brief 键盘的按键
   int32_t sdl_key;
 
   void run(auto& worker) {
     keymap& map = RGMDATA(keymap);
     keystate& state = RGMDATA(keystate);
 
+    /* 记录为 last_press 值 */
     state.last_press = sdl_key;
+
+    /* 修改 key_state 中对应的值 */
     map.iterate(sdl_key, [&state](int key) { state.press(key); });
   }
 };
 
-/**
- * @brief 任务：按键抬起
- */
+/// @brief 按键抬起的事件
+/// @name task
 struct key_release {
+  /// @brief 键盘的按键
   int32_t sdl_key;
 
   void run(auto& worker) {
     keymap& map = RGMDATA(keymap);
     keystate& state = RGMDATA(keystate);
 
+    /* 记录为 last_press 值 */
     state.last_release = sdl_key;
+
+    /* 修改 key_state 中对应的值 */
     map.iterate(sdl_key, [&state](int key) { state.release(key); });
   }
 };
 
-/**
- * @brief 添加 keymap 和 keystate 到 worker 的 datalist 中，并创建 Input 相关的
- * ruby 方法。
- */
+/// @brief 按键相关操作的初始化类
 struct init_input {
+  /* 引入数据对象 keymap 和 keystate */
   using data = std::tuple<keymap, keystate>;
 
   static void before(auto& this_worker) {
+    /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 
+    /* wrapper 类，创建静态方法供 ruby 的模块绑定 */
     struct wrapper {
+      /* ruby method: Base#input_bind -> keymap::insert */
       static VALUE bind(VALUE, VALUE sdl_key_, VALUE input_key_) {
         keymap& map = RGMDATA(keymap);
-        // 这里不能使用 FIX2INT
+        /* sdl_key 的值超过了 0x4000_0000，不能使用 FIX2INT */
         int32_t sdl_key = NUM2LONG(sdl_key_);
 
         if (input_key_ == Qnil) {
-          auto begin = map.lower_bound({sdl_key, 0});
-          auto end = map.lower_bound({sdl_key + 1, 0});
-          map.erase(begin, end);
+          map.erase(sdl_key);
         } else {
           RGMLOAD(input_key, int);
-          map.insert({sdl_key, input_key});
+
+          map.insert(sdl_key, input_key);
         }
         return Qnil;
       }
 
+      /* ruby method: Base#input_trigger -> keystate::is_trigger */
       static VALUE is_trigger(VALUE, VALUE input_key_) {
         RGMLOAD(input_key, int);
 
         return RGMDATA(keystate).is_trigger(input_key) ? Qtrue : Qfalse;
       }
 
+      /* ruby method: Base#input_press -> keystate::is_press */
       static VALUE is_press(VALUE, VALUE input_key_) {
         RGMLOAD(input_key, int);
 
         return RGMDATA(keystate).is_press(input_key) ? Qtrue : Qfalse;
       }
 
+      /* ruby method: Base#input_repeat -> keystate::is_repeat */
       static VALUE is_repeat(VALUE, VALUE input_key_) {
         RGMLOAD(input_key, int);
 
         return RGMDATA(keystate).is_repeat(input_key) ? Qtrue : Qfalse;
       }
 
+      /* ruby method: Base#input_update -> keystate::update */
       static VALUE update(VALUE) {
-        // 处理 key
+        /* 更新 keystate */
         RGMDATA(keystate).update();
-        // 在 Graphics.update 里也有一次 poll_event，处理当前积压的事件
-        // 由于执行了 flush() 函数清空任务队列，Input 数据总会适时刷新。
+
+        /*
+         * 处理当前积压的事件
+         * 在 Graphics.update 里也有一次 poll_event
+         */
         worker >> base::poll_event{};
+
+        /*
+         * 执行了 flush() 函数清空任务队列
+         * 若队列里有按键事件（包括控制器按键事件），就会在此处刷新 keystate。
+         * 由于主动 worker 必须定期调用 flush()，相应的，ruby 中必须定期调用
+         * Input.update
+         */
         worker.flush();
+
         return Qnil;
       }
 
+      /* ruby method: Base#input_reset -> keystate::reset */
       static VALUE reset(VALUE) {
         RGMDATA(keystate).reset();
         return Qnil;
       }
 
+      /* ruby method: Base#input_last_press -> keystate::last_press */
       static VALUE last_press(VALUE) {
         int key = RGMDATA(keystate).last_press;
         return INT2FIX(key);
       }
 
+      /* ruby method: Base#input_last_release -> keystate::last_release */
       static VALUE last_release(VALUE) {
         int key = RGMDATA(keystate).last_release;
         return INT2FIX(key);

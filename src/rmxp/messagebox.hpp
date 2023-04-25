@@ -23,23 +23,33 @@
 #include "word.hpp"
 
 namespace rgm::rmxp {
+/// @brief 弹出窗口，显示提示信息
+/// @name task
 struct message_show {
-  const char* text;
+  /// @brief 提示信息内容
+  std::string_view text;
 
   void run(auto&) {
-    cen::message_box::show(config::game_title, text,
+    cen::message_box::show(config::game_title, text.data(),
                            cen::message_box_type::information);
   }
 };
 
+/// @brief 提示信息相关的初始化类
+/// @name task
 struct init_message {
   static void before(auto& this_worker) {
+    /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 
+    /* wrapper 类，创建静态方法供 ruby 的模块绑定 */
     struct wrapper {
+      /* ruby method: Base#message_show -> message_show */
       static VALUE show(VALUE, VALUE text_) {
-        RGMLOAD(text, const char*);
+        RGMLOAD(text, std::string_view);
         worker >> message_show{text};
+        
+        /* 需等待窗口事件处理完毕 */
         RGMWAIT(1);
 
         return Qnil;

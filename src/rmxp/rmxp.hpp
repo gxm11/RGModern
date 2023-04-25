@@ -49,7 +49,7 @@
 #include "word.hpp"
 
 namespace rgm::rmxp {
-/** @brief 逻辑流程的 worker 的可执行任务列表 */
+/// @brief 执行 ruby 脚本的 task，运行游戏的主要逻辑（即 RGSS 脚本）
 using tasks_ruby =
     std::tuple<init_extension, init_word, init_bitmap, init_table,
                init_tilemap_manager, init_viewport, init_graphics, init_input,
@@ -59,7 +59,7 @@ using tasks_ruby =
                init_message, key_release, key_press, controller_axis_move,
                controller_button_release, controller_button_press>;
 
-/** @brief 渲染流程的 worker 的可执行任务列表 */
+/// @brief 执行渲染流程的 task，使用 SDL2 创建窗口，绘制画面并处理事件
 using tasks_render = std::tuple<
     init_shader, init_event, init_blend_type, init_font<false>,
     bitmap_create<1>, bitmap_create<2>, bitmap_create<3>, bitmap_dispose,
@@ -72,7 +72,9 @@ using tasks_render = std::tuple<
     render_transition<2>, message_show, controller_rumble,
     controller_rumble_triggers>;
 
+/// @brief 执行音乐播放的 task，使用 SDL2 Mixer 播放音乐和音效
 using tasks_audio = std::tuple<>;
 
+/// @brief 执行 Table 操作的 task，这个 worker 用于一些耗时的计算
 using tasks_table = std::tuple<>;
 }  // namespace rgm::rmxp

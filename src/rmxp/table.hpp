@@ -24,7 +24,7 @@
 
 namespace rgm::rmxp {
 /**
- * @brief 储存所有 Table 的类，其中的元素都是 std::vector<short>
+ * @brief 储存所有 Table 的类，其中的元素都是 std::vector<int16_t>
  * @note table 的处理不同于 bitmap，在 ruby 层额外保存了 &vector::front()，
  * 可以直接拿到数据地址进行快速的操作，参见 get_unsafe 和 set_unsafe。
  * 将 vector 的 &front() 记录在实例变量 @data 中，在使用时直接强制转换该变量
@@ -32,55 +32,95 @@ namespace rgm::rmxp {
  * 在进入哈希表时是移动拷贝，&front() 不会变化。在调用函数 table_create 和
  * table_resize 时才有可能导致内存位置的改变，而这两个函数会返回新的 &front()。
  */
+
+/// @brief 对应于 RGSS 中 Table 的类，其本质是 std::vector<int16_t>
 struct table {
+  /// @brief Table 第 1 个维度的大小
   int x_size;
+
+  /// @brief Table 第 2 个维度的大小
   int y_size;
+
+  /// @brief Table 第 3 个维度的大小
   int z_size;
-  std::vector<int16_t> data;
 
-  explicit table() : x_size(0), y_size(0), z_size(0), data() {}
+  /// @brief 存储 Table 数据的容器
+  std::vector<int16_t> m_data;
 
-  explicit table(int x, int y, int z)
-      : x_size(x), y_size(y), z_size(z), data() {
-    data.resize(x * y * z, 0);
-  }
+  /// @brief 构造函数
+  explicit table() : x_size(0), y_size(0), z_size(0), m_data() {}
 
+  /// @brief Table 的维度
+  /// @return 返回值可能是 1，2 或者 3
   int dimension() const {
     if (z_size > 1) return 3;
     if (y_size > 1) return 2;
     return 1;
   }
 
-  int size() const { return x_size * y_size * z_size; }
+  /// @brief Table 总大小
+  /// @return 返回三个维度大小之积
+  size_t size() const { return x_size * y_size * z_size; }
 
+  /// @brief 重设 Table 的三个维度
+  /// @param new_x 改变后的第 1 个维度大小
+  /// @param new_y 改变后的第 2 个维度大小
+  /// @param new_z 改变后的第 3 个维度大小
   void resize(int new_x, int new_y, int new_z) {
     x_size = new_x;
     y_size = new_y;
     z_size = new_z;
 
-    data.resize(new_x * new_y * new_z, 0);
+    /* 总数变小截取，不足补 0 */
+    m_data.resize(new_x * new_y * new_z, 0);
+    m_data.shrink_to_fit();
   }
 
+  /// @brief 获取 table 中特定位置的值
+  /// @param x 第 1 个维度的坐标
+  /// @param y 第 2 个维度的坐标
+  /// @param z 第 3 个维度的坐标
+  /// @return 储存的值
   int16_t get(int x, int y, int z) const {
     int index = x + y * x_size + z * x_size * y_size;
-    return data.at(index);
+
+    return get(index);
   }
 
-  int16_t get(int index) const { return data.at(index); }
+  /// @brief 获取 table 中特定位置的值
+  /// @param 将 table 展开成 1 列，对应的位置
+  /// @return 储存的值
+  int16_t get(int index) const {
+    /* 访问 vector 时总是检查索引的范围 */
+    return m_data.at(index);
+  }
 
+  /// @brief 修改 table 中特定位置的值
+  /// @param x 第 1 个维度的坐标
+  /// @param y 第 2 个维度的坐标
+  /// @param z 第 3 个维度的坐标
+  /// @param value 修改后的值
   void set(int x, int y, int z, int16_t value) {
     int index = x + y * x_size + z * x_size * y_size;
-    data.at(index) = value;
+
+    set(index, value);
   }
 
-  void set(int index, int16_t value) { data.at(index) = value; }
+  /// @brief 修改 table 中特定位置的值
+  /// @param 将 table 展开成 1 列，对应的位置
+  void set(int index, int16_t value) {
+    /* 访问 vector 时总是检查索引的范围 */
+    m_data.at(index) = value;
+  }
 
-  int16_t* data_ptr() { return &(data.front()); }
+  /// @brief 返回 table 在堆上的数据指针
+  /// @return 若 table 大小为 0 返回空指针，否则返回堆上的指针
+  int16_t* data_ptr() { return m_data.empty() ? nullptr : &(m_data.front()); }
 };
 
-struct tables : std::unordered_map<uint64_t, table> {
-  explicit tables() : std::unordered_map<uint64_t, table>() {}
-};
+/// @brief 存储所有 table，即 Table 对象的类
+/// @name data
+using tables = std::unordered_map<uint64_t, table>;
 
 /**
  * @brief 创建 Table 相关的 ruby 方法
@@ -89,9 +129,12 @@ struct init_table {
   using data = std::tuple<tables>;
 
   static void before(auto& this_worker) {
+    /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 
+    /* wrapper 类，创建静态方法供 ruby 的模块绑定 */
     struct wrapper {
+      /* ruby method: Base#table_create -> tables::emplace */
       static VALUE create(VALUE, VALUE id_, VALUE x_size_, VALUE y_size_,
                           VALUE z_size_) {
         RGMLOAD(id, uint64_t);
@@ -101,12 +144,19 @@ struct init_table {
 
         tables& data = RGMDATA(tables);
 
-        table t(x_size, y_size, z_size);
-        VALUE data_ptr_ = ULL2NUM(reinterpret_cast<uint64_t>(t.data_ptr()));
+        table t;
+
+        t.resize(x_size, y_size, z_size);
+        int16_t* data_ptr = t.data_ptr();
+        VALUE data_ptr_ = ULL2NUM(reinterpret_cast<uint64_t>(data_ptr));
+
         data.emplace(id, std::move(t));
-        return data_ptr_;
+
+        /* 返回堆上指针的值，或者 nil */
+        return data_ptr ? data_ptr_ : Qnil;
       }
 
+      /* ruby method: Base#table_dispose -> tables::erase */
       static VALUE dispose(VALUE, VALUE id_) {
         RGMLOAD(id, uint64_t);
         tables& data = RGMDATA(tables);
@@ -115,6 +165,7 @@ struct init_table {
         return Qnil;
       }
 
+      /* ruby method: Base#table_get -> table::opaerator[] */
       static VALUE get(VALUE, VALUE data_ptr_, VALUE index_) {
         RGMLOAD(index, int);
         RGMLOAD(data_ptr, int16_t*);
@@ -122,6 +173,7 @@ struct init_table {
         return INT2FIX(data_ptr[index]);
       }
 
+      /* ruby method: Base#table_set -> table::opaerator[] */
       static VALUE set(VALUE, VALUE data_ptr_, VALUE index_, VALUE value_) {
         RGMLOAD(index, int);
         RGMLOAD(value, int);
@@ -131,6 +183,7 @@ struct init_table {
         return value_;
       }
 
+      /* ruby method: Base#table_resize -> table::resize */
       static VALUE resize(VALUE, VALUE id_, VALUE x_size_, VALUE y_size_,
                           VALUE z_size_) {
         RGMLOAD(id, uint64_t);
@@ -142,10 +195,22 @@ struct init_table {
 
         table& t = data[id];
         t.resize(x_size, y_size, z_size);
-        t.data.shrink_to_fit();
+
+        /* 返回堆上指针的值，或者 nil */
+        int16_t* data_ptr = t.data_ptr();
+        if (!data_ptr) return Qnil;
+
         return ULL2NUM(reinterpret_cast<uint64_t>(t.data_ptr()));
       }
 
+      /*
+       * table 在 RGSS 中存储的格式如下：
+       * 首先存 5 个 int，代表：dimension, xsize, ysize, zsize, size
+       * 然后存 int16_t 的堆上数据。
+       * 这里的 load 和 dump 都必须按照此格式来读写以保证兼容性。
+       */
+
+      /* ruby method: Base#table_load -> table::table() */
       static VALUE load(VALUE, VALUE id_, VALUE string_) {
         RGMLOAD(id, uint64_t);
 
@@ -154,12 +219,12 @@ struct init_table {
 
         int16_t* ptr = reinterpret_cast<int16_t*>(RSTRING_PTR(string_));
         int* ptr_int = reinterpret_cast<int*>(RSTRING_PTR(string_));
-        // int dimension, xsize, ysize, zsize, size;
         t.resize(ptr_int[1], ptr_int[2], ptr_int[3]);
         memcpy(t.data_ptr(), ptr + 10, t.size() * sizeof(uint16_t));
         return Qnil;
       }
 
+      /* ruby method: Base#table_dump -> String */
       static VALUE dump(VALUE, VALUE id_) {
         RGMLOAD(id, uint64_t);
 
