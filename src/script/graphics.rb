@@ -45,13 +45,13 @@ module Graphics
   end
 
   def update_synchronize
-    if @@flag_synchronize
-      @@flag_synchronize = false
-      t = Time.now
-      RGM::Base.synchronize(1)
-      delta_t = Time.now - t
-      puts format('Warn: wait %.3fs for synchronization', delta_t) if delta_t > 0.1
-    end
+    return unless @@flag_synchronize
+
+    @@flag_synchronize = false
+    t = Time.now
+    RGM::Base.synchronize(1)
+    delta_t = Time.now - t
+    puts format('Warn: wait %.3fs for synchronization', delta_t) if delta_t > 0.1
   end
 
   def update_fps
@@ -62,7 +62,7 @@ module Graphics
       # 超过 1s，或者frame_rate帧过后，主动更新 title
       if delta_count > frame_rate || delta_time > 1.0
         fps = delta_count / delta_time
-        if fps < 0
+        if fps < 0 || fps > 2 * @@frame_rate
           RGM::Base.set_title(format('%s - Sampling...', @@title))
         else
           RGM::Base.set_title(format('%s - %.1f FPS', @@title, fps))
@@ -72,16 +72,16 @@ module Graphics
       end
     end
     # toggle fps
-    if Input.trigger?(Input::FPS_TOGGLE)
-      if @@show_fps
-        @@show_fps = false
-        RGM::Base.set_title(@@title)
-      else
-        @@show_fps = true
-        @@fps_last_frame_count = @@frame_count
-        @@fps_last_time = Time.now.to_f
-        RGM::Base.set_title(format('%s - Sampling...', @@title))
-      end
+    return unless Input.trigger?(Input::FPS_TOGGLE)
+
+    if @@show_fps
+      @@show_fps = false
+      RGM::Base.set_title(@@title)
+    else
+      @@show_fps = true
+      @@fps_last_frame_count = @@frame_count
+      @@fps_last_time = Time.now.to_f
+      RGM::Base.set_title(format('%s - Sampling...', @@title))
     end
   end
 

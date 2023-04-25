@@ -61,7 +61,8 @@ struct init_palette {
             SDL_Surface* ptr2 = z.load_surface(path2);
             ptr = std::make_unique<cen::surface>(ptr2);
           } else {
-            cen::log_info("[Palette] id = %lld, is created from %s", id, path);
+            cen::log_info("[Palette] id = %lld, is created from %s", id,
+                          path.data());
 
             ptr = std::make_unique<cen::surface>(path.data());
           }
