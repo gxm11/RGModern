@@ -24,6 +24,12 @@
 #include "drawable.hpp"
 
 namespace rgm::rmxp {
+/// @brief 代表当前屏幕的 viewport，功能受限
+/// 未设置 viewport 的 Drawable 会直接绘制到屏幕上，但是考虑到屏幕也有
+/// 固定的大小，仍然可以引入 viewport 来说明，此 viewport 只有以下属性
+/// 有效：rect，ox，oy
+viewport default_viewport;
+
 /// @brief 创建 viewport 通用的 ruby 方法
 /// 包括：
 /// 1. create，创建 viewport，添加到 drawables 中
@@ -130,6 +136,14 @@ struct init_viewport {
                               2);
     rb_define_module_function(rb_mRGM_Base, "viewport_refresh_value",
                               wrapper::refresh_value, 2);
+
+    /*
+     * 初始化 default_viewport。
+     * rect 的 width 和 height 在 graphics.update 里更新。
+     */
+    default_viewport.ox = 0;
+    default_viewport.oy = 0;
+    default_viewport.rect = {0, 0, 0, 0};
   }
 };
 }  // namespace rgm::rmxp

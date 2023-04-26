@@ -23,6 +23,7 @@
 #include "blend_type.hpp"
 #include "drawable.hpp"
 #include "shader/shader.hpp"
+#include "viewport.hpp"
 
 namespace rgm::rmxp {
 /**
@@ -34,7 +35,6 @@ namespace rgm::rmxp {
 template <typename T>
 struct render {
   const T* _t;
-  const viewport* _v;
 
   void run(auto&) {}
 };

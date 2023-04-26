@@ -25,7 +25,7 @@ namespace rgm::rmxp {
 template <>
 struct render<window> {
   const window* w;
-  const viewport* v;
+  // const viewport* v;
 
   void run(auto& worker) {
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
@@ -107,8 +107,9 @@ struct render<window> {
     // 注意，滚动标记、暂停标记、cursor_rect 和 contents 在另一层
     auto process = [&, this](auto& up, auto& down) {
       renderer.set_target(down);
-      const int v_ox = v ? v->ox : 0;
-      const int v_oy = v ? v->oy : 0;
+      const viewport* v = w->p_viewport ? w->p_viewport : &default_viewport;
+      // const int v_ox = v ? v->ox : 0;
+      // const int v_oy = v ? v->oy : 0;
       if (v) {
         renderer.set_clip(cen::irect(0, 0, v->rect.width, v->rect.height));
       } else {
@@ -117,7 +118,7 @@ struct render<window> {
       up.set_alpha_mod(w->opacity);
       up.set_blend_mode(cen::blend_mode::blend);
       renderer.render(up, cen::irect(0, 0, width, height),
-                      cen::irect(w->x - v_ox, w->y - v_oy, width, height));
+                      cen::irect(w->x - v->ox, w->y - v->oy, width, height));
       up.set_alpha_mod(255);
     };
 
@@ -128,7 +129,7 @@ struct render<window> {
 template <>
 struct render<overlayer<window>> {
   const overlayer<window>* o;
-  const viewport* v;
+  // const viewport* v;
 
   void run(auto& worker) { render_contents(worker); }
 
@@ -137,22 +138,24 @@ struct render<overlayer<window>> {
     base::textures& textures = RGMDATA(base::textures);
 
     const window* w = o->p_drawable;
-    const int v_ox = v ? v->ox : 0;
-    const int v_oy = v ? v->oy : 0;
+    const viewport* v = w->p_viewport ? w->p_viewport : &default_viewport;
+
+    // const int v_ox = v ? v->ox : 0;
+    // const int v_oy = v ? v->oy : 0;
     // 注意这里没有添加新的空白层，而是直接绘制到栈顶
     // 1. 绘制cursor_rect
     if (w->windowskin && w->contents_opacity > 0) {
       cen::texture& windowskin = textures.at(w->windowskin);
       const rect& r = w->cursor_rect;
       renderer.set_clip(
-          cen::irect(w->x - v_ox, w->y - v_oy, w->width, w->height));
+          cen::irect(w->x - v->ox, w->y - v->oy, w->width, w->height));
       if (r.width > 2 && r.height > 2) {
         int opacity = (std::abs(31 - w->cursor_count * 2) * 4 + 128);
         opacity = opacity * w->contents_opacity / 255;
         // 设置 windowskin 透明度
         windowskin.set_alpha_mod(opacity);
-        int dst_x = w->x + r.x + 16 - v_ox;
-        int dst_y = w->y + r.y + 16 - v_oy;
+        int dst_x = w->x + r.x + 16 - v->ox;
+        int dst_y = w->y + r.y + 16 - v->oy;
         // 中心
         renderer.render(
             windowskin, cen::irect(128 + 1, 64 + 1, 32 - 2, 32 - 2),
@@ -188,10 +191,10 @@ struct render<overlayer<window>> {
       cen::texture& contents = textures.at(w->contents);
       contents.set_blend_mode(blend_type::blend2);
       contents.set_alpha_mod(w->contents_opacity);
-      renderer.set_clip(cen::irect(w->x - v_ox + 16, w->y - v_oy + 16,
+      renderer.set_clip(cen::irect(w->x - v->ox + 16, w->y - v->oy + 16,
                                    w->width - 32, w->height - 32));
-      renderer.render(contents, cen::ipoint(w->x - w->ox - v_ox + 16,
-                                            w->y - w->oy - v_oy + 16));
+      renderer.render(contents, cen::ipoint(w->x - w->ox - v->ox + 16,
+                                            w->y - w->oy - v->oy + 16));
       renderer.reset_clip();
       contents.set_alpha_mod(255);
     }
@@ -205,29 +208,29 @@ struct render<overlayer<window>> {
         // 左
         if (0 - w->ox < 0) {
           cen::irect src_rect(128 + 16, 24, 8, 16);
-          cen::irect dst_rect(w->x + 4 - v_ox,
-                              (w->y + w->height) / 2 - 8 - v_oy, 8, 16);
+          cen::irect dst_rect(w->x + 4 - v->ox,
+                              (w->y + w->height) / 2 - 8 - v->oy, 8, 16);
           renderer.render(windowskin, src_rect, dst_rect);
         }
         // 右
         if (contents.width() - w->ox > w->width - 32) {
           cen::irect src_rect(128 + 40, 24, 8, 16);
-          cen::irect dst_rect(w->x + w->width - 12 - v_ox,
-                              w->y + w->height / 2 - 8 - v_oy, 8, 16);
+          cen::irect dst_rect(w->x + w->width - 12 - v->ox,
+                              w->y + w->height / 2 - 8 - v->oy, 8, 16);
           renderer.render(windowskin, src_rect, dst_rect);
         }
         // 上
         if (0 - w->oy < 0) {
           cen::irect src_rect(128 + 24, 16, 16, 8);
-          cen::irect dst_rect(w->x + w->width / 2 - 8 - v_ox, w->y + 4 - v_oy,
+          cen::irect dst_rect(w->x + w->width / 2 - 8 - v->ox, w->y + 4 - v->oy,
                               16, 8);
           renderer.render(windowskin, src_rect, dst_rect);
         }
         // 下
         if (contents.height() - w->oy > w->height - 32) {
           cen::irect src_rect(128 + 24, 40, 16, 8);
-          cen::irect dst_rect(w->x + w->width / 2 - 8 - v_ox,
-                              w->y + w->height - 12 - v_oy, 16, 8);
+          cen::irect dst_rect(w->x + w->width / 2 - 8 - v->ox,
+                              w->y + w->height - 12 - v->oy, 16, 8);
           renderer.render(windowskin, src_rect, dst_rect);
         }
       }
@@ -236,8 +239,8 @@ struct render<overlayer<window>> {
         int src_x = (w->update_count & 0b01000) ? 128 + 32 + 16 : 128 + 32;
         int src_y = (w->update_count & 0b10000) ? 64 + 16 : 64;
         cen::irect src_rect(src_x, src_y, 16, 16);
-        cen::irect dst_rect(w->x + w->width / 2 - 8 - v_ox,
-                            w->y + w->height - 16 - v_oy, 16, 16);
+        cen::irect dst_rect(w->x + w->width / 2 - 8 - v->ox,
+                            w->y + w->height - 16 - v->oy, 16, 16);
         renderer.render(windowskin, src_rect, dst_rect);
       }
     }

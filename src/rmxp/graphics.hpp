@@ -39,47 +39,50 @@ struct init_graphics {
     static decltype(auto) worker = this_worker;
 
     struct wrapper {
-      static void update_tilemap(z_index zi, viewport* v_ptr = nullptr) {
+      static void update_tilemap(z_index zi, size_t depth = 0) {
         tilemap_manager& tm = RGMDATA(tilemap_manager);
         tables* p_tables = &(RGMDATA(tables));
 
-        size_t depth = v_ptr ? 1 : 0;
+        // size_t depth = v_ptr ? 1 : 0;
         // 如果即将绘制的内容不是tilemap，尽可能的创建
         // render<overlayer<tilemap>>
         while (true) {
           auto [p_info, index] = tm.next_layer(zi, depth);
           if (index == 0) break;
           if (!p_info->p_tilemap->skip()) {
-            worker >>
-                render<overlayer<tilemap>>{p_info, v_ptr, p_tables, index};
+            worker >> render<overlayer<tilemap>>{p_info, p_tables, index};
           }
         }
       }
 
       static VALUE update(VALUE, VALUE screen_width_, VALUE screen_height_) {
         // 当前绘制任务对应的 viewport 对象的指针
-        viewport* v_ptr = nullptr;
+        // viewport* v_ptr = nullptr;
         tables* p_tables = &(RGMDATA(tables));
         tilemap_manager& tm = RGMDATA(tilemap_manager);
         RGMLOAD(screen_width, int);
         RGMLOAD(screen_height, int);
+        default_viewport.rect.width = screen_width;
+        default_viewport.rect.height = screen_height;
         // 跳过绘制的 lambda
-        auto visitor_skip = [&v_ptr, screen_width,
-                             screen_height](auto& item) -> bool {
+        auto visitor_skip = [](auto& item) -> bool {
           // 此分支目前只对 window 和 viewport 有效
           // Plane 和 Tilemap 是平铺的
           // Tilemap 虽然可以不平铺，但是其宽和高不确定
           // Sprite 判断比较复杂，在 render<sprite> 里实现
           if constexpr (requires { item.visible(rect{}); }) {
+            // const rect& r =
+            //     v_ptr ? v_ptr->rect : rect{0, 0, screen_width,
+            //     screen_height};
             const rect& r =
-                v_ptr ? v_ptr->rect : rect{0, 0, screen_width, screen_height};
+                item.p_viewport ? item.p_viewport->rect : default_viewport.rect;
             return item.skip() || !item.visible(r);
           } else {
             return item.skip();
           }
         };
         // 发送绘制任务的 lambda
-        auto visitor_render = [p_tables, &tm, &v_ptr]<typename T>(T& item) {
+        auto visitor_render = [p_tables, &tm]<typename T>(T& item) {
           // 不处理 viewport
           if constexpr (std::same_as<T, viewport>) return;
           // 以 CRTP 形式继承自 drawable_object 的对象是数据的拥有者，刷新数据
@@ -92,15 +95,16 @@ struct init_graphics {
             item.autotiles <<
                 [](auto id) { worker >> bitmap_make_autotile{id}; };
             // tilemap 在绘制时要传递 p_tables
-            worker >> render<T>{&item, v_ptr, p_tables};
+            worker >> render<T>{&item, /*v_ptr,*/ p_tables};
             // 刷新在 tm 中的存储的 tilemap_info
             z_index zi;
             zi << item.ruby_object;
-            size_t depth = v_ptr ? 1 : 0;
+            // size_t depth = v_ptr ? 1 : 0;
+            size_t depth = item.p_viewport ? 1 : 0;
             tm.setup(zi, item, depth);
           } else {
             // 生成通用的绘制任务
-            worker >> render<T>{&item, v_ptr};
+            worker >> render<T>{&item /*, v_ptr*/};
           }
         };
 
@@ -125,21 +129,21 @@ struct init_graphics {
           // viewport 的情况，继续遍历 m_data
           viewport& v = std::get<viewport>(item);
           // 设置 v_ptr
-          v_ptr = &v;
+          // v_ptr = &v;
           v.refresh_object();
 
-          worker >> before_render_viewport{v_ptr};
+          worker >> before_render_viewport{&v};
           for (auto& [sub_zi, sub_item] : v.p_drawables->m_data) {
             if (std::visit(visitor_skip, sub_item)) continue;
-            update_tilemap(sub_zi, v_ptr);
+            update_tilemap(sub_zi, 1 /*, v_ptr*/);
 
             std::visit(visitor_render, sub_item);
           }
-          update_tilemap(z_index{INT32_MAX, 0}, v_ptr);
-          worker >> after_render_viewport{v_ptr};
+          update_tilemap(z_index{INT32_MAX, 0}, 1 /*, v_ptr*/);
+          worker >> after_render_viewport{&v};
 
           // 清空 v_ptr
-          v_ptr = nullptr;
+          // v_ptr = nullptr;
         }
         update_tilemap(z_index{INT32_MAX, 0});
         // 绘制结束

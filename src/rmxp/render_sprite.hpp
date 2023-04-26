@@ -42,7 +42,7 @@ namespace rgm::rmxp {
 template <>
 struct render<sprite> {
   const sprite* s;
-  const viewport* v;
+  // const viewport* v;
 
   /**
    * @brief Sprite 绘制到 viewport 或 screen 上的方式
@@ -95,11 +95,13 @@ struct render<sprite> {
     if (down.get() != renderer.get_target().get()) {
       renderer.set_target(down);
     }
-    if (v) {
+    const viewport* v = s->p_viewport ? s->p_viewport : &default_viewport;
+
+    // if (v) {
       renderer.set_clip(cen::irect(0, 0, v->rect.width, v->rect.height));
-    } else {
-      renderer.reset_clip();
-    }
+    // } else {
+    //   renderer.reset_clip();
+    // }
     // opengl的情况下，使用reverse代替sub（第2步）
     if (opengl_sub) {
       renderer.fill_with(cen::colors::white);
@@ -131,8 +133,10 @@ struct render<sprite> {
 
     // 设置图形的缩放和位置
     // viewport ox, oy
-    const int v_ox = v ? v->ox : 0;
-    const int v_oy = v ? v->oy : 0;
+    const viewport* v = s->p_viewport ? s->p_viewport : &default_viewport;
+
+    // const int v_ox = v ? v->ox : 0;
+    // const int v_oy = v ? v->oy : 0;
 
     auto render = [=, &renderer, &bitmap, this] {
       renderer.render(bitmap, cen::irect(r.x, r.y, width, height),
@@ -141,8 +145,8 @@ struct render<sprite> {
 
     // 被引用捕获的 src_rect，当起新的一层绘制时，x 和 y 要设置为 0
     cen::irect src_rect(r.x, r.y, width, height);
-    const cen::frect dst_rect(s->x - s->ox * s->zoom_x - v_ox,
-                              s->y - s->oy * s->zoom_y - v_oy,
+    const cen::frect dst_rect(s->x - s->ox * s->zoom_x - v->ox,
+                              s->y - s->oy * s->zoom_y - v->oy,
                               width * s->zoom_x, height * s->zoom_y);
 
     // 如果dst_rect根本就不在画面上，直接不绘制。

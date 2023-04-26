@@ -25,10 +25,12 @@ namespace rgm::rmxp {
 template <>
 struct render<plane> {
   const plane* p;
-  const viewport* v;
+  // const viewport* v;
 
   void blend(cen::renderer& renderer, cen::texture& up, cen::texture& down,
              const cen::irect& src_rect) {
+    const viewport* v = p->p_viewport ? p->p_viewport : &default_viewport;
+
     int start_x = 0;
     int start_y = 0;
     int step_x = src_rect.width();
@@ -36,27 +38,27 @@ struct render<plane> {
     int total_x = 0;
     int total_y = 0;
 
-    if (v) {
-      total_x = v->rect.width;
-      total_y = v->rect.height;
-      renderer.set_clip(cen::irect(0, 0, total_x, total_y));
+    // if (v) {
+    total_x = v->rect.width;
+    total_y = v->rect.height;
+    renderer.set_clip(cen::irect(0, 0, total_x, total_y));
 
-      start_x = (-v->ox - p->ox) % step_x;
-      if (start_x > 0) start_x -= step_x;
+    start_x = (-v->ox - p->ox) % step_x;
+    if (start_x > 0) start_x -= step_x;
 
-      start_y = (-v->oy - p->oy) % step_y;
-      if (start_y > 0) start_y -= step_y;
-    } else {
-      total_x = down.width();
-      total_y = down.height();
-      renderer.reset_clip();
+    start_y = (-v->oy - p->oy) % step_y;
+    if (start_y > 0) start_y -= step_y;
+    // } else {
+    //   total_x = down.width();
+    //   total_y = down.height();
+    //   renderer.reset_clip();
 
-      start_x = (-p->ox) % step_x;
-      if (start_x > 0) start_x -= step_x;
+    //   start_x = (-p->ox) % step_x;
+    //   if (start_x > 0) start_x -= step_x;
 
-      start_y = (-p->oy) % step_y;
-      if (start_y > 0) start_y -= step_y;
-    }
+    //   start_y = (-p->oy) % step_y;
+    //   if (start_y > 0) start_y -= step_y;
+    // }
 
     renderer.set_target(down);
 
@@ -104,6 +106,8 @@ struct render<plane> {
     base::renderstack& stack = RGMDATA(base::renderstack);
 
     cen::texture& bitmap = textures.at(p->bitmap);
+    const viewport* v = p->p_viewport ? p->p_viewport : &default_viewport;
+
     // 设置缩放模式
     switch (p->scale_mode) {
       case 0:

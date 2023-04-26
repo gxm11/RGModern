@@ -41,8 +41,7 @@ struct render_tilemap_helper {
 
   int overlayer_index;
 
-  explicit render_tilemap_helper(const tilemap* t, const viewport* v,
-                                 const tables* p_tables,
+  explicit render_tilemap_helper(const tilemap* t, const tables* p_tables,
                                  const tilemap_info* info = nullptr,
                                  int index = 0)
       : p_tilemap(t),
@@ -50,25 +49,28 @@ struct render_tilemap_helper {
         p_priorities(&p_tables->at(t->priorities)),
         p_info(info),
         overlayer_index(index) {
-    width = v ? v->rect.width : 0;
-    height = v ? v->rect.height : 0;
+    const viewport* v = t->p_viewport ? t->p_viewport : &default_viewport;
 
-    const int v_ox = v ? v->ox : 0;
-    const int v_oy = v ? v->oy : 0;
+    // width = v ? v->rect.width : 0;
+    // height = v ? v->rect.height : 0;
+    width = v->rect.width;
+    height = v->rect.height;
+    // const int v_ox = v ? v->ox : 0;
+    // const int v_oy = v ? v->oy : 0;
 
     // 左上角绘制的位置，和在table中的索引
-    start_x = (-v_ox - t->ox) % 32;
+    start_x = (-v->ox - t->ox) % 32;
     if (start_x > 0) start_x -= 32;
-    start_x_index = (start_x - (-v_ox - t->ox)) / 32;
+    start_x_index = (start_x - (-v->ox - t->ox)) / 32;
 
-    start_y = (-v_oy - t->oy) % 32;
+    start_y = (-v->oy - t->oy) % 32;
     if (start_y > 0) start_y -= 32;
-    start_y_index = (start_y - (-v_oy - t->oy)) / 32;
+    start_y_index = (start_y - (-v->oy - t->oy)) / 32;
   }
 
-  void adjust_area(base::renderstack& stack) {
-    if (width == 0) width = stack.current().width();
-    if (height == 0) height = stack.current().height();
+  void adjust_area([[maybe_unused]] base::renderstack& stack) {
+    // if (width == 0) width = stack.current().width();
+    // if (height == 0) height = stack.current().height();
   }
 
   auto make_autotiles(base::textures& textures) {
@@ -165,7 +167,7 @@ struct render_tilemap_helper {
 template <>
 struct render<tilemap> {
   const tilemap* t;
-  const viewport* v;
+  // const viewport* v;
   const tables* p_tables;
   // tilemap 的第 0 层，也就是 z = 0 的那一层
   // 绘制所有优先级为 0 的图块，然后绘制闪烁
@@ -178,7 +180,7 @@ struct render<tilemap> {
     cen::texture& tileset = textures.at(t->tileset);
     tileset.set_blend_mode(cen::blend_mode::blend);
 
-    render_tilemap_helper<false> helper(t, v, p_tables);
+    render_tilemap_helper<false> helper(t, p_tables);
     helper.adjust_area(stack);
 
     auto autotile_textures = helper.make_autotiles(textures);
@@ -220,7 +222,7 @@ struct render<tilemap> {
 template <>
 struct render<overlayer<tilemap>> {
   const tilemap_info* info;
-  const viewport* v;
+  // const viewport* v;
   const tables* p_tables;
   int overlayer_index;
 
@@ -234,7 +236,7 @@ struct render<overlayer<tilemap>> {
     cen::texture& tileset = textures.at(t->tileset);
     tileset.set_blend_mode(cen::blend_mode::blend);
 
-    render_tilemap_helper<true> helper(t, v, p_tables, info, overlayer_index);
+    render_tilemap_helper<true> helper(t, p_tables, info, overlayer_index);
     helper.adjust_area(stack);
 
     auto autotile_textures = helper.make_autotiles(textures);
