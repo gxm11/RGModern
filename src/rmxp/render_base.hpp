@@ -26,27 +26,39 @@
 #include "viewport.hpp"
 
 namespace rgm::rmxp {
-/**
- * @brief 任务：对应于不同的 Drawable 的渲染方式，通常需要特化处理。
- * @note 如果特化类不改写 run 函数，则不执行任何操作。
- *
- * @tparam T Drawable 的类型
- */
+/// @brief 绘制特定的 Drawable
+/// @tparam Drawable 的类型
+/// @name task
+/// render<T> 系列的任务执行时，ruby worker 会进入等待，可以安全地访问数据。
 template <typename T>
 struct render {
+  /// @brief Drawable 数据的地址
   const T* _t;
 
   void run(auto&) {}
 };
 
+/// @brief 辅助实现色调处理的类
+/// 当 tone 不包含灰度的处理时，直接调用 blend_mode 实现加减法，
+/// 否则调用 shader_tone 来实现。opengl 的减法需要特殊的实现方式。
 struct render_tone_helper {
+  /// @brief 色调变化的效果
   const tone t;
+
+  /// @brief 应用色调变化的区域
   const cen::irect* r;
 
+  /// @brief 构造函数
+  /// @param t 色调变化的效果
+  /// @param r 色调变化的区域
   explicit render_tone_helper(const tone& t, const cen::irect* r = nullptr)
       : t(t), r(r) {}
 
+  /// @brief 在处理特定的绘制后，应用色调的效果
+  /// @param renderer 渲染器
+  /// @param proc 待调制的绘制内容，在绘制之后应用色调效果。
   void process(cen::renderer& renderer, std::function<void()> proc) {
+    /* 需要处理灰度时，使用 shader_tone */
     if (t.gray) {
       shader_tone shader(t);
       proc();
@@ -55,8 +67,10 @@ struct render_tone_helper {
 
     proc();
 
+    /* 没有任何需要处理的颜色时，直接返回 */
     if ((t.red == 0) && (t.green == 0) && (t.blue == 0)) return;
 
+    /* 加法的处理 */
     if (auto c_add = t.color_add(); c_add) {
       renderer.set_blend_mode(blend_type::add);
       if (r) {
@@ -67,11 +81,15 @@ struct render_tone_helper {
       }
     }
 
+    /* 减法的处理 */
     if (auto c_sub = t.color_sub(); c_sub) {
+      /* OpenGL 需要使用加法和反色实现减法 */
       if (config::driver == config::driver_type::opengl) {
+        /* 第 1 步：反色 */
         renderer.set_blend_mode(blend_type::reverse);
         renderer.fill_with(cen::colors::white);
 
+        /* 第 2 步：加法 */
         renderer.set_blend_mode(blend_type::add);
         if (r) {
           renderer.set_color(*c_sub);
@@ -80,6 +98,7 @@ struct render_tone_helper {
           renderer.fill_with(*c_sub);
         }
 
+        /* 第 3 步：反色 */
         renderer.set_blend_mode(blend_type::reverse);
         renderer.fill_with(cen::colors::white);
       } else {

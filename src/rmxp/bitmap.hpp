@@ -587,7 +587,7 @@ struct bitmap_capture_screen {
   uint64_t id;
 
   void run(auto& worker) {
-    cen::log_warn("[Bitmap] id = %lld, is created from screen capturing", id);
+    cen::log_info("[Bitmap] id = %lld, is created from screen capturing", id);
 
     base::renderstack& stack = RGMDATA(base::renderstack);
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
@@ -671,7 +671,7 @@ struct bitmap_make_autotile {
       0x0c111217, 0x0c0d2a2b, 0x24292a2f, 0x10112e2f, 0x0c112a2f, 0x0c112a2f};
 
   void run(auto& worker) {
-    cen::log_info("[Bitmap] id = %lld, is converted to autotile format", id);
+    cen::log_debug("[Bitmap] id = %lld, is converted to autotile format", id);
 
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
     base::renderstack& stack = RGMDATA(base::renderstack);

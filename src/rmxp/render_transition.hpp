@@ -22,65 +22,103 @@
 #include "render_base.hpp"
 
 namespace rgm::rmxp {
+/// @brief 执行渐变绘制的任务，有多种不同的特化方式。
+/// @tparam size_t 绘制方式
+/// @name task
 template <size_t>
 struct render_transition;
 
+/// @brief 使用线性透明度变化的渐变模式
+/// @name task
 template <>
 struct render_transition<1> {
+  /// @brief 渐变前的画面的 id
   uint64_t freeze_id;
+
+  /// @brief 渐变后的画面的 id
   uint64_t current_id;
+
+  /// @brief 渐变完成的程度，值在 0.0 ~ 1.0
+  /// 0 是未开始，1 表示渐变结束。
   double rate;
 
   void run(auto& worker) {
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
     base::textures& textures = RGMDATA(base::textures);
     base::renderstack& stack = RGMDATA(base::renderstack);
-    // 准备绘制
+
+    /* 获取渐变前后对应的 Bitmap */
     cen::texture& freeze = textures.at(freeze_id);
     cen::texture& current = textures.at(current_id);
-    // 修改 freeze 的alpha
-    uint8_t opacity = static_cast<uint8_t>(rate * 255.0);
-    freeze.set_alpha_mod(255 - opacity);
-    // 绘制到画面上
+
+    /* 将 current 绘制到画面上 */
     renderer.set_target(stack.current());
     current.set_blend_mode(cen::blend_mode::none);
     renderer.render(current, cen::ipoint(0, 0));
+
+    /* 根据渐变完成的程度修改 freeze 的 alpha */
+    uint8_t opacity = std::clamp<uint8_t>(rate * 255, 0, 255);
+    freeze.set_alpha_mod(255 - opacity);
+
+    /* 将 freeze 绘制到画面上 */
     freeze.set_blend_mode(cen::blend_mode::blend);
     renderer.render(freeze, cen::ipoint(0, 0));
     freeze.set_alpha_mod(255);
   }
 };
 
+/// @brief 使用渐变图的渐变模式
+/// @name task
 template <>
 struct render_transition<2> {
+  /// @brief 渐变前的画面的 id
   uint64_t freeze_id;
+
+  /// @brief 渐变后的画面的 id
   uint64_t current_id;
+
+  /// @brief 渐变完成的程度，值在 0.0 ~ 1.0
+  /// 0 是未开始，1 表示渐变结束。
   double rate;
+
+  /// @brief 渐变图的 id
   uint64_t transition_id;
+
+  /// @brief 渐变过渡的模糊程度，设为 0 则渐变有锋利的边缘
   int vague;
 
   void run(auto& worker) {
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
     base::textures& textures = RGMDATA(base::textures);
     base::renderstack& stack = RGMDATA(base::renderstack);
-    // 准备绘制
+
+    /* 获取渐变前后对应的 Bitmap */
     cen::texture& freeze = textures.at(freeze_id);
     cen::texture& current = textures.at(current_id);
+
+    /* 获取渐变图对应的 Bitmap */
     cen::texture& transition = textures.at(transition_id);
-    // 修改 freeze 的alpha
-    renderer.set_target(freeze);
-    transition.set_blend_mode(blend_type::alpha);
-    transition.set_scale_mode(cen::scale_mode::linear);
-    {
+
+    /* 使用 shader 修改 freeze 每个像素的透明度 */
+    if (rate > 0) {
+      transition.set_blend_mode(blend_type::alpha);
+      transition.set_scale_mode(cen::scale_mode::linear);
+
+      renderer.set_target(freeze);
+
+      /* 使用 shader_transition */
       shader_transition shader(rate, vague);
       renderer.render(transition,
                       cen::irect(0, 0, transition.width(), transition.height()),
                       cen::irect(0, 0, freeze.width(), freeze.height()));
     }
-    // 绘制到画面上
+
+    /* 将 current 绘制到画面上 */
     renderer.set_target(stack.current());
     current.set_blend_mode(cen::blend_mode::none);
     renderer.render(current, cen::ipoint(0, 0));
+
+    /* 将 freeze 绘制到画面上 */
     freeze.set_blend_mode(cen::blend_mode::blend);
     renderer.render(freeze, cen::ipoint(0, 0));
   }

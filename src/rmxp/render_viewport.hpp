@@ -22,26 +22,26 @@
 #include "render_base.hpp"
 
 namespace rgm::rmxp {
-/**
- * @brief 任务：渲染 Viewport 中内容之前的处理
- * @note 向 renderstack 添加新的层
- */
+/// @brief 任务：渲染 Viewport 中内容之前的处理
+/// @name task
 struct before_render_viewport {
+  /// @brief viewport 数据的地址
   const viewport* v;
 
   void run(auto& worker) {
     base::renderstack& stack = RGMDATA(base::renderstack);
 
+    /* 向 renderstack 添加新的空层 */
     stack.push_capture_layer(v->rect.x, v->rect.y, v->rect.width,
                              v->rect.height);
   }
 };
 
-/**
- * @brief 任务：渲染 Viewport 中内容之后的处理
- * @note 将 viewport 对应的层绘制到 screen 对应层上
- */
+/// @brief 渲染 Viewport 中内容之后的处理
+/// @name task
+/// 先处理 viewport 的特效，然后将 viewport 绘制到 screen 层上。
 struct after_render_viewport {
+  /// @brief viewport 数据的地址
   const viewport* v;
 
   void run(auto& worker) {
@@ -49,23 +49,30 @@ struct after_render_viewport {
     base::renderstack& stack = RGMDATA(base::renderstack);
 
     auto process = [&renderer, this](cen::texture& up, cen::texture& down) {
+      /* 设置绘制目标为下层 */
+      renderer.set_target(down);
+
+      /* 读取 viewport 的各个属性 */
       const rect& r = v->rect;
       const color& c =
           (v->color.alpha > v->flash_color.alpha) ? v->color : v->flash_color;
       const tone& t = v->tone;
+
       const bool use_color =
           (c.red != 0) | (c.green != 0) | (c.blue != 0) | (c.alpha != 0);
 
       const cen::irect src_rect(0, 0, r.width, r.height);
       const cen::irect dst_rect(r.x, r.y, r.width, r.height);
 
-      renderer.set_target(down);
       auto render = [&] { renderer.render(up, src_rect, dst_rect); };
+
       up.set_blend_mode(cen::blend_mode::none);
 
+      /* 应用 tone 的效果 */
       render_tone_helper helper(t, &dst_rect);
       helper.process(renderer, render);
 
+      /* 应用 color 的效果 */
       if (use_color) {
         renderer.set_blend_mode(blend_type::color);
         renderer.set_color(cen::color(c.red, c.green, c.blue, c.alpha));
