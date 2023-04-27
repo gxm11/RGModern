@@ -147,10 +147,10 @@ struct tilemap_info {
     // if (diff <= 0) return true;
     uint16_t flag = x_cache[x_index];
 
-    if (diff >= 16) [[unlikely]] {
-      return (flag & 0x8000) == 0;
-    } else [[likely]] {
+    if (diff >= 16) [[likely]] {
       return (flag & (1 << (diff - 1))) == 0;
+    } else [[unlikely]] {
+      return (flag & 0x8000) == 0;
     }
   }
 
@@ -158,10 +158,10 @@ struct tilemap_info {
     if (diff <= 0) return true;
     uint16_t flag = y_cache[y_index];
 
-    if (diff >= 16) [[unlikely]] {
-      return (flag & 0x8000) == 0;
-    } else [[likely]] {
+    if (diff >= 16) [[likely]] {
       return (flag & (1 << (diff - 1))) == 0;
+    } else [[unlikely]] {
+      return (flag & 0x8000) == 0;
     }
   }
 };
@@ -202,7 +202,6 @@ struct tilemap_manager {
     layers[depth].insert(zi);
   }
 
-  // 当返回的 result_t.index 为 0 时，generator 中止
   /// @brief 返回下一个可绘制的 overlayer 层
   /// @return 返回下一层的 tilemap_info 和 index，不存在则返回 std::nullopt
   auto next_layer(z_index zi, size_t depth = 0)
@@ -211,27 +210,30 @@ struct tilemap_manager {
     std::set<z_index>& s = layers[depth];
     if (s.empty()) return std::nullopt;
 
-    /* 将 layer 中的第一个元素取出，获取最小的 z_index */
-    auto node = s.extract(s.begin());
+    /* 读取 layer 中的第一个元素，获取最小的 z_index */
+    z_index front_zi = *s.begin();
 
     /* 读取对应的 tilemap_info */
-    tilemap_info& front = infos[node.value().id];
+    tilemap_info& front_info = infos.at(front_zi.id);
 
-    /* 如果 tilemap_info 不能产生新的层，则返回空，并且不放回 node */
-    if (front.empty()) return std::nullopt;
+    /* 如果 tilemap_info 不能产生新的层，移除 front_zi 并返回空 */
+    if (front_info.empty()) {
+      s.erase(s.begin());
+      return std::nullopt;
+    }
 
     /* 查看是否有下一层 */
-    int index = front.next_index(zi);
-
-    /* 将 node 的 z 值改为 tilemap_info 当前的值，并放回 layer 中 */
-    node.value().z = front.current_z();
-    s.insert(std::move(node));
+    int index = front_info.next_index(zi);
 
     /* index = 0 说明在当前范围不能产生新的层，需要等下一个更大的 z 值 */
     if (index == 0) return std::nullopt;
 
+    /* 将 front_zi 的 z 值改为 tilemap_info 当前的值 */
+    s.erase(s.begin());
+    s.insert({front_info.current_z(), front_zi.id});
+
     /* 返回 tilemap_info 的指针和 index */
-    return std::pair{&front, index};
+    return std::pair{&front_info, index};
   }
 };
 
