@@ -69,7 +69,12 @@ int screen_height = 480;
 
 enum class driver_type { software, opengl, direct3d9, direct3d11 };
 driver_type driver;
+
+#ifdef __WIN32
+std::string driver_name = "direct3d9";
+#else
 std::string driver_name = "opengl";
+#endif
 
 void load_data(std::map<std::string, section_t>& data) {
 #define Set(item, section, key)                                \
