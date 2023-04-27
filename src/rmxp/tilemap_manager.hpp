@@ -143,26 +143,44 @@ struct tilemap_info {
    * diff = index - y_index。
    * 显然输入的 x_index 和 y_index 不能小于 0，在外部保证。
    */
-  bool skip_column(int x_index, int diff) const {
-    // if (diff <= 0) return true;
+  // bool skip_column(int x_index, int diff) const {
+  //   return false;
+
+  //   // if (diff <= 0) return true;
+  //   uint16_t flag = x_cache[x_index];
+
+  //   if (diff >= 16) [[likely]] {
+  //     return (flag & (1 << (diff - 1))) == 0;
+  //   } else [[unlikely]] {
+  //     return (flag & 0x8000) == 0;
+  //   }
+  // }
+
+  // bool skip_row(int y_index, int diff) const {
+  //   return false;
+
+  //   if (diff <= 0) return true;
+  //   uint16_t flag = y_cache[y_index];
+
+  //   if (diff >= 16) [[likely]] {
+  //     return (flag & (1 << (diff - 1))) == 0;
+  //   } else [[unlikely]] {
+  //     return (flag & 0x8000) == 0;
+  //   }
+  // }
+  bool is_valid_x(int x_index, int diff) const {
     uint16_t flag = x_cache[x_index];
 
-    if (diff >= 16) [[likely]] {
-      return (flag & (1 << (diff - 1))) == 0;
-    } else [[unlikely]] {
-      return (flag & 0x8000) == 0;
-    }
+    if (diff >= 16) return flag & 0x8000;
+    return flag & (1 << (diff - 1));
   }
 
-  bool skip_row(int y_index, int diff) const {
-    if (diff <= 0) return true;
+  bool is_valid_y(int y_index, int diff) const {
+    if (diff <= 0) return false;
     uint16_t flag = y_cache[y_index];
 
-    if (diff >= 16) [[likely]] {
-      return (flag & (1 << (diff - 1))) == 0;
-    } else [[unlikely]] {
-      return (flag & 0x8000) == 0;
-    }
+    if (diff >= 16) return flag & 0x8000;
+    return flag & (1 << (diff - 1));
   }
 };
 

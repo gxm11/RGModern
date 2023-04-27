@@ -75,7 +75,7 @@ struct controller_axis_move {
     }
   }
 
-  static get_state(int before, int after) {
+  static state get_state(int before, int after) {
     constexpr int t = config::controller_axis_threshold;
 
     if (before < -t && -t <= after) return state::negative_greater;
