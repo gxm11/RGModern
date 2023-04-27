@@ -80,6 +80,7 @@ struct after_render_viewport {
       }
     };
 
+    /* 将 viewport 出栈，内容绘制到新的栈顶 */
     stack.merge(process);
   }
 };

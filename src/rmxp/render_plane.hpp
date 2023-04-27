@@ -172,7 +172,7 @@ struct render<plane> {
 
     render_tone_helper helper(t);
 
-    /* 第 1 次绘制，应用 tone 的效果 */
+    /* 应用 tone 的效果 */
     helper.process(renderer, render);
 
     /* 应用 color 的效果 */
@@ -186,7 +186,7 @@ struct render<plane> {
                   cen::irect(0, 0, width * repeat_x, height * repeat_y));
     };
 
-    /* 第 2 次绘制 */
+    /* 将中间层出栈，内容绘制到新的栈顶 */
     stack.merge(process);
   }
 };

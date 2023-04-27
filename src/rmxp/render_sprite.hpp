@@ -180,10 +180,11 @@ struct render<sprite> {
                         cen::irect(0, 0, width, height));
       };
 
+      /* 添加一个中间层 */
       stack.push_empty_layer(width, height);
       bitmap.set_blend_mode(cen::blend_mode::none);
 
-      /* 第 1 次绘制，应用 tone 的效果 */
+      /* 应用 tone 的效果 */
       render_tone_helper helper(t);
       helper.process(renderer, render);
 
@@ -205,10 +206,10 @@ struct render<sprite> {
       /* 还原 src_rect */
       src_rect.set_position(0, 0);
 
-      /* 第 2 次绘制 */
+      /* 将中间层出栈，内容绘制到新的栈顶 */
       stack.merge(process);
     } else {
-      /* 无复杂特效的场合，使用单层绘制 */
+      /* 无复杂特效的场合，直接绘制到栈顶 */
       stack.merge(process, bitmap);
     }
   }
