@@ -96,7 +96,7 @@ struct render_tilemap_helper {
       if (y_index < 0) y_index += p_map->y_size;
 
       if constexpr (is_overlayer) {
-        if (!p_info->is_valid_y(y_index, overlayer_index - y_index)) continue;
+        if (p_info->skip_row(y_index, overlayer_index - y_index)) continue;
       }
 
       int x_index = start_x_index - 1;
@@ -110,7 +110,7 @@ struct render_tilemap_helper {
         if (x_index < 0) x_index += p_map->x_size;
 
         if constexpr (is_overlayer) {
-          if (!p_info->is_valid_x(x_index, overlayer_index - y_index)) continue;
+          if (p_info->skip_column(x_index, overlayer_index - y_index)) continue;
         }
         proc(x, y, x_index, y_index);
       }
