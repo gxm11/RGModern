@@ -68,11 +68,6 @@ struct render_tilemap_helper {
     start_y_index = (start_y - (-v->oy - t->oy)) / 32;
   }
 
-  void adjust_area([[maybe_unused]] base::renderstack& stack) {
-    // if (width == 0) width = stack.current().width();
-    // if (height == 0) height = stack.current().height();
-  }
-
   auto make_autotiles(base::textures& textures) {
     std::array<cen::texture*, autotiles::max_size> autotile_textures;
     for (size_t i = 0; i < autotiles::max_size; ++i) {
@@ -101,7 +96,7 @@ struct render_tilemap_helper {
       if (y_index < 0) y_index += p_map->y_size;
 
       if constexpr (is_overlayer) {
-        if (!p_info->is_valid_y(y_index, overlayer_index - y_index)) continue;
+        if (p_info->skip_row(y_index, overlayer_index - y_index)) continue;
       }
 
       int x_index = start_x_index - 1;
@@ -115,7 +110,7 @@ struct render_tilemap_helper {
         if (x_index < 0) x_index += p_map->x_size;
 
         if constexpr (is_overlayer) {
-          if (!p_info->is_valid_x(x_index, overlayer_index - y_index)) continue;
+          if (p_info->skip_column(x_index, overlayer_index - y_index)) continue;
         }
         proc(x, y, x_index, y_index);
       }
@@ -175,13 +170,11 @@ struct render<tilemap> {
   void run(auto& worker) {
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
     base::textures& textures = RGMDATA(base::textures);
-    base::renderstack& stack = RGMDATA(base::renderstack);
 
     cen::texture& tileset = textures.at(t->tileset);
     tileset.set_blend_mode(cen::blend_mode::blend);
 
     render_tilemap_helper<false> helper(t, p_tables);
-    helper.adjust_area(stack);
 
     auto autotile_textures = helper.make_autotiles(textures);
 
@@ -231,13 +224,11 @@ struct render<overlayer<tilemap>> {
 
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
     base::textures& textures = RGMDATA(base::textures);
-    base::renderstack& stack = RGMDATA(base::renderstack);
 
     cen::texture& tileset = textures.at(t->tileset);
     tileset.set_blend_mode(cen::blend_mode::blend);
 
     render_tilemap_helper<true> helper(t, p_tables, info, overlayer_index);
-    helper.adjust_area(stack);
 
     auto autotile_textures = helper.make_autotiles(textures);
     auto render = helper.make_render_proc(renderer, tileset, autotile_textures);

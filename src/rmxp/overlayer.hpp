@@ -22,14 +22,20 @@
 #include "base/base.hpp"
 
 namespace rgm::rmxp {
-// overlayer，用于多层的 drawable，其实只有 window 用上了
-// 指针 T* 指向绑定的 drawable 对象
-// index 表示该层的编号，在绘制的时候可能有用。
+/// @brief overlayer，用于表示和绘制多层的 drawable
+/// overlayer 是否加入 drawables 统一管理，或者如何绘制取决于具体实现。
+/// 目前只有 window 和 tilemap 是多层的。window 有一层 z+2 的固定 overlayer，
+/// tilemap 则是多层。实际处理中，window 的 overlayer 保存在 drawables 中，
+/// 而 tilemap 则是依靠 tilemap_manager 来管理。
 template <typename T>
 struct overlayer {
+  /// @brief 绑定的 drawable 数据
   const T* p_drawable;
+
+  /// @brief 该 ovelayer 层的编号
   const size_t m_index;
 
+  /// @brief 实现 drawable 的接口函数 skip
   bool skip() const { return true; }
 };
 }  // namespace rgm::rmxp

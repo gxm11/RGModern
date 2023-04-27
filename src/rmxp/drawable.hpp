@@ -137,26 +137,7 @@ struct window : drawable_object<window> {
   bool active;
   bool pause;
 
-  /// @brief 重载父类的同名方法
-  /// 在以下几种情况下跳过绘制：
-  /// 1. 窗口没有设置 windowskin
-  /// 2. 窗口的长或宽为 0
-  bool visible() const {
-    if (windowskin == 0) return false;
-    if (width == 0 || height == 0) return false;
-    return true;
-  }
-
-  /// @brief 可以获取 Viewport 或 Screen 的 rect 时的重载
-  /// 在以下几种情况下跳过绘制：
-  /// 1. 窗口在 Viewport 或 Screen 外
-  bool visible(const rect& r) const {
-    if (x + width < r.x) return false;
-    if (x > r.x + r.width) return false;
-    if (y + height < r.y) return false;
-    if (y > r.y + r.height) return false;
-    return true;
-  }
+  bool visible() const;
 };
 
 /// @brief window 的上一层，比 window 的 z 值高 2。
@@ -255,28 +236,14 @@ struct viewport : drawable_object<viewport> {
   int oy;
   bool flash_hidden;
 
-  /// @brief 重载父类的同名方法
-  /// 在以下几种情况下跳过绘制：
-  /// 1. rect 的长或宽为 0
-  /// 2. 由于闪烁效果导致的短暂消失
-  bool visible() const {
-    if (rect.width <= 0 || rect.height <= 0) return false;
-    if (flash_hidden) return false;
-
-    return true;
-  }
-
-  /// @brief 可以获取 Screen 的 rect 时的重载
-  /// 在以下几种情况下跳过绘制：
-  /// 1. Viewport 在 Screen 外
-  bool visible(const rmxp::rect& r) const {
-    if (rect.x + rect.width < r.x) return false;
-    if (rect.x > r.x + r.width) return false;
-    if (rect.y + rect.height < r.y) return false;
-    if (rect.y > r.y + r.height) return false;
-    return true;
-  }
+  bool visible() const;
 };
+
+/// @brief 代表当前屏幕的 viewport，功能受限
+/// 未设置 viewport 的 Drawable 会直接绘制到屏幕上，但是考虑到屏幕也有
+/// 固定的大小，仍然可以引入 viewport 来说明，此 viewport 只有以下属性
+/// 有效：rect，ox，oy
+viewport default_viewport;
 
 /// @brief 存储所有 Drawable 的 map，并用 std::pmr 管理内存
 /// @name data
@@ -335,6 +302,44 @@ struct drawables {
     m_data.insert(std::move(node));
   }
 };
+
+/// @brief 重载父类的同名方法
+/// 在以下几种情况下跳过绘制：
+/// 1. rect 的长或宽为 0
+/// 2. 由于闪烁效果导致的短暂消失
+/// 3. Viewport 在 Screen 外
+bool viewport::visible() const {
+  if (rect.width <= 0 || rect.height <= 0) return false;
+  if (flash_hidden) return false;
+
+  const rmxp::rect& r = p_viewport ? p_viewport->rect : default_viewport.rect;
+
+  if (rect.x + rect.width < r.x) return false;
+  if (rect.x > r.x + r.width) return false;
+  if (rect.y + rect.height < r.y) return false;
+  if (rect.y > r.y + r.height) return false;
+
+  return true;
+}
+
+/// @brief 重载父类的同名方法
+/// 在以下几种情况下跳过绘制：
+/// 1. 窗口没有设置 windowskin
+/// 2. 窗口的长或宽为 0
+/// 3. 窗口在 Viewport 或 Screen 外
+bool window::visible() const {
+  if (windowskin == 0) return false;
+  if (width == 0 || height == 0) return false;
+
+  const rect& r = p_viewport ? p_viewport->rect : default_viewport.rect;
+
+  if (x + width < r.x) return false;
+  if (x > r.x + r.width) return false;
+  if (y + height < r.y) return false;
+  if (y > r.y + r.height) return false;
+
+  return true;
+}
 
 // constexpr auto x0 = sizeof(z_index);   // 16
 // constexpr auto x1 = sizeof(sprite);    // 112

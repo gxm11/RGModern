@@ -219,6 +219,7 @@ struct key_release {
 };
 
 /// @brief 按键相关操作的初始化类
+/// @name task
 struct init_input {
   /* 引入数据对象 keymap 和 keystate */
   using data = std::tuple<keymap, keystate>;

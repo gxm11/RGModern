@@ -106,7 +106,7 @@ struct render_transition<2> {
 
       renderer.set_target(freeze);
 
-      /* 使用 shader_transition */
+      /* 使用 shader_transition，变量 shader 在调用 render 函数后析构 */
       shader_transition shader(rate, vague);
       renderer.render(transition,
                       cen::irect(0, 0, transition.width(), transition.height()),

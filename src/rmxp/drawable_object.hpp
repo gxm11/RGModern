@@ -25,12 +25,12 @@
 namespace rgm::rmxp {
 /// @brief 刷新 C++ 层变量的值，作为 ITERATE_VALUES 的参数。
 /// 对于 uint64_t 类型的变量，按照 const uint64_t 类型处理，读取其 object_id。
-#define DO_REFRESH_VALUE(key)                                               \
-  if constexpr (requires { item.key; }) {                                   \
-    using T = decltype(item.key);                                           \
-    using U =                                                               \
-        std::conditional_t<std::is_same_v<T, uint64_t>, const uint64_t, T>; \
-    item.key = detail::get<word::key, U>(ruby_object);                      \
+#define DO_REFRESH_VALUE(key)                                             \
+  if constexpr (requires { item.key; }) {                                 \
+    using T = decltype(item.key);                                         \
+    using U =                                                             \
+        std::conditional_t<std::same_as<T, uint64_t>, const uint64_t, T>; \
+    item.key = detail::get<word::key, U>(ruby_object);                    \
   }
 
 /// @brief 刷新 C++ 层变量的值，作为 ITERATE_OBJECTS 的参数。
@@ -44,14 +44,14 @@ namespace rgm::rmxp {
 /// 对于 uint64_t 类型的变量，按照 const uint64_t 类型处理，读取其 object_id。
 /// 此处 `if constexpr (requires { item.key; })` 的含义是：
 /// 如果 item 没有名称为 key 的成员变量，此 case 分支直接返回。
-#define DO_CASE_BRANCH(key)                                                   \
-  case word::key:                                                             \
-    if constexpr (requires { item.key; }) {                                   \
-      using T = decltype(item.key);                                           \
-      using U =                                                               \
-          std::conditional_t<std::is_same_v<T, uint64_t>, const uint64_t, T>; \
-      item.key = detail::get<word::key, U>(ruby_object);                      \
-    }                                                                         \
+#define DO_CASE_BRANCH(key)                                                 \
+  case word::key:                                                           \
+    if constexpr (requires { item.key; }) {                                 \
+      using T = decltype(item.key);                                         \
+      using U =                                                             \
+          std::conditional_t<std::same_as<T, uint64_t>, const uint64_t, T>; \
+      item.key = detail::get<word::key, U>(ruby_object);                    \
+    }                                                                       \
     return
 
 /// @brief 所有 Drawable 的基类，派生类以 CRTP 的形式继承。
