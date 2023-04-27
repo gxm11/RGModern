@@ -85,7 +85,7 @@ struct tilemap_info {
           int16_t tileid = map_data.get(x_index, y_index, z_index);
 
           /* 在不越界的情况下读取 priority */
-          if (tileid >= 0 && static_cast<size_t>(tileid) < priorities.size()) {
+          if (tileid > 0 && static_cast<size_t>(tileid) < priorities.size()) {
             priority = priorities.get(tileid);
           }
 
@@ -144,6 +144,8 @@ struct tilemap_info {
    * 显然输入的 x_index 和 y_index 不能小于 0，在外部保证。
    */
   bool skip_column(int x_index, int diff) const {
+    // return false;
+
     if (diff <= 0) return true;
     uint16_t flag = x_cache[x_index];
 
@@ -152,6 +154,8 @@ struct tilemap_info {
   }
 
   bool skip_row(int y_index, int diff) const {
+    // return false;
+
     if (diff <= 0) return true;
     uint16_t flag = y_cache[y_index];
 
