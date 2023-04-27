@@ -36,7 +36,7 @@ struct init_extension {
   static void before(auto&) {
     cen::log_info("load ruby extension: fiddle.");
     Init_fiddle();
-    
+
     cen::log_info("load ruby extension: zlib.");
     Init_zlib();
   }

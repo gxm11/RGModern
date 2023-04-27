@@ -48,7 +48,7 @@ struct init_message {
       static VALUE show(VALUE, VALUE text_) {
         RGMLOAD(text, std::string_view);
         worker >> message_show{text};
-        
+
         /* 需等待窗口事件处理完毕 */
         RGMWAIT(1);
 

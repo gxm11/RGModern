@@ -28,6 +28,24 @@ namespace rgm::rmxp {
 /// config::controller_left_arrow 和 config::controller_right_arrow 分别决定
 /// 是否将左、右摇杆映射成方向键的输入。这里也可以类似添加其他操作。
 struct controller_axis_move {
+  /*
+   * 摇杆的状态变化。考虑到触发阈值 t 和数值上限 a，那么存在以下 3 个区段：
+   * [-a, -t), [-t, t), [t, a)。
+   * 故可能导致方向键触发的有以下四种情况：
+   * 值从 [-a, -t) -> [-t, a) 触发方向键的 release，对应 negative_greater；
+   * 值从 [-t, a) -> [-a, -t) 触发方向键的 press，对应 negative_less；
+   * 值从 [-a, t) -> [t, a) 触发方向键的 press，对应 positive_greater；
+   * 值从 [t, a) -> [-a, t) 触发方向键的 release，对应 positive_less；
+   * 这 4 种情况逻辑上只有 1 种会触发，如果都没有触发则对应 no_change。
+   */
+  enum class state {
+    no_change,
+    negative_greater,
+    negative_less,
+    postive_greater,
+    postive_less
+  };
+
   /// @brief 控制器的摇杆和扳机的类型
   cen::controller_axis axis;
 
@@ -36,6 +54,37 @@ struct controller_axis_move {
 
   /// @brief 当前摇杆和扳机的值
   int value;
+
+  void keyevent_helper(auto& worker, state s, int32_t key1, int32_t key2) {
+    /* 直接发送按键事件，在下一次 Input.update 时处理 */
+    switch (s) {
+      default:
+        break;
+      case state::negative_greater:
+        worker >> key_release{key1};
+        break;
+      case state::negative_less:
+        worker >> key_press{key1};
+        break;
+      case state::postive_greater:
+        worker >> key_press{key2};
+        break;
+      case state::postive_less:
+        worker >> key_release{key2};
+        break;
+    }
+  }
+
+  static get_state(int before, int after) {
+    constexpr int t = config::controller_axis_threshold;
+
+    if (before < -t && -t <= after) return state::negative_greater;
+    if (after <= -t && -t < before) return state::negative_less;
+    if (before < t && t <= after) return state::postive_greater;
+    if (after <= t && t < before) return state::postive_less;
+
+    return state::no_change;
+  }
 
   void run(auto& worker) {
     base::controller_axisstate& ca = RGMDATA(base::controller_axisstate);
@@ -52,6 +101,8 @@ struct controller_axis_move {
     const int old_value = ca[index];
     ca[index] = value;
 
+    const state s = get_state(old_value, value);
+
     /* 是否触发 x 和 y 方向上的方向键事件 */
     const bool x_axis = ((config::controller_left_arrow &&
                           axis == cen::controller_axis::left_x) ||
@@ -62,76 +113,11 @@ struct controller_axis_move {
                          (config::controller_right_arrow &&
                           axis == cen::controller_axis::right_y));
 
-    /*
-     * 摇杆的状态变化。考虑到触发阈值 t 和数值上限 a，那么存在以下 3 个区段：
-     * [-a, -t), [-t, t), [t, a)。
-     * 故可能导致方向键触发的有以下四种情况：
-     * 值从 [-a, -t) -> [-t, a) 触发方向键的 release，对应 negative_greater；
-     * 值从 [-t, a) -> [-a, -t) 触发方向键的 press，对应 negative_less；
-     * 值从 [-a, t) -> [t, a) 触发方向键的 press，对应 positive_greater；
-     * 值从 [t, a) -> [-a, t) 触发方向键的 release，对应 positive_less；
-     * 这 4 种情况逻辑上只有 1 种会触发，如果都没有触发则对应 no_change。
-     */
-    enum class state {
-      no_change,
-      negative_greater,
-      negative_less,
-      postive_greater,
-      postive_less
-    };
+    /* x 轴的变化触发左右键 */
+    if (x_axis) keyevent_helper(worker, s, SDLK_LEFT, SDLK_RIGHT);
 
-    /* 尝试使用 lambda 降低圈复杂度 */
-    state s = [](int before, int after) -> state {
-      constexpr int t = config::controller_axis_threshold;
-
-      if (before < -t && -t <= after) return state::negative_greater;
-      if (after <= -t && -t < before) return state::negative_less;
-      if (before < t && t <= after) return state::postive_greater;
-      if (after <= t && t < before) return state::postive_less;
-
-      return state::no_change;
-    }(old_value, value);
-
-    /* 直接发送按键事件，在下一次 Input.update 时处理 */
-    if (x_axis) {
-      /* x 轴的变化触发左右键 */
-      switch (s) {
-        default:
-          break;
-        case state::negative_greater:
-          worker >> key_release{SDLK_LEFT};
-          break;
-        case state::negative_less:
-          worker >> key_press{SDLK_LEFT};
-          break;
-        case state::postive_greater:
-          worker >> key_press{SDLK_RIGHT};
-          break;
-        case state::postive_less:
-          worker >> key_release{SDLK_RIGHT};
-          break;
-      }
-    }
-
-    if (y_axis) {
-      /* y 轴的变化触发上下键 */
-      switch (s) {
-        default:
-          break;
-        case state::negative_greater:
-          worker >> key_release{SDLK_UP};
-          break;
-        case state::negative_less:
-          worker >> key_press{SDLK_UP};
-          break;
-        case state::postive_greater:
-          worker >> key_press{SDLK_DOWN};
-          break;
-        case state::postive_less:
-          worker >> key_release{SDLK_DOWN};
-          break;
-      }
-    }
+    /* y 轴的变化触发上下键 */
+    if (y_axis) keyevent_helper(worker, s, SDLK_UP, SDLK_DOWN);
   }
 };
 
