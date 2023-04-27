@@ -150,7 +150,7 @@ struct tilemap_info {
     uint16_t flag = x_cache[x_index];
 
     if (diff >= 16) return (flag & 0x8000) == 0;
-    return (flag & (1 << (diff - 1))) == 0;
+    return (flag & (1u << (diff - 1))) == 0;
   }
 
   bool skip_row(int y_index, int diff) const {
@@ -160,7 +160,7 @@ struct tilemap_info {
     uint16_t flag = y_cache[y_index];
 
     if (diff >= 16) return (flag & 0x8000) == 0;
-    return (flag & (1 << (diff - 1))) == 0;
+    return (flag & (1u << (diff - 1))) == 0;
   }
 };
 

@@ -151,8 +151,9 @@ struct keystate {
     constexpr int interval_b = 4;
 
     /* 根据重复触发的周期，设置键值匹配的模式 */
-    constexpr uint32_t pattern_1 = (1 << interval_a) - 1;
-    constexpr uint32_t pattern_2 = pattern_1 ^ (1 << (interval_a - interval_b));
+    constexpr uint32_t pattern_1 = (1u << interval_a) - 1;
+    constexpr uint32_t pattern_2 =
+        pattern_1 ^ (1u << (interval_a - interval_b));
 
     static_assert(interval_a < 30,
                   "Value of interval_a must be less than 30.\n");
