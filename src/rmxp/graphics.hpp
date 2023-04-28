@@ -99,11 +99,11 @@ struct init_graphics {
             item.autotiles <<
                 [](auto id) { worker >> bitmap_make_autotile{id}; };
 
-            /* 发送 render<tilemap>，需要额外传递 p_tables */
-            worker >> render<tilemap>{&item, p_tables};
-
             /* 向 tilemap_info 中添加当前的 tilemap */
             tm.insert(item);
+
+            /* 发送 render<tilemap>，需要额外传递 p_tables */
+            worker >> render<tilemap>{&item, p_tables};
           } else {
             /* 发送 render<T> */
             worker >> render<T>{&item};

@@ -59,6 +59,9 @@ struct tilemap_info {
   /// 取决于所有图块的 z 的最大值。
   int max_index;
 
+  /// @brief 储存所有自动元件的 texture 的容器
+  std::vector<cen::texture_handle> autotile_textures;
+
   /// @brief 设置自身的各个属性
   /// @param zi tilemap 的 z_index
   /// @param t 关联的 tilemap 对象

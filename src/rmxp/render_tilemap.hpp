@@ -24,23 +24,28 @@
 #include "tilemap_manager.hpp"
 
 namespace rgm::rmxp {
+/// @brief 辅助绘制 tilemap 的类，提供了对图块的迭代等函数
+/// @tparam is_overlayer 是否在绘制 overlayer
+/// tilemap 本体和 overlayer 的绘制的内容区别很小，主要是根据各图块的优先级
+/// 来决定图块绘制在哪一层。此外，本体那层还需要绘制图块的闪烁。
 template <bool is_overlayer>
 struct render_tilemap_helper {
-  int width;
-  int height;
-
-  int start_x;
-  int start_y;
-  int start_x_index;
-  int start_y_index;
-
+  /// @brief tilemap 数据的地址
   const tilemap* p_tilemap;
+
+  /// @brief 储存了地图的图块数据的 table 的地址
   const table* p_map;
+
+  /// @brief 储存了图块优先级数据的 table 的地址
   const table* p_priorities;
+
+  /// @brief 管理 tilemap 多层数据的 info 对象的地址
   const tilemap_info* p_info;
 
+  /// @brief 当前绘制的层级，从 0 开始计数
   int overlayer_index;
 
+  /// @brief 构造函数
   explicit render_tilemap_helper(const tilemap* t, const tables* p_tables,
                                  const tilemap_info* info = nullptr,
                                  int index = 0)
@@ -48,28 +53,16 @@ struct render_tilemap_helper {
         p_map(&p_tables->at(t->map_data)),
         p_priorities(&p_tables->at(t->priorities)),
         p_info(info),
-        overlayer_index(index) {
-    const viewport* v = t->p_viewport ? t->p_viewport : &default_viewport;
+        overlayer_index(index) {}
 
-    // width = v ? v->rect.width : 0;
-    // height = v ? v->rect.height : 0;
-    width = v->rect.width;
-    height = v->rect.height;
-    // const int v_ox = v ? v->ox : 0;
-    // const int v_oy = v ? v->oy : 0;
-
-    // 左上角绘制的位置，和在table中的索引
-    start_x = (-v->ox - t->ox) % 32;
-    if (start_x > 0) start_x -= 32;
-    start_x_index = (start_x - (-v->ox - t->ox)) / 32;
-
-    start_y = (-v->oy - t->oy) % 32;
-    if (start_y > 0) start_y -= 32;
-    start_y_index = (start_y - (-v->oy - t->oy)) / 32;
-  }
-
-  auto make_autotiles(base::textures& textures) {
+  /// @brief 设置自动元件对应的 texture 并返回保存它们的数组
+  /// @param 管理所有 textures 的容器
+  /// @return 返回保存各 texture 指针的数组
+  auto make_autotiles(base::textures& textures)
+      -> std::array<cen::texture*, autotiles::max_size> {
+    /* 作为返回值的数组 */
     std::array<cen::texture*, autotiles::max_size> autotile_textures;
+
     for (size_t i = 0; i < autotiles::max_size; ++i) {
       uint64_t id = p_tilemap->autotiles.m_data[i];
       if (id) {
@@ -81,10 +74,26 @@ struct render_tilemap_helper {
         autotile_textures[i] = nullptr;
       }
     }
+
     return autotile_textures;
   }
 
   void iterate_tiles(std::function<void(int, int, int, int)> proc) {
+    const viewport* p_viewport =
+        p_tilemap->p_viewport ? p_tilemap->p_viewport : &default_viewport;
+
+    int width = p_viewport->rect.width;
+    int height = p_viewport->rect.height;
+
+    // 左上角绘制的位置，和在table中的索引
+    int start_x = (-p_viewport->ox - p_tilemap->ox) % 32;
+    if (start_x > 0) start_x -= 32;
+    int start_x_index = (start_x - (-p_viewport->ox - p_tilemap->ox)) / 32;
+
+    int start_y = (-p_viewport->oy - p_tilemap->oy) % 32;
+    if (start_y > 0) start_y -= 32;
+    int start_y_index = (start_y - (-p_viewport->oy - p_tilemap->oy)) / 32;
+
     int y_index = start_y_index - 1;
     for (int y = start_y; y < height; y += 32) {
       ++y_index;
