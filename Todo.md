@@ -109,7 +109,6 @@ return data[index];
 现在看来resize window还是有点问题。建议用户尽量避免在运行时使用resize_window，而是修改了config后再重新启动游戏。resize跟全屏的2个模式，是否使用独显效果都有关。看来不是一个急需解决的问题，提醒用户注意即可。试一下把cache清理掉？看上去就是当前的bitmap被重绘了，直接重新加载所有的bitmap就行。
 
 # 20230405-todo
-
 - [x] 摇杆映射方向键写到config里
 - [x] 增加摇杆的 rumble
 - [x] 增加切换全屏的快捷键 alt+enter（放弃）
@@ -133,19 +132,12 @@ return data[index];
 - [x] 增加 config::driver_name 和 RGM::Driver_Name 常量
 
 # 20230419-todo
-- [ ] rgm 小助手
-- [ ] 用AI放大处理一下素材：https://bigjpg.com/zh
-- [ ] 文档和注释，注释规则：
+- [x] 文档和注释，注释规则：
   1. 使用 doxygen 格式的注释时，用 /// 开头
   2. 其他格式的注释使用 /**/ 的形式
   3. license 使用 // 的形式注释
   4. @name 包含 task / data / todo / meta（元编程相关）
-- [ ] 注释中 return 的格式规范一下，每种不同的 return 各自占一行。
-- [ ] 使用 std::string_view 代表 ruby 传过来的字符串
-- [ ] Regist 外部资源后触发 reload
-  1. 等待渲染线程
-  2. 清空 finder 的缓存
-  3. reload 资源
+- [x] 使用 std::string_view 代表 ruby 传过来的字符串
 - [x] 增加 detail 里转换为 T* 的处理
 - [x] wget 加上 -q，pacman 加上 --noprogressbar
 - [x] 不存在 config.ini 时自动创建，这个逻辑放到 init_config 的 before 里执行（做不了）
@@ -155,4 +147,13 @@ return data[index];
 - [x] 在drawables里用 @data 保存原始指针了，refresh时可以避免查询操作
 - [x] 可以用 soundfonts 指定 SF2 音源
 - [x] @data改名为@data_ptr，避免重名
-- [ ] render等任务不再需要v_ptr的参数。此外，drawables需要一个默认的ptr，当drawable的viewport*是空指针时，调用这个ptr。这个ptr会随着screen变化而变化，并且是全局变量，或者指向drawables的静态成员。
+- [x] render等任务不再需要v_ptr的参数。此外，drawables需要一个默认的ptr，当drawable的viewport*是空指针时，调用这个ptr。这个ptr会随着screen变化而变化，并且是全局变量，或者指向drawables的静态成员。
+
+# 20230428-todo
+- [ ] rgm 小助手
+- [ ] 用AI放大处理一下素材：https://bigjpg.com/zh
+- [ ] 注释中 return 的格式规范一下，每种不同的 return 各自占一行。
+- [ ] Regist 外部资源后触发 reload
+  1. 等待渲染线程
+  2. 清空 finder 的缓存
+  3. reload 资源
