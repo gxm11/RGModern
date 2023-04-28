@@ -31,7 +31,7 @@ zip_embeded := ./embeded.zip
 zip_publish := ./publish_v$(RGM_VERSION).zip
 zip_temp_add := 7z a -tzip -mx9 -p'$(PASSWORD)' $(zip_embeded) $(slient)
 zip_publish_add := 7z a -tzip $(zip_publish) $(slient)
-
+targets = main main_win7 Game Game_win7 Gamew Gamew_win7
 # -----------------------------------------------
 # include and link path
 # -----------------------------------------------
@@ -113,78 +113,85 @@ clibs_static = $(clibs) $(addprefix -l,$(libs_dynamic)) $(addprefix -l,$(libs))
 
 all : main.exe
 
-debug.exe : ./src/main.cpp Makefile icon.o
+$(libgch) : ./src/lib/lib.hpp
 	@echo "compile $@"
-	@rm -f $(libgch)
-	@$(cc) $< -o $@ $(cflags) $(clibs_static) $(cflags_debug)
-
-main.exe : ./src/main.cpp Makefile icon.o $(libgch)
-	@echo "compile $@"
-	@time $(cc) $< -o $@ $(cflags) $(clibs_static) $(cflags_develop)
-
-Game.exe : ./src/main.cpp Makefile icon.o
-	@echo "pack $(zip_embeded)"
-	@rm -f $(zip_embeded)
-	@$(zip_temp_add) $(Script)
-	@echo "compile $@"
-	@$(cc) $< -o $@ $(cflags) $(clibs_static) $(cflags_standard)
-	@cp $@ ./Project1/
-
-Gamew.exe : ./src/main.cpp Makefile icon.o
-	@echo "pack $(zip_embeded)"
-	@rm -f $(zip_embeded)
-	@$(zip_temp_add) $(Data)
-	@$(zip_temp_add) $(Script)
-	@echo "compile $@"
-	@$(cc) $< -o $@ $(cflags) $(clibs_static) $(cflags_encrypt)
-	@echo "compress $@"
-	@upx -q $@ $(slient)
-	@cp $@ ./Project1/
-
-main_win7.exe : ./src/main.cpp Makefile icon.o $(libgch)
-	@echo "compile $@"
-	@time $(cc) $< -o $@ $(cflags) $(clibs_dynamic) $(cflags_develop)
-
-Game_win7.exe : ./src/main.cpp Makefile icon.o
-	@echo "pack $(zip_embeded)"
-	@rm -f $(zip_embeded)
-	@$(zip_temp_add) $(Script)
-	@echo "compile $@"
-	@$(cc) $< -o $@ $(cflags) $(clibs_dynamic) $(cflags_standard)
-	@cp $@ ./Project1/
-
-Gamew_win7.exe : ./src/main.cpp Makefile icon.o
-	@echo "pack $(zip_embeded)"
-	@rm -f $(zip_embeded)
-	@$(zip_temp_add) $(Data)
-	@$(zip_temp_add) $(Script)
-	@echo "compile $@"
-	@$(cc) $< -o $@ $(cflags) $(clibs_dynamic) $(cflags_encrypt)
-	@echo "compress $@"
-	@upx -q $@ $(slient)
-	@cp $@ ./Project1/
+	@g++ -x c++-header -c $< $(cflags) $(cflags_develop)
 
 icon.o : ext/icon.rc ext/favicon.ico
 	@echo "make icon"
 	@windres -i $< -o $@ --input-format=rc --output-format=coff
 
+main.o : ./src/main.cpp Makefile $(libgch)
+	@echo "compile $@"
+	@time $(cc) $< -o $@ -c $(cflags) $(cflags_develop)
+
+Game.o : ./src/main.cpp Makefile $(libgch)
+	@echo "pack $(zip_embeded)"
+	@rm -f $(zip_embeded)
+	@$(zip_temp_add) $(Script)
+	@echo "compile $@"
+	@$(cc) $< -o $@ -c $(cflags) $(cflags_standard)
+
+Gamew.o : ./src/main.cpp Makefile $(libgch)
+	@echo "pack $(zip_embeded)"
+	@rm -f $(zip_embeded)
+	@$(zip_temp_add) $(Data)
+	@$(zip_temp_add) $(Script)
+	@echo "compile $@"
+	@$(cc) $< -o $@ -c $(cflags) $(cflags_encrypt)
+
+debug.exe : ./src/main.cpp Makefile icon.o
+	@echo "compile $@"
+	@rm -f $(libgch)
+	@$(cc) $< -o $@ $(cflags) $(clibs_static) $(cflags_debug)
+
+main.exe : main.o icon.o
+	@echo "link $@"
+	@$(cc) $< -o $@ $(cflags) $(cflags_develop) $(clibs_static)
+
+main_win7.exe : main.o icon.o
+	@echo "link $@"
+	@$(cc) $< -o $@ $(cflags) $(cflags_develop) $(clibs_dynamic)
+
+Game.exe : Game.o icon.o
+	@echo "link $@"
+	@$(cc) $< -o $@ $(cflags) $(cflags_standard) $(clibs_static)
+	@cp $@ ./Project1/
+
+Game_win7.exe : Game.o icon.o
+	@echo "link $@"
+	@$(cc) $< -o $@ $(cflags) $(cflags_standard) $(clibs_dynamic)
+	@cp $@ ./Project1/
+
+Gamew.exe : Gamew.o icon.o
+	@echo "link $@"
+	@$(cc) $< -o $@ $(cflags) $(cflags_encrypt) $(clibs_static)
+	@echo "compress $@"
+	@upx -q $@ $(slient)
+	@cp $@ ./Project1/
+
+Gamew_win7.exe : Gamew.o icon.o
+	@echo "link $@"
+	@$(cc) $< -o $@ $(cflags) $(cflags_encrypt) $(clibs_dynamic)
+	@echo "compress $@"
+	@upx -q $@ $(slient)
+	@cp $@ ./Project1/
+
 clean :
-	@rm -f debug.d main.d Game.d Gamew.d main_win7.d Game_win7.d Gamew_win7.d
-	@rm -f debug.exe main.exe Game.exe Gamew.exe main_win7.exe Game_win7.exe Gamew_win7.exe
+	@rm -f $(addsuffix .d,$(targets)) debug.d
+	@rm -f $(addsuffix .o,$(targets)) debug.o
+	@rm -f $(addsuffix .exe,$(targets)) debug.exe
 	@rm -f *.log *.png
-	@rm -f $(zip_embeded) $(libgch)
+	@rm -f $(zip_embeded) $(libgch) lib.d
 	@rm -f config.ini icon.o
-	@rm -f error.log
 
-envs : $(deps)
-	@make envs -f $(deps)
-
-publish : main.exe Game.exe Gamew.exe Game_win7.exe Gamew_win7.exe
+publish : $(addsuffix .exe,$(targets))
 	@echo "pack $(zip_publish)"
 	@rm -f $(zip_publish)
 	@cp ./src/config.ini ./Project1/
 	@rm -f ./Projec1/error.log
-	@$(zip_publish_add) main.exe src SDL2*.dll Project1
+	@rm -f $(libgch)
+	@$(zip_publish_add) main.exe main_win7.exe SDL2*.dll src Project1
 
 misc.7z :
 	wget -q https://7niu.gxmatmars.com/p1/RGModern/misc.7z
@@ -192,9 +199,8 @@ misc.7z :
 misc : misc.7z
 	@7z x -y $^
 
-$(libgch) : ./src/lib/lib.hpp
-	@echo "compile $@"
-	@g++ -x c++-header -c $< $(cflags) $(cflags_develop)
+envs : $(deps)
+	@make envs -f $(deps)
 
 %.o : %.hpp
 	@g++ -x c++-header -c -o /dev/null $< $(cflags)
