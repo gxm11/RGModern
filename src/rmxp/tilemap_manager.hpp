@@ -197,6 +197,10 @@ struct tilemap_set_info {
         autotile_textures.push_back(&t);
       }
     }
+
+    /* 设置 tileset 的混合模式 */
+    cen::texture& tileset = textures.at(p_info->p_tilemap->tileset);
+    tileset.set_blend_mode(cen::blend_mode::blend);
   }
 };
 
@@ -204,7 +208,7 @@ struct tilemap_set_info {
 /// @name data
 /// 支持多个 tilemap 互相嵌套。
 struct tilemap_manager {
-  /// @brief 管理所有 table 的指针。
+  /// @brief 管理所有 table 的容器的指针。
   tables* p_tables;
 
   /// @brief 存储所有的 tilemap_info 的容器
@@ -221,10 +225,10 @@ struct tilemap_manager {
   /// @brief 添加一个 tilemap
   /// @param t 需要添加的 tilemap
   tilemap_info& insert(const tilemap& t) {
-    // /* tilemap_manager 只管理绘制，不需要绘制的直接跳过 */
-    // if (t.skip()) return nullptr;
-
+    /* 读取 zi*/
     z_index zi;
+
+    /*下一行代码只能在 ruby 的 worker 中安全读取数据 */
     zi << t.ruby_object;
 
     /* 设置 tilemap_info，考虑到 tilemap 除了 id 之外都可能变化了 */

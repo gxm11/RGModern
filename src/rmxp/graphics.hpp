@@ -105,7 +105,7 @@ struct init_graphics {
             /* 设置 tilemap_info 的 autotiles */
             worker >> tilemap_set_info{&item, &info};
 
-            /* 设置 overlayer_index = 0，发送 render<overlayer<tilemap>> */
+            /* 设置 layer_index = 0，发送 render<overlayer<tilemap>> */
             worker >> render<overlayer<tilemap>>{&info, p_tables, 0};
           } else {
             /* 发送 render<T> */

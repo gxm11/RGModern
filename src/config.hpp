@@ -41,7 +41,7 @@ namespace rgm::config {
 using section_t =
     std::map<std::string, std::variant<std::monostate, bool, int, std::string>>;
 
-// constexprs
+/* constexprs */
 constexpr std::string_view config_path = "./config.ini";
 constexpr int build_mode = RGM_BUILDMODE;
 constexpr bool develop = (RGM_BUILDMODE < 2);
@@ -52,11 +52,11 @@ constexpr cen::color screen_background_color = cen::colors::black;
 constexpr cen::pixel_format texture_format = cen::pixel_format::bgra32;
 constexpr cen::pixel_format surface_format = cen::pixel_format::rgba32;
 
-// configs from command line args
+/* 从命令行参数中读取的设置 */
 bool btest = false;
 bool debug = false;
 
-// configs from config.ini
+/* 从 config.ini 中读取的设置 */
 bool synchronized = true;
 bool controller_left_arrow = true;
 bool controller_right_arrow = true;
@@ -67,6 +67,7 @@ int window_height = 480;
 int screen_width = 640;
 int screen_height = 480;
 
+/* 支持的 driver 的类型 */
 enum class driver_type { software, opengl, direct3d9, direct3d11 };
 driver_type driver;
 
@@ -76,6 +77,8 @@ std::string driver_name = "direct3d9";
 std::string driver_name = "opengl";
 #endif
 
+/// @brief 读取数据，设置 config 中各变量
+/// @param data config.ini 转换后的 map 数据
 void load_data(std::map<std::string, section_t>& data) {
 #define Set(item, section, key)                                \
   if (data[section][key].index() != 0) {                       \
@@ -100,19 +103,30 @@ void load_data(std::map<std::string, section_t>& data) {
   Set(window_height, "System", "WindowHeight");
   Set(screen_width, "System", "ScreenWidth");
   Set(screen_height, "System", "ScreenHeight");
+#ifdef __WIN32
   Set(driver_name, "Kernel", "RenderDriver");
+#endif
 #undef Set
+
+  /* 将 driver_name 转换成小写 */
   std::transform(driver_name.begin(), driver_name.end(), driver_name.begin(),
                  [](unsigned char c) { return std::tolower(c); });
 
-  driver = driver_type::software;
+  driver = driver_type::opengl;
+
+  if (driver_name == "software") driver = driver_type::software;
   if (driver_name == "opengl") driver = driver_type::opengl;
   if (driver_name == "direct3d9") driver = driver_type::direct3d9;
   if (driver_name == "direct3d11") driver = driver_type::direct3d11;
 }
 
+/// @brief 读取命令行参数
+/// @param argc 命令行参数 ARGC
+/// @param argv 命令行参数 ARGV
+/// @return false 表示不启动游戏引擎，直接退出，true 表示正常运行
 bool load_args(int argc, char* argv[]) {
   if (argc == 2 && strncmp(argv[1], "-v", 2) == 0) {
+    /* 显示版本信息 */
     printf("RGM %s [BuildMode = %d]\n\n", RGM_FULLVERSION, RGM_BUILDMODE);
     printf(
         "Modern Ruby Game Engine (RGM) is licensed under the zlib "
@@ -136,7 +150,7 @@ bool load_args(int argc, char* argv[]) {
     return false;
   }
 
-  // load configs from argv
+  /* 读取命令行参数并设置相应的全局变量 */
   for (int i = 0; i < argc; ++i) {
     if (strncmp(argv[i], "btest", 6) == 0) {
       rgm::config::btest = true;
@@ -148,6 +162,7 @@ bool load_args(int argc, char* argv[]) {
   return true;
 }
 
+/// @brief 将 ini 中的数据读取到 map 中
 void load_ini() {
   if (!std::filesystem::exists(config_path.data())) return;
 
@@ -157,8 +172,8 @@ void load_ini() {
 
   std::ifstream ifs(config_path.data(), std::ios::in);
   while (ifs.getline(line.data(), line.size())) {
+    /* [XXX] 模式表示新的 section */
     if (line[0] == '[') {
-      // new section
       std::string section_name(line.data() + 1,
                                strchr(line.data(), ']') - line.data() - 1);
       data[section_name] = {};
@@ -167,10 +182,13 @@ void load_ini() {
 
     char* equal = strchr(line.data(), '=');
     if (equal) {
+      /* A=B 模式表示一个键值对 */
       int pos_equal = equal - line.data();
-      // key-value pair
+
       std::string key(line.data(), pos_equal);
       std::string value(equal + 1, strlen(line.data()) - pos_equal - 1);
+
+      /* 根据不同的值设置为不同类型的 value，存储到 map 中 */
       if (p_section) {
         if (value == "ON") {
           p_section->insert_or_assign(key, true);
@@ -186,6 +204,7 @@ void load_ini() {
       }
     }
 
+    /* 重置 line，准备读取下一行 */
     line.fill(0);
   }
 

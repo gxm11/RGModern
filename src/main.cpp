@@ -20,13 +20,7 @@
 
 #include "main.hpp"
 
-/**
- * @brief SDL_Main 函数，程序的实际入口。
- *
- * @param argc
- * @param argv
- * @return int = 0，表示程序正常退出
- */
+/// @brief SDL_Main 函数，程序的实际入口。
 int main(int argc, char* argv[]) {
 #ifdef __WIN32
   SetConsoleOutputCP(65001);
