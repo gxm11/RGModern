@@ -60,7 +60,7 @@ struct tilemap_info {
   int max_index;
 
   /// @brief 储存所有自动元件的 texture 的容器
-  std::vector<cen::texture_handle> autotile_textures;
+  std::vector<cen::texture*> autotile_textures;
 
   /// @brief 设置自身的各个属性
   /// @param zi tilemap 的 z_index
@@ -167,6 +167,39 @@ struct tilemap_info {
   }
 };
 
+/// @brief 设置 tilemap_info
+/// @name task
+struct tilemap_set_info {
+  /// @brief tilemap 数据的地址
+  const tilemap* p_tilemap;
+
+  /// @brief tilemap_info 数据的地址
+  tilemap_info* p_info;
+
+  void run(auto& worker) {
+    base::textures& textures = RGMDATA(base::textures);
+
+    /* 设置 autotile 对应的 textures */
+    auto& autotile_textures = p_info->autotile_textures;
+    autotile_textures.clear();
+
+    for (size_t i = 0; i < p_tilemap->autotiles.m_data.size(); ++i) {
+      if (i == autotiles::max_size) break;
+
+      uint64_t id = p_tilemap->autotiles.m_data[i];
+
+      if (id == 0) {
+        autotile_textures.push_back(nullptr);
+      } else {
+        cen::texture& t = textures.at(id + 1);
+        t.set_blend_mode(cen::blend_mode::blend);
+
+        autotile_textures.push_back(&t);
+      }
+    }
+  }
+};
+
 /// @brief 管理所有的 tilemap 的 overlayer 的绘制的类
 /// @name data
 /// 支持多个 tilemap 互相嵌套。
@@ -187,9 +220,9 @@ struct tilemap_manager {
 
   /// @brief 添加一个 tilemap
   /// @param t 需要添加的 tilemap
-  void insert(const tilemap& t) {
-    /* tilemap_manager 只管理绘制，不需要绘制的直接跳过 */
-    if (t.skip()) return;
+  tilemap_info& insert(const tilemap& t) {
+    // /* tilemap_manager 只管理绘制，不需要绘制的直接跳过 */
+    // if (t.skip()) return nullptr;
 
     z_index zi;
     zi << t.ruby_object;
@@ -201,6 +234,8 @@ struct tilemap_manager {
     /* 添加到 layers 中管理，根据是否在 viewport 中分不同的 layer 管理 */
     size_t depth = t.p_viewport ? 1 : 0;
     layers[depth].insert(zi);
+
+    return ti;
   }
 
   /// @brief 返回下一个可绘制的 overlayer 层
@@ -238,6 +273,8 @@ struct tilemap_manager {
   }
 };
 
+/// @brief tilemap_manager 相关的初始化类
+/// @name task
 struct init_tilemap_manager {
   /* 引入数据类型 tilemap_manager */
   using data = std::tuple<tilemap_manager>;

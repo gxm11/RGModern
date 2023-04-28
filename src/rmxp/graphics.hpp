@@ -100,10 +100,13 @@ struct init_graphics {
                 [](auto id) { worker >> bitmap_make_autotile{id}; };
 
             /* 向 tilemap_info 中添加当前的 tilemap */
-            tm.insert(item);
+            tilemap_info& info = tm.insert(item);
 
-            /* 发送 render<tilemap>，需要额外传递 p_tables */
-            worker >> render<tilemap>{&item, p_tables};
+            /* 设置 tilemap_info 的 autotiles */
+            worker >> tilemap_set_info{&item, &info};
+
+            /* 设置 overlayer_index = 0，发送 render<overlayer<tilemap>> */
+            worker >> render<overlayer<tilemap>>{&info, p_tables, 0};
           } else {
             /* 发送 render<T> */
             worker >> render<T>{&item};

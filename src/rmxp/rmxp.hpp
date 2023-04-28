@@ -69,7 +69,7 @@ using tasks_render = std::tuple<
     bitmap_reload_autotile, before_render_viewport, after_render_viewport,
     render<sprite>, render<plane>, render<window>, render<overlayer<window>>,
     render<tilemap>, render<overlayer<tilemap>>, render_transition<1>,
-    render_transition<2>, message_show, controller_rumble,
+    render_transition<2>, tilemap_set_info, message_show, controller_rumble,
     controller_rumble_triggers>;
 
 /// @brief 执行音乐播放的 task，使用 SDL2 Mixer 播放音乐和音效

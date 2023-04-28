@@ -25,10 +25,8 @@
 
 namespace rgm::rmxp {
 /// @brief 辅助绘制 tilemap 的类，提供了对图块的迭代等函数
-/// @tparam is_overlayer 是否在绘制 overlayer
 /// tilemap 本体和 overlayer 的绘制的内容区别很小，主要是根据各图块的优先级
 /// 来决定图块绘制在哪一层。此外，本体那层还需要绘制图块的闪烁。
-template <bool is_overlayer>
 struct render_tilemap_helper {
   /// @brief tilemap 数据的地址
   const tilemap* p_tilemap;
@@ -42,41 +40,17 @@ struct render_tilemap_helper {
   /// @brief 管理 tilemap 多层数据的 info 对象的地址
   const tilemap_info* p_info;
 
-  /// @brief 当前绘制的层级，从 0 开始计数
+  /// @brief 当前绘制的层级，0 表示本体，>=1 表示 overlayer
   int overlayer_index;
 
   /// @brief 构造函数
   explicit render_tilemap_helper(const tilemap* t, const tables* p_tables,
-                                 const tilemap_info* info = nullptr,
-                                 int index = 0)
+                                 const tilemap_info* info, int index)
       : p_tilemap(t),
         p_map(&p_tables->at(t->map_data)),
         p_priorities(&p_tables->at(t->priorities)),
         p_info(info),
         overlayer_index(index) {}
-
-  /// @brief 设置自动元件对应的 texture 并返回保存它们的数组
-  /// @param 管理所有 textures 的容器
-  /// @return 返回保存各 texture 指针的数组
-  auto make_autotiles(base::textures& textures)
-      -> std::array<cen::texture*, autotiles::max_size> {
-    /* 作为返回值的数组 */
-    std::array<cen::texture*, autotiles::max_size> autotile_textures;
-
-    for (size_t i = 0; i < autotiles::max_size; ++i) {
-      uint64_t id = p_tilemap->autotiles.m_data[i];
-      if (id) {
-        autotile_textures[i] = &(textures.at(id + 1));
-        if constexpr (!is_overlayer) {
-          autotile_textures[i]->set_blend_mode(cen::blend_mode::blend);
-        }
-      } else {
-        autotile_textures[i] = nullptr;
-      }
-    }
-
-    return autotile_textures;
-  }
 
   void iterate_tiles(std::function<void(int, int, int, int)> proc) {
     const viewport* p_viewport =
@@ -104,7 +78,7 @@ struct render_tilemap_helper {
       y_index = y_index % p_map->y_size;
       if (y_index < 0) y_index += p_map->y_size;
 
-      if constexpr (is_overlayer) {
+      if (overlayer_index > 0) {
         if (p_info->skip_row(y_index, overlayer_index - y_index)) continue;
       }
 
@@ -118,7 +92,7 @@ struct render_tilemap_helper {
         x_index = x_index % p_map->x_size;
         if (x_index < 0) x_index += p_map->x_size;
 
-        if constexpr (is_overlayer) {
+        if (overlayer_index > 0) {
           if (p_info->skip_column(x_index, overlayer_index - y_index)) continue;
         }
         proc(x, y, x_index, y_index);
@@ -126,12 +100,13 @@ struct render_tilemap_helper {
     }
   }
 
-  auto make_render_proc(cen::renderer& renderer, const cen::texture& tileset,
-                        auto& autotile_textures)
+  auto make_render_proc(cen::renderer& renderer, const cen::texture& tileset)
       -> std::function<void(int, int, int, int)> {
     auto render = [&](int x, int y, int x_index, int y_index) {
       cen::irect dst_rect(x, y, 32, 32);
       cen::irect src_rect(0, 0, 32, 32);
+
+      const auto& autotile_textures = p_info->autotile_textures;
 
       for (int z_index = 0; z_index < p_map->z_size; ++z_index) {
         const int16_t tileid = p_map->get(x_index, y_index, z_index);
@@ -139,7 +114,7 @@ struct render_tilemap_helper {
         if (static_cast<size_t>(tileid) >= p_priorities->size()) continue;
         const int16_t priority = p_priorities->get(tileid);
 
-        if constexpr (is_overlayer) {
+        if (overlayer_index > 0) {
           if (priority != overlayer_index - y_index) continue;
         } else {
           if (priority != 0) continue;
@@ -154,7 +129,7 @@ struct render_tilemap_helper {
           renderer.render(tileset, src_rect, dst_rect);
         } else {
           size_t autotile_index = tileid / 48 - 1;
-          cen::texture* p_autotile = autotile_textures.at(autotile_index);
+          const cen::texture* p_autotile = autotile_textures.at(autotile_index);
           if (!p_autotile) continue;
 
           int x = (p_tilemap->update_count / 16 * 32) % p_autotile->width();
@@ -169,29 +144,27 @@ struct render_tilemap_helper {
 };
 
 template <>
-struct render<tilemap> {
-  const tilemap* t;
-  // const viewport* v;
+struct render<overlayer<tilemap>> {
+  const tilemap_info* info;
   const tables* p_tables;
-  // tilemap 的第 0 层，也就是 z = 0 的那一层
-  // 绘制所有优先级为 0 的图块，然后绘制闪烁
-  // 不需要创建新的 viewport 而是直接画满整个画面或viewport
+  int overlayer_index;
+
   void run(auto& worker) {
+    const tilemap* t = info->p_tilemap;
+
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
     base::textures& textures = RGMDATA(base::textures);
 
     cen::texture& tileset = textures.at(t->tileset);
     tileset.set_blend_mode(cen::blend_mode::blend);
 
-    render_tilemap_helper<false> helper(t, p_tables);
+    render_tilemap_helper helper(t, p_tables, info, overlayer_index);
 
-    auto autotile_textures = helper.make_autotiles(textures);
-
-    auto render = helper.make_render_proc(renderer, tileset, autotile_textures);
+    auto render = helper.make_render_proc(renderer, tileset);
 
     helper.iterate_tiles(render);
 
-    if (t->flash_data) {
+    if (overlayer_index == 0 && t->flash_data) {
       renderer.set_blend_mode(blend_type::add);
 
       const table& map = p_tables->at(t->map_data);
@@ -218,31 +191,6 @@ struct render<tilemap> {
 
       helper.iterate_tiles(render);
     }
-  }
-};
-
-template <>
-struct render<overlayer<tilemap>> {
-  const tilemap_info* info;
-  // const viewport* v;
-  const tables* p_tables;
-  int overlayer_index;
-
-  void run(auto& worker) {
-    const tilemap* t = info->p_tilemap;
-
-    cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
-    base::textures& textures = RGMDATA(base::textures);
-
-    cen::texture& tileset = textures.at(t->tileset);
-    tileset.set_blend_mode(cen::blend_mode::blend);
-
-    render_tilemap_helper<true> helper(t, p_tables, info, overlayer_index);
-
-    auto autotile_textures = helper.make_autotiles(textures);
-    auto render = helper.make_render_proc(renderer, tileset, autotile_textures);
-
-    helper.iterate_tiles(render);
   }
 };
 }  // namespace rgm::rmxp
