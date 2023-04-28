@@ -188,7 +188,6 @@ module RGM
         text_rect = @bitmap.text_size(@text.right)
         @bitmap.font.underlined = false
         @bitmap.draw_text(text_x, 0, text_rect.width, height, @text.right)
-        text_x += text_rect.width
       end
 
       def enable
@@ -197,11 +196,11 @@ module RGM
         Ext.textinput_start(x, y + height, 0, 0)
         @sprite.visible = true
         # 如果是 STOP 状态，则设置 default_text
-        unless @suspend
-          clear_text
-          @text.left = @default_text.clone
-          @need_refresh = true
-        end
+        return if @suspend
+
+        clear_text
+        @text.left = @default_text.clone
+        @need_refresh = true
       end
 
       def disable
@@ -221,13 +220,13 @@ module RGM
         @sprite.x = x
         @sprite.y = y
 
-        if @bitmap.width != width || @bitmap.height != height
-          @bitmap.dispose
-          @bitmap = Bitmap.new(width, height)
-          @sprite.bitmap = @bitmap
+        return unless @bitmap.width != width || @bitmap.height != height
 
-          @need_refresh = true
-        end
+        @bitmap.dispose
+        @bitmap = Bitmap.new(width, height)
+        @sprite.bitmap = @bitmap
+
+        @need_refresh = true
       end
 
       def x
