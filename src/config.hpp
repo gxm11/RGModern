@@ -61,6 +61,7 @@ bool synchronized = true;
 bool concurrent = false;
 bool controller_left_arrow = true;
 bool controller_right_arrow = true;
+bool game_console = true;
 std::string game_title = "RGModern";
 std::string resource_prefix = "resource://";
 int window_width = 640;
@@ -102,6 +103,7 @@ void load_data(std::map<std::string, section_t>& data) {
   Set(controller_left_arrow, "Kernel", "LeftAxisArrow");
   Set(controller_right_arrow, "Kernel", "RightAxisArrow");
   Set(resource_prefix, "Kernel", "ResourcePrefix");
+  Set(game_console, "System", "GameConsole");
   Set(window_width, "System", "WindowWidth");
   Set(window_height, "System", "WindowHeight");
   Set(screen_width, "System", "ScreenWidth");
@@ -119,6 +121,22 @@ void load_data(std::map<std::string, section_t>& data) {
   if (driver_name == "opengl") driver = driver_type::opengl;
   if (driver_name == "direct3d9") driver = driver_type::direct3d9;
   if (driver_name == "direct3d11") driver = driver_type::direct3d11;
+
+  /* 设置日志输出的级别 */
+  if (build_mode <= 0) {
+    cen::set_priority(cen::log_priority::debug);
+  } else if (build_mode == 1) {
+    cen::set_priority(debug ? cen::log_priority::debug
+                            : cen::log_priority::info);
+  } else if (build_mode == 2) {
+    cen::set_priority(cen::log_priority::warn);
+
+    if (!game_console) {
+#ifdef __WIN32
+      FreeConsole();
+#endif
+    }
+  }
 }
 
 /// @brief 读取命令行参数

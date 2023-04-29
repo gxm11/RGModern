@@ -42,18 +42,7 @@ struct sdl_hint {
       window_flag = static_cast<cen::window::window_flags>(
           static_cast<size_t>(window_flag) |
           static_cast<size_t>(cen::window::window_flags::opengl));
-    }
-
-    /* 设置日志输出的级别 */
-    if (config::build_mode <= 0) {
-      cen::set_priority(cen::log_priority::debug);
-    } else if (config::build_mode == 1) {
-      cen::set_priority(config::debug ? cen::log_priority::debug
-                                      : cen::log_priority::info);
-    } else {
-      cen::set_priority(config::debug ? cen::log_priority::info
-                                      : cen::log_priority::warn);
-    }
+    }    
   }
 };
 
