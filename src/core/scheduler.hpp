@@ -46,11 +46,6 @@ struct scheduler<> {
   /// @todo
   /// {fiber object, is_alive}
   std::array<std::pair<fiber_t*, bool>, config::max_workers + 1> fibers;
-
-  template <typename T_worker>
-  static void fiber_run(fiber_t* fb) {
-    reinterpret_cast<T_worker*>(fb->userdata)->run();
-  }
 };
 
 /// @brief 可变参数模板类 scheduler 的特化形式，继承自 scheduler<>
@@ -114,11 +109,22 @@ struct scheduler<First, Rest...> : scheduler<> {
 
   /// @brief 协程单线程的执行内容
   void run_concurrent() {
-    std::apply([](auto&... worker) { (worker.before(), ...); }, workers);
-    /* fiber */
     fibers.fill({nullptr, false});
     fibers[0].first = fiber_create(nullptr, 0, nullptr, nullptr);
+
     std::apply([](auto&... worker) { (worker.fiber_setup(), ...); }, workers);
+
+    std::apply(
+        [](auto&... worker) {
+          auto before = [](auto&& item) {
+            if constexpr (!item.is_active) {
+              item.before();
+            }
+          };
+
+          (before(worker), ...);
+        },
+        workers);
 
     auto stop_token = this->stop_source.get_token();
     while (true) {
@@ -131,7 +137,17 @@ struct scheduler<First, Rest...> : scheduler<> {
       }
     }
 
-    std::apply([](auto&... worker) { (worker.after(), ...); }, workers);
+    std::apply(
+        [](auto&... worker) {
+          auto after = [](auto&& item) {
+            if constexpr (!item.is_active) {
+              item.after();
+            }
+          };
+
+          (after(worker), ...);
+        },
+        workers);
   }
 
   void run_concurrent_main() {

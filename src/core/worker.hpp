@@ -94,13 +94,23 @@ struct worker {
   /// @brief
   static bool is_stopped() { return p_scheduler->stop_source.stop_requested(); }
 
+  template <typename T_worker>
+  static void fiber_run(fiber_t* fb) {
+    auto& worker = *reinterpret_cast<T_worker*>(fb->userdata);
+
+    worker.before();
+    worker.fiber_yield();
+    worker.run();
+    worker.fiber_yield();
+    worker.after();
+    worker.fiber_return();
+  }
+
   void fiber_setup() {
     if constexpr (co_type == cooperation::concurrent && is_active) {
       auto& fiber_main = p_scheduler->fibers[0];
       auto& fiber = p_scheduler->fibers.at(co_index + 1);
-
-      fiber.first = fiber_create(fiber_main.first, 0,
-                                 scheduler<>::fiber_run<worker>, this);
+      fiber.first = fiber_create(fiber_main.first, 0, fiber_run<worker>, this);
 
       fiber.second = true;
     }
@@ -154,11 +164,11 @@ struct worker {
   /// 执行核的 run 函数。
   /// 只有主动线程，或者是异步多线程的合作模式才有效，否则什么也不做。
   void run() {
-    cen::log_info("worker %lld starts running...", co_index);
     if constexpr (is_active || is_asynchronized) {
+      cen::log_info("worker %lld starts running...", co_index);
       m_kernel.run(*this);
+      cen::log_info("worker %lld ends.", co_index);
     }
-    cen::log_info("worker %lld terminated.", co_index);
   }
 
   /// @brief worker 执行的第 3 个步骤
@@ -209,6 +219,8 @@ struct worker {
     if constexpr (is_asynchronized) {
       bool ret = send(synchronize_signal<id>{&(m_kernel.m_pause)});
       if (ret) m_kernel.m_pause.acquire();
+    } else if constexpr (co_type == cooperation::concurrent) {
+      fiber_yield();
     }
   }
 

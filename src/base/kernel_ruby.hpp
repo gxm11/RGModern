@@ -62,18 +62,16 @@ struct kernel_ruby : core::kernel_active<T_tasks> {
 
   /// @brief 重载了基类的 run 函数，实际上解释执行了 load.rb 中的内容
   /// 使用 rb_rescue2 捕获执行中发生的异常
-  void run(auto& worker) {
+  void run(auto&) {
     /* rb_rescue2 的说明参见 include/ruby/backward/cxxanyargs.hpp */
     rb_rescue2(script_run, Qnil, script_rescue, Qnil, rb_eException,
                static_cast<VALUE>(0));
     ruby_finalize();
-    worker.fiber_return();
   }
 
   void flush(auto& worker) {
     /* worker 已经停止时抛出异常 */
     if (worker.is_stopped()) {
-      cen::log_warn("ruby stopped.");
       rb_raise(rb_eInterrupt, "Interrupted by another thread.\n");
       return;
     }
