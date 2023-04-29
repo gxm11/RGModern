@@ -159,4 +159,4 @@ return data[index];
   3. reload 资源
 - [x] 对 win7 的支持
 - [ ] 尝试解决 opengl 的 tilemap 的 bug
-- [ ] 引入协程
+- [x] 引入协程
