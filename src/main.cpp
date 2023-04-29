@@ -28,10 +28,13 @@ int main(int argc, char* argv[]) {
 
   if (!rgm::config::load_args(argc, argv)) return 0;
 
+  cen::log_info("RGModern starts running...");
+
+  /* 读取 ini 文件中的配置 */
   rgm::config::load_ini();
 
-  cen::log_info("RGModern starts running...");
   try {
+    /* 根据运行模式选择不同的 scheduler */
     if (rgm::config::synchronized) {
       if (rgm::config::concurrent) {
         rgm::engine_fiber_t engine;
@@ -45,10 +48,12 @@ int main(int argc, char* argv[]) {
       engine.run();
     }
   } catch (std::exception& e) {
+    /* 试图捕获所有的错误并弹窗警告 */
     std::string msg = "RGModern Internal Error:\n";
     cen::message_box::show(rgm::config::game_title, msg + e.what(),
                            cen::message_box_type::error);
   }
+
   cen::log_info("RGModern ends with applause.");
   return 0;
 }

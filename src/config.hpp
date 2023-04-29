@@ -45,7 +45,6 @@ using section_t =
 constexpr std::string_view config_path = "./config.ini";
 constexpr int build_mode = RGM_BUILDMODE;
 constexpr bool develop = (RGM_BUILDMODE < 2);
-constexpr bool concurrent = false;
 constexpr int controller_axis_threshold = 8000;
 constexpr int max_workers = 8;
 constexpr int tileset_texture_height = 8192;
@@ -59,6 +58,7 @@ bool debug = false;
 
 /* 从 config.ini 中读取的设置 */
 bool synchronized = true;
+bool concurrent = false;
 bool controller_left_arrow = true;
 bool controller_right_arrow = true;
 std::string game_title = "RGModern";
@@ -98,6 +98,7 @@ void load_data(std::map<std::string, section_t>& data) {
 
   Set(game_title, "Game", "Title");
   Set(synchronized, "Kernel", "Synchronization");
+  Set(concurrent, "Kernel", "Concurrency");
   Set(controller_left_arrow, "Kernel", "LeftAxisArrow");
   Set(controller_right_arrow, "Kernel", "RightAxisArrow");
   Set(resource_prefix, "Kernel", "ResourcePrefix");

@@ -106,6 +106,7 @@ struct scheduler<First, Rest...> : scheduler<> {
       cen::log_warn("[Kernel] the cooperation type is exclusive.");
       run_exclusive();
     } else if constexpr (co_type == cooperation::concurrent) {
+      cen::log_warn("[Kernel] the cooperation type is concurrent.");
       run_concurrent();
     }
   }
