@@ -45,6 +45,7 @@ using section_t =
 constexpr std::string_view config_path = "./config.ini";
 constexpr int build_mode = RGM_BUILDMODE;
 constexpr bool develop = (RGM_BUILDMODE < 2);
+constexpr bool concurrent = false;
 constexpr int controller_axis_threshold = 8000;
 constexpr int max_workers = 8;
 constexpr int tileset_texture_height = 8192;

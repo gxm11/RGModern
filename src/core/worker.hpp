@@ -65,6 +65,10 @@ struct worker {
   static constexpr bool is_asynchronized =
       (co_type == cooperation::asynchronous);
 
+  /// @brief worker 的合作模式是否在协程中运行
+  static constexpr bool is_concurrent =
+      (co_type == cooperation::concurrent) && is_active;
+
   /// @brief worker 的核，负责任务队列的执行逻辑
   /// @tparam T_kernel 核的类型
   /// @tparam T_kernel_tasks 核的可执行任务的类型
@@ -91,43 +95,40 @@ struct worker {
     }
   }
 
-  /// @brief
+  /// @brief 判断 worker 是否需要停止。
+  /// 只要有一个 worker 停止，其他的 worker 都会跟随停止，然后程序结束。
   static bool is_stopped() { return p_scheduler->stop_source.stop_requested(); }
 
-  template <typename T_worker>
-  static void fiber_run(fiber_t* fb) {
-    auto& worker = *reinterpret_cast<T_worker*>(fb->userdata);
-
-    worker.before();
-    worker.fiber_yield();
-    worker.run();
-    worker.fiber_yield();
-    worker.after();
-    worker.fiber_return();
-  }
-
+  /// @brief 根据 worker 的状态创建新的协程
+  /// @param worker 可能要在协程中运行的 worker
   void fiber_setup() {
-    if constexpr (co_type == cooperation::concurrent && is_active) {
+    if constexpr (is_concurrent) {
       auto& fiber_main = p_scheduler->fibers[0];
       auto& fiber = p_scheduler->fibers.at(co_index + 1);
-      fiber.first = fiber_create(fiber_main.first, 0, fiber_run<worker>, this);
 
+      /* 创建协程，写入地址 */
+      fiber.first = fiber_create(fiber_main.first, 0,
+                                 scheduler<>::fiber_run<worker>, this);
+
+      /* 设置当前协程为运行状态 */
       fiber.second = true;
     }
   }
 
+  /// @brief 让出执行权，只在协程单线程模式下生效。
   static void fiber_yield() {
-    if constexpr (co_type == cooperation::concurrent && is_active) {
+    if constexpr (is_concurrent) {
       auto& fiber_main = p_scheduler->fibers[0];
 
       fiber_switch(fiber_main.first);
     }
   }
 
+  /// @brief 让出执行权，并且永不返回，只在协程单线程模式下生效。
   static void fiber_return() {
-    if constexpr (co_type == cooperation::concurrent && is_active) {
+    if constexpr (is_concurrent) {
       auto& fiber_main = p_scheduler->fibers[0];
-      auto& fiber = p_scheduler->fibers.at(co_index + 1);
+      auto& fiber = p_scheduler->fibers[co_index + 1];
 
       fiber.second = false;
       fiber_switch(fiber_main.first);
@@ -219,8 +220,6 @@ struct worker {
     if constexpr (is_asynchronized) {
       bool ret = send(synchronize_signal<id>{&(m_kernel.m_pause)});
       if (ret) m_kernel.m_pause.acquire();
-    } else if constexpr (co_type == cooperation::concurrent) {
-      fiber_yield();
     }
   }
 

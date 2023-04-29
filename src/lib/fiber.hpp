@@ -18,37 +18,13 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "main.hpp"
-
-/// @brief SDL_Main 函数，程序的实际入口。
-int main(int argc, char* argv[]) {
-#ifdef __WIN32
-  SetConsoleOutputCP(65001);
-#endif
-
-  if (!rgm::config::load_args(argc, argv)) return 0;
-
-  rgm::config::load_ini();
-
-  cen::log_info("RGModern starts running...");
-  try {
-    if (rgm::config::synchronized) {
-      if (rgm::config::concurrent) {
-        rgm::engine_fiber_t engine;
-        engine.run();
-      } else {
-        rgm::engine_sync_t engine;
-        engine.run();
-      }
-    } else {
-      rgm::engine_async_t engine;
-      engine.run();
-    }
-  } catch (std::exception& e) {
-    std::string msg = "RGModern Internal Error:\n";
-    cen::message_box::show(rgm::config::game_title, msg + e.what(),
-                           cen::message_box_type::error);
-  }
-  cen::log_info("RGModern ends with applause.");
-  return 0;
-}
+#pragma once
+// 移除在 ruby 源码中的 unused-paramerter 警告
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif  // __GNUC__
+#include "fiber.h"
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif  // __GNUC__
