@@ -107,7 +107,7 @@ module Graphics
 
     duration /= @@low_fps_ratio if @@low_fps_mode
 
-    if filename.empty?
+    if filename.empty? || RGM::Config::Render_Driver == RGM::Driver::Software
       duration.times do |i|
         RGM::Base.graphics_transition(
           @@freeze_bitmap.id, @@current_bitmap.id, i / duration.to_f, 0, 0
