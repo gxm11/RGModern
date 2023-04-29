@@ -45,7 +45,7 @@ namespace rgm::base {
 using tasks_ruby =
     std::tuple<init_ruby, init_embeded, init_timer, init_counter, init_surfaces,
                init_music, init_sound, init_config, init_render, init_window,
-               interrupt_signal, music_finish_callback, controller_connect,
+               music_finish_callback, controller_connect,
                controller_disconnect>;
 
 /// @brief 执行渲染流程的 task，使用 SDL2 创建窗口，绘制画面并处理事件

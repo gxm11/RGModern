@@ -89,6 +89,11 @@ struct worker {
     return p_scheduler->stop_source.get_token();
   }
 
+  /// @brief 停止所有 worker 的运行，结束程序
+  static void stop() {
+    p_scheduler->stop_source.request_stop();
+  }
+
   /// @brief 根据变量类型，获取 worker 保存的对应数据
   /// @tparam T 变量类型
   /// @return T& 返回 T 类型变量的引用
@@ -132,7 +137,7 @@ struct worker {
   /// (3) 只在异步多线程模式下删除数据，单线程模式下 p_data 跟随 worker
   /// 的生命周期。
   void after() {
-    p_scheduler->stop_source.request_stop();
+    stop();
     traits::for_each<T_tasks>::after(*this);
 
     // 同步模式下，不需要主动销毁变量

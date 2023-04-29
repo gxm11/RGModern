@@ -27,11 +27,12 @@ namespace rgm::rmxp {
 /// @brief 绑定 event_dispatcher_t 对不同输入事件的响应
 /// @name task
 /// 此处绑定了以下 5 种事件：
-/// 1. 退出事件，发送 interrupt_signal；
+/// 1. 退出事件，执行 worker.stop()；
 /// 2. 窗口事件，目前没有效果，只是打印日志；
 /// 3. 键盘事件，发送 key_release 和 key_press；
 /// 4. 控制器摇杆和扳机事件，发送 controller_axis_move；
-/// 5. 控制器按键事件，发送 controller_button_press 和 controller_button_release。
+/// 5. 控制器按键事件，发送 controller_button_press 和
+/// controller_button_release。
 struct init_event {
   static void before(auto& worker) {
     base::cen_library::event_dispatcher_t& d =
@@ -41,7 +42,7 @@ struct init_event {
     d.bind<cen::quit_event>().to(
         [&worker]([[maybe_unused]] const cen::quit_event& e) {
           cen::log_warn("[Input] quit");
-          worker >> base::interrupt_signal{};
+          worker.stop();
         });
 
     /* 窗口事件 */

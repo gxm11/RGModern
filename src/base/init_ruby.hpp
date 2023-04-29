@@ -77,12 +77,4 @@ struct init_config {
                  rb_utf8_str_new_cstr(config::driver_name.data()));
   }
 };
-
-/// @brief 使 ruby 线程抛出 Interrupt 异常
-/// @name task
-struct interrupt_signal {
-  void run(auto&) {
-    rb_raise(rb_eInterrupt, "Interrupted by another thread.\n");
-  }
-};
 }  // namespace rgm::base

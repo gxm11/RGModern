@@ -31,12 +31,18 @@ int main(int argc, char* argv[]) {
   rgm::config::load_ini();
 
   cen::log_info("RGModern starts running...");
-  if (rgm::config::synchronized) {
-    rgm::engine_sync_t engine;
-    engine.run();
-  } else {
-    rgm::engine_async_t engine;
-    engine.run();
+  try {
+    if (rgm::config::synchronized) {
+      rgm::engine_sync_t engine;
+      engine.run();
+    } else {
+      rgm::engine_async_t engine;
+      engine.run();
+    }
+  } catch (std::exception& e) {
+    std::string msg = "RGModern Internal Error:\n";
+    cen::message_box::show(rgm::config::game_title, msg + e.what(),
+                           cen::message_box_type::error);
   }
   cen::log_info("RGModern ends with applause.");
   return 0;

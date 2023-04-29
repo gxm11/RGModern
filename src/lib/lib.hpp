@@ -52,8 +52,8 @@
 #include "incbin.hpp"
 #include "ruby.hpp"
 #define JM_XORSTR_DISABLE_AVX_INTRINSICS
+#include "fiber.h"
 #include <zip.h>
-
 #include <xorstr.hpp>
 
 extern "C" {

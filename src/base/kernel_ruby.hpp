@@ -68,5 +68,18 @@ struct kernel_ruby : core::kernel_active<T_tasks> {
                static_cast<VALUE>(0));
     ruby_finalize();
   }
+
+  void flush(auto& worker) {
+    /* 调用基类的 flush */
+    core::kernel_active<T_tasks>::flush(worker);
+
+    /* 所有的 worker 都共享同一个 stop_source */
+    auto stop_token = worker.get_stop_token();
+
+    /* 收到 stop_token 时抛出异常 */
+    if (stop_token.stop_requested()) {
+      rb_raise(rb_eInterrupt, "Interrupted by another thread.\n");
+    }
+  }
 };
 }  // namespace rgm::base

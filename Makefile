@@ -16,10 +16,11 @@ system := $(shell uname | cut -d'-' -f1)
 path_thirdparty := \
 	./third_party/centurion/src \
 	./third_party/concurrentqueue \
+	./third_party/fiber \
 	./third_party/incbin \
 	./third_party/readerwriterqueue \
-	./third_party/xorstr/include \
-	./third_party/ruby$(RUBY_M_VERSION)/include
+	./third_party/ruby$(RUBY_M_VERSION)/include \
+	./third_party/xorstr/include
 
 path_script := ./src/script
 deps := ./ext/deps.mk
@@ -109,9 +110,9 @@ clibs_static = $(clibs) $(addprefix -l,$(libs_dynamic)) $(addprefix -l,$(libs))
 # -----------------------------------------------
 -include main.d debug.d Game.d Gamew.d
 
-.PHONY : all deps clean publish
+.PHONY : clean publish misc envs headers
 
-all : main.exe
+.DEFAULT_GOAL := main.exe
 
 $(libgch) : ./src/lib/lib.hpp
 	@echo "compile $@"

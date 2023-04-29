@@ -35,7 +35,7 @@ def rgss_main
     begin
       eval script, nil, title
     rescue SignalException
-      puts 'The interrupt signal is catched, program stops safely.'
+      puts 'The quit event is catched, program stops safely.'
       return
     rescue SystemExit
       puts 'The exit() method is catched, program stops safely.'
