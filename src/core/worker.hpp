@@ -82,16 +82,46 @@ struct worker {
   /// 使用智能指针是为了精确控制其生命周期。
   std::unique_ptr<T_data> p_data;
 
-  /// @brief 获取 scheduler 的 stop_token
-  /// @return std::stop_token，所有的 worker 共享同一份 stop_source
-  /// run 函数需要定期检查此变量是否为 stop 状态，如果是就结束 run 函数。
-  static std::stop_token get_stop_token() {
-    return p_scheduler->stop_source.get_token();
+  /// @brief 发送停止信号，在异步多线程模式下还会恢复等待自身的 worker。
+  void stop() {
+    p_scheduler->stop_source.request_stop();
+
+    if constexpr (is_asynchronized) {
+      m_kernel.release_all();
+    }
   }
 
-  /// @brief 停止所有 worker 的运行，结束程序
-  static void stop() {
-    p_scheduler->stop_source.request_stop();
+  /// @brief
+  static bool is_stopped() { return p_scheduler->stop_source.stop_requested(); }
+
+  void fiber_setup() {
+    if constexpr (co_type == cooperation::concurrent && is_active) {
+      auto& fiber_main = p_scheduler->fibers[0];
+      auto& fiber = p_scheduler->fibers.at(co_index + 1);
+
+      fiber.first = fiber_create(fiber_main.first, 0,
+                                 scheduler<>::fiber_run<worker>, this);
+
+      fiber.second = true;
+    }
+  }
+
+  static void fiber_yield() {
+    if constexpr (co_type == cooperation::concurrent && is_active) {
+      auto& fiber_main = p_scheduler->fibers[0];
+
+      fiber_switch(fiber_main.first);
+    }
+  }
+
+  static void fiber_return() {
+    if constexpr (co_type == cooperation::concurrent && is_active) {
+      auto& fiber_main = p_scheduler->fibers[0];
+      auto& fiber = p_scheduler->fibers.at(co_index + 1);
+
+      fiber.second = false;
+      fiber_switch(fiber_main.first);
+    }
   }
 
   /// @brief 根据变量类型，获取 worker 保存的对应数据
@@ -112,22 +142,23 @@ struct worker {
       int size = sizeof(typename T_kernel<T_kernel_tasks>::T_variants);
       cen::log_info(
           "worker %lld's kernel has a queue with block size = %d, "
-          "total %lld tasks and %lld kernel tasks.\n",
+          "total %lld tasks and %lld kernel tasks.",
           co_index, size, std::tuple_size_v<T_tasks>,
           std::tuple_size_v<T_kernel_tasks>);
     }
     p_data = std::make_unique<T_data>();
     traits::for_each<T_tasks>::before(*this);
-    cen::log_info("worker %lld starts running...\n", co_index);
   }
 
   /// @brief worker 执行的第 2 个步骤
   /// 执行核的 run 函数。
   /// 只有主动线程，或者是异步多线程的合作模式才有效，否则什么也不做。
   void run() {
+    cen::log_info("worker %lld starts running...", co_index);
     if constexpr (is_active || is_asynchronized) {
       m_kernel.run(*this);
     }
+    cen::log_info("worker %lld terminated.", co_index);
   }
 
   /// @brief worker 执行的第 3 个步骤
@@ -173,6 +204,8 @@ struct worker {
   /// 4. 目标线程执行 synchronize_signal 的 run 函数，解锁当前线程
   template <size_t id>
   void wait() {
+    if (is_stopped()) return;
+
     if constexpr (is_asynchronized) {
       bool ret = send(synchronize_signal<id>{&(m_kernel.m_pause)});
       if (ret) m_kernel.m_pause.acquire();

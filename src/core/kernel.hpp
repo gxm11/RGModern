@@ -56,8 +56,7 @@ struct kernel {
   /// @param worker 拥有此 kernel 的 worker
   /// worker 将作为入参传递给各个 task 的 run 函数。
   void flush(auto& worker) {
-    /* 所有的 worker 都共享同一个 stop_source */
-    auto stop_token = worker.get_stop_token();
+    worker.fiber_yield();
 
     auto visitor = [&worker]<typename T>(T& item) {
       if constexpr (!std::same_as<std::monostate, T>) {
@@ -66,7 +65,7 @@ struct kernel {
     };
 
     /* 查看 stop_source 的状态，及时退出运行 */
-    while (!stop_token.stop_requested()) {
+    while (!worker.is_stopped()) {
       T_variants item;
       if constexpr (active) {
         /* 主动模式下队列为空就退出循环 */
@@ -75,6 +74,25 @@ struct kernel {
         /* 被动模式下队列为空则阻塞 1ms，然后继续获取任务 */
         m_queue.wait_dequeue_timed(item, std::chrono::milliseconds{1});
       }
+
+      std::visit(visitor, item);
+    }
+
+    worker.fiber_yield();
+  }
+
+  /// @brief 释放队列里全部的信号量，恢复等待自身的 worker。
+  /// 只在异步多线程模式下生效。
+  void release_all() {
+    auto visitor = [](auto&& item) {
+      if constexpr (requires { item.pause->release(); }) {
+        item.pause->release();
+      }
+    };
+
+    while (true) {
+      T_variants item;
+      if (!m_queue.try_dequeue(item)) break;
 
       std::visit(visitor, item);
     }

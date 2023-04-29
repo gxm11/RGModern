@@ -248,7 +248,7 @@ struct init_music {
     struct wrapper {
       /* ruby method: Base#music_get_state -> music_get_state */
       static VALUE music_get_state(VALUE) {
-        int state;
+        int state = 0;
         worker >> base::music_get_state{&state};
         RGMWAIT(2);
         return INT2FIX(state);
@@ -256,7 +256,7 @@ struct init_music {
 
       /* ruby method: Base#music_get_volume -> music_get_volume */
       static VALUE music_get_volume(VALUE) {
-        int volume;
+        int volume = 0;
         worker >> base::music_get_volume{&volume};
         RGMWAIT(2);
         return INT2FIX(volume);
@@ -265,7 +265,7 @@ struct init_music {
       /* ruby method: Base#music_get_position -> music_get_position */
       static VALUE music_get_position(VALUE, VALUE id_) {
         RGMLOAD(id, uint64_t);
-        double position;
+        double position = 0;
         worker >> base::music_get_position{id, &position};
         RGMWAIT(2);
         return DBL2NUM(position);

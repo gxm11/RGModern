@@ -70,4 +70,19 @@ using engine_async_t = core::scheduler<worker_ruby_async, worker_render_async,
                                        worker_audio_async, worker_table_async>;
 
 RGMENGINE(engine_async_t);
+
+/* 协程的 scheduler */
+using worker_ruby_fiber =
+    core::worker<core::flag_co<0>, base::kernel_ruby, tasks_ruby>;
+using worker_render_fiber =
+    core::worker<core::flag_co<1>, core::kernel_passive, tasks_render>;
+using worker_audio_fiber =
+    core::worker<core::flag_co<2>, core::kernel_passive, tasks_audio>;
+using worker_table_fiber =
+    core::worker<core::flag_co<3>, core::kernel_passive, tasks_table>;
+
+using engine_fiber_t = core::scheduler<worker_ruby_fiber, worker_render_fiber,
+                                       worker_audio_fiber, worker_table_fiber>;
+
+RGMENGINE(engine_fiber_t);
 }  // namespace rgm

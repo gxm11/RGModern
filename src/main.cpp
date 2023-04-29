@@ -33,7 +33,8 @@ int main(int argc, char* argv[]) {
   cen::log_info("RGModern starts running...");
   try {
     if (rgm::config::synchronized) {
-      rgm::engine_sync_t engine;
+      // rgm::engine_sync_t engine;
+      rgm::engine_fiber_t engine;
       engine.run();
     } else {
       rgm::engine_async_t engine;

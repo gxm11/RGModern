@@ -39,9 +39,6 @@ BEGIN {
 }
 
 at_exit do
-  RGM::Config::Max_Workers.times do |i|
-    RGM::Base.synchronize(i) if i != 0
-  end
   puts 'exit ruby.'
 end
 

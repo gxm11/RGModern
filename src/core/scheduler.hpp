@@ -41,6 +41,16 @@ struct scheduler<> {
   /// @brief scheduler 中所有的 worker 都共享同一个 stop_source
   /// worker 中保存了 scheduler<>* 的基类指针，从而可以访问到此成员变量。
   std::stop_source stop_source;
+
+  /// @brief 储存所有协程对象 fiber_t 的指针，最前面是 scheduler 的。
+  /// @todo
+  /// {fiber object, is_alive}
+  std::array<std::pair<fiber_t*, bool>, config::max_workers + 1> fibers;
+
+  template <typename T_worker>
+  static void fiber_run(fiber_t* fb) {
+    reinterpret_cast<T_worker*>(fb->userdata)->run();
+  }
 };
 
 /// @brief 可变参数模板类 scheduler 的特化形式，继承自 scheduler<>
@@ -51,7 +61,7 @@ struct scheduler<First, Rest...> : scheduler<> {
   /// @brief scheduler 的合作模式，所有 worker 的合作模式必须相同
   static constexpr cooperation co_type = First::co_type;
 
-  /// @brief 包含了所有 worker 对象的 tuple
+  /// @brief 储存所有 worker 对象的 tuple
   std::tuple<First, Rest...> workers;
 
   /// @brief run 函数是整个 RGModern 程序的入口
@@ -71,6 +81,8 @@ struct scheduler<First, Rest...> : scheduler<> {
     } else if constexpr (co_type == cooperation::exclusive) {
       cen::log_warn("[Kernel] the cooperation type is exclusive.");
       run_exclusive();
+    } else if constexpr (co_type == cooperation::concurrent) {
+      run_concurrent();
     }
   }
 
@@ -98,6 +110,37 @@ struct scheduler<First, Rest...> : scheduler<> {
     std::apply([](auto&... worker) { (worker.before(), ...); }, workers);
     std::apply([](auto&... worker) { (worker.run(), ...); }, workers);
     std::apply([](auto&... worker) { (worker.after(), ...); }, workers);
+  }
+
+  /// @brief 协程单线程的执行内容
+  void run_concurrent() {
+    std::apply([](auto&... worker) { (worker.before(), ...); }, workers);
+    /* fiber */
+    fibers.fill({nullptr, false});
+    fibers[0].first = fiber_create(nullptr, 0, nullptr, nullptr);
+    std::apply([](auto&... worker) { (worker.fiber_setup(), ...); }, workers);
+
+    auto stop_token = this->stop_source.get_token();
+    while (true) {
+      run_concurrent_main();
+      if (stop_token.stop_requested()) {
+        auto it =
+            std::find_if(fibers.begin(), fibers.end(),
+                         [](auto& fiber) -> bool { return fiber.second; });
+        if (it == fibers.end()) break;
+      }
+    }
+
+    std::apply([](auto&... worker) { (worker.after(), ...); }, workers);
+  }
+
+  void run_concurrent_main() {
+    for (size_t i = 1; i < fibers.size(); ++i) {
+      auto& fiber = fibers[i];
+      if (!fiber.first || !fiber.second) continue;
+
+      fiber_switch(fiber.first);
+    }
   }
 
   /// @brief 将某个 task 分配给能接受此 task 的 worker

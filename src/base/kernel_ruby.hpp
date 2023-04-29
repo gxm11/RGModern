@@ -62,24 +62,24 @@ struct kernel_ruby : core::kernel_active<T_tasks> {
 
   /// @brief 重载了基类的 run 函数，实际上解释执行了 load.rb 中的内容
   /// 使用 rb_rescue2 捕获执行中发生的异常
-  void run(auto&) {
+  void run(auto& worker) {
     /* rb_rescue2 的说明参见 include/ruby/backward/cxxanyargs.hpp */
     rb_rescue2(script_run, Qnil, script_rescue, Qnil, rb_eException,
                static_cast<VALUE>(0));
     ruby_finalize();
+    worker.fiber_return();
   }
 
   void flush(auto& worker) {
+    /* worker 已经停止时抛出异常 */
+    if (worker.is_stopped()) {
+      cen::log_warn("ruby stopped.");
+      rb_raise(rb_eInterrupt, "Interrupted by another thread.\n");
+      return;
+    }
+
     /* 调用基类的 flush */
     core::kernel_active<T_tasks>::flush(worker);
-
-    /* 所有的 worker 都共享同一个 stop_source */
-    auto stop_token = worker.get_stop_token();
-
-    /* 收到 stop_token 时抛出异常 */
-    if (stop_token.stop_requested()) {
-      rb_raise(rb_eInterrupt, "Interrupted by another thread.\n");
-    }
   }
 };
 }  // namespace rgm::base
