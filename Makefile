@@ -190,9 +190,10 @@ publish : $(addsuffix .exe,$(targets))
 	@echo "pack $(zip_publish)"
 	@rm -f $(zip_publish)
 	@cp ./src/config.ini ./Project1/
+	@cp ./src/config.ini config.ini
 	@rm -f ./Projec1/error.log
 	@rm -f $(libgch)
-	@$(zip_publish_add) main.exe main_win7.exe SDL2*.dll src Project1
+	@$(zip_publish_add) main.exe main_win7.exe SDL2*.dll config.ini src Project1
 
 misc.7z :
 	wget -q https://7niu.gxmatmars.com/p1/RGModern/misc.7z

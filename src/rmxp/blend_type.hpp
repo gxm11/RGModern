@@ -37,33 +37,33 @@ namespace rgm::rmxp {
 struct blend_type {
   /// @brief 加法叠加
   /// 公式：rgb = s.a * s.rgb + d.rgb, a = d.a
-  inline static cen::blend_mode add;
+  inline static cen::blend_mode add = cen::blend_mode::add;
 
   /// @brief 减法叠加
   /// 公式：rgb = s.a * s.rgb - d.rgb, a = d.a
-  inline static cen::blend_mode sub;
+  inline static cen::blend_mode sub = cen::blend_mode::mul;
 
   /// @brief 反色
   /// 公式：rgb = (1 - d.rgb) * s.rgb, a = d.a
   /// 用于实现减法，s.rgb 始终为 1
-  inline static cen::blend_mode reverse;
+  inline static cen::blend_mode reverse = cen::blend_mode::mod;
 
   /// @brief 透明度修饰
   /// 公式：rgb = d.rgb, a = s.a * d.a
   /// 用于实现 Sprite 的 bush_depth 效果
-  inline static cen::blend_mode alpha;
+  inline static cen::blend_mode alpha = cen::blend_mode::blend;
 
   /// @brief 颜色修饰，alpha 叠加，但是不计算透明度
   /// 公式：rgb = s.a * s.rgb + (1 - s.a) * d.rgb, a = d.a
   /// 用于实现 Sprite 等的 color 效果
-  inline static cen::blend_mode color;
+  inline static cen::blend_mode color = cen::blend_mode::mod;
 
   /// @brief alpha 叠加 2
   /// 公式：rgb = s.rgb + (1 - s.a) * d.rgb，a = s.a + (1 - s.a) * d.a
   /// alpha 叠加公式：rgb = s.a * s.rgb + (1 - s.a) * d.rgb
   /// 与标准的 alpha 叠加相比少计算一次透明度，s.rgb 没有乘以自身的透明度。
   /// 用于绘制 window 的 contents。
-  inline static cen::blend_mode blend2;
+  inline static cen::blend_mode blend2 = cen::blend_mode::blend;
 
   static void setup() {
     /* 加法叠加 */
@@ -125,6 +125,10 @@ struct blend_type {
 /// @brief 定义各种自定义的混合模式
 /// @name task
 struct init_blend_type {
-  static void before(auto&) { blend_type::setup(); }
+  static void before(auto&) {
+    if (config::driver != config::driver_type::software) {
+      blend_type::setup();
+    }
+  }
 };
 }  // namespace rgm::rmxp
