@@ -42,7 +42,7 @@ struct sdl_hint {
       window_flag = static_cast<cen::window::window_flags>(
           static_cast<size_t>(window_flag) |
           static_cast<size_t>(cen::window::window_flags::opengl));
-    }    
+    }
   }
 };
 
