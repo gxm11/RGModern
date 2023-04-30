@@ -134,6 +134,7 @@ void load_data(std::map<std::string, section_t>& data) {
     if (!game_console) {
 #ifdef __WIN32
       FreeConsole();
+      cen::set_priority(cen::log_priority::critical);
 #endif
     }
   }

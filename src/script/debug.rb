@@ -18,12 +18,9 @@
 #    misrepresented as being the original software.
 # 3. This notice may not be removed or altered from any source distribution.
 
-def debug(b, key = Input::DEBUG)
+def debug(b)
   # 使用方法：
-  # 1. debug(binding, nil)，在执行到这一句时进入 debug 模式。
-  # 2. debug(binding, key)，在执行到这一句时，如果 key 按下，则进入 debug 模式。
-  #    key 的默认值是 Input::DEBUG，默认绑定到 F5（见下面）。
-  return if key && !Input.press?(key)
+  # debug(binding)，在执行到这一句时进入 debug 模式。
 
   STDOUT.puts '>>> DEBUG MODE <<<'
   loop do
@@ -46,4 +43,10 @@ def debug(b, key = Input::DEBUG)
   end
 end
 
-def debug(b, key = Input::DEBUG); end if RGM::Config::Build_Mode >= 2
+def debug(b); end if RGM::Config::Build_Mode >= 3 || !$DEBUG
+
+unless RGM::Config::Game_Console
+  def p(*args)
+    msgbox(args.collect(&:to_s).join("\n"))
+  end
+end
