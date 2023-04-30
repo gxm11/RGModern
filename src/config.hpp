@@ -125,18 +125,22 @@ void load_data(std::map<std::string, section_t>& data) {
   /* 设置日志输出的级别 */
   if (build_mode <= 0) {
     cen::set_priority(cen::log_priority::debug);
+    game_console = true;
   } else if (build_mode == 1) {
     cen::set_priority(debug ? cen::log_priority::debug
                             : cen::log_priority::info);
+    game_console = true;
   } else if (build_mode == 2) {
     cen::set_priority(cen::log_priority::warn);
+  } else {
+    game_console = false;
+  }
 
-    if (!game_console) {
+  if (!game_console) {
 #ifdef __WIN32
-      FreeConsole();
-      cen::set_priority(cen::log_priority::critical);
+    FreeConsole();
+    cen::set_priority(cen::log_priority::error);
 #endif
-    }
   }
 }
 
