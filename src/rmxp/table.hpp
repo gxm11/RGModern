@@ -114,8 +114,8 @@ struct table {
   }
 
   /// @brief 返回 table 在堆上的数据指针
-  /// @return 若 table 大小为 0 返回空指针，否则返回堆上的指针
-  int16_t* data_ptr() { return m_data.empty() ? nullptr : &(m_data.front()); }
+  /// @return 返回堆上的指针
+  int16_t* data_ptr() { return &(m_data.front()); }
 };
 
 /// @brief 存储所有 table，即 Table 对象的类
@@ -193,7 +193,7 @@ struct init_table {
 
         tables& data = RGMDATA(tables);
 
-        table& t = data[id];
+        table& t = data.at(id);
         t.resize(x_size, y_size, z_size);
 
         /* 返回堆上指针的值，或者 nil */
@@ -215,12 +215,12 @@ struct init_table {
         RGMLOAD(id, uint64_t);
 
         tables& data = RGMDATA(tables);
-        table& t = data[id];
+        table& t = data.at(id);
 
         int16_t* ptr = reinterpret_cast<int16_t*>(RSTRING_PTR(string_));
         int* ptr_int = reinterpret_cast<int*>(RSTRING_PTR(string_));
         t.resize(ptr_int[1], ptr_int[2], ptr_int[3]);
-        memcpy(t.data_ptr(), ptr + 10, t.size() * sizeof(uint16_t));
+        memcpy(t.data_ptr(), ptr + 10, t.size() * sizeof(int16_t));
         return Qnil;
       }
 
@@ -229,9 +229,9 @@ struct init_table {
         RGMLOAD(id, uint64_t);
 
         tables& data = RGMDATA(tables);
-        table& t = data[id];
+        table& t = data.at(id);
         VALUE str = rb_str_new(reinterpret_cast<const char*>(t.data_ptr()),
-                               t.size() * sizeof(uint16_t));
+                               t.size() * sizeof(int16_t));
         return str;
       }
     };
