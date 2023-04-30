@@ -321,7 +321,7 @@ struct bitmap_shader_helper {
     /* 将 empty 绘制到 Bitmap 上，并启用 shader_hue */
     renderer.set_target(bitmap);
 
-    if (config::driver == config::driver_type::opengl) {
+    if (config::opengl) {
       /*
        * 如果不添加 GL_bind 和 unbind，对画面绘制没有影响，
        * 但在 hue_change 后立刻 save_png 会出现问题。

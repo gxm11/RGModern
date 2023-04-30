@@ -83,7 +83,7 @@ struct render_tone_helper {
     /* 减法的处理 */
     if (auto c_sub = t.color_sub(); c_sub) {
       /* OpenGL 需要使用加法和反色实现减法 */
-      if (config::driver == config::driver_type::opengl) {
+      if (config::opengl) {
         /* 第 1 步：反色 */
         renderer.set_blend_mode(blend_type::reverse);
         renderer.fill_with(cen::colors::white);

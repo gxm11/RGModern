@@ -38,7 +38,7 @@ struct sdl_hint {
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 
     /* 对于 opengl 渲染器，需要给 window_flags 添加 opengl 项 */
-    if (config::driver == config::driver_type::opengl) {
+    if (config::opengl) {
       window_flag = static_cast<cen::window::window_flags>(
           static_cast<size_t>(window_flag) |
           static_cast<size_t>(cen::window::window_flags::opengl));
