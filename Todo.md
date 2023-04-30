@@ -161,4 +161,4 @@ return data[index];
 - [x] 尝试解决 opengl 的 tilemap 的 bug
 - [x] 引入协程
 - [x] misc.7z打包时带上dll
-- [ ] 多线程存档导致崩溃
+- [ ] 多线程存档导致崩溃，触发方式多切换几次菜单或者场景，然后存档就会在存储$game_map时崩溃。怀疑是跟table的存储有关。可以先试一下移除pmr，看看是不是pmr的bug，因为pmr对效率的提升不明显。单线程（包括协程模式）没有此问题。或者试着多save几次$game_map。

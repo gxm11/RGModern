@@ -68,12 +68,10 @@ class Table
   end
 
   def []=(x, y = 0, z = 0, value)
-    if invalid?(x, y, z)
-      raise 'Invalid element index of table'
-    else
-      index = x + @xsize * (y + @ysize * z)
-      RGM::Base.table_set(@data_ptr, index, value)
-    end
+    raise 'Invalid element index of table' if invalid?(x, y, z)
+
+    index = x + @xsize * (y + @ysize * z)
+    RGM::Base.table_set(@data_ptr, index, value)
   end
 
   def inspect

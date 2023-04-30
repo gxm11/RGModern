@@ -54,7 +54,7 @@ struct bitmap_create<1> {
   std::string_view path;
 
   void run(auto& worker) {
-    cen::log_info("[Bitmap] id = %lld, is created from %s", id, path.data());
+    cen::log_debug("[Bitmap] id = %lld, is created from %s", id, path.data());
 
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
     base::renderstack& stack = RGMDATA(base::renderstack);
@@ -124,7 +124,7 @@ struct bitmap_create<3> {
   std::string_view path;
 
   void run(auto& worker) {
-    cen::log_info("[Bitmap] id = %lld, is created from %s%s", id,
+    cen::log_debug("[Bitmap] id = %lld, is created from %s%s", id,
                   config::resource_prefix.data(), path.data());
 
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
@@ -587,7 +587,7 @@ struct bitmap_capture_screen {
   uint64_t id;
 
   void run(auto& worker) {
-    cen::log_info("[Bitmap] id = %lld, is created from screen capturing", id);
+    cen::log_debug("[Bitmap] id = %lld, is created from screen capturing", id);
 
     base::renderstack& stack = RGMDATA(base::renderstack);
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
