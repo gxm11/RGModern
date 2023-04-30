@@ -245,36 +245,16 @@ struct viewport : drawable_object<viewport> {
 /// 有效：rect，ox，oy
 viewport default_viewport;
 
-/// @brief 存储所有 Drawable 的 map，并用 std::pmr 管理内存
+/// @brief 存储所有 Drawable 的 map
 /// @name data
 /// Drawables 是有序的，索引是 z_index
 struct drawables {
-  /// @brief 作为内存池的 vector
-  /// 默认对每个 drawables 分配 1M 资源。
-  std::vector<char> vector;
-
-  /// @brief 封装 vector 为上游资源池。
-  /// std::pmr::monotonic_buffer_resource 没有移动构造函数，
-  /// 无法放入 std::tuple 中，故使用 unique_ptr 管理。
-  std::unique_ptr<std::pmr::monotonic_buffer_resource> buffer_resource;
-
-  /// @brief 线程不安全的资源池，其上游是 buffer。
-  /// std::pmr::unsynchronized_pool_resource 没有移动构造函数，
-  /// 无法放入 std::tuple 中，故使用 unique_ptr 管理。
-  std::unique_ptr<std::pmr::unsynchronized_pool_resource> pool_resource;
-
   /// @brief 存储 drawable 的 map
   /// 所有的 drawable 按照 z_index 有序排列。
-  std::pmr::map<z_index, drawable> m_data;
+  std::map<z_index, drawable> m_data;
 
   /// @brief 构造函数，初始化资源池和 map
-  explicit drawables()
-      : vector(1024 * 1024),
-        buffer_resource(std::make_unique<std::pmr::monotonic_buffer_resource>(
-            vector.data(), vector.size())),
-        pool_resource(std::make_unique<std::pmr::unsynchronized_pool_resource>(
-            std::pmr::pool_options(256, 256), buffer_resource.get())),
-        m_data(pool_resource.get()) {}
+  explicit drawables() : m_data() {}
 
   /// @brief 设置某个 drawable 的新 z 值。
   /// 需要从 map 中取出再放回。
