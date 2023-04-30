@@ -126,6 +126,7 @@ void load_data(std::map<std::string, section_t>& data) {
   if (build_mode <= 0) {
     cen::set_priority(cen::log_priority::debug);
     game_console = true;
+    debug = true;
   } else if (build_mode == 1) {
     cen::set_priority(debug ? cen::log_priority::debug
                             : cen::log_priority::info);
@@ -134,6 +135,7 @@ void load_data(std::map<std::string, section_t>& data) {
     cen::set_priority(cen::log_priority::warn);
   } else {
     game_console = false;
+    debug = false;
   }
 
   if (!game_console) {
@@ -149,7 +151,7 @@ void load_data(std::map<std::string, section_t>& data) {
 /// @param argv 命令行参数 ARGV
 /// @return false 表示不启动游戏引擎，直接退出，true 表示正常运行
 bool load_args(int argc, char* argv[]) {
-  if (argc == 2 && strncmp(argv[1], "-v", 2) == 0) {
+  if (argc == 2 && std::string_view("-v") == argv[1]) {
     /* 显示版本信息 */
     printf("RGM %s [BuildMode = %d]\n\n", RGM_FULLVERSION, RGM_BUILDMODE);
     printf(
@@ -161,26 +163,32 @@ bool load_args(int argc, char* argv[]) {
     printf("Libraries:\n - ");
     ruby_show_version();
 #define GETVERSION(x) \
-  SDL_##x##_MAJOR_VERSION, SDL_##x##_MINOR_VERSION, SDL_##x##_PATCHLEVEL
+  x##_MAJOR_VERSION, x##_MINOR_VERSION, x##_PATCHLEVEL
     printf(" - SDL %d.%d.%d\n", SDL_MAJOR_VERSION, SDL_MINOR_VERSION,
            SDL_PATCHLEVEL);
-    printf(" - SDL Image %d.%d.%d\n", GETVERSION(IMAGE));
-    printf(" - SDL TTF %d.%d.%d\n", GETVERSION(TTF));
-    printf(" - SDL Mixer %d.%d.%d\n", GETVERSION(MIXER));
+    printf(" - SDL Image %d.%d.%d\n", GETVERSION(SDL_IMAGE));
+    printf(" - SDL TTF %d.%d.%d\n", GETVERSION(SDL_TTF));
+    printf(" - SDL Mixer %d.%d.%d\n", GETVERSION(SDL_MIXER));
 #undef GETVERSION
     printf(
         " - centurion, concurrentqueue, incbin, xorstr, libzip, "
-        "etc.\n");
+        "paladin-t/fiber, etc.\n");
     return false;
   }
 
   /* 读取命令行参数并设置相应的全局变量 */
   for (int i = 0; i < argc; ++i) {
-    if (strncmp(argv[i], "btest", 6) == 0) {
+    if (std::string_view("btest") == argv[i]) {
       rgm::config::btest = true;
     }
-    if (strncmp(argv[i], "debug", 6) == 0) {
+    if (std::string_view("debug") == argv[i]) {
       rgm::config::debug = true;
+    }
+    if (std::string_view("test") == argv[i]) {
+      rgm::config::debug = true;
+    }
+    if (std::string_view("console") == argv[i]) {
+      rgm::config::game_console = true;
     }
   }
   return true;
