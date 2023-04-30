@@ -161,3 +161,4 @@ return data[index];
 - [x] 尝试解决 opengl 的 tilemap 的 bug
 - [x] 引入协程
 - [x] misc.7z打包时带上dll
+- [ ] 多线程存档导致崩溃

@@ -122,7 +122,9 @@ void load_data(std::map<std::string, section_t>& data) {
   if (driver_name == "opengl") driver = driver_type::opengl;
   if (driver_name == "direct3d9") driver = driver_type::direct3d9;
   if (driver_name == "direct3d11") driver = driver_type::direct3d11;
+  
   opengl = (driver == driver_type::opengl);
+
   /* 设置日志输出的级别 */
   if (build_mode <= 0) {
     cen::set_priority(cen::log_priority::debug);

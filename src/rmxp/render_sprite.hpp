@@ -57,8 +57,7 @@ struct render<sprite> {
         break;
     }
     /* 判断是否为 opengl 渲染，且混合模式是减法 */
-    const bool opengl_sub =
-        (s->blend_type == 2) && (config::opengl);
+    const bool opengl_sub = (s->blend_type == 2) && (config::opengl);
 
     if (opengl_sub) {
       /* OpenGL 需要使用加法和反色实现减法 */
@@ -142,20 +141,23 @@ struct render<sprite> {
     int target_width = v->rect.width;
     int target_height = v->rect.height;
 
+    /* 判断不再绘制的阈值 */
+    constexpr int d = 8;
+
     if (s->angle == 0.0) {
-      if (dst_rect.x() + dst_rect.width() < 0) return;
-      if (dst_rect.y() + dst_rect.height() < 0) return;
-      if (dst_rect.x() > target_width) return;
-      if (dst_rect.y() > target_height) return;
+      if (dst_rect.x() + dst_rect.width() < -d) return;
+      if (dst_rect.y() + dst_rect.height() < -d) return;
+      if (dst_rect.x() > target_width + d) return;
+      if (dst_rect.y() > target_height + d) return;
     } else {
       int dx = std::max(std::abs(s->ox), std::abs(width - s->ox)) * s->zoom_x;
       int dy = std::max(std::abs(s->oy), std::abs(height - s->oy)) * s->zoom_y;
       float radius = std::sqrt(dx * dx + dy * dy);
 
-      if (dst_rect.x() + radius < 0) return;
-      if (dst_rect.y() + radius < 0) return;
-      if (dst_rect.x() - radius > target_width) return;
-      if (dst_rect.y() - radius > target_height) return;
+      if (dst_rect.x() + radius < -d) return;
+      if (dst_rect.y() + radius < -d) return;
+      if (dst_rect.x() - radius > target_width + d) return;
+      if (dst_rect.y() - radius > target_height + d) return;
     }
 
     /* 读取 sprite 的各个属性 */

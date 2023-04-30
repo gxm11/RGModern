@@ -252,6 +252,19 @@ struct render<overlayer<tilemap>> {
     int width = p_viewport->rect.width;
     int height = p_viewport->rect.height;
 
+    /* z > 0 的层处理相对简单，直接绘制到 viewport 上 */
+    if (layer_index > 0) {
+      /* 创建 render_tilemap_helper 对象辅助绘制 */
+      render_tilemap_helper helper(t, p_tables, info, layer_index);
+
+      cen::texture& tileset = textures.at(t->tileset);
+      auto render = helper.make_render_proc(renderer, tileset);
+
+      /* 逐个绘制图块 */
+      helper.iterate_tiles(render);
+      return;
+    }
+
     /* 添加一个中间层 */
     stack.push_empty_layer(width, height);
 
@@ -265,7 +278,7 @@ struct render<overlayer<tilemap>> {
     helper.iterate_tiles(render);
 
     /* 处理闪烁的效果 */
-    if (layer_index == 0 && t->flash_data) {
+    if (t->flash_data) {
       renderer.set_blend_mode(blend_type::add);
 
       const table& flash = p_tables->at(t->flash_data);
