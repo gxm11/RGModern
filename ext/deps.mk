@@ -43,10 +43,10 @@ pkgs_msys2 += bison libffi gmp upx p7zip vim unzip
 # -----------------------------------------------
 # miscs
 # -----------------------------------------------
-miscs = history resource 
+miscs = history resource SDL2*.dll
 miscs += third_party/ruby$(RUBY_M_VERSION) Doxyfile
 miscs += Project1/Audio Project1/Graphics Project1/Graphics.zip
-miscs += Project1/RGSS103J.dll Project1/RGSS104E.dll Project1/RPGXP.chm Project1/RPGXP.chw 
+miscs += Project1/*.dll Project1/RPGXP.chm Project1/RPGXP.chw 
 
 # -----------------------------------------------
 # tasks

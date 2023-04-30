@@ -239,9 +239,21 @@ struct render<overlayer<tilemap>> {
   void run(auto& worker) {
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
     base::textures& textures = RGMDATA(base::textures);
+    base::renderstack& stack = RGMDATA(base::renderstack);
 
     /* 获取 tilemap 的数据 */
     const tilemap* t = info->p_tilemap;
+
+    /* 获取 viewport，如果不存在则使用 default_viewport */
+    const viewport* p_viewport =
+        t->p_viewport ? t->p_viewport : &default_viewport;
+
+    /* 获取 viewport 的长宽，tilemap 会平铺此 viewport */
+    int width = p_viewport->rect.width;
+    int height = p_viewport->rect.height;
+
+    /* 添加一个中间层 */
+    stack.push_empty_layer(width, height);
 
     /* 创建 render_tilemap_helper 对象辅助绘制 */
     render_tilemap_helper helper(t, p_tables, info, layer_index);
@@ -282,6 +294,25 @@ struct render<overlayer<tilemap>> {
 
       helper.iterate_tiles(render);
     }
+
+    auto process = [&, this](auto& up, auto& down) {
+      cen::irect rect(0, 0, width, height);
+
+      /* 设置绘制目标和区域 */
+      renderer.set_target(down);
+      renderer.set_clip(rect);
+
+      /* 设置透明度 */
+      up.set_alpha_mod(255);
+
+      /* 设置混合模式 */
+      up.set_blend_mode(cen::blend_mode::blend);
+
+      renderer.render(up, rect, rect);
+    };
+
+    /* 将中间层出栈，内容绘制到新的栈顶 */
+    stack.merge(process);
   }
 };
 }  // namespace rgm::rmxp

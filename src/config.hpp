@@ -162,8 +162,7 @@ bool load_args(int argc, char* argv[]) {
     printf("Compiler: %s\n\n", CC_VERSION);
     printf("Libraries:\n - ");
     ruby_show_version();
-#define GETVERSION(x) \
-  x##_MAJOR_VERSION, x##_MINOR_VERSION, x##_PATCHLEVEL
+#define GETVERSION(x) x##_MAJOR_VERSION, x##_MINOR_VERSION, x##_PATCHLEVEL
     printf(" - SDL %d.%d.%d\n", SDL_MAJOR_VERSION, SDL_MINOR_VERSION,
            SDL_PATCHLEVEL);
     printf(" - SDL Image %d.%d.%d\n", GETVERSION(SDL_IMAGE));

@@ -23,7 +23,7 @@
 #include "detail.hpp"
 
 #ifdef RGM_EMBEDED_ZIP
-INCBIN(zip, RGM_EMBEDED_ZIP);
+INCBIN(zip, "embeded.zip");
 
 namespace rgm::base {
 /// @brief 管理内嵌在 exe 中的资源文件类
@@ -89,7 +89,8 @@ struct init_embeded {
 
         auto buf = z.load_string(path);
         if (!buf) {
-          rb_raise(rb_eArgError, "Cannot find embeded script `%s'.\n", path.data());
+          rb_raise(rb_eArgError, "Cannot find embeded script `%s'.\n",
+                   path.data());
           return Qnil;
         }
 

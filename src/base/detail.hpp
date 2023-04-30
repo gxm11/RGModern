@@ -173,11 +173,14 @@ struct detail_ext : detail {
   /* 继承了基类 detail 的 from_ruby 函数 */
   using detail::from_ruby;
 
-  /* 继承了基类 detail 的 get 函数 */
-  using detail::get;
-
   /* 静态成员变量 id_table，缓存 ruby 中各 Symbol 的 ID 提升查找效率。*/
   inline static std::vector<ID> id_table = {};
+
+  /// @brief 复制了基类 detail 的 get 函数
+  template <typename T>
+  static T get(VALUE object) {
+    return from_ruby<T>(object);
+  }
 
   /// @brief 获取 ruby 对象中名称为 w 的实例变量。
   /// @tparam w 枚举值，其名称与实例变量的名称相同，如 id, color

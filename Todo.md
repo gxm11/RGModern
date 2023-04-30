@@ -158,5 +158,6 @@ return data[index];
   2. 清空 finder 的缓存
   3. reload 资源
 - [x] 对 win7 的支持
-- [ ] 尝试解决 opengl 的 tilemap 的 bug
+- [x] 尝试解决 opengl 的 tilemap 的 bug
 - [x] 引入协程
+- [x] misc.7z打包时带上dll
