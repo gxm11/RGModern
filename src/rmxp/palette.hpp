@@ -54,15 +54,15 @@ struct init_palette {
                 path.substr(config::resource_prefix.size());
 
             /* 从外部资源包中读取图片 */
-            cen::log_info("[Palette] id = %lld, is created from %s%s", id,
-                          config::resource_prefix.data(), path2);
+            cen::log_debug("[Palette] id = %lld, is created from %s%s", id,
+                           config::resource_prefix.data(), path2);
 
             ext::zip_data_external& z = RGMDATA(ext::zip_data_external);
             SDL_Surface* ptr2 = z.load_surface(path2);
             ptr = std::make_unique<cen::surface>(ptr2);
           } else {
-            cen::log_info("[Palette] id = %lld, is created from %s", id,
-                          path.data());
+            cen::log_debug("[Palette] id = %lld, is created from %s", id,
+                           path.data());
 
             ptr = std::make_unique<cen::surface>(path.data());
           }
