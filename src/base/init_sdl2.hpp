@@ -108,6 +108,22 @@ struct cen_library {
         renderer(window.make_renderer()),
         event_dispatcher(),
         scale_mode(0) {
+    /* 设置日志输出的级别 */
+    if (config::build_mode <= 0) {
+      cen::set_priority(cen::log_priority::debug);
+    } else if (config::build_mode == 1) {
+      cen::set_priority(config::debug ? cen::log_priority::debug
+                                      : cen::log_priority::info);
+    } else if (config::build_mode == 2) {
+      cen::set_priority(cen::log_priority::warn);
+    }
+
+    if (!config::game_console) {
+#ifdef __WIN32
+      cen::set_priority(cen::log_priority::error);
+#endif
+    }
+
     /* 绘制透明的初始画面 */
     renderer.reset_target();
     renderer.clear_with(cen::colors::transparent);

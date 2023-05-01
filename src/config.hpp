@@ -122,20 +122,16 @@ void load_data(std::map<std::string, section_t>& data) {
   if (driver_name == "opengl") driver = driver_type::opengl;
   if (driver_name == "direct3d9") driver = driver_type::direct3d9;
   if (driver_name == "direct3d11") driver = driver_type::direct3d11;
-  
+
   opengl = (driver == driver_type::opengl);
 
-  /* 设置日志输出的级别 */
+  /* 根据 build_mode 强制覆盖一些参数 */
   if (build_mode <= 0) {
-    cen::set_priority(cen::log_priority::debug);
     game_console = true;
     debug = true;
   } else if (build_mode == 1) {
-    cen::set_priority(debug ? cen::log_priority::debug
-                            : cen::log_priority::info);
     game_console = true;
   } else if (build_mode == 2) {
-    cen::set_priority(cen::log_priority::warn);
   } else {
     game_console = false;
     debug = false;
@@ -144,7 +140,6 @@ void load_data(std::map<std::string, section_t>& data) {
   if (!game_console) {
 #ifdef __WIN32
     FreeConsole();
-    cen::set_priority(cen::log_priority::error);
 #endif
   }
 }
