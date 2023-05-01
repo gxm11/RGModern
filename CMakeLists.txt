@@ -105,6 +105,7 @@ set(CONCURRENTQUEUE_INCLUDE_DIRS "./third_party/concurrentqueue")
 set(INCBIN_INCLUDE_DIRS "./third_party/incbin")
 set(READERWRITERQUEUE_INCLUDE_DIRS "./third_party/readerwriterqueue")
 set(XORSTR_INCLUDE_DIRS "./third_party/xorstr/include")
+set(FIBER_INCLUDE_DIRS "./third_party/fiber")
 # INCLUDE
 target_include_directories(Game PRIVATE
     ${SRC_DIR}
@@ -121,6 +122,7 @@ target_include_directories(Game PRIVATE
     ${INCBIN_INCLUDE_DIRS}
     ${READERWRITERQUEUE_INCLUDE_DIRS}
     ${XORSTR_INCLUDE_DIRS}
+    ${FIBER_INCLUDE_DIRS}
 )
 # LIB
 target_link_libraries(Game
