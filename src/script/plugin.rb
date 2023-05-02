@@ -17,18 +17,3 @@
 # 2. Altered source versions must be plainly marked as such, and must not be
 #    misrepresented as being the original software.
 # 3. This notice may not be removed or altered from any source distribution.
-module Input
-  module_function
-
-  @@bcount = 0
-
-  def trigger?(key)
-    if key == Input::B && ($scene.is_a?(Scene_Map) || $scene.is_a?(Scene_Menu))
-      @@bcount += 1
-      return true if @@bcount % 5 == 0
-    end
-
-    key = const_get(key) if key.is_a?(Symbol)
-    RGM::Base.input_trigger(key)
-  end
-end

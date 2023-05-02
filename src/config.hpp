@@ -132,6 +132,7 @@ void load_data(std::map<std::string, section_t>& data) {
     cen::set_priority(debug ? cen::log_priority::debug
                             : cen::log_priority::info);
   } else if (build_mode == 2) {
+    cen::set_priority(cen::log_priority::warn);
   } else {
     cen::set_priority(cen::log_priority::critical);
     debug = false;
