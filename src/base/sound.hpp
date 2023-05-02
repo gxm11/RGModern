@@ -32,7 +32,6 @@ using sounds = std::unordered_map<uint64_t, cen::sound_effect>;
 using sound_speeds = std::array<float, 32>;
 
 /// @brief 创建 RGM::Sound 对象对应的 C++ 对象
-/// @name task
 struct sound_create {
   using data = std::tuple<sounds>;
   /// @brief 音效对象的 id，在 sounds 中作为键使用
@@ -48,7 +47,6 @@ struct sound_create {
 };
 
 /// @brief 释放 RGM::Music 对象对应的 C++ 对象
-/// @name task
 struct sound_dispose {
   /// @brief 音效对象的 id，在 sounds 中作为键使用
   uint64_t id;
@@ -60,7 +58,6 @@ struct sound_dispose {
 };
 
 /// @brief 播放音效
-/// @name task
 struct sound_play {
   /// @brief 音效对象的 id，在 sounds 中作为键使用
   uint64_t id;
@@ -75,7 +72,6 @@ struct sound_play {
 };
 
 /// @brief 停止音效
-/// @name task
 struct sound_stop {
   /// @brief 音效对象的 id，在 sounds 中作为键使用
   uint64_t id;
@@ -87,7 +83,6 @@ struct sound_stop {
 };
 
 /// @brief 淡入音效
-/// @name task
 struct sound_fade_in {
   /// @brief 音效对象的 id，在 sounds 中作为键使用
   uint64_t id;
@@ -102,7 +97,6 @@ struct sound_fade_in {
 };
 
 /// @brief 淡出音效
-/// @name task
 struct sound_fade_out {
   /// @brief 音效对象的 id，在 sounds 中作为键使用
   uint64_t id;
@@ -117,7 +111,6 @@ struct sound_fade_out {
 };
 
 /// @brief 设置音效的音量大小
-/// @name task
 struct sound_set_volume {
   /// @brief 音效对象的 id，在 sounds 中作为键使用
   uint64_t id;
@@ -132,7 +125,6 @@ struct sound_set_volume {
 };
 
 /// @brief 设置音效的频率高低
-/// @name task
 struct sound_set_pitch {
   using data = std::tuple<sound_speeds>;
 
@@ -159,7 +151,6 @@ struct sound_set_pitch {
 };
 
 /// @brief 获取音效的播放状态
-/// @name task
 /// 每一个比特位代表了不同的状态：
 /// 1 -> is_playing
 /// 2 -> is_fading
@@ -179,7 +170,6 @@ struct sound_get_state {
 };
 
 /// @brief 获取音效所属的通道
-/// @name task
 struct sound_get_channel {
   /// @brief 音效对象的 id，在 sounds 中作为键使用
   uint64_t id;
@@ -194,7 +184,6 @@ struct sound_get_channel {
 };
 
 /// @brief 音效播放相关的初始化类
-/// @name task
 struct init_sound {
   static void before(auto& this_worker) {
     /* 静态的 worker 变量供函数的内部类 wrapper 使用 */

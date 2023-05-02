@@ -28,7 +28,6 @@ namespace rgm::base {
 core::stopwatch render_timer("render");
 
 /// @brief 重新设置绘制屏幕的大小
-/// @name task
 /// 屏幕上的内容会被缩放到窗口上，然后再经过一次全屏的缩放展示给玩家
 struct resize_screen {
   /// @brief 屏幕的宽
@@ -57,7 +56,6 @@ struct resize_screen {
 };
 
 /// @brief 重新设置窗口的大小
-/// @name task
 struct resize_window {
   /// @brief 窗口的宽
   int width;
@@ -93,7 +91,6 @@ struct resize_window {
 };
 
 /// @brief 渲染之前的处理，清空 renderstack 栈底 texture 的内容
-/// @name task
 struct clear_screen {
   void run(auto& worker) {
     cen::renderer& renderer = RGMDATA(cen_library).renderer;
@@ -119,7 +116,6 @@ struct clear_screen {
 };
 
 /// @brief 渲染结束的处理，将渲染栈的栈底绘制到窗口上
-/// @name task
 /// 垂直同步默认开启，此任务会等待垂直同步信号
 struct present_window {
   void run(auto& worker) {
@@ -179,7 +175,6 @@ struct present_window {
 };
 
 /// @brief 窗口、画面相关的初始化类
-/// @name task
 struct init_render {
   static void before(auto& worker) {
     VALUE rb_mRGM = rb_define_module("RGM");

@@ -24,7 +24,6 @@
 
 namespace rgm::ext {
 /// @brief 异步任务的范例
-/// @name task
 /// @see ./src/ext/ruby_wrapper.hpp
 /// 此类需配合宏 RGMBIND2 使用。
 /// 这不是一个正常的 task，它的 run 函数有第二个参数 std::string& 是回调
@@ -37,7 +36,6 @@ struct ping {
 };
 
 /// @brief ping 的初始化类，绑定相应的 ruby 函数
-/// @name task
 struct init_ping {
   static void before(auto& worker) {
     VALUE rb_mRGM = rb_define_module("RGM");

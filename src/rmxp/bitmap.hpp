@@ -35,7 +35,6 @@ namespace rgm::rmxp {
 
 /// @brief 创建 Bitmap 的任务，有多种不同的特化方式。
 /// @tparam size_t 创建方式
-/// @name task
 /// @see ./src/base/textures.hpp
 /// 所有的纹理对象保存在 base::textures 中。
 /// 对应于 RGSS 中的 Bitmap#initialize
@@ -44,7 +43,6 @@ struct bitmap_create;
 
 /// @brief 读取文件并创建 Bitmap 对象。
 /// @tparam size_t=1 第 1 种特化
-/// @name task
 template <>
 struct bitmap_create<1> {
   /// @brief Bitmap 的 ID
@@ -83,7 +81,6 @@ struct bitmap_create<1> {
 
 /// @brief 创建固定大小的 Bitmap 对象
 /// @tparam size_t=2 第 2 种特化
-/// @name task
 template <>
 struct bitmap_create<2> {
   /// @brief Bitmap 的 ID
@@ -114,7 +111,6 @@ struct bitmap_create<2> {
 
 /// @brief 从外部资源包中读取文件并创建 Bitmap 对象
 /// @tparam size_t=3 第 3 种特化
-/// @name task
 template <>
 struct bitmap_create<3> {
   /// @brief Bitmap 的 ID
@@ -154,7 +150,6 @@ struct bitmap_create<3> {
 };
 
 /// @brief 释放指定 ID 的 Bitmap
-/// @name task
 /// 对应于 RGSS 中的 Bitmap#dispose
 struct bitmap_dispose {
   /// @brief Bitmap 的 ID
@@ -174,7 +169,6 @@ struct bitmap_dispose {
 };
 
 /// @brief 将一个 Bitmap 绘制到另一个 Bitmap 上
-/// @name task
 /// 对应于 RGSS 中的 Bitmap#blt
 struct bitmap_blt {
   /// @brief 从源上截取的部分区域，作为绘制内容
@@ -219,7 +213,6 @@ struct bitmap_blt {
 };
 
 /// @brief 将一个 Bitmap 带缩放地绘制到另一个 Bitmap 上
-/// @name task
 /// 对应于 RGSS 中的 Bitmap#stretch_blt
 struct bitmap_stretch_blt {
   /// @brief 绘制的目标区域
@@ -260,7 +253,6 @@ struct bitmap_stretch_blt {
 };
 
 /// @brief 将 Bitmap 中的矩形区域填充特定的颜色
-/// @name task
 /// 填充的颜色会无视透明度等限制，相当于直接改像素值。
 /// 对应于 RGSS 中的 Bitmap#fill_rect
 struct bitmap_fill_rect {
@@ -294,7 +286,6 @@ struct bitmap_fill_rect {
 /// @brief bitmap_shader_helper
 /// @tparam shader 的类型，目前有 shader_gray / shader_hue 两种可用
 /// @tparam ...Args shader 的构造函数所需的参数类型
-/// @name meta
 /// 此模板任务会调用 T_shader 修改 Bitmap 中所有的像素。
 /// 使用方法见 bitmap_hue_change 和 bitmap_grayscale。
 /// 此模板任务不在 Graphics.update 中被自动调用，而是立即生效。
@@ -346,7 +337,6 @@ struct bitmap_shader_helper {
 };
 
 /// @brief 修改 Bitmap 的色相
-/// @name task
 /// 此任务会调用 shader_hue 修改 Bitmap 中所有的像素。
 /// 对应于 RGSS 中的 Bitmap#hue_change
 /// @see bitmap_shader_helper
@@ -365,7 +355,6 @@ struct bitmap_hue_change {
 };
 
 /// @brief 将 Bitmap 变成灰度图
-/// @name task
 /// 此任务会调用 shader_grayscale 修改 Bitmap 中所有的像素。
 /// 对应于 RGSS 中的 Bitmap#grayscale
 /// @see bitmap_shader_helper
@@ -378,7 +367,6 @@ struct bitmap_grayscale {
 };
 
 /// @brief 在 Bitmap 上绘制文字
-/// @name task
 /// 对应于 RGSS 中的 Bitmap#draw_text，但多了 3 个新特效：
 /// 1. underlined，下划线
 /// 2. strikethrough，删除线
@@ -498,7 +486,6 @@ struct bitmap_draw_text {
 };
 
 /// @brief 获取指定位置的像素值
-/// @name task
 /// 对应于 RGSS 中的 Bitmap#get_pixel，这是一个同步函数。
 /// 这个方法通常会非常慢，不建议经常使用，请使用 Palette 类替代
 /// 目前 opengl 和 direct3d9 测试通过，但 d3d11 仍然存在问题。
@@ -535,7 +522,6 @@ struct bitmap_get_pixel {
 };
 
 /// @brief 将 Bitmap 保存到文件
-/// @name task
 /// RGSS 中没有对应的函数。此方法可能会比较慢，不建议经常使用。
 struct bitmap_save_png {
   /// @brief Bitmap 的 ID
@@ -578,7 +564,6 @@ struct bitmap_save_png {
 };
 
 /// @brief 将当前屏幕的内容绘制到此 Bitmap 上
-/// @name task
 /// RGSS 中没有对应的函数。
 /// 此方法用来实现截屏。实际上绘制的是上一帧的内容。这符合 RGSS 的设计。
 /// RGSS 中只在 Graphics.update 的时候画面才会变化，所以截屏始终是上一帧。
@@ -617,7 +602,6 @@ struct bitmap_capture_screen {
 };
 
 /// @brief 将一个调色盘对象（Palette）的内容绘制到 Bitmap 的左上角
-/// @name task
 /// RGSS 中没有对应的函数。此函数在 Palette#convert_to_bitmap 中使用。
 struct bitmap_capture_palette {
   /// @brief Bitmap 的 ID
@@ -644,7 +628,6 @@ struct bitmap_capture_palette {
 };
 
 /// @brief 根据原始的 Bitmap，展开自动元件图形为新的 Bitmap
-/// @name task
 /// 新的 Bitmap 会放置到 id + 1 的位置存储。
 /// 新的 Bitmap 的创建是在Graphics.update中，tilemap << VALUE 时触发的。
 /// @see ./src/rmxp/graphics.hpp
@@ -751,7 +734,6 @@ struct bitmap_make_autotile {
 };
 
 /// @brief 重新加载自动元件
-/// @name task
 /// RGSS 中没有对应的函数。在 RPG::Cache.reload 中使用，
 /// 重新加载 Bitmap 后，相应的自动元件也要重新绘制。
 struct bitmap_reload_autotile {

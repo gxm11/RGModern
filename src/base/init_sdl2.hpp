@@ -47,7 +47,6 @@ struct sdl_hint {
 };
 
 /// @brief 封装了 SDL2 的数据的类
-/// @name data
 /// 此类还会利用 RAII 机制管理 SDL2 初始化和退出
 struct cen_library {
   /// @brief SDL 库
@@ -133,7 +132,6 @@ struct cen_library {
 };
 
 /// @brief 任务：处理 SDL 事件
-/// @name task
 struct poll_event {
   void run(auto& worker) {
     /* 处理当前堆积的窗口事件 */
@@ -159,7 +157,6 @@ struct poll_event {
 };
 
 /// @brief 数据类 cen_library 相关的初始化类
-/// @name task
 struct init_sdl2 {
   using data = std::tuple<cen_library>;
 

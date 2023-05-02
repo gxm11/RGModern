@@ -24,7 +24,6 @@
 
 namespace rgm::rmxp {
 /// @brief 记录键盘按键与 RGSS 中虚拟按键的映射关系
-/// @name data
 /// 同一个键盘按键可以对应多个虚拟按键，当此键盘按键按下或抬起时，
 /// 会触发此按键对应的全部虚拟按键的按下或抬起。
 /// RGSS 中可以调用 Input.trigger? 等方法检测相应的虚拟按键。
@@ -86,7 +85,6 @@ struct keymap {
 };
 
 /// @brief keystate 存储了虚拟按键按下或抬起的状态。
-/// @name data
 struct keystate {
   /// @brief 最多支持的虚拟按键数量，设置为 256 应该足够。
   static constexpr size_t max = 256;
@@ -184,7 +182,6 @@ struct keystate {
 };
 
 /// @brief 按键按下的事件
-/// @name task
 struct key_press {
   /// @brief 键盘的按键
   int32_t sdl_key;
@@ -202,7 +199,6 @@ struct key_press {
 };
 
 /// @brief 按键抬起的事件
-/// @name task
 struct key_release {
   /// @brief 键盘的按键
   int32_t sdl_key;
@@ -220,7 +216,6 @@ struct key_release {
 };
 
 /// @brief 按键相关操作的初始化类
-/// @name task
 struct init_input {
   /* 引入数据对象 keymap 和 keystate */
   using data = std::tuple<keymap, keystate>;

@@ -23,7 +23,6 @@
 
 namespace rgm::ext {
 /// @brief 启动输入法
-/// @name task
 /// @see ./src/script/textbox.rb
 /// 输入法在 ruby 层有高级封装，请查阅并按照范例代码使用。
 struct textinput_start {
@@ -49,7 +48,6 @@ struct textinput_start {
 };
 
 /// @brief 关闭输入法
-/// @name task
 struct textinput_stop {
   void run(auto&) {
     cen::log_warn("[Input] text input is stopped");
@@ -60,7 +58,6 @@ struct textinput_stop {
 };
 
 /// @brief 储存输入法状态的数据类
-/// @name data
 struct textinput_state {
   /// @brief 输入法显示的临时字符，即输入内容
   std::string text;
@@ -89,7 +86,6 @@ struct textinput_state {
 };
 
 /// @brief 修改输入内容
-/// @name task
 /// 此事件由 SDL 事件自动触发
 struct text_edit {
   std::string text;
@@ -104,7 +100,6 @@ struct text_edit {
 };
 
 /// @brief 确认输入内容
-/// @name task
 /// 此事件由 SDL 事件自动触发
 struct text_input {
   std::string text;
@@ -144,7 +139,6 @@ struct init_text_event {
 };
 
 /// @brief 数据类 textinput_state 相关的初始化类
-/// @name task
 struct init_textinput {
   using data = std::tuple<textinput_state>;
 

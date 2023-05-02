@@ -24,7 +24,6 @@
 
 namespace rgm::rmxp {
 /// @brief 管理从 Drawable 的 ID 对应到 Drawable 的 z 值的映射
-/// @name data
 /// id2z 的实例用于缓存 ID 到 z 的映射关系，辅助管理 drawables。
 /// 在 GC 触发时，finalizer 只能获取 Drawable 的 ID 不能获取作为属性的 z，
 /// 查找此 Drawable 就必须使用 id2z 获取 z 值，然后去 drawables 里查找。

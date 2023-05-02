@@ -223,7 +223,6 @@ struct render_tilemap_helper {
 };
 
 /// @brief 绘制 tilemap
-/// @name task
 /// tilemap 的不同层都在这里绘制，只是第 0 层需要绘制闪烁效果。
 template <>
 struct render<overlayer<tilemap>> {

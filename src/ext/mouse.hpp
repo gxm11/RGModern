@@ -23,7 +23,6 @@
 
 namespace rgm::ext {
 /// @brief 鼠标相关的初始化类
-/// @name task
 /// @todo 完善鼠标的功能
 struct init_mouse_event {
   static void before(auto& worker) {

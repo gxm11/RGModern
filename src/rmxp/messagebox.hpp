@@ -24,7 +24,6 @@
 
 namespace rgm::rmxp {
 /// @brief 弹出窗口，显示提示信息
-/// @name task
 struct message_show {
   /// @brief 提示信息内容
   std::string_view text;
@@ -36,7 +35,6 @@ struct message_show {
 };
 
 /// @brief 提示信息相关的初始化类
-/// @name task
 struct init_message {
   static void before(auto& this_worker) {
     /* 静态的 worker 变量供函数的内部类 wrapper 使用 */

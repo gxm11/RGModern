@@ -246,7 +246,6 @@ struct viewport : drawable_object<viewport> {
 viewport default_viewport;
 
 /// @brief 存储所有 Drawable 的 map
-/// @name data
 /// Drawables 是有序的，索引是 z_index
 struct drawables {
 #if 0

@@ -27,7 +27,6 @@ INCBIN(zip, "embeded.zip");
 
 namespace rgm::base {
 /// @brief 管理内嵌在 exe 中的资源文件类
-/// @name data
 /// 对于 build_mode <= 1，此类没有任何作用；
 /// 对于 build_mode = 2，用加密 zip 格式打包脚本文件夹 src/scripts；
 /// 对于 build_mode = 3，在 2 的基础上额外打包数据文件夹（宏）Data。
@@ -72,7 +71,6 @@ struct zip_data_embeded {
 };
 
 /// @brief 数据类 zip_data_embeded 相关的初始化类
-/// @name task
 struct init_embeded {
   using data = std::tuple<zip_data_embeded>;
 
@@ -135,7 +133,6 @@ struct init_embeded {
 #else
 namespace rgm::base {
 /// @brief 在未定义宏 RGM_EMBEDED_ZIP 的场合，替代的 init_embeded 类
-/// @name task
 /// 定义了 ruby 中的函数 load_script 和 embeded_load，都始终返回 nil。
 struct init_embeded {
   static void before(auto&) {

@@ -43,7 +43,6 @@ namespace rgm::rmxp {
  */
 
 /// @brief 创建 drawable 通用的 ruby 方法
-/// @name task
 /// 方法包括：
 /// 1. dispose
 /// 2. set_z
@@ -140,7 +139,6 @@ struct init_drawable_base {
 };
 
 /// @brief 创建 drawable 特化的 ruby 方法
-/// @name task
 /// @tparam T_Drawable 目标类型
 /// 方法包括：
 /// 1. create

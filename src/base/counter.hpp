@@ -23,7 +23,6 @@
 
 namespace rgm::base {
 /// @brief 计数器，用于生成递增的 ID
-/// @name data
 /// 检查某个对象的 ID 属性，如果不是 increament 的倍数，则其通常与
 /// 比之略小的最接近的那个 increament 的倍数 ID 的对象有关联。
 struct counter {
@@ -44,7 +43,6 @@ struct counter {
 };
 
 /// @brief 数据类 counter 相关的初始化类
-/// @name task
 struct init_counter {
   using data = std::tuple<counter>;
 

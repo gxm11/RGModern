@@ -23,7 +23,6 @@
 
 namespace rgm::ext {
 /// @brief 管理外部 zip 资源包的类
-/// @name data
 /// 可以直接从外部资源包读取 texture 和 surface，对应为 ruby 中的
 /// Bitmap 和 Palette。此方法用于实现图像素材的加密。
 struct zip_data_external {
@@ -120,7 +119,6 @@ struct zip_data_external {
 };
 
 /// @brief 注册外部资源包
-/// @name task
 /// 自动附带了数据 zip_data_external。
 template <size_t worker_id = 0>
 struct regist_external_data {
@@ -146,7 +144,6 @@ struct regist_external_data {
 };
 
 /// @brief 数据类 zip_data_external 相关的初始化类
-/// @name task
 struct init_external {
   static void before(auto& this_worker) {
     /* 需要使用 base::detail 完成 ruby 到 C++ 类型的转换 */

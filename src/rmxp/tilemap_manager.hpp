@@ -168,7 +168,6 @@ struct tilemap_info {
 };
 
 /// @brief 设置 tilemap_info
-/// @name task
 struct tilemap_set_info {
   /// @brief tilemap 数据的地址
   const tilemap* p_tilemap;
@@ -205,7 +204,6 @@ struct tilemap_set_info {
 };
 
 /// @brief 管理所有的 tilemap 的 overlayer 的绘制的类
-/// @name data
 /// 支持多个 tilemap 互相嵌套。
 struct tilemap_manager {
   /// @brief 管理所有 table 的容器的指针。
@@ -278,7 +276,6 @@ struct tilemap_manager {
 };
 
 /// @brief tilemap_manager 相关的初始化类
-/// @name task
 struct init_tilemap_manager {
   /* 引入数据类型 tilemap_manager */
   using data = std::tuple<tilemap_manager>;

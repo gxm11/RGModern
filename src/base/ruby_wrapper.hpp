@@ -25,7 +25,6 @@
 namespace rgm::base {
 /// @brief ruby_wrapper 模板类用于快速绑定 ruby 中的函数和 C++ 的任务类
 /// @tparam T_worker 显然只能是解释执行 ruby 的 worker
-/// @name meta
 template <typename T_worker>
 struct ruby_wrapper {
   /// @brief value 模板类，将任何输入类型转换成 VALUE

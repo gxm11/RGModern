@@ -80,7 +80,6 @@ struct semaphore {
 #endif
 
 /// @brief 此任务用于线程间的同步，只在异步多线程模式下被用到
-/// @name task
 /// @tparam index 目标 worker 的索引
 template <size_t index>
 struct synchronize_signal {

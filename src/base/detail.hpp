@@ -23,7 +23,6 @@
 
 namespace rgm::base {
 /// @brief 管理 ruby 的 VALUE 和 C++ 内各数值类型的转换的类
-/// @name meta
 /// 部分数据会在 ruby 和 c++ 中各存储一份，只在特定时机同步。
 /// detail 类负责这些 ruby 和 C++ 中类型匹配的数据的自动转换。
 struct detail {

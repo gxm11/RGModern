@@ -27,7 +27,6 @@
 namespace rgm::rmxp {
 /// @brief 绘制特定的 Drawable
 /// @tparam Drawable 的类型
-/// @name task
 /// render<T> 系列的任务执行时，ruby worker 会进入等待，可以安全地访问数据。
 template <typename T>
 struct render {

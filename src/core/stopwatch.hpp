@@ -40,7 +40,6 @@ struct stopwatch_base {
 };
 
 /// @brief 秒表，用于测试若干段反复执行代码的性能。
-/// @name stopwatch
 /// 继承自 stopwatch_base 作为全局变量使用。
 /// 借助 RAII 机制，在程序退出时析构并打印相关的调试信息。
 struct stopwatch_normal {

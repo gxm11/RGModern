@@ -23,7 +23,6 @@
 
 namespace rgm::rmxp {
 /// @brief 任务：渲染 Viewport 中内容之前的处理
-/// @name task
 struct before_render_viewport {
   /// @brief viewport 数据的地址
   const viewport* v;
@@ -38,7 +37,6 @@ struct before_render_viewport {
 };
 
 /// @brief 渲染 Viewport 中内容之后的处理
-/// @name task
 /// 先处理 viewport 的特效，然后将 viewport 绘制到 screen 层上。
 struct after_render_viewport {
   /// @brief viewport 数据的地址

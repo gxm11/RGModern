@@ -25,12 +25,10 @@
 
 namespace rgm::base {
 /// @brief 存储所有 cen::music，即音乐对象的类
-/// @name data
 /// SDL_MIXER 里，播放音乐会使当前播放的音乐停止，同时只能有 1 个音乐在播放
 using musics = std::map<uint64_t, cen::music>;
 
 /// @brief 音乐播放结束后，会自动回调此函数
-/// @name task
 /// 在 Audio 模块中重新定义以处理 BGM 和 ME 之间的切换
 struct music_finish_callback {
   void run(auto&) {
@@ -42,7 +40,6 @@ struct music_finish_callback {
 };
 
 /// @brief 创建 RGM::Music 对象对应的 C++ 对象
-/// @name task
 struct music_create {
   using data = std::tuple<musics>;
 
@@ -59,7 +56,6 @@ struct music_create {
 };
 
 /// @brief 释放 RGM::Music 对象对应的 C++ 对象
-/// @name task
 struct music_dispose {
   /// @brief 音乐对象的 id，在 musics 中作为键使用
   uint64_t id;
@@ -71,7 +67,6 @@ struct music_dispose {
 };
 
 /// @brief 播放音乐
-/// @name task
 struct music_play {
   /// @brief 音乐对象的 id，在 musics 中作为键使用
   uint64_t id;
@@ -97,7 +92,6 @@ struct music_play {
 };
 
 /// @brief 淡入音乐
-/// @name task
 struct music_fade_in {
   /// @brief 音乐对象的 id，在 musics 中作为键使用
   uint64_t id;
@@ -126,7 +120,6 @@ struct music_fade_in {
 };
 
 /// @brief 获取当前播放的音乐的位置
-/// @name task
 struct music_get_position {
   /// @brief 音乐对象的 id，在 musics 中作为键使用
   uint64_t id;
@@ -143,7 +136,6 @@ struct music_get_position {
 /* 以下方法不需要音乐对象的 id */
 
 /// @brief 获取当前播放的音乐的音量
-/// @name task
 struct music_get_volume {
   /// @brief 存储音量的变量的指针
   int* p_volume;
@@ -152,7 +144,6 @@ struct music_get_volume {
 };
 
 /// @brief 设置当前播放的音乐的音量大小
-/// @name task
 struct music_set_volume {
   /// @brief 要设置的音量大小
   int volume;
@@ -161,7 +152,6 @@ struct music_set_volume {
 };
 
 /// @brief 设置当前播放的音乐的播放位置
-/// @name task
 struct music_set_position {
   /// @brief 要设置的当前音乐的播放位置
   double position;
@@ -170,31 +160,26 @@ struct music_set_position {
 };
 
 /// @brief 恢复当前音乐的播放
-/// @name task
 struct music_resume {
   void run(auto&) { cen::music::resume(); }
 };
 
 /// @brief 暂停当前音乐的播放
-/// @name task
 struct music_pause {
   void run(auto&) { cen::music::pause(); }
 };
 
 /// @brief 停止当前音乐的播放
-/// @name task
 struct music_halt {
   void run(auto&) { cen::music::halt(); }
 };
 
 /// @brief 从头播放当前音乐
-/// @name task
 struct music_rewind {
   void run(auto&) { cen::music::rewind(); }
 };
 
 /// @brief 淡出当前音乐
-/// @name task
 struct music_fade_out {
   /// @brief 淡出时间，单位是毫秒（ms）
   int duration;
@@ -203,7 +188,6 @@ struct music_fade_out {
 };
 
 /// @brief 获取当前音乐的播放状态
-/// @name task
 /// 每一个比特位代表了不同的状态：
 /// 1 -> is_fading
 /// 2 -> is_fading_in
@@ -225,7 +209,6 @@ struct music_get_state {
 };
 
 /// @brief 设置 MIDI 音乐的 SoundFont 库
-/// @name task
 struct music_set_soundfonts {
   /// @brief soundfonts 的路径
   std::string_view path;
@@ -238,7 +221,6 @@ struct music_set_soundfonts {
 };
 
 /// @brief 音乐播放相关的初始化类
-/// @name task
 struct init_music {
   static void before(auto& this_worker) {
     /* 静态的 worker 变量供函数的内部类 wrapper 使用 */

@@ -25,7 +25,6 @@
 
 namespace rgm::rmxp {
 /// @brief 绑定 event_dispatcher_t 对不同输入事件的响应
-/// @name task
 /// 此处绑定了以下 5 种事件：
 /// 1. 退出事件，执行 worker.stop()；
 /// 2. 窗口事件，目前没有效果，只是打印日志；

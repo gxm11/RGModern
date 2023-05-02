@@ -23,11 +23,9 @@
 
 namespace rgm::base {
 /// @brief 存储所有 cen::texture，即位图（Bitmap）对象的类
-/// @name data
 using textures = std::unordered_map<uint64_t, cen::texture>;
 
 /// @brief 数据类 textures 相关的初始化类
-/// @name task
 struct init_textures {
   using data = std::tuple<textures>;
 

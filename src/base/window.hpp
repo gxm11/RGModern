@@ -24,7 +24,6 @@
 
 namespace rgm::base {
 /// @brief 设置窗口的标题
-/// @name task
 struct set_title {
   /// @brief 窗口的标题，这里复制了一份 ruby 中的字符串
   std::string title;
@@ -37,7 +36,6 @@ struct set_title {
 };
 
 /// @brief 设置窗口的全屏模式
-/// @name task
 struct set_fullscreen {
   /// @brief 全屏模式
   /// 0: 关闭全屏，使用窗口模式
@@ -64,7 +62,6 @@ struct set_fullscreen {
 };
 
 /// @brief window 相关类型的初始化类
-/// @name task
 struct init_window {
   static void before(auto& worker) {
     VALUE rb_mRGM = rb_define_module("RGM");

@@ -23,11 +23,9 @@
 
 namespace rgm::base {
 /// @brief 存储所有 cen::surface，即调色盘（Palette）对象的类
-/// @name data
 using surfaces = std::unordered_map<uint64_t, cen::surface>;
 
 /// @brief 数据类 surfaces 相关的初始化类
-/// @name task
 struct init_surfaces {
   using data = std::tuple<surfaces>;
 

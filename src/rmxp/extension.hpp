@@ -28,7 +28,6 @@ void Init_zlib();
 
 namespace rgm::rmxp {
 /// @brief 引入 ruby 的扩展功能
-/// @name task
 /// 目前的扩展有
 /// 1. Fiddle 库，用于实现 Win32API
 /// 2. Zlib 库

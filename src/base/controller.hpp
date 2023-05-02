@@ -26,14 +26,12 @@ namespace rgm::base {
 constexpr size_t controller_maxsize = 8;
 
 /// @brief 存储 controller 的 axis state 的数组
-/// @name data
 /// controller 的 axis 一般是摇杆或者扳机键，值一般在 -32768 ~ 32767 之间。
 using controller_axisstate =
     std::array<int, static_cast<size_t>(cen::controller_axis::max) *
                         controller_maxsize>;
 
 /// @brief controller 插入时的回调事件
-/// @name task
 struct controller_connect {
   using data = std::tuple<controller_axisstate>;
 
@@ -48,7 +46,6 @@ struct controller_connect {
 };
 
 /// @brief controller 拔出时的回调事件
-/// @name task
 struct controller_disconnect {
   using data = std::tuple<controller_axisstate>;
 

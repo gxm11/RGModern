@@ -119,7 +119,6 @@ struct table {
 };
 
 /// @brief 存储所有 table，即 Table 对象的类
-/// @name data
 using tables = std::unordered_map<uint64_t, table>;
 
 /**

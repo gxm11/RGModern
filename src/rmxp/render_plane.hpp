@@ -23,7 +23,6 @@
 
 namespace rgm::rmxp {
 /// @brief 绘制 plane
-/// @name task
 /// plane 是无限平铺的类型，为了提升绘制效率，会作双层绘制。
 template <>
 struct render<plane> {

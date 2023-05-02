@@ -24,12 +24,10 @@
 namespace rgm::rmxp {
 /// @brief 执行渐变绘制的任务，有多种不同的特化方式。
 /// @tparam size_t 绘制方式
-/// @name task
 template <size_t>
 struct render_transition;
 
 /// @brief 使用线性透明度变化的渐变模式
-/// @name task
 template <>
 struct render_transition<1> {
   /// @brief 渐变前的画面的 id
@@ -68,7 +66,6 @@ struct render_transition<1> {
 };
 
 /// @brief 使用渐变图的渐变模式
-/// @name task
 template <>
 struct render_transition<2> {
   /// @brief 渐变前的画面的 id

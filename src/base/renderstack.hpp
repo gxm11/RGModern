@@ -24,7 +24,6 @@
 
 namespace rgm::base {
 /// @brief 管理分层渲染，内置 stack 数据结构并提供缓存避免频繁申请 texture
-/// @name data
 struct renderstack {
   /*
   渲染栈（Stack）的层级：
@@ -234,7 +233,6 @@ struct renderstack {
 };
 
 /// @brief 数据类 renderstack 相关的初始化类
-/// @name task
 struct init_renderstack {
   using data = std::tuple<renderstack>;
 

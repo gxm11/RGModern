@@ -23,7 +23,6 @@
 
 namespace rgm::rmxp {
 /// @brief 绘制 window 的窗口背景层
-/// @name task
 /// window 有 2 层，分别是窗口背景和窗口内容，窗口内容的 z 值多 2，
 /// 在 overlayer<window> 中绘制。以下内容也在 overlayer 层中绘制：
 /// 滚动标记、暂停标记和 cursor_rect。
@@ -153,7 +152,6 @@ struct render<window> {
 };
 
 /// @brief 绘制 window 的窗口内容层
-/// @name task
 /// 在 overlayer 层中绘制：
 /// 滚动标记、暂停标记、cursor_rect 和 content。
 template <>

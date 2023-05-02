@@ -34,7 +34,6 @@ namespace rgm::rmxp {
 core::stopwatch graphics_timer("graphics");
 
 /// @brief 画面渲染相关操作的初始化类
-/// @name task
 struct init_graphics {
   static void before(auto& this_worker) {
     /* 静态的 worker 变量供函数的内部类 wrapper 使用 */

@@ -24,7 +24,6 @@
 
 namespace rgm::rmxp {
 /// @brief 控制器的摇杆和扳机的触发事件
-/// @name task
 /// config::controller_left_arrow 和 config::controller_right_arrow 分别决定
 /// 是否将左、右摇杆映射成方向键的输入。这里也可以类似添加其他操作。
 struct controller_axis_move {
@@ -122,7 +121,6 @@ struct controller_axis_move {
 };
 
 /// @brief 记录控制器按键与 RGSS 中虚拟按键的映射关系
-/// @name data
 /// 同一个控制器按键可以对应多个虚拟按键，当此控制器按键按下或抬起时，
 /// 会触发此按键对应的全部虚拟按键的按下或抬起。
 /// RGSS 中可以调用 Input.trigger? 等方法检测相应的虚拟按键。
@@ -186,7 +184,6 @@ struct controller_buttonmap {
 };
 
 /// @brief 控制器按键按下的事件
-/// @name task
 struct controller_button_press {
   /// @brief 控制器的索引
   int joy_index;
@@ -211,7 +208,6 @@ struct controller_button_press {
 };
 
 /// @brief 控制器按键抬起的事件
-/// @name task
 struct controller_button_release {
   /// @brief 控制器的索引
   int joy_index;
@@ -236,7 +232,6 @@ struct controller_button_release {
 };
 
 /// @brief 控制器震动事件
-/// @name task
 /// @ref https://wiki.libsdl.org/SDL2/SDL_GameControllerRumble
 struct controller_rumble {
   /// @brief 控制器的索引
@@ -263,7 +258,6 @@ struct controller_rumble {
 };
 
 /// @brief 控制器的扳机震动事件
-/// @name task
 /// @ref https://wiki.libsdl.org/SDL2/SDL_GameControllerRumbleTriggers
 /// 根据上面的资料，扳机震动只支持 Xbox One 控制器。
 struct controller_rumble_triggers {

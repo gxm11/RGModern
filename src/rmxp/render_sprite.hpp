@@ -23,7 +23,6 @@
 
 namespace rgm::rmxp {
 /// @brief 绘制 sprite
-/// @name task
 /// sprite 是最常见的 drawable 元素
 /// 根据是否有 color 等特效的处理，决定是单层绘制还是双层绘制。
 template <>

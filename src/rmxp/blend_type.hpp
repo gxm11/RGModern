@@ -123,7 +123,6 @@ struct blend_type {
 };
 
 /// @brief 定义各种自定义的混合模式
-/// @name task
 struct init_blend_type {
   static void before(auto&) {
     if (config::driver != config::driver_type::software) {

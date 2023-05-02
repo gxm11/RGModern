@@ -23,7 +23,6 @@
 
 namespace rgm::ext {
 /// @brief 回调 ruby 中的 RGM::Ext.async_callback 函数
-/// @name task
 struct ruby_callback {
   /// @brief 回调的 Proc ID
   int id;
@@ -43,7 +42,6 @@ struct ruby_callback {
 
 /// @brief 封装异步任务的模板类
 /// @tparam T 带回调的异步任务类
-/// @name meta
 /// 此类需配合宏 RGMBIND2 使用。
 /// 此类接受一个定义了 run(worker&, std::string&) 函数的任务类，将其封装为
 /// 一个正常的任务类。执行 T::run 后，会发送回调到解释执行 ruby 的 worker 。
@@ -66,7 +64,6 @@ struct ruby_async {
 
 /// @brief ruby_wrapper 模板类用于快速绑定 ruby 中的函数和 C++ 的任务类
 /// @tparam T_worker 显然只能是解释执行 ruby 的 worker
-/// @name meta
 /// @see ./src/base/ruby_wrapper.hpp
 /// 区别在于 RGMBIND2 定义的函数多了一个尾部的参数为 Proc ID
 template <typename T_worker>
