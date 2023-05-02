@@ -4,7 +4,7 @@
 ![master build](https://github.com/gxm11/RGModern/actions/workflows/main.yml/badge.svg?event=release)
 ![dev build](https://github.com/gxm11/RGModern/actions/workflows/main.yml/badge.svg?branch=dev)
 
-当前版本：v1.0.0-RC4
+当前版本：v1.0.0
 
 在线文档：[RGModern使用指南](https://docs.qq.com/doc/DUklCTWNvdmVEdVhY)
 
