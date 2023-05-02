@@ -57,7 +57,7 @@ struct render<sprite> {
         break;
     }
     /* 判断是否为 opengl 渲染，且混合模式是减法 */
-    const bool opengl_sub = (s->blend_type == 2) && (config::opengl);
+    const bool opengl_sub = (s->blend_type == 2) && config::opengl;
 
     if (opengl_sub) {
       /* OpenGL 需要使用加法和反色实现减法 */

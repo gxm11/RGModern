@@ -170,6 +170,8 @@ struct init_table {
         RGMLOAD(index, int);
         RGMLOAD(data_ptr, int16_t*);
 
+        if (!data_ptr) return Qnil;
+
         return INT2FIX(data_ptr[index]);
       }
 
@@ -179,7 +181,8 @@ struct init_table {
         RGMLOAD(value, int);
         RGMLOAD(data_ptr, int16_t*);
 
-        data_ptr[index] = value;
+        if (data_ptr) data_ptr[index] = value;
+
         return value_;
       }
 
@@ -220,7 +223,9 @@ struct init_table {
         int16_t* ptr = reinterpret_cast<int16_t*>(RSTRING_PTR(string_));
         int* ptr_int = reinterpret_cast<int*>(RSTRING_PTR(string_));
         t.resize(ptr_int[1], ptr_int[2], ptr_int[3]);
-        memcpy(t.data_ptr(), ptr + 10, t.size() * sizeof(int16_t));
+        if (t.data_ptr()) {
+          memcpy(t.data_ptr(), ptr + 10, t.size() * sizeof(uint16_t));
+        }
         return Qnil;
       }
 
@@ -230,9 +235,14 @@ struct init_table {
 
         tables& data = RGMDATA(tables);
         table& t = data.at(id);
-        VALUE str = rb_str_new(reinterpret_cast<const char*>(t.data_ptr()),
-                               t.size() * sizeof(int16_t));
-        return str;
+
+        if (t.data_ptr()) {
+          VALUE str = rb_str_new(reinterpret_cast<const char*>(t.data_ptr()),
+                                 t.size() * sizeof(uint16_t));
+          return str;
+        } else {
+          return rb_str_new("", 0);
+        }
       }
     };
 

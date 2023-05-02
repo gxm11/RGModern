@@ -49,7 +49,11 @@ module Graphics
 
     @@flag_synchronize = false
     t = Time.now
-    RGM::Base.synchronize(1)
+
+    RGM::Config::Max_Workers.times do |i|
+      RGM::Base.synchronize(i) if i != 0
+    end
+
     delta_t = Time.now - t
     puts format('Warn: wait %.3fs for synchronization', delta_t) if delta_t > 0.1
   end

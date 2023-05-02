@@ -222,9 +222,11 @@ struct scheduler<First, Rest...> : scheduler<> {
     /* 只在 main.exe 和 debug.exe 下会提醒开发者某个 task 分配失败 */
     if constexpr (config::develop) {
       if (!ret) {
-        /* 因为使用了 typeid，编译时不能关掉 rtti */
-        cen::log_warn("There's ingored task <%s>, check your code.\n",
-                      typeid(T_task).name());
+        if constexpr (!requires { T_task::co_type; }) {
+          /* 因为使用了 typeid，编译时不能关掉 rtti */
+          cen::log_warn("There's ingored task <%s>, check your code.\n",
+                        typeid(T_task).name());
+        }
       }
     }
     return ret;

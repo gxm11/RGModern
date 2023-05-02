@@ -61,8 +61,6 @@ bool synchronized = true;
 bool concurrent = false;
 bool controller_left_arrow = true;
 bool controller_right_arrow = true;
-bool game_console = true;
-bool opengl = false;
 std::string game_title = "RGModern";
 std::string resource_prefix = "resource://";
 int window_width = 640;
@@ -76,9 +74,11 @@ enum class driver_type { software, opengl, direct3d9, direct3d11 };
 #ifdef __WIN32
 std::string driver_name = "direct3d9";
 driver_type driver = driver_type::direct3d9;
+bool opengl = false;
 #else
 std::string driver_name = "opengl";
 driver_type driver = driver_type::opengl;
+bool opengl = true;
 #endif
 
 /// @brief 读取数据，设置 config 中各变量
@@ -104,7 +104,6 @@ void load_data(std::map<std::string, section_t>& data) {
   Set(controller_left_arrow, "Kernel", "LeftAxisArrow");
   Set(controller_right_arrow, "Kernel", "RightAxisArrow");
   Set(resource_prefix, "Kernel", "ResourcePrefix");
-  Set(game_console, "System", "GameConsole");
   Set(window_width, "System", "WindowWidth");
   Set(window_height, "System", "WindowHeight");
   Set(screen_width, "System", "ScreenWidth");
@@ -125,22 +124,17 @@ void load_data(std::map<std::string, section_t>& data) {
 
   opengl = (driver == driver_type::opengl);
 
-  /* 根据 build_mode 强制覆盖一些参数 */
+  /* 设置日志输出的级别 */
   if (build_mode <= 0) {
-    game_console = true;
+    cen::set_priority(cen::log_priority::debug);
     debug = true;
   } else if (build_mode == 1) {
-    game_console = true;
+    cen::set_priority(debug ? cen::log_priority::debug
+                            : cen::log_priority::info);
   } else if (build_mode == 2) {
   } else {
-    game_console = false;
+    cen::set_priority(cen::log_priority::critical);
     debug = false;
-  }
-
-  if (!game_console) {
-#ifdef __WIN32
-    FreeConsole();
-#endif
   }
 }
 
@@ -183,9 +177,6 @@ bool load_args(int argc, char* argv[]) {
     }
     if (std::string_view("test") == argv[i]) {
       rgm::config::debug = true;
-    }
-    if (std::string_view("console") == argv[i]) {
-      rgm::config::game_console = true;
     }
   }
   return true;

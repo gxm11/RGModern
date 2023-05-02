@@ -125,7 +125,7 @@ struct bitmap_create<3> {
 
   void run(auto& worker) {
     cen::log_debug("[Bitmap] id = %lld, is created from %s%s", id,
-                  config::resource_prefix.data(), path.data());
+                   config::resource_prefix.data(), path.data());
 
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
     base::renderstack& stack = RGMDATA(base::renderstack);

@@ -249,10 +249,10 @@ viewport default_viewport;
 /// @name data
 /// Drawables 是有序的，索引是 z_index
 struct drawables {
-#if 1
-  /// @brief 作为内存池的 array
-  /// 所有的 drawables 共享 1M 资源。
-  inline static std::array<char, 1024 * 1024> array_buffer;
+#if 0
+  /// @brief 作为内存池的 vector
+  /// 默认对每个 drawables 分配 1M 资源。
+  std::vector<char> vector;
 
   /// @brief 封装 array_buffer 为上游资源池
   /// 所有的 drawables 共享此资源池。
@@ -268,15 +268,29 @@ struct drawables {
   /// 所有的 drawable 按照 z_index 有序排列。
   std::pmr::map<z_index, drawable> m_data;
 
-  /// @brief 构造函数，绑定 map 到资源池
-  explicit drawables() : m_data(&pool_resource) {}
-#else
-  /// @brief 存储 drawable 的 map
-  /// 所有的 drawable 按照 z_index 有序排列。
-  std::map<z_index, drawable> m_data;
+  /// @brief 构造函数，初始化资源池和 map
+  explicit drawables()
+      : vector(1024 * 1024),
+        buffer_resource(std::make_unique<std::pmr::monotonic_buffer_resource>(
+            vector.data(), vector.size())),
+        pool_resource(std::make_unique<std::pmr::unsynchronized_pool_resource>(
+            std::pmr::pool_options(256, 256), buffer_resource.get())),
+        m_data(pool_resource.get()) {}
+#endif
+#if 1
+  /* 调整后的 pmr 方案，所有的 drawables 共用资源池 */
+  inline static std::array<char, 1024 * 1024 * 8> array_buffer;
+  inline static std::pmr::monotonic_buffer_resource buffer_resource{
+      array_buffer.data(), array_buffer.size()};
+  inline static std::pmr::unsynchronized_pool_resource pool_resource{
+      std::pmr::pool_options(32, 256), &buffer_resource};
 
-  /// @brief 构造函数
-  explicit drawables() : m_data() {}
+  std::pmr::map<z_index, drawable> m_data;
+  explicit drawables() : m_data(&pool_resource) {}
+#endif
+#if 0
+  /// @brief 存储 drawable 的 map，不使用 pmr 的方案
+  std::map<z_index, drawable> m_data;
 #endif
   /// @brief 设置某个 drawable 的新 z 值。
   /// 需要从 map 中取出再放回。

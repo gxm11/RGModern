@@ -66,6 +66,11 @@ File.open(RGM::Config::Config_Path, 'r') do |f|
         Graphics.resize_window(RGM::Config::Window_Width, RGM::Config::Window_Height,
                                Regexp.last_match(1).to_i)
       end
+      if line == 'MessageBox=ON'
+        def p(*args)
+          msgbox(args.collect(&:to_s).join("\n"))
+        end
+      end
       next
     end
 

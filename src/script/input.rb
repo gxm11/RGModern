@@ -65,7 +65,7 @@ module Input
     # Updates input data. As a rule, this method is called once per frame.
     RGM::Base.input_update
     # Enable debug mode
-    debug(binding) if $DEBUG && RGM::Config::Game_Console && press?(DEBUG)
+    debug(binding) if $DEBUG && press?(DEBUG)
   end
 
   def reset

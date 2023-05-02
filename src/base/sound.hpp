@@ -26,7 +26,7 @@
 
 namespace rgm::base {
 /// @brief 存储所有 cen::sound_effect，即音效对象的类
-using sounds = std::map<uint64_t, cen::sound_effect>;
+using sounds = std::unordered_map<uint64_t, cen::sound_effect>;
 
 /// @brief 存储所有音效的 channel 的速度的容器
 using sound_speeds = std::array<float, 32>;
@@ -206,8 +206,9 @@ struct init_sound {
       static VALUE sound_get_state(VALUE, VALUE id_) {
         RGMLOAD(id, uint64_t);
 
-        int state;
+        int state = 0;
         worker >> base::sound_get_state{id, &state};
+        RGMWAIT(2);
         return INT2FIX(state);
       }
 
@@ -215,8 +216,9 @@ struct init_sound {
       static VALUE sound_get_channel(VALUE, VALUE id_) {
         RGMLOAD(id, uint64_t);
 
-        int channel;
+        int channel = -1;
         worker >> base::sound_get_channel{id, &channel};
+        RGMWAIT(2);
         return INT2FIX(channel);
       }
     };

@@ -44,9 +44,3 @@ def debug(b)
 end
 
 def debug(b); end if RGM::Config::Build_Mode >= 3 || !$DEBUG
-
-unless RGM::Config::Game_Console
-  def p(*args)
-    msgbox(args.collect(&:to_s).join("\n"))
-  end
-end
