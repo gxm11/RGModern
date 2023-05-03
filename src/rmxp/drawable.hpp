@@ -61,7 +61,7 @@ struct sprite : drawable_object<sprite> {
   /// 2. 透明度为 0
   /// 3. x 或者 y 方向的 zoom 小于或等于 0
   /// 4. 由于闪烁效果导致的短暂消失
-  bool visible() const {
+  bool is_visible() const {
     if (bitmap == 0) return false;
     if (opacity == 0) return false;
     if (zoom_x <= 0.0) return false;
@@ -98,7 +98,7 @@ struct plane : drawable_object<plane> {
   /// 1. 没有设置 bitmap
   /// 2. 透明度为 0
   /// 3. x 或者 y 方向的 zoom 小于或等于 0
-  bool visible() const {
+  bool is_visible() const {
     if (bitmap == 0) return false;
     if (opacity == 0) return false;
     if (zoom_x <= 0.0) return false;
@@ -137,7 +137,7 @@ struct window : drawable_object<window> {
   bool active;
   bool pause;
 
-  bool visible() const;
+  bool is_visible() const;
 };
 
 /// @brief window 的上一层，比 window 的 z 值高 2。
@@ -192,7 +192,7 @@ struct tilemap : drawable_object<tilemap> {
   /// 在以下几种情况下跳过绘制：
   /// 1. 没有设置 tileset
   /// 2. 没有设置图块数据
-  bool visible() const {
+  bool is_visible() const {
     if (tileset == 0) return false;
     if (map_data == 0) return false;
     return true;
@@ -237,7 +237,7 @@ struct viewport : drawable_object<viewport> {
   int oy;
   bool flash_hidden;
 
-  bool visible() const;
+  bool is_visible() const;
 };
 
 /// @brief 代表当前屏幕的 viewport，功能受限
@@ -324,7 +324,7 @@ struct drawables {
 /// 1. rect 的长或宽为 0
 /// 2. 由于闪烁效果导致的短暂消失
 /// 3. Viewport 在 Screen 外
-bool viewport::visible() const {
+bool viewport::is_visible() const {
   if (rect.width <= 0 || rect.height <= 0) return false;
   if (flash_hidden) return false;
 
@@ -343,7 +343,7 @@ bool viewport::visible() const {
 /// 1. 窗口没有设置 windowskin
 /// 2. 窗口的长或宽为 0
 /// 3. 窗口在 Viewport 或 Screen 外
-bool window::visible() const {
+bool window::is_visible() const {
   if (windowskin == 0) return false;
   if (width == 0 || height == 0) return false;
 

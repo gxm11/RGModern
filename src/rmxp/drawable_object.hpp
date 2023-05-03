@@ -25,12 +25,12 @@
 namespace rgm::rmxp {
 /// @brief 刷新 C++ 层变量的值，作为 ITERATE_VALUES 的参数。
 /// 对于 uint64_t 类型的变量，按照 const uint64_t 类型处理，读取其 object_id。
-#define DO_REFRESH_VALUE(key)                                             \
-  if constexpr (requires { item.key; }) {                                 \
-    using T = decltype(item.key);                                         \
-    using U =                                                             \
+#define DO_REFRESH_VALUE(key)                                               \
+  if constexpr (requires { item.key; }) {                                   \
+    using T = decltype(item.key);                                           \
+    using U =                                                               \
         std::conditional_t<std::is_same_v<T, uint64_t>, const uint64_t, T>; \
-    item.key = detail::get_value<word::key, U>(ruby_object);              \
+    item.key = detail::get_value<word::key, U>(ruby_object);                \
   }
 
 /// @brief 刷新 C++ 层变量的值，作为 ITERATE_OBJECTS 的参数。
@@ -44,14 +44,14 @@ namespace rgm::rmxp {
 /// 对于 uint64_t 类型的变量，按照 const uint64_t 类型处理，读取其 object_id。
 /// 此处 `if constexpr (requires { item.key; })` 的含义是：
 /// 如果 item 没有名称为 key 的成员变量，此 case 分支直接返回。
-#define DO_CASE_BRANCH(key)                                                 \
-  case word::key:                                                           \
-    if constexpr (requires { item.key; }) {                                 \
-      using T = decltype(item.key);                                         \
-      using U =                                                             \
+#define DO_CASE_BRANCH(key)                                                   \
+  case word::key:                                                             \
+    if constexpr (requires { item.key; }) {                                   \
+      using T = decltype(item.key);                                           \
+      using U =                                                               \
           std::conditional_t<std::is_same_v<T, uint64_t>, const uint64_t, T>; \
-      item.key = detail::get_value<word::key, U>(ruby_object);              \
-    }                                                                       \
+      item.key = detail::get_value<word::key, U>(ruby_object);                \
+    }                                                                         \
     return
 
 /// @brief 所有 Drawable 的基类，派生类以 CRTP 的形式继承。
@@ -106,7 +106,7 @@ struct drawable_object {
   }
 
   /// @brief 表示该对象是否可见，派生类需要重载此方法，否则永远可见。
-  bool visible() const { return true; }
+  bool is_visible() const { return true; }
 
   /// @brief 表示对该对象的绘制是否应该跳过。
   /// @return true 该对象不可见，跳过其绘制，否则不能跳过绘制。
@@ -119,7 +119,7 @@ struct drawable_object {
     /* 调用派生类的 visible 方法 */
     const T_Drawable& item = *static_cast<const T_Drawable*>(this);
 
-    return !item.visible();
+    return !item.is_visible();
   }
 
   /// @brief 更新所有值类型和 ID 类型的实例变量所对应的成员变量。
