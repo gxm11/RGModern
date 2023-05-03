@@ -59,7 +59,7 @@ struct kernel {
     worker.fiber_yield();
 
     auto visitor = [&worker]<typename T>(T& item) {
-      if constexpr (!std::same_as<std::monostate, T>) {
+      if constexpr (!std::is_same_v<std::monostate, T>) {
         item.run(worker);
       }
     };

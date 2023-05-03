@@ -49,7 +49,7 @@ using expand_tuples_t = decltype(expand_tuples(std::declval<Ts>()...));
 
 template <typename First, typename... Rest>
 consteval bool is_unique() {
-  return (!std::same_as<First, Rest> && ...);
+  return (!std::is_same_v<First, Rest> && ...);
 }
 
 consteval auto unique_tuple(std::tuple<>) { return std::tuple<>{}; }
@@ -188,7 +188,7 @@ template <typename Tuple, typename Item>
 consteval size_t tuple_index() {
   auto tuple_find = []<typename... Args>(std::tuple<Args...>*) -> size_t {
     size_t i = 0;
-    ((++i, std::same_as<Args, Item>) || ... || ++i);
+    ((++i, std::is_same_v<Args, Item>) || ... || ++i);
     return i - 1;
   };
   return tuple_find(static_cast<Tuple*>(nullptr));

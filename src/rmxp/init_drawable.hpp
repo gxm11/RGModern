@@ -167,7 +167,7 @@ struct init_drawable {
         cache_z.insert(zi.id, zi.z);
 
         /* 向 tilemap_manager 的 infos 中添加 id */
-        if constexpr (std::same_as<T_Drawable, tilemap>) {
+        if constexpr (std::is_same_v<T_Drawable, tilemap>) {
           tilemap_manager& tm = RGMDATA(tilemap_manager);
           tm.infos.emplace(zi.id, tilemap_info());
         }

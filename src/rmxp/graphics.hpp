@@ -80,7 +80,7 @@ struct init_graphics {
         /* 发送绘制任务的 lambda */
         auto visitor_render = [p_tables, &tm]<typename T>(T& item) {
           /* 不在这里处理 viewport */
-          if constexpr (std::same_as<T, viewport>) return;
+          if constexpr (std::is_same_v<T, viewport>) return;
 
           /*
            * 刷新对象类型的成员变量对应的数据。只有以 CRTP 形式继承自
@@ -90,7 +90,7 @@ struct init_graphics {
             item.refresh_object();
           }
 
-          if constexpr (std::same_as<T, tilemap>) {
+          if constexpr (std::is_same_v<T, tilemap>) {
             /*
              * 如果是 tilemap，则还需要判断 autotiles 是否发生了变化，
              * 并根据 autotiles 中储存的 Bitmap，绘制新的 autotile 图块。

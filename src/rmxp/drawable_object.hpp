@@ -29,7 +29,7 @@ namespace rgm::rmxp {
   if constexpr (requires { item.key; }) {                                 \
     using T = decltype(item.key);                                         \
     using U =                                                             \
-        std::conditional_t<std::same_as<T, uint64_t>, const uint64_t, T>; \
+        std::conditional_t<std::is_same_v<T, uint64_t>, const uint64_t, T>; \
     item.key = detail::get_value<word::key, U>(ruby_object);              \
   }
 
@@ -49,7 +49,7 @@ namespace rgm::rmxp {
     if constexpr (requires { item.key; }) {                                 \
       using T = decltype(item.key);                                         \
       using U =                                                             \
-          std::conditional_t<std::same_as<T, uint64_t>, const uint64_t, T>; \
+          std::conditional_t<std::is_same_v<T, uint64_t>, const uint64_t, T>; \
       item.key = detail::get_value<word::key, U>(ruby_object);              \
     }                                                                       \
     return
