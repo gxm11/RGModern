@@ -78,7 +78,8 @@ RGModern 不支持原版的加密方案。众所周知，原版加密方案等�
 1. [ruby](https://github.com/ruby/ruby)
 2. [SDL2](https://github.com/libsdl-org/SDL)
 3. [SDL2 Image](https://github.com/libsdl-org/SDL_image)
-4. [SDL2 Mixer](https://github.com/libsdl-org/SDL_mixer)5. [SDL2 TTF](https://github.com/libsdl-org/SDL_ttf)
+4. [SDL2 Mixer](https://github.com/libsdl-org/SDL_mixer)
+5. [SDL2 TTF](https://github.com/libsdl-org/SDL_ttf)
 6. [centurion](https://github.com/albin-johansson/centurion)
 7. [concurrentqueue](https://github.com/cameron314/concurrentqueue). 
 8. [incbin](https://github.com/graphitemaster/incbin)
