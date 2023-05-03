@@ -40,12 +40,14 @@ ifdef CUSTOM_DATA
 endif
 	rm -rf $(tmp_dir)
 	mkdir -p $(tmp_dir)
-	cp $@ ./src/config.ini $(tmp_dir)
+	cp ./src/config.ini $(tmp_dir)
+	cp $@ $(tmp_dir)/Game.exe
 ifndef CUSTOM_STATIC
 	cp ./Project1/SDL2*.dll ./Project1/lib*.dll $(tmp_dir)
 endif
 ifndef CUSTOM_DATA
 ifndef CUSTOM_STANDARD
+	mv $(tmp_dir)/Game.exe $(tmp_dir)/main.exe
 	cp -r ./src $(tmp_dir)/src
 endif
 endif

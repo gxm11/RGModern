@@ -150,7 +150,7 @@ return data[index];
 - [x] render等任务不再需要v_ptr的参数。此外，drawables需要一个默认的ptr，当drawable的viewport*是空指针时，调用这个ptr。这个ptr会随着screen变化而变化，并且是全局变量，或者指向drawables的静态成员。
 
 # 20230428-todo
-- [ ] rgm 小助手
+- [x] rgm 小助手
 - [ ] 用AI放大处理一下素材：https://bigjpg.com/zh
 - [ ] 注释中 return 的格式规范一下，每种不同的 return 各自占一行。
 - [ ] Regist 外部资源后触发 reload

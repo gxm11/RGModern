@@ -179,9 +179,9 @@ Gamew_win7.exe : Gamew.o icon.o
 	@cp $@ ./Project1/
 
 clean :
-	@rm -f $(addsuffix .d,$(targets)) debug.d
-	@rm -f $(addsuffix .o,$(targets)) debug.o
-	@rm -f $(addsuffix .exe,$(targets)) debug.exe
+	@rm -f $(addsuffix .d,$(targets)) debug.d custom.d
+	@rm -f $(addsuffix .o,$(targets)) debug.o custom.o
+	@rm -f $(addsuffix .exe,$(targets)) debug.exe custom.exe
 	@rm -f *.log *.png
 	@rm -f $(zip_embeded) $(libgch) lib.d
 	@rm -f config.ini icon.o
