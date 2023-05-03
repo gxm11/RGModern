@@ -27,7 +27,7 @@ RGModern 特点：
 
 注意：
  - 第一次使用请更新 2 次编译环境并更新 2 次 RGModern；
- - RGModern安装在 /msys64/opt/RGModern 下；
+ - 小助手自带的 RGModern 仓库安装在 `./msys64/opt/RGModern` 下；
  - 选择 Data 文件夹将制作加密包，选择后将强制使用标准模式。
 
 二次开发者请查阅使用指南和 Makefile，或参考 Github Actions 的设置。
