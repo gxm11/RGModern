@@ -151,14 +151,16 @@ return data[index];
 
 # 20230428-todo
 - [x] rgm 小助手
-- [ ] 用AI放大处理一下素材：https://bigjpg.com/zh
-- [ ] 注释中 return 的格式规范一下，每种不同的 return 各自占一行。
-- [ ] Regist 外部资源后触发 reload
-  1. 等待渲染线程
-  2. 清空 finder 的缓存
-  3. reload 资源
 - [x] 对 win7 的支持
 - [x] 尝试解决 opengl 的 tilemap 的 bug
 - [x] 引入协程
 - [x] misc.7z打包时带上dll
 - [x] 多线程存档导致崩溃，触发方式多切换几次菜单或者场景，然后存档就会在存储$game_map时崩溃。怀疑是跟table的存储有关。可以先试一下移除pmr，看看是不是pmr的bug，因为pmr对效率的提升不明显。单线程（包括协程模式）没有此问题。或者试着多save几次$game_map。
+
+# 20230503-todo
+- [ ] 提供兼容不同分辨率的范例工程。切换除地图以外的场景时自动模糊地图背景，并将其他的窗口居中。
+- [ ] 注释中 return 的格式规范一下，每种不同的 return 各自占一行。
+- [ ] Regist 外部资源后触发 reload
+  1. 等待渲染线程
+  2. 清空 finder 的缓存
+  3. reload 资源
