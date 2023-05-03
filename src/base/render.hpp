@@ -21,6 +21,7 @@
 #pragma once
 #include "core/core.hpp"
 #include "renderstack.hpp"
+#include "ruby_wrapper.hpp"
 
 namespace rgm::base {
 /// @brief 秒表 render，统计每帧渲染花费的时间

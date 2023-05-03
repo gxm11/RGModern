@@ -20,6 +20,7 @@
 
 #pragma once
 #include "core/core.hpp"
+#include "init_sdl2.hpp"
 #include "ruby_wrapper.hpp"
 
 namespace rgm::base {

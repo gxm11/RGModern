@@ -19,6 +19,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
+#include "config.hpp"
 
 /// @brief 使用元编程的方式完成类型萃取
 namespace rgm::core::traits {

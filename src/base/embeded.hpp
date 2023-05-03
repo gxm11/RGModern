@@ -19,7 +19,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #pragma once
-#include "base/base.hpp"
 #include "detail.hpp"
 
 #ifdef RGM_EMBEDED_ZIP
