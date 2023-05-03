@@ -40,7 +40,7 @@ namespace rgm::rmxp {
  * init_word 的 before 方法中，遍历 word 的元素，创建对应的 symbol。
  *
  * 在 builtin.hpp 中广泛用到，如
- *   `z = detail::get<word::z, int>(object);`
+ *   `z = detail::get_value<word::z, int>(object);`
  * 意思是获取 object 的实例变量 @z 的值，并且将其转化为 int 类型。
  *
  * 2. 用于设置 T_drawable 的成员变量
@@ -67,16 +67,16 @@ namespace rgm::rmxp {
  *
  * 利用 word 枚举类简化赋值的写法。详见 ./src/rmxp/drawable_object.hpp。
  * 对于值类型：
- *   `item.x = detail::get<word::x, decltype(item.x)>(object);`
+ *   `item.x = detail::get_value<word::x, decltype(item.x)>(object);`
  * 意思是将 object 的实例变量 @x 提取出来，转换成 item.x 的类型并赋值给它。
  *
  * 对于对象类型：
- *   `item.color << detail::get<word::color>(object);`
+ *   `item.color << detail::get_ivar<word::color>(object);`
  * 意思是将 object 的实例变量 @color 各属性提取出来，赋值给 item.color。
  * 只需在 color 等类中重载 operator<< 运算符，就可以使用统一的接口。
  *
  * 对于 ID 类型：
- *   `item.bitmap = detail::get<word::bitmap, const uint64_t>(object);`
+ *   `item.bitmap = detail::get_value<word::bitmap, const uint64_t>(object);`
  * 这里和值类型相同，但是 detail 对 const uint64_t 做了特化处理，会提取
  * @bitmap 的 object_id，然后赋值给 item.bitmap。
  *
@@ -179,7 +179,7 @@ using detail = base::detail_ext<word>;
   T(contents);            \
   T(contents_opacity);    \
   T(cursor_count);        \
-  T(data_ptr);                \
+  T(data_ptr);            \
   T(flash_data);          \
   T(flash_hidden);        \
   T(gray);                \

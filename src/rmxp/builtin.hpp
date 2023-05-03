@@ -73,8 +73,8 @@ struct z_index {
   /// @param object 目标 ruby 对象，通常是任意的 Drawable 类型
   /// @return z_index& 返回对自身的引用
   z_index& operator<<(const VALUE object) {
-    z = detail::get<word::z, int>(object);
-    id = detail::get<word::id, uint64_t>(object);
+    z = detail::get_value<word::z, int>(object);
+    id = detail::get_value<word::id, uint64_t>(object);
 
     return *this;
   }
@@ -104,10 +104,10 @@ struct color {
   /// @param object 目标 ruby 对象，通常是任意的 Drawable 类型
   /// @return color& 返回对自身的引用
   color& operator<<(const VALUE object) {
-    red = detail::get<word::red, uint8_t>(object);
-    green = detail::get<word::green, uint8_t>(object);
-    blue = detail::get<word::blue, uint8_t>(object);
-    alpha = detail::get<word::alpha, uint8_t>(object);
+    red = detail::get_value<word::red, uint8_t>(object);
+    green = detail::get_value<word::green, uint8_t>(object);
+    blue = detail::get_value<word::blue, uint8_t>(object);
+    alpha = detail::get_value<word::alpha, uint8_t>(object);
 
     return *this;
   }
@@ -131,10 +131,10 @@ struct tone {
   /// @param object 目标 ruby 对象，通常是任意的 Drawable 类型
   /// @return tone& 返回对自身的引用
   tone& operator<<(const VALUE object) {
-    red = detail::get<word::red, int16_t>(object);
-    green = detail::get<word::green, int16_t>(object);
-    blue = detail::get<word::blue, int16_t>(object);
-    gray = detail::get<word::gray, int16_t>(object);
+    red = detail::get_value<word::red, int16_t>(object);
+    green = detail::get_value<word::green, int16_t>(object);
+    blue = detail::get_value<word::blue, int16_t>(object);
+    gray = detail::get_value<word::gray, int16_t>(object);
 
     return *this;
   }
@@ -177,10 +177,10 @@ struct rect {
   /// @return rect& 返回对自身的引用
   rect& operator<<(const VALUE object) {
     /* 这 4 个属性值在 ruby 中对应的是 Fixnum，所以取值范围只有 int 的一半 */
-    x = detail::get<word::x, int>(object);
-    y = detail::get<word::y, int>(object);
-    width = detail::get<word::width, int>(object);
-    height = detail::get<word::height, int>(object);
+    x = detail::get_value<word::x, int>(object);
+    y = detail::get_value<word::y, int>(object);
+    width = detail::get_value<word::width, int>(object);
+    height = detail::get_value<word::height, int>(object);
 
     return *this;
   }

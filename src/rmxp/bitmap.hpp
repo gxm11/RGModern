@@ -829,8 +829,8 @@ struct init_bitmap {
       static VALUE text_size(VALUE, VALUE font_, VALUE text_) {
         RGMLOAD(text, const char*);
 
-        int id = detail::get<word::id, int>(font_);
-        int size = detail::get<word::size, int>(font_);
+        int id = detail::get_value<word::id, int>(font_);
+        int size = detail::get_value<word::size, int>(font_);
 
         font_manager<true>& fonts = RGMDATA(font_manager<true>);
         cen::font& font = fonts.get(id, size);
@@ -859,17 +859,18 @@ struct init_bitmap {
         if (text.size() == 0) return Qnil;
 
         color c;
-        c << detail::get<word::color>(font_);
+        c << detail::get_ivar<word::color>(font_);
         rect r;
         r << rect_;
 
-        int font_id = detail::get<word::id, int>(font_);
-        int font_size = detail::get<word::size, int>(font_);
-        bool font_bold = detail::get<word::bold, bool>(font_);
-        bool font_italic = detail::get<word::italic, bool>(font_);
-        bool font_underlined = detail::get<word::underlined, bool>(font_);
-        bool font_strikethrough = detail::get<word::strikethrough, bool>(font_);
-        bool font_solid = detail::get<word::solid, bool>(font_);
+        int font_id = detail::get_value<word::id, int>(font_);
+        int font_size = detail::get_value<word::size, int>(font_);
+        bool font_bold = detail::get_value<word::bold, bool>(font_);
+        bool font_italic = detail::get_value<word::italic, bool>(font_);
+        bool font_underlined = detail::get_value<word::underlined, bool>(font_);
+        bool font_strikethrough =
+            detail::get_value<word::strikethrough, bool>(font_);
+        bool font_solid = detail::get_value<word::solid, bool>(font_);
 
         worker >> bitmap_draw_text{r,
                                    id,

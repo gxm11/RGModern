@@ -30,13 +30,13 @@ namespace rgm::rmxp {
     using T = decltype(item.key);                                         \
     using U =                                                             \
         std::conditional_t<std::same_as<T, uint64_t>, const uint64_t, T>; \
-    item.key = detail::get<word::key, U>(ruby_object);                    \
+    item.key = detail::get_value<word::key, U>(ruby_object);              \
   }
 
 /// @brief 刷新 C++ 层变量的值，作为 ITERATE_OBJECTS 的参数。
-#define DO_REFRESH_OBJECT(key)                       \
-  if constexpr (requires { item.key; }) {            \
-    item.key << detail::get<word::key>(ruby_object); \
+#define DO_REFRESH_OBJECT(key)                            \
+  if constexpr (requires { item.key; }) {                 \
+    item.key << detail::get_ivar<word::key>(ruby_object); \
   }
 
 /// @brief case 分支，根据当前的 key 更新对应的成员变量
@@ -50,7 +50,7 @@ namespace rgm::rmxp {
       using T = decltype(item.key);                                         \
       using U =                                                             \
           std::conditional_t<std::same_as<T, uint64_t>, const uint64_t, T>; \
-      item.key = detail::get<word::key, U>(ruby_object);                    \
+      item.key = detail::get_value<word::key, U>(ruby_object);              \
     }                                                                       \
     return
 
@@ -92,11 +92,11 @@ struct drawable_object {
     refresh_object();
 
     /* 设置 viewport 指针，读取自 @viewport 的 @data */
-    VALUE viewport_ = detail::get<word::viewport>(ruby_object);
+    VALUE viewport_ = detail::get_ivar<word::viewport>(ruby_object);
     if (viewport_ == Qnil) {
       p_viewport = nullptr;
     } else {
-      VALUE data_ptr_ = detail::get<word::data_ptr>(viewport_);
+      VALUE data_ptr_ = detail::get_ivar<word::data_ptr>(viewport_);
       p_viewport = detail::get<viewport*>(data_ptr_);
     }
 
@@ -113,7 +113,7 @@ struct drawable_object {
   /// 此函数才是用来判断是否绘制的接口，与 visible 不同名为了防止递归调用。
   bool skip() const {
     /* 判断 @visible 属性 */
-    bool visible = detail::get<word::visible, bool>(ruby_object);
+    bool visible = detail::get_value<word::visible, bool>(ruby_object);
     if (!visible) return true;
 
     /* 调用派生类的 visible 方法 */

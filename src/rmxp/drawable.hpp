@@ -154,7 +154,8 @@ struct overlayer<window> {
   /// @brief 实现 skip() 接口
   /// @return 返回 true 时将跳过绘制，否则将绘制此对象。
   bool skip() const {
-    bool visible = detail::get<word::visible, bool>(p_drawable->ruby_object);
+    bool visible =
+        detail::get_value<word::visible, bool>(p_drawable->ruby_object);
     return !visible;
   }
 };
