@@ -23,6 +23,7 @@
 #include "blend_type.hpp"
 #include "drawable.hpp"
 #include "shader/shader.hpp"
+#include "viewport.hpp"
 
 namespace rgm::rmxp {
 /// @brief 绘制特定的 Drawable

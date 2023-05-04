@@ -24,6 +24,38 @@
 #include "drawable.hpp"
 
 namespace rgm::rmxp {
+/// @brief 设置 default_viewport 大小
+/// default_viewport 始终跟 screen 一样大小。因为 resize_screen 在 base 命名
+/// 空间中定义，而 viewport 类和 default_viewport 在 rmxp 命名空间中定义，为
+/// 了简化代码结构，不在 resize_screen 中设置 default_viewport，而是使用此任务。
+struct setup_default_viewport {
+  /// @brief 全局变量 default_viewport 数据的地址
+  /// 此数据虽然是全局变量，但是在 ruby worker 以外操作仍然要通过指针间接访问。
+  viewport* v;
+
+  void run(auto& worker) {
+    base::renderstack& stack = RGMDATA(base::renderstack);
+
+    /* 开发模式检查是否有 renderstack 的出入栈错误 */
+    if constexpr (config::develop) {
+      if (stack.stack.size() != 1) {
+        cen::log_error(
+            "setup default viewport failed, the stack depth is not equal to "
+            "1!");
+        throw std::length_error{"renderstack in setup default viewport"};
+      }
+    }
+
+    /* 设置 default_viewport 的大小位置等属性 */
+    v->ox = 0;
+    v->oy = 0;
+    v->rect.x = 0;
+    v->rect.y = 0;
+    v->rect.width = stack.current().width();
+    v->rect.height = stack.current().height();
+  }
+};
+
 /// @brief 创建 viewport 通用的 ruby 方法
 /// 包括：
 /// 1. create，创建 viewport，添加到 drawables 中
@@ -130,14 +162,6 @@ struct init_viewport {
                               2);
     rb_define_module_function(rb_mRGM_Base, "viewport_refresh_value",
                               wrapper::refresh_value, 2);
-
-    /*
-     * 初始化 default_viewport。
-     * rect 的 width 和 height 在 graphics.update 里更新。
-     */
-    default_viewport.ox = 0;
-    default_viewport.oy = 0;
-    default_viewport.rect = {0, 0, config::screen_width, config::screen_height};
   }
 };
 }  // namespace rgm::rmxp

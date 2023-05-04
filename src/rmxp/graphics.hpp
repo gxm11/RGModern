@@ -63,16 +63,9 @@ struct init_graphics {
       }
 
       /* ruby method: Base#graphics_update -> render<T> */
-      static VALUE update(VALUE, VALUE screen_width_, VALUE screen_height_) {
-        RGMLOAD(screen_width, int);
-        RGMLOAD(screen_height, int);
-
+      static VALUE update(VALUE) {
         tables* p_tables = &(RGMDATA(tables));
         tilemap_manager& tm = RGMDATA(tilemap_manager);
-
-        /* 设置 default_viewport 的大小 */
-        default_viewport.rect.width = screen_width;
-        default_viewport.rect.height = screen_height;
 
         /* 跳过绘制的 lambda */
         auto visitor_skip = [](auto& item) -> bool { return item.skip(); };
@@ -124,6 +117,9 @@ struct init_graphics {
 
         /* 清空屏幕 */
         worker >> base::clear_screen{};
+
+        /* 设置 default_viewport */
+        worker >> setup_default_viewport{&default_viewport};
 
         /* 遍历 drawables，如果是 Viewport，则再遍历一层 */
         drawables& data = RGMDATA(drawables);
@@ -222,7 +218,7 @@ struct init_graphics {
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
     rb_define_module_function(rb_mRGM_Base, "graphics_update", wrapper::update,
-                              2);
+                              0);
     rb_define_module_function(rb_mRGM_Base, "graphics_transition",
                               wrapper::transition, 5);
   }

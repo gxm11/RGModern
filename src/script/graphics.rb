@@ -38,7 +38,7 @@ module Graphics
     end
 
     unless @@freeze_bitmap
-      RGM::Base.graphics_update(@@screen_width, @@screen_height)
+      RGM::Base.graphics_update
       RGM::Base::Temp.clear
     end
     present
@@ -106,7 +106,7 @@ module Graphics
     # [vague] sets the ambiguity of the borderline between the graphic's starting and ending points.
     #         The larger the value, the greater the ambiguity. When omitted, this value is set to 40.
     @@freeze_bitmap ||= snap_to_bitmap
-    RGM::Base.graphics_update(@@screen_width, @@screen_height)
+    RGM::Base.graphics_update
     @@current_bitmap = snap_to_bitmap
 
     duration /= @@low_fps_ratio if @@low_fps_mode
