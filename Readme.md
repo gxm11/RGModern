@@ -1,8 +1,13 @@
 # Modern Ruby Game Engine (RGModern)
+![GitHub](https://img.shields.io/github/license/gxm11/RGModern)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/gxm11/RGModern)
+[![CodeFactor](https://www.codefactor.io/repository/github/gxm11/rgmodern/badge)](https://www.codefactor.io/repository/github/gxm11/rgmodern)
+![C++20](https://img.shields.io/badge/C%2B%2B-20-blue)
+![Ruby32](https://img.shields.io/badge/Ruby-3.2.2-red)
+![SDL2](https://img.shields.io/badge/SDL-2.26.5-132b48)
+
 ![release build](https://github.com/gxm11/RGModern/actions/workflows/main.yml/badge.svg?event=release)
 ![push build](https://github.com/gxm11/RGModern/actions/workflows/main.yml/badge.svg?event=push)
-
-[![CodeFactor](https://www.codefactor.io/repository/github/gxm11/rgmodern/badge)](https://www.codefactor.io/repository/github/gxm11/rgmodern)
 
 当前版本：v1.0.0
 
@@ -81,7 +86,7 @@ RGModern 不支持原版的加密方案。众所周知，原版加密方案等�
 4. [SDL2 Mixer](https://github.com/libsdl-org/SDL_mixer)
 5. [SDL2 TTF](https://github.com/libsdl-org/SDL_ttf)
 6. [centurion](https://github.com/albin-johansson/centurion)
-7. [concurrentqueue](https://github.com/cameron314/concurrentqueue). 
+7. [concurrentqueue](https://github.com/cameron314/concurrentqueue)
 8. [incbin](https://github.com/graphitemaster/incbin)
 9. [xorstr](https://github.com/JustasMasiulis/xorstr)
 10. [libzip](https://libzip.org)
