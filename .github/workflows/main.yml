@@ -4,7 +4,9 @@ on:
     types: [published]
   push:
     branches: |
+      master
       dev
+    tags: v1.*
 
 jobs:
   build:
