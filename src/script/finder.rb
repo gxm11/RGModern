@@ -31,16 +31,16 @@ module Finder
     none: []
   }
 
+  Load_Path.each_value do |paths|
+    paths.push(Dir.getwd)
+  end
+
   if RGM::Config::Build_Mode <= 1
     Load_Path.each_key do |type|
       next if type == :none
 
       Load_Path[type] += ['./resource/', './Project1/']
     end
-  end
-
-  Load_Path.each_value do |paths|
-    paths.push(Dir.getwd)
   end
 
   Suffix = {
