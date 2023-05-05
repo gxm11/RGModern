@@ -71,6 +71,7 @@ class Viewport
   def dispose
     @visible = false
     @disposed = true
+    @data_ptr = nil
     RGM::Base.viewport_dispose(@id)
   end
 
