@@ -30,17 +30,21 @@ endif()
 # RGM
 add_executable(Game)
 aux_source_directory(${SRC_DIR} SRC_LIST)
+file(GLOB_RECURSE HEADER_LIST ${CMAKE_CURRENT_SOURCE_DIR}/${SRC_DIR}/*.hpp)
 target_sources(Game PRIVATE
-    ${SRC_LIST} # 源代码
-    ext/icon.rc # 资源文件
+    ${HEADER_LIST}  # 头文件
+    ${SRC_LIST}     # 源文件
+    ext/icon.rc     # 资源文件
+)
+target_precompile_headers(Game PRIVATE
+    "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/${SRC_DIR}/lib/lib.hpp>" # 预编译头
 )
 enable_language(RC)
 set_property(SOURCE ext/icon.rc
     PROPERTY LANGUAGE RC    # 设置资源文件属性
 )
-set_property(TARGET Game
-    PROPERTY 
-    CXX_STANDARD 20         # 使用C++20
+target_compile_features(Game PRIVATE
+    cxx_std_20              # 使用C++20
 )
 target_compile_options(Game PRIVATE
     "$<$<CXX_COMPILER_ID:MSVC>:-utf-8>"        # MSVC需要显式指定源文件使用utf8
@@ -209,7 +213,6 @@ endif()
 
 if(MSVC)
     # MSVC 的 INCBIN 支持
-    file(GLOB_RECURSE INCBIN_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/${SRC_DIR}/*.hpp)
     # 构建工具
     add_executable(incbin
         "${INCBIN_INCLUDE_DIRS}/incbin.c"
@@ -222,7 +225,7 @@ if(MSVC)
     add_custom_command(TARGET incbin
         POST_BUILD
         BYPRODUCTS ${_INCBIN_OUTPUT}
-        COMMAND $<TARGET_FILE:incbin> -Ssnakecase -p rgm_ ${INCBIN_SRCS} -o ${CMAKE_CURRENT_BINARY_DIR}/${_INCBIN_OUTPUT}
+        COMMAND $<TARGET_FILE:incbin> -Ssnakecase -p rgm_ ${HEADER_LIST} -o ${CMAKE_CURRENT_BINARY_DIR}/${_INCBIN_OUTPUT}
         VERBATIM
     )
     add_dependencies(incbin ${ZIP_EMBEDED})
