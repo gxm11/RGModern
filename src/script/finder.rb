@@ -22,13 +22,13 @@ module Finder
   module_function
 
   Load_Path = {
-    font: [nil, './Fonts', 'C:/Windows/Fonts'],
-    image: [nil],
-    music: [nil],
-    sound: [nil],
-    soundfont: [nil],
-    data: [nil],
-    none: [nil]
+    font: ['./Fonts', 'C:/Windows/Fonts'],
+    image: [],
+    music: [],
+    sound: [],
+    soundfont: [],
+    data: [],
+    none: []
   }
 
   if RGM::Config::Build_Mode <= 1
@@ -37,6 +37,10 @@ module Finder
 
       Load_Path[type] += ['./resource/', './Project1/']
     end
+  end
+
+  Load_Path.each_value do |paths|
+    paths.push(Dir.getwd)
   end
 
   Suffix = {
