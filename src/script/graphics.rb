@@ -206,7 +206,7 @@ module Graphics
 
   def set_title(title)
     @@title = title
-    RGM::Base.set_title(title) unless @@show_fps
+    RGM::Base.set_title(title)
   end
 
   def set_fullscreen(mode)
