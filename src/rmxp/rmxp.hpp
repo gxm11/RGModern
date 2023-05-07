@@ -61,7 +61,7 @@ using tasks_ruby =
 
 /// @brief 执行渲染流程的 task，使用 SDL2 创建窗口，绘制画面并处理事件
 using tasks_render = std::tuple<
-    init_shader, init_event, init_blend_type, init_font<false>,
+    shader::init_shader, init_event, init_blend_type, init_font<false>,
     bitmap_create<1>, bitmap_create<2>, bitmap_create<3>, bitmap_dispose,
     bitmap_save_png, bitmap_capture_screen, bitmap_blt, bitmap_stretch_blt,
     bitmap_fill_rect, bitmap_hue_change, bitmap_grayscale, bitmap_draw_text,

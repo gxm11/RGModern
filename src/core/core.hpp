@@ -20,7 +20,6 @@
 
 #pragma once
 #include "config.hpp"
-/* config 必须是第一个文件 */
 #include "cooperation.hpp"
 #include "kernel.hpp"
 #include "scheduler.hpp"

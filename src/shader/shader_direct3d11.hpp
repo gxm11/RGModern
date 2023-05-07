@@ -20,7 +20,7 @@
 
 #pragma once
 #include "shader_base.hpp"
-// include shader_base before other c headers
+/* include shader_base before other c headers */
 #include "d3d11.h"
 #include "direct3d11/gray.h"
 #include "direct3d11/hue.h"
@@ -28,63 +28,96 @@
 #include "direct3d11/transition.h"
 
 namespace rgm::shader {
+/// @brief 基本的 shader 类对 direct3d11 渲染器的特化
 template <>
 struct shader_base<direct3d11> {
-  static SDL_Renderer* renderer;
-  static ID3D11DeviceContext* context;
-  static ID3D11Device* device;
+  /// @brief 渲染器的数据地址
+  inline static SDL_Renderer* renderer = nullptr;
 
+  /// @brief D3D11 Device Context 的数据地址
+  inline static ID3D11DeviceContext* context = nullptr;
+
+  /// @brief D3D11 Device 的数据地址
+  inline static ID3D11Device* device = nullptr;
+
+  /// @brief 初始化 D3D11 Device
   static void setup(cen::renderer& renderer) {
     device = SDL_RenderGetD3D11Device(renderer.get());
     shader_base::renderer = renderer.get();
     device->GetImmediateContext(&shader_base::context);
   }
 };
-SDL_Renderer* shader_base<direct3d11>::renderer;
-ID3D11DeviceContext* shader_base<direct3d11>::context;
-ID3D11Device* shader_base<direct3d11>::device;
 
+/// @brief 静态 shader 类对 direct3d11 渲染器的特化
+/// @tparam T_shader shader 的类型
+/// 利用 RAII 机制切换 shader，渲染效果执行结束后再切回来
 template <template <config::driver_type> class T_shader>
 struct shader_static<direct3d11, T_shader> : shader_base<direct3d11> {
+  /* T_shader 对不同的渲染器也有特化 */
   using T = T_shader<direct3d11>;
 
-  static ID3D11PixelShader* current_shader;
+  /// @brief T_shader 对应的 shader 对象地址
+  inline static ID3D11PixelShader* current_shader = nullptr;
 
+  /// @brief 存储调用此 shader 之前的 shader 状态，用于后续恢复
   ID3D11PixelShader* previous_shader;
 
+  /// @brief 构造函数
   explicit shader_static() {
+    /* 存储旧的 shader */
     context->PSGetShader(&previous_shader, NULL, 0);
+
+    /* 应用 T_shader */
     context->PSSetShader(current_shader, NULL, 0);
   }
 
-  ~shader_static() { context->PSSetShader(previous_shader, NULL, 0); }
+  /// @brief 析构函数
+  ~shader_static() {
+    /* 还原旧的 shader */
+    context->PSSetShader(previous_shader, NULL, 0);
+  }
 
+  /// @brief 初始化 T_shader
+  /// @param 渲染器
   static void setup(cen::renderer&) {
+    /* 使用预编译的 code 创建 Pixel Shader */
     device->CreatePixelShader(T::code, T::code_size, NULL, &current_shader);
   }
 };
 
-template <template <config::driver_type> class T_shader>
-ID3D11PixelShader* shader_static<direct3d11, T_shader>::current_shader;
-
+/// @brief 动态 shader 类对 direct3d9 渲染器的特化
+/// @tparam T_shader shader 的类型
+/// 利用 RAII 机制切换 shader，渲染效果执行结束后再切回来
 template <template <config::driver_type> class T_shader>
 struct shader_dynamic<direct3d11, T_shader> : shader_base<direct3d11> {
+  /* T_shader 对不同的渲染器也有特化 */
   using T = T_shader<direct3d11>;
 
-  static ID3D11PixelShader* current_shader;
-  // constants buffer description
-  static D3D11_BUFFER_DESC cbDesc;
-  static D3D11_SUBRESOURCE_DATA InitData;
+  inline static ID3D11PixelShader* current_shader = nullptr;
+  /* constants buffer description */
+  inline static D3D11_BUFFER_DESC cbDesc{};
 
-  static ID3D11Buffer* p_buffer;
-  static ID3D11PixelShader* previous_shader;
+  /* constants sub resource data */
+  inline static D3D11_SUBRESOURCE_DATA InitData{};
 
+  /* constants buffer pointer */
+  inline static ID3D11Buffer* p_buffer = nullptr;
+
+  /// @brief T_shader 对应的 shader 对象地址
+  inline static ID3D11PixelShader* previous_shader = nullptr;
+
+  /// @brief 构造函数
   explicit shader_dynamic() {
+    /* 存储旧的 shader */
     context->PSGetShader(&previous_shader, NULL, NULL);
   }
 
-  ~shader_dynamic() { context->PSSetShader(previous_shader, NULL, 0); }
+  ~shader_dynamic() {
+    /* 还原旧的 shader */
+    context->PSSetShader(previous_shader, NULL, 0);
+  }
 
+  /// @brief 要主动调用 refresh() 函数以设置 Constant Buffer
   static void refresh() {
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     SDL_zero(mappedResource);
@@ -94,13 +127,20 @@ struct shader_dynamic<direct3d11, T_shader> : shader_base<direct3d11> {
     memcpy(mappedResource.pData, &T::data, sizeof(T::data));
     context->Unmap(p_buffer, 0);
 
+    /* 应用 T_shader */
     context->PSSetShader(current_shader, NULL, 0);
+
+    /* 设置 Constant Buffers */
     context->PSSetConstantBuffers(0, 1, &p_buffer);
   }
 
+  /// @brief 初始化 T_shader
+  /// @param 渲染器
   static void setup(cen::renderer&) {
+    /* 使用预编译的 code 创建 Pixel Shader */
     device->CreatePixelShader(T::code, T::code_size, NULL, &current_shader);
 
+    /* constants buffer 相关的创建和初始化操作 */
     SDL_zero(cbDesc);
     cbDesc.ByteWidth = sizeof(T::data);
     cbDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -118,27 +158,14 @@ struct shader_dynamic<direct3d11, T_shader> : shader_base<direct3d11> {
   }
 };
 
-template <template <config::driver_type> class T_shader>
-ID3D11PixelShader* shader_dynamic<direct3d11, T_shader>::current_shader;
-
-template <template <config::driver_type> class T_shader>
-D3D11_BUFFER_DESC shader_dynamic<direct3d11, T_shader>::cbDesc;
-
-template <template <config::driver_type> class T_shader>
-D3D11_SUBRESOURCE_DATA shader_dynamic<direct3d11, T_shader>::InitData;
-
-template <template <config::driver_type> class T_shader>
-ID3D11Buffer* shader_dynamic<direct3d11, T_shader>::p_buffer;
-
-template <template <config::driver_type> class T_shader>
-ID3D11PixelShader* shader_dynamic<direct3d11, T_shader>::previous_shader;
-
+/// @brief 用于实现灰度的 shader 类对 direct3d11 渲染器的特化
 template <>
 struct shader_gray<direct3d11> : shader_static<direct3d11, shader_gray> {
   static constexpr const unsigned char* code = rgm_shader_gray_data;
   static constexpr size_t code_size = sizeof(rgm_shader_gray_data);
 };
 
+/// @brief 用于实现色相的 shader 类对 direct3d11 渲染器的特化
 template <>
 struct shader_hue<direct3d11> : shader_dynamic<direct3d11, shader_hue> {
   // k3 没有任何作用，但是不设置就会导致 shader 失效。
@@ -152,7 +179,7 @@ struct shader_hue<direct3d11> : shader_dynamic<direct3d11, shader_hue> {
     float k3;
   };
 
-  static inline buffer_t data;
+  inline static buffer_t data{};
 
   static constexpr const unsigned char* code = rgm_shader_hue_data;
   static constexpr size_t code_size = sizeof(rgm_shader_hue_data);
@@ -170,6 +197,7 @@ struct shader_hue<direct3d11> : shader_dynamic<direct3d11, shader_hue> {
   }
 };
 
+/// @brief 用于实现色调的 shader 类对 direct3d11 渲染器的特化
 template <>
 struct shader_tone<direct3d11> : shader_dynamic<direct3d11, shader_tone> {
   struct buffer_t {
@@ -179,7 +207,7 @@ struct shader_tone<direct3d11> : shader_dynamic<direct3d11, shader_tone> {
     float gray;
   };
 
-  static inline buffer_t data{};
+  inline static buffer_t data{};
 
   static constexpr const unsigned char* code = rgm_shader_tone_data;
   static constexpr size_t code_size = sizeof(rgm_shader_tone_data);
@@ -194,6 +222,7 @@ struct shader_tone<direct3d11> : shader_dynamic<direct3d11, shader_tone> {
   }
 };
 
+/// @brief 用于实现渐变的 shader 类对 direct3d11 渲染器的特化
 template <>
 struct shader_transition<direct3d11>
     : shader_dynamic<direct3d11, shader_transition> {
@@ -204,7 +233,7 @@ struct shader_transition<direct3d11>
     float k3;
   };
 
-  static inline buffer_t data;
+  inline static buffer_t data{};
 
   static constexpr const unsigned char* code = rgm_shader_transition_data;
   static constexpr size_t code_size = sizeof(rgm_shader_transition_data);
