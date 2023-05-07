@@ -73,15 +73,15 @@ module Finder
       end
     end
 
-    filename = FontPaths[filename] || filename if key == :font
+    filename = FontPaths[filename] || filename.freeze if key == :font
 
     Load_Path[key].each do |directory|
       Suffix[key].each do |extname|
         path = File.expand_path(filename + extname, directory)
-        if File.exist?(path)
-          Cache[filename] = path
-          return Cache[filename]
-        end
+        next unless File.exist?(path)
+
+        Cache[filename] = path.freeze
+        return Cache[filename]
       end
     end
 

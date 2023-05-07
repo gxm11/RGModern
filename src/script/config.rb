@@ -90,7 +90,7 @@ File.open(RGM::Config::Config_Path, 'r') do |f|
     if flag == :Font && (line =~ /^(.+)=(.+)$/)
       fontname = Regexp.last_match(1)
       path = Regexp.last_match(2)
-      Finder::FontPaths[fontname] = path
+      Finder::FontPaths[fontname] = path.freeze
       next
     end
 
