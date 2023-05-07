@@ -146,9 +146,9 @@ void load_data(std::map<std::string, section_t>& data) {
 bool load_args(int argc, char* argv[]) {
   if (argc == 2 && std::string_view("-v") == argv[1]) {
     /* 显示版本信息 */
-    printf("RGM %s [BuildMode = %d]\n\n", RGM_FULLVERSION, RGM_BUILDMODE);
+    printf("RGModern %s [BuildMode = %d]\n\n", RGM_FULLVERSION, RGM_BUILDMODE);
     printf(
-        "Modern Ruby Game Engine (RGM) is licensed under the zlib "
+        "Modern Ruby Game Engine (RGModern) is licensed under the zlib "
         "License.\n");
     printf("copyright (C) 2023 Guoxiaomi and Krimiston\n\n");
     printf("Repository: https://github.com/gxm11/RGModern\n\n");
