@@ -71,7 +71,7 @@ struct renderstack {
   /// @param width 图片的宽
   /// @param height 图片的高
   /// @return int 能放下这个图片的最小正方形 texture 的大小
-  constexpr static int best_value(int width, int height) {
+  [[nodiscard]] constexpr static int best_value(int width, int height) {
     int least_value = std::max(width, height);
     if (least_value > max_texture_size) {
       throw std::invalid_argument("Texture size must be less than 32768.");
@@ -90,7 +90,7 @@ struct renderstack {
   /// @param renderer SDL2 渲染器的引用
   /// @param width 屏幕的宽度
   /// @param height 屏幕的高度
-  void setup(cen::renderer& renderer, int width, int height) {
+  void setup(cen::renderer& renderer, int width, int height) noexcept {
     /* 给 renderer_handle 成员赋值 */
     this->renderer = cen::renderer_handle(renderer);
 
@@ -112,7 +112,7 @@ struct renderstack {
   /// @param width 图片的宽
   /// @param height 图片的高
   /// 创建空 texture 的通用方案
-  cen::texture make_empty_texture(int width, int height) {
+  [[nodiscard]] cen::texture make_empty_texture(int width, int height) {
     /* texture 使用 bgra32 格式 */
     cen::texture empty =
         renderer.make_texture(cen::iarea{width, height}, config::texture_format,

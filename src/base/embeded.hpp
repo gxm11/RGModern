@@ -51,7 +51,8 @@ struct zip_data_embeded {
   /// @brief 读取内嵌资源包中指定的文件的内容
   /// @param path 内嵌资源包中的文件路径
   /// @return 成功则 std::string 中存储了文件的内容，失败返回 std::nullopt
-  std::optional<std::string> load_string(std::string_view path) const {
+  [[nodiscard]] std::optional<std::string> load_string(
+      std::string_view path) const {
     std::string buf;
 
     zip_stat_t sb;

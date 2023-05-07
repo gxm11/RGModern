@@ -58,7 +58,7 @@ struct zip_data_external {
   /// @brief 检查某个路径是否位于外部资源包中
   /// @param path 要检查的文件名称
   /// @return 如果该文件存在，则 true，否则 false
-  bool check(std::string_view path) const {
+  [[nodiscard]] bool check(std::string_view path) const {
     zip_stat_t sb;
     int ret = zip_stat(archive, path.data(), ZIP_FL_ENC_STRICT, &sb);
     return ret == 0;
@@ -67,7 +67,8 @@ struct zip_data_external {
   /// @brief 读取外部资源包中指定的文件的内容
   /// @param path 外部资源包中的文件路径
   /// @return 成功则 std::string 中存储了文件的内容，失败返回 std::nullopt
-  std::optional<std::string> load_string(std::string_view path) const {
+  [[nodiscard]] std::optional<std::string> load_string(
+      std::string_view path) const {
     std::string buf;
 
     zip_stat_t sb;
@@ -88,8 +89,8 @@ struct zip_data_external {
   /// @param path 外部资源包中的图像文件路径
   /// @param renderer SDL 的渲染器
   /// @return 成功则返回新创建的 SDL_Texture*，失败则返回 nullptr。
-  SDL_Texture* load_texture(std::string_view path,
-                            cen::renderer& renderer) const {
+  [[nodiscard]] SDL_Texture* load_texture(std::string_view path,
+                                          cen::renderer& renderer) const {
     if (!archive) return nullptr;
 
     auto buf = load_string(path);
@@ -105,7 +106,7 @@ struct zip_data_external {
   /// @param path 外部资源包中的图像文件路径
   /// @param renderer SDL 的渲染器
   /// @return 成功则返回新创建的 SDL_Surface*，失败则返回 nullptr。
-  SDL_Surface* load_surface(std::string_view path) const {
+  [[nodiscard]] SDL_Surface* load_surface(std::string_view path) const {
     if (!archive) return nullptr;
 
     auto buf = load_string(path);

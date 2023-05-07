@@ -55,7 +55,7 @@ struct font_manager {
   }
 
   /// @brief 使用 font id 和 font size 获取对应的 cen::font 对象
-  cen::font& get(int id, int font_size) {
+  [[nodiscard]] cen::font& get(int id, int font_size) {
     /* 先在 m_data 中查找，若找到了返回结果 */
     auto it = m_data.find({id, font_size});
     if (it != m_data.end()) return it->second;

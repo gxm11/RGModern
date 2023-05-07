@@ -81,7 +81,7 @@ struct table {
   /// @param y 第 2 个维度的坐标
   /// @param z 第 3 个维度的坐标
   /// @return 储存的值
-  int16_t get(int x, int y, int z) const {
+  [[nodiscard]] int16_t get(int x, int y, int z) const {
     int index = x + y * x_size + z * x_size * y_size;
 
     return get(index);
@@ -90,7 +90,7 @@ struct table {
   /// @brief 获取 table 中特定位置的值
   /// @param 将 table 展开成 1 列，对应的位置
   /// @return 储存的值
-  int16_t get(int index) const {
+  [[nodiscard]] int16_t get(int index) const {
     /* 访问 vector 时总是检查索引的范围 */
     return m_data.at(index);
   }
@@ -115,7 +115,7 @@ struct table {
 
   /// @brief 返回 table 在堆上的数据指针
   /// @return 返回堆上的指针
-  int16_t* data_ptr() { return &(m_data.front()); }
+  [[nodiscard]] int16_t* data_ptr() { return &(m_data.front()); }
 };
 
 /// @brief 存储所有 table，即 Table 对象的类

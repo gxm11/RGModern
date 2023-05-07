@@ -74,7 +74,7 @@ struct controller_axis_move {
     }
   }
 
-  static state get_state(int before, int after) {
+  [[nodiscard]] static state get_state(int before, int after) {
     constexpr int t = config::controller_axis_threshold;
 
     if (before < -t && -t <= after) return state::negative_greater;
@@ -136,7 +136,7 @@ struct controller_buttonmap {
   /// @param callback 只接受一个 int 类型的参数，即 RMXP Input Key
   /// callback 通常是修改 RMXP Input Key 按下或抬起的状态。
   /// @see ./src/rxmp/input.hpp
-  void iterate(int button, std::function<void(int)> callback) {
+  void iterate(int button, std::function<void(int)> callback) const {
     /*
      * 查询不小于 {button, 0} 的那个元素
      * 此元素显然是 {button, i}，i 对应绑定的值最小的那个虚拟按键值

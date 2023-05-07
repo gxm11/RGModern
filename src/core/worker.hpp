@@ -87,7 +87,7 @@ struct worker {
   std::unique_ptr<T_data> p_data;
 
   /// @brief 发送停止信号，在异步多线程模式下还会恢复等待自身的 worker。
-  void stop() {
+  void stop() noexcept {
     p_scheduler->stop_source.request_stop();
 
     if constexpr (is_asynchronized) {
@@ -97,11 +97,13 @@ struct worker {
 
   /// @brief 判断 worker 是否需要停止。
   /// 只要有一个 worker 停止，其他的 worker 都会跟随停止，然后程序结束。
-  static bool is_stopped() { return p_scheduler->stop_source.stop_requested(); }
+  [[nodiscard]] static bool is_stopped() noexcept {
+    return p_scheduler->stop_source.stop_requested();
+  }
 
   /// @brief 根据 worker 的状态创建新的协程
   /// @param worker 可能要在协程中运行的 worker
-  void fiber_setup() {
+  void fiber_setup() noexcept {
     if constexpr (is_concurrent) {
       auto& fiber_main = p_scheduler->fibers[0];
       auto& fiber = p_scheduler->fibers.at(co_index + 1);
@@ -116,7 +118,7 @@ struct worker {
   }
 
   /// @brief 让出执行权，只在协程单线程模式下生效。
-  static void fiber_yield() {
+  static void fiber_yield() noexcept {
     if constexpr (is_concurrent) {
       auto& fiber_main = p_scheduler->fibers[0];
 
@@ -125,7 +127,7 @@ struct worker {
   }
 
   /// @brief 让出执行权，并且永不返回，只在协程单线程模式下生效。
-  static void fiber_return() {
+  static void fiber_return() noexcept {
     if constexpr (is_concurrent) {
       auto& fiber_main = p_scheduler->fibers[0];
       auto& fiber = p_scheduler->fibers[co_index + 1];
@@ -139,7 +141,7 @@ struct worker {
   /// @tparam T 变量类型
   /// @return T& 返回 T 类型变量的引用
   template <typename T>
-  T& get() {
+  [[nodiscard]] T& get() noexcept {
     constexpr size_t index = traits::tuple_index<T_data, T>();
     return std::get<index>(*p_data);
   }

@@ -22,16 +22,6 @@
 #include "base/base.hpp"
 
 namespace rgm::rmxp {
-// 加法：s.rgb + d.rgb = [1, +, 1] [0, +, 1]
-// screen：s.rgb + (1-s.rgb)*d.rgb = [1, +, 1-S] [0, +, 1]，保证透明度跟底层一样
-// 反号乘法：(1-s.rgb)*d.rgb = [0, +, 1-S] [0, +, 1]，保证透明度跟底层一样
-// 减法：
-// 颜色、灰度：s.a*s.rgb + (1-s.a)*d.rgb = [S.a, +, 1-S.a] [0, +,
-// 1]，保证透明度跟底层一样 渐变：s.a*s.rgb + (1-s.a)*d.rgb = [S.a, +, 1-S.a]
-// [1, +, 1-S.a] = blend（alpha叠加） Hue：s.rgb，但是使用d.a
-// 为了避免不透明度平方的问题，在viewport绘制到最终窗口上时，少乘一次opacity
-// Alpha叠加 Blend：s.rgb + (1-s.a)*d.rgb = [1, +, 1-S] [1, +, 1-S.a] = blend2
-
 /// @brief 自定义混合模式
 /// 封装了若干自定义混合模式，在实现各种绘制效果时用到
 struct blend_type {

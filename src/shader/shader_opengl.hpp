@@ -63,7 +63,7 @@ struct shader_base<opengl> {
   }
 
   /// @brief 设置 gl 系列函数的地址
-  static bool init_gl_functions() {
+  [[nodiscard]] static bool init_gl_functions() noexcept {
     glCreateShader =
         (PFNGLCREATESHADERPROC)SDL_GL_GetProcAddress("glCreateShader");
     glShaderSource =
@@ -106,8 +106,9 @@ struct shader_base<opengl> {
   /// @param source glsl 的源码路径
   /// @param source_size glsl 的源码长度
   /// @return 编译成功后的 shader 对应的唯一 ID
-  static GLuint load_shader(GLenum shaderType, const GLchar* source,
-                            const GLint source_size) {
+  [[nodiscard]] static GLuint load_shader(GLenum shaderType,
+                                          const GLchar* source,
+                                          const GLint source_size) {
     GLuint shaderID = glCreateShader(shaderType);
     glShaderSource(shaderID, 1, &source, &source_size);
     glCompileShader(shaderID);
@@ -135,8 +136,8 @@ struct shader_base<opengl> {
   /// @param vertexShaderID
   /// @param fragmentShaderId
   /// @return 编译成功后的程序对应的唯一 ID
-  static GLuint compile_program(GLuint vertexShaderID,
-                                GLuint fragmentShaderId) {
+  [[nodiscard]] static GLuint compile_program(GLuint vertexShaderID,
+                                              GLuint fragmentShaderId) {
     GLuint programId = glCreateProgram();
     glAttachShader(programId, vertexShaderID);
     glAttachShader(programId, fragmentShaderId);
@@ -178,7 +179,7 @@ struct shader_dynamic<opengl, T_shader> : shader_base<opengl> {
 
   /// @brief 初始化 T_shader
   /// @param 渲染器
-  static void setup(cen::renderer&) {
+  static void setup(cen::renderer&) noexcept {
     /* 编译 VERTEX SHADER */
     GLint vertex_shader;
     if constexpr (requires { T::vertex; }) {

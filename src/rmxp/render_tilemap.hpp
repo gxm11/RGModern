@@ -57,7 +57,7 @@ struct render_tilemap_helper {
   /// proc 的 4 个参数分别是 x, y, x_index, y_index，代表图块的数据
   /// 其中 x 和 y 是在 viewport 上此图块的左上角坐标，
   /// x_index 和 y_index 是此图块在 tilemap 中的横、纵格子位置。
-  void iterate_tiles(std::function<void(int, int, int, int)> proc) {
+  void iterate_tiles(std::function<void(int, int, int, int)> proc) const {
     /* 获取 viewport，如果不存在则使用 default_viewport */
     const viewport* p_viewport =
         p_tilemap->p_viewport ? p_tilemap->p_viewport : &default_viewport;
@@ -123,7 +123,8 @@ struct render_tilemap_helper {
   /// @param renderer 渲染器
   /// @param tileset tilemap 使用的图片素材
   /// @return render 函数，在 iterate_tiles 中调用
-  auto make_render_proc(cen::renderer& renderer, const cen::texture& tileset)
+  [[nodiscard]] auto make_render_proc(cen::renderer& renderer,
+                                      const cen::texture& tileset)
       -> std::function<void(int, int, int, int)> {
     /* render 的 4 个参数的含义详见 iterate_tiles */
     auto render = [&](int x, int y, int x_index, int y_index) {

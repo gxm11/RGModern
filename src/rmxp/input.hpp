@@ -37,7 +37,7 @@ struct keymap {
   /// @param 组合的第一项必须等于该值
   /// @param callback 只接受一个 int 类型的参数，即 RMXP Input Key
   /// callback 通常是修改 RMXP Input Key 按下或抬起的状态。
-  void iterate(int32_t sdl_key, std::function<void(int)> callback) {
+  void iterate(int32_t sdl_key, std::function<void(int)> callback) const {
     /*
      * 查询不小于 {sdl_key, 0} 的那个元素
      * 此元素显然是 {sdl_key, i}，i 对应绑定的值最小的那个虚拟按键值
@@ -125,12 +125,16 @@ struct keystate {
   /// @brief 判断按键是否刚刚按下，只需检测最低 2 位是否为 01
   /// @param key 目标按键
   /// @return 返回 true 表示此按键刚刚按下
-  bool is_trigger(int key) { return (m_data[key % max] & 0b11) == 0b01; }
+  [[nodiscard]] bool is_trigger(int key) const {
+    return (m_data[key % max] & 0b11) == 0b01;
+  }
 
   /// @brief 判断按键是否正在按下，只需检测最低 1 位是否为 1
   /// @param key 目标按键
   /// @return 返回 true 表示此按键正在按下
-  bool is_press(int key) { return (m_data[key % max] & 0b01) == 0b01; }
+  [[nodiscard]] bool is_press(int key) const {
+    return (m_data[key % max] & 0b01) == 0b01;
+  }
 
   /// @brief 判断按键是否正在重复按下
   /// @param key 目标按键
@@ -143,7 +147,7 @@ struct keystate {
   /// 3. 后16位是 0b1110'1111'1111'1111
   /// 且在满足(2)时，修改按键的状态为 0b1110'1111'1111'1111，持续 4
   /// 帧后又会再次触发。
-  bool is_repeat(int key) {
+  [[nodiscard]] bool is_repeat(int key) {
     /* 按键按下时，重复触发的周期为 a + bx，单位：帧 */
     constexpr int interval_a = 16;
     constexpr int interval_b = 4;

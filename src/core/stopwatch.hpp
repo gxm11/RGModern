@@ -109,14 +109,14 @@ struct stopwatch_normal {
   }
 
   /// @brief 标记计时的起点
-  void start() {
+  void start() noexcept {
     ++counts;
     if (counts < 0) return;
     data[0].now = std::chrono::steady_clock::now();
   }
 
   /// @brief 标记计时的阶段记录点
-  void step(size_t index) {
+  void step(size_t index) noexcept {
     if (counts < 0) return;
     data[index].now = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = data[index].now - data[index - 1].now;

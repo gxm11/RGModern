@@ -132,13 +132,13 @@ struct tilemap_info {
 
   /// @brief current_index 对应的 z 值
   /// @return current_index 对应的 z 值
-  int current_z() const {
+  [[nodiscard]] int current_z() const {
     return current_index * 32 + 32 + tilemap_z - p_tilemap->oy;
   }
 
   /// @brief 如果还能产生新的层，则判断为非空，空的对象需要删除。
   /// @return 如果还能产生新的层则返回 true，否则返回 false。
-  bool empty() const { return current_index >= max_index; }
+  [[nodiscard]] bool empty() const { return current_index >= max_index; }
 
   /*
    * 这两个函数供 render 时调用，快速跳过特定的行和列。
@@ -146,7 +146,7 @@ struct tilemap_info {
    * diff = index - y_index。
    * 显然输入的 x_index 和 y_index 不能小于 0，在外部保证。
    */
-  bool skip_column(int x_index, int diff) const {
+  [[nodiscard]] bool skip_column(int x_index, int diff) const {
     // return false;
 
     if (diff <= 0) return true;
@@ -156,7 +156,7 @@ struct tilemap_info {
     return (flag & (1u << (diff - 1))) == 0;
   }
 
-  bool skip_row(int y_index, int diff) const {
+  [[nodiscard]] bool skip_row(int y_index, int diff) const {
     // return false;
 
     if (diff <= 0) return true;
@@ -242,7 +242,7 @@ struct tilemap_manager {
 
   /// @brief 返回下一个可绘制的 overlayer 层
   /// @return 返回下一层的 tilemap_info 和 index，不存在则返回 std::nullopt
-  auto next_layer(z_index zi, size_t depth = 0)
+  [[nodiscard]] auto next_layer(z_index zi, size_t depth = 0)
       -> std::optional<std::pair<tilemap_info*, int>> {
     /* layer 中什么也没有则返回空 */
     std::set<z_index>& s = layers[depth];

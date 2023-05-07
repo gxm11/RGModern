@@ -50,7 +50,8 @@ struct render_tone_helper {
   /// @brief 构造函数
   /// @param t 色调变化的效果
   /// @param r 色调变化的区域
-  explicit render_tone_helper(const tone& t, const cen::irect* r = nullptr)
+  [[nodiscard]] explicit render_tone_helper(const tone& t,
+                                            const cen::irect* r = nullptr)
       : t(t), r(r) {}
 
   /// @brief 在处理特定的绘制后，应用色调的效果
