@@ -39,7 +39,7 @@ struct shader_instance {
   /// @tparam ...Args shader 的构造函数所需参数的类型
   /// @param ...args shader 的构造函数所需参数
   template <typename... Args>
-  shader_instance(Args... args) : var{} {
+  [[nodiscard]] shader_instance(Args... args) : var{} {
     switch (config::driver) {
       default:
         break;
