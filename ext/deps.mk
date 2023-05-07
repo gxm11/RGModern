@@ -89,4 +89,5 @@ misc.7z :
 	7z a $@ $(miscs)
 
 doc : manual.md
-	curl https://api.csswg.org/bikeshed/ -F file=@manual.md -F force=1 > manual.html
+	# curl https://api.csswg.org/bikeshed/ -F file=@manual.md -F force=1 > manual.html
+	ruby ./ext/rgm_defines_gen.rb > ./src/script/rgm_defines.rb
