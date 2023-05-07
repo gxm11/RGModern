@@ -44,3 +44,70 @@ def debug(b)
 end
 
 def debug(b); end if RGM::Config::Build_Mode >= 3 || !$DEBUG
+
+def msgbox(text)
+  RGM::Base.message_show(text.to_s)
+end
+
+def force_utf8_encode(obj)
+  case obj
+  when Array
+    obj.each { |item| force_utf8_encode(item) }
+  when Hash
+    obj.each { |_key, item| force_utf8_encode(item) }
+  when String
+    obj.force_encoding('utf-8')
+  else
+    if obj.class.name.start_with?('RPG::')
+      obj.instance_variables.each do |name|
+        item = obj.instance_variable_get(name)
+        force_utf8_encode(item)
+      end
+    end
+  end
+end
+
+def load_data(fn)
+  fn = Finder.find(fn, :data)
+  data = nil
+  File.open(fn, 'rb') do |f|
+    data = Marshal.load(f)
+  end
+  force_utf8_encode(data)
+  data
+end
+
+def save_data(obj, fn)
+  File.open(fn, 'wb') do |f|
+    Marshal.dump(obj, f)
+  end
+end
+
+def load_file(fn)
+  File.open('./src/' + fn, 'rb') do |f|
+    return f.read
+  end
+end
+
+if RGM::Config::Build_Mode >= 3
+  def load_data(fn)
+    data = nil
+    if fn.start_with?('Data/')
+      bin = RGM::Base.embeded_load(fn)
+      data = Marshal.load(bin)
+    else
+      fn = Finder.find(fn, :data)
+      File.open(fn, 'rb') do |f|
+        data = Marshal.load(f)
+      end
+    end
+    force_utf8_encode(data)
+    data
+  end
+end
+
+if RGM::Config::Build_Mode >= 2
+  def load_file(fn)
+    RGM::Base.embeded_load(fn)
+  end
+end
