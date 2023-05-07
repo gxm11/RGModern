@@ -146,7 +146,7 @@ struct regist_external_data {
 
 /// @brief 数据类 zip_data_external 相关的初始化类
 struct init_external {
-  static void before(auto& this_worker) {
+  static void before(auto& this_worker) noexcept {
     /* 需要使用 base::detail 完成 ruby 到 C++ 类型的转换 */
     using detail = base::detail;
 

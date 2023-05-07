@@ -25,7 +25,7 @@ namespace rgm::ext {
 /// @brief 鼠标相关的初始化类
 /// @todo 完善鼠标的功能
 struct init_mouse_event {
-  static void before(auto& worker) {
+  static void before(auto& worker) noexcept {
     base::cen_library::event_dispatcher_t& d =
         RGMDATA(base::cen_library).event_dispatcher;
 

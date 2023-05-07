@@ -127,7 +127,7 @@ using tables = std::unordered_map<uint64_t, table>;
 struct init_table {
   using data = std::tuple<tables>;
 
-  static void before(auto& this_worker) {
+  static void before(auto& this_worker) noexcept {
     /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 
@@ -257,6 +257,6 @@ struct init_table {
     rb_define_module_function(rb_mRGM_Base, "table_resize", wrapper::resize, 4);
   }
 
-  static void after(auto& worker) { RGMDATA(tables).clear(); }
+  static void after(auto& worker) noexcept { RGMDATA(tables).clear(); }
 };
 }  // namespace rgm::rmxp

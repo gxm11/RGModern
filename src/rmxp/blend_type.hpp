@@ -55,7 +55,7 @@ struct blend_type {
   /// 用于绘制 window 的 contents。
   inline static cen::blend_mode blend2 = cen::blend_mode::blend;
 
-  static void setup() {
+  static void setup() noexcept {
     /* 加法叠加 */
     add = cen::compose_blend_mode(
         cen::blend_task{cen::blend_factor::src_alpha, cen::blend_factor::one,
@@ -114,7 +114,7 @@ struct blend_type {
 
 /// @brief 定义各种自定义的混合模式
 struct init_blend_type {
-  static void before(auto&) {
+  static void before(auto&) noexcept {
     if (config::driver != config::driver_type::software) {
       blend_type::setup();
     }

@@ -222,7 +222,7 @@ struct music_set_soundfonts {
 
 /// @brief 音乐播放相关的初始化类
 struct init_music {
-  static void before(auto& this_worker) {
+  static void before(auto& this_worker) noexcept {
     /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 

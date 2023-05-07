@@ -280,7 +280,7 @@ struct init_tilemap_manager {
   /* 引入数据类型 tilemap_manager */
   using data = std::tuple<tilemap_manager>;
 
-  static void before(auto& worker) {
+  static void before(auto& worker) noexcept {
     tilemap_manager& tm = RGMDATA(tilemap_manager);
 
     /* 将 tables 的指针保存为 tilemap_manager 的成员变量 */

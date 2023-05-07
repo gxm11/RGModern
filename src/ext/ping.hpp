@@ -37,7 +37,7 @@ struct ping {
 
 /// @brief ping 的初始化类，绑定相应的 ruby 函数
 struct init_ping {
-  static void before(auto& worker) {
+  static void before(auto& worker) noexcept {
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Ext = rb_define_module_under(rb_mRGM, "Ext");
 

@@ -32,7 +32,7 @@ namespace rgm::rmxp {
 /// 1. Fiddle 库，用于实现 Win32API
 /// 2. Zlib 库
 struct init_extension {
-  static void before(auto&) {
+  static void before(auto&) noexcept {
     cen::log_info("load ruby extension: fiddle.");
     Init_fiddle();
 

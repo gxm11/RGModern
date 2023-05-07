@@ -103,7 +103,7 @@ struct init_font {
     font_paths.reserve(32);
   }
 
-  static void after(auto& worker) {
+  static void after(auto& worker) noexcept {
     /* cen::font 要提前释放，否则会导致 Segmentation fault */
     RGMDATA(font_manager<owner>).m_data.clear();
   }

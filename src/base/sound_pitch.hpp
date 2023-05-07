@@ -233,7 +233,7 @@ struct sound_pitch {
   }
 
   // setup and bind
-  static void setup() {
+  static void setup() noexcept {
     // query specs
     Mix_QuerySpec(&audioFrequency, &audioFormat, &audioChannelCount);
     audioAllocatedMixChannelsCount = Mix_AllocateChannels(MIX_CHANNELS);

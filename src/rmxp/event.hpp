@@ -33,7 +33,7 @@ namespace rgm::rmxp {
 /// 5. 控制器按键事件，发送 controller_button_press 和
 /// controller_button_release。
 struct init_event {
-  static void before(auto& worker) {
+  static void before(auto& worker) noexcept {
     base::cen_library::event_dispatcher_t& d =
         RGMDATA(base::cen_library).event_dispatcher;
 

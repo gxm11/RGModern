@@ -50,7 +50,7 @@ struct init_drawable_base {
   /* 引入数据对象 drawables 和 id2z */
   using data = std::tuple<drawables, id2z>;
 
-  static void before(auto& this_worker) {
+  static void before(auto& this_worker) noexcept {
     /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 
@@ -145,7 +145,7 @@ struct init_drawable_base {
 /// 2. refresh_value
 template <typename T_Drawable>
 struct init_drawable {
-  static void before(auto& this_worker) {
+  static void before(auto& this_worker) noexcept {
     /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 

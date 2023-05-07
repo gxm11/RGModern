@@ -751,7 +751,7 @@ struct bitmap_reload_autotile {
 
 /// @brief Ruby 中 Bitmap 类的初始化类，定义了大量的操作函数。
 struct init_bitmap {
-  static void before(auto& this_worker) {
+  static void before(auto& this_worker) noexcept {
     /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 

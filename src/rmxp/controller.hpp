@@ -288,7 +288,7 @@ struct controller_rumble_triggers {
 struct init_controller {
   using data = std::tuple<controller_buttonmap>;
 
-  static void before(auto& this_worker) {
+  static void before(auto& this_worker) noexcept {
     /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 

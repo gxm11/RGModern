@@ -65,7 +65,7 @@ struct setup_default_viewport {
 /// 4. refresh_value，同步更新值类型的属性
 /// @see ./src/rmxp/init_drawable.hpp
 struct init_viewport {
-  static void before(auto& this_worker) {
+  static void before(auto& this_worker) noexcept {
     /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 

@@ -29,6 +29,6 @@ using textures = std::unordered_map<uint64_t, cen::texture>;
 struct init_textures {
   using data = std::tuple<textures>;
 
-  static void after(auto& worker) { RGMDATA(textures).clear(); }
+  static void after(auto& worker) noexcept { RGMDATA(textures).clear(); }
 };
 }  // namespace rgm::base

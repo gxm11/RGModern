@@ -31,7 +31,7 @@ namespace rgm::rmxp {
  * 在以下注释中，Palette 和 SDL 的表面代表的是同一个概念。
  */
 struct init_palette {
-  static void before(auto& this_worker) {
+  static void before(auto& this_worker) noexcept {
     /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 

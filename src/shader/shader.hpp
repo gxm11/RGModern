@@ -66,7 +66,7 @@ struct shader_instance {
 
 /// @brief shader 相关的初始化类
 struct init_shader {
-  static void before(auto& worker) {
+  static void before(auto& worker) noexcept {
     cen::renderer& renderer = RGMDATA(base::cen_library).renderer;
 
     /* 根据不同的 driver 初始化对应的 shader */
