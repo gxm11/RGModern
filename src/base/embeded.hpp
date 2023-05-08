@@ -74,7 +74,7 @@ struct zip_data_embeded {
 struct init_embeded {
   using data = std::tuple<zip_data_embeded>;
 
-  static void before(auto& this_worker) noexcept {
+  static void before(auto& this_worker) {
     /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 
@@ -135,7 +135,7 @@ namespace rgm::base {
 /// @brief 在未定义宏 RGM_EMBEDED_ZIP 的场合，替代的 init_embeded 类
 /// 定义了 ruby 中的函数 load_script 和 embeded_load，都始终返回 nil。
 struct init_embeded {
-  static void before(auto&) noexcept {
+  static void before(auto&) {
     /* wrapper 类，创建静态方法供 ruby 的模块绑定 */
     struct wrapper {
       /* ruby method: Base#load_script -> empty */

@@ -29,7 +29,7 @@ namespace rgm::base {
 struct init_timer {
   using data = std::tuple<timer>;
 
-  static void before(auto& this_worker) noexcept {
+  static void before(auto& this_worker) {
     /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 

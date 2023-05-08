@@ -71,7 +71,7 @@ struct textinput_state {
   /// @brief ruby 中类 RGM::Ext::TextBox 的类变量 @@need_refresh 对应的 VALUE
   ID rb_sym_need_refresh;
 
-  void setup() noexcept {
+  void setup() {
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Ext = rb_define_module_under(rb_mRGM, "Ext");
 
@@ -116,7 +116,7 @@ struct text_input {
 
 /// @brief 输入法相关的初始化类
 struct init_text_event {
-  static void before(auto& worker) noexcept {
+  static void before(auto& worker) {
     base::cen_library::event_dispatcher_t& d =
         RGMDATA(base::cen_library).event_dispatcher;
 
@@ -142,7 +142,7 @@ struct init_text_event {
 struct init_textinput {
   using data = std::tuple<textinput_state>;
 
-  static void before(auto& this_worker) noexcept {
+  static void before(auto& this_worker) {
     /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 

@@ -239,7 +239,7 @@ using detail = base::detail_ext<word>;
 
 /// @brief 关键词枚举类 word 类相关的初始化类，定义了若干 symbol 和常量
 struct init_word {
-  static void before(auto&) noexcept {
+  static void before(auto&) {
     /* 统计 ITERATE_VALUES 和 ITERATE_OBJECTS 的总数 */
     constexpr size_t total_size = []() -> size_t {
       size_t count = 0;

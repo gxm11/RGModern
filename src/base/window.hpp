@@ -64,7 +64,7 @@ struct set_fullscreen {
 
 /// @brief window 相关类型的初始化类
 struct init_window {
-  static void before(auto& worker) noexcept {
+  static void before(auto& worker) {
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
 

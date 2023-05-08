@@ -90,7 +90,7 @@ struct renderstack {
   /// @param renderer SDL2 渲染器的引用
   /// @param width 屏幕的宽度
   /// @param height 屏幕的高度
-  void setup(cen::renderer& renderer, int width, int height) noexcept {
+  void setup(cen::renderer& renderer, int width, int height) {
     /* 给 renderer_handle 成员赋值 */
     this->renderer = cen::renderer_handle(renderer);
 
@@ -236,7 +236,7 @@ struct renderstack {
 struct init_renderstack {
   using data = std::tuple<renderstack>;
 
-  static void before(auto& worker) noexcept {
+  static void before(auto& worker) {
     cen::renderer& renderer = RGMDATA(cen_library).renderer;
     renderstack& stack = RGMDATA(renderstack);
 
@@ -244,6 +244,6 @@ struct init_renderstack {
     stack.setup(renderer, config::screen_width, config::screen_height);
   }
 
-  static void after(auto& worker) noexcept { RGMDATA(renderstack).clear(); }
+  static void after(auto& worker) { RGMDATA(renderstack).clear(); }
 };
 }  // namespace rgm::base

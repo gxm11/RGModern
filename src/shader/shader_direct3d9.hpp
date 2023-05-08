@@ -38,7 +38,7 @@ struct shader_base<direct3d9> {
   inline static IDirect3DDevice9* device = nullptr;
 
   /// @brief 初始化 D3D9 Device
-  static void setup(cen::renderer& renderer) noexcept {
+  static void setup(cen::renderer& renderer) {
     shader_base::renderer = renderer.get();
     shader_base::device = SDL_RenderGetD3D9Device(renderer.get());
   }
@@ -78,7 +78,7 @@ struct shader_static<direct3d9, T_shader> : shader_base<direct3d9> {
 
   /// @brief 初始化 T_shader
   /// @param 渲染器
-  static void setup(cen::renderer&) noexcept {
+  static void setup(cen::renderer&) {
     /* 使用预编译的 code 创建 Pixel Shader */
     IDirect3DDevice9_CreatePixelShader(shader_base<direct3d9>::device,
                                        reinterpret_cast<const DWORD*>(T::code),
@@ -123,7 +123,7 @@ struct shader_dynamic<direct3d9, T_shader> : shader_base<direct3d9> {
 
   /// @brief 初始化 T_shader
   /// @param 渲染器
-  static void setup(cen::renderer&) noexcept {
+  static void setup(cen::renderer&) {
     /* 使用预编译的 code 创建 Pixel Shader */
     IDirect3DDevice9_CreatePixelShader(shader_base::device,
                                        reinterpret_cast<const DWORD*>(T::code),

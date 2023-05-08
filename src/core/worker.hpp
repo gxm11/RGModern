@@ -150,7 +150,7 @@ struct worker {
   /// 1. 输出 worker 的调试信息
   /// 2. 创建数据，用智能指针 p_data 管理
   /// 3. 执行 T_tasks 的 before 函数
-  void before() {
+  void before() noexcept {
     if constexpr (config::develop) {
       int size = sizeof(typename T_kernel<T_kernel_tasks>::T_variants);
       cen::log_info(
@@ -180,7 +180,7 @@ struct worker {
   /// 3. 删除智能指针 p_data 管理数据
   /// (3) 只在异步多线程模式下删除数据，单线程模式下 p_data 跟随 worker
   /// 的生命周期。
-  void after() {
+  void after() noexcept {
     stop();
     traits::for_each<T_tasks>::after(*this);
 
@@ -216,7 +216,7 @@ struct worker {
   /// 3. 目标线程将 synchronize_signal 信号添加到队列
   /// 4. 目标线程执行 synchronize_signal 的 run 函数，解锁当前线程
   template <size_t id>
-  void wait() {
+  void wait() noexcept {
     if (is_stopped()) return;
 
     if constexpr (is_asynchronized) {

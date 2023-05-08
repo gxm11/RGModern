@@ -41,7 +41,7 @@ struct shader_base<direct3d11> {
   inline static ID3D11Device* device = nullptr;
 
   /// @brief 初始化 D3D11 Device
-  static void setup(cen::renderer& renderer) noexcept {
+  static void setup(cen::renderer& renderer) {
     device = SDL_RenderGetD3D11Device(renderer.get());
     shader_base::renderer = renderer.get();
     device->GetImmediateContext(&shader_base::context);
@@ -79,7 +79,7 @@ struct shader_static<direct3d11, T_shader> : shader_base<direct3d11> {
 
   /// @brief 初始化 T_shader
   /// @param 渲染器
-  static void setup(cen::renderer&) noexcept {
+  static void setup(cen::renderer&) {
     /* 使用预编译的 code 创建 Pixel Shader */
     device->CreatePixelShader(T::code, T::code_size, NULL, &current_shader);
   }
@@ -136,7 +136,7 @@ struct shader_dynamic<direct3d11, T_shader> : shader_base<direct3d11> {
 
   /// @brief 初始化 T_shader
   /// @param 渲染器
-  static void setup(cen::renderer&) noexcept {
+  static void setup(cen::renderer&) {
     /* 使用预编译的 code 创建 Pixel Shader */
     device->CreatePixelShader(T::code, T::code_size, NULL, &current_shader);
 

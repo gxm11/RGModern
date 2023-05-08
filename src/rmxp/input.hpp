@@ -224,7 +224,7 @@ struct init_input {
   /* 引入数据对象 keymap 和 keystate */
   using data = std::tuple<keymap, keystate>;
 
-  static void before(auto& this_worker) noexcept {
+  static void before(auto& this_worker) {
     /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 

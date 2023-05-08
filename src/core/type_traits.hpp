@@ -214,7 +214,7 @@ struct for_each;
 /// @tparam std::tuple<Args...> 传入的任务列表
 template <typename... Args>
 struct for_each<std::tuple<Args...>> {
-  static void before(auto& worker) noexcept {
+  static void before(auto& worker) {
     auto proc = [&worker]<typename T>(T*) {
       /*
        * 这里不把 requires 语句写到下面的 constexpr if 条件中，
@@ -234,7 +234,7 @@ struct for_each<std::tuple<Args...>> {
     (proc(static_cast<Args*>(nullptr)), ...);
   }
 
-  static void after(auto& worker) noexcept {
+  static void after(auto& worker) {
     auto proc = [&worker]<typename T>(T*) {
       constexpr bool condition = requires { T::after(worker); };
       if constexpr (condition) {

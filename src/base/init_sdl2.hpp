@@ -160,14 +160,14 @@ struct poll_event {
 struct init_sdl2 {
   using data = std::tuple<cen_library>;
 
-  static void before(auto& worker) noexcept {
+  static void before(auto& worker) {
     SDL_RendererInfo& info = RGMDATA(cen_library).renderer_info;
     cen::log_warn("[Driver] use %s for rendering\n", info.name);
     cen::log_warn("[Driver] max texture %d x %d\n", info.max_texture_width,
                   info.max_texture_height);
   }
 
-  static void after(auto& worker) noexcept {
+  static void after(auto& worker) {
     RGMDATA(cen_library).window.hide();
   }
 };

@@ -185,7 +185,7 @@ struct sound_get_channel {
 
 /// @brief 音效播放相关的初始化类
 struct init_sound {
-  static void before(auto& this_worker) noexcept {
+  static void before(auto& this_worker) {
     /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
     static decltype(auto) worker = this_worker;
 

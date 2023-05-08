@@ -24,7 +24,7 @@
 namespace rgm::base {
 /// @brief ruby 相关的初始化类，初始化 ruby 的运行环境
 struct init_ruby {
-  static void before(auto&) noexcept {
+  static void before(auto&) {
     int argc = 0;
     char* argv = nullptr;
     char** pArgv = &argv;
@@ -40,7 +40,7 @@ struct init_ruby {
 /// @brief Config 相关的初始化类，定义了 RGM::Config 下的常量
 /// 这些常量对应 rgm::config 中的变量，部分读取自 config.ini 文件
 struct init_config {
-  static void before(auto&) noexcept {
+  static void before(auto&) {
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Config = rb_define_module_under(rb_mRGM, "Config");
     rb_const_set(rb_mRGM_Config, rb_intern("Config_Path"),

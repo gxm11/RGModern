@@ -32,7 +32,7 @@ using enum config::driver_type;
 template <config::driver_type driver>
 struct shader_base {
   /// @brief 空的 setup 函数
-  static void setup(cen::renderer&) noexcept {}
+  static void setup(cen::renderer&) {}
 };
 
 /// @brief 静态 shader 类，即不包含任何运行时参数的 shader 类
@@ -42,7 +42,7 @@ template <config::driver_type driver,
           template <config::driver_type> class T_shader>
 struct shader_static : shader_base<driver> {
   /// @brief 空的 setup 函数
-  static void setup(cen::renderer&) noexcept {}
+  static void setup(cen::renderer&) {}
 };
 
 /// @brief 动态 shader 类，运行时要传入参数的 shader 类
@@ -52,7 +52,7 @@ template <config::driver_type driver,
           template <config::driver_type> class T_shader>
 struct shader_dynamic : shader_base<driver> {
   /// @brief 空的 setup 函数
-  static void setup(cen::renderer&) noexcept {}
+  static void setup(cen::renderer&) {}
 };
 
 /// @brief 用于实现灰度的 shader 类
