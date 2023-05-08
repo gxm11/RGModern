@@ -106,12 +106,12 @@ struct drawable_object {
   }
 
   /// @brief 表示该对象是否可见，派生类需要重载此方法，否则永远可见。
-  bool is_visible() const { return true; }
+  [[nodiscard]] bool is_visible() const { return true; }
 
   /// @brief 表示对该对象的绘制是否应该跳过。
   /// @return true 该对象不可见，跳过其绘制，否则不能跳过绘制。
   /// 此函数才是用来判断是否绘制的接口，与 visible 不同名为了防止递归调用。
-  bool skip() const {
+  [[nodiscard]] bool skip() const {
     /* 判断 @visible 属性 */
     bool visible = detail::get<word::visible, bool>(ruby_object);
     if (!visible) return true;

@@ -52,7 +52,7 @@ struct table {
 
   /// @brief Table 的维度
   /// @return 返回值可能是 1，2 或者 3
-  int dimension() const {
+  [[nodiscard]] int dimension() const {
     if (z_size > 1) return 3;
     if (y_size > 1) return 2;
     return 1;
@@ -60,7 +60,7 @@ struct table {
 
   /// @brief Table 总大小
   /// @return 返回三个维度大小之积
-  size_t size() const { return x_size * y_size * z_size; }
+  [[nodiscard]] size_t size() const { return x_size * y_size * z_size; }
 
   /// @brief 重设 Table 的三个维度
   /// @param new_x 改变后的第 1 个维度大小

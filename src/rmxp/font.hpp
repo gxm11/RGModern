@@ -40,7 +40,7 @@ struct font_manager {
   /// @brief 向 font_paths 中添加一个字体的路径
   /// @return 返回这个路径在 font_paths 中的位置
   /// 只在 owner 为 true 时，此函数有定义。
-  int get_id(std::string_view path)
+  [[nodiscard]] int get_id(std::string_view path)
     requires(owner)
   {
     auto it = std::find(font_paths.begin(), font_paths.end(), path);

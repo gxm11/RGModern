@@ -57,7 +57,7 @@ struct render_tone_helper {
   /// @brief 在处理特定的绘制后，应用色调的效果
   /// @param renderer 渲染器
   /// @param proc 待调制的绘制内容，在绘制之后应用色调效果。
-  void process(cen::renderer& renderer, std::function<void()> proc) {
+  void process(cen::renderer& renderer, std::function<void()> proc) const {
     /* 需要处理灰度时，使用 shader_tone */
     if (t.gray) {
       shader_tone shader(t);

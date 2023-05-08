@@ -61,7 +61,7 @@ struct sprite : drawable_object<sprite> {
   /// 2. 透明度为 0
   /// 3. x 或者 y 方向的 zoom 小于或等于 0
   /// 4. 由于闪烁效果导致的短暂消失
-  bool is_visible() const {
+  [[nodiscard]] bool is_visible() const {
     if (bitmap == 0) return false;
     if (opacity == 0) return false;
     if (zoom_x <= 0.0) return false;
@@ -98,7 +98,7 @@ struct plane : drawable_object<plane> {
   /// 1. 没有设置 bitmap
   /// 2. 透明度为 0
   /// 3. x 或者 y 方向的 zoom 小于或等于 0
-  bool is_visible() const {
+  [[nodiscard]] bool is_visible() const {
     if (bitmap == 0) return false;
     if (opacity == 0) return false;
     if (zoom_x <= 0.0) return false;
@@ -137,7 +137,7 @@ struct window : drawable_object<window> {
   bool active;
   bool pause;
 
-  bool is_visible() const;
+  [[nodiscard]] bool is_visible() const;
 };
 
 /// @brief window 的上一层，比 window 的 z 值高 2。
@@ -153,7 +153,7 @@ struct overlayer<window> {
 
   /// @brief 实现 skip() 接口
   /// @return 返回 true 时将跳过绘制，否则将绘制此对象。
-  bool skip() const {
+  [[nodiscard]] bool skip() const {
     bool visible =
         detail::get<word::visible, bool>(p_drawable->ruby_object);
     return !visible;
@@ -192,7 +192,7 @@ struct tilemap : drawable_object<tilemap> {
   /// 在以下几种情况下跳过绘制：
   /// 1. 没有设置 tileset
   /// 2. 没有设置图块数据
-  bool is_visible() const {
+  [[nodiscard]] bool is_visible() const {
     if (tileset == 0) return false;
     if (map_data == 0) return false;
     return true;
@@ -237,7 +237,7 @@ struct viewport : drawable_object<viewport> {
   int oy;
   bool flash_hidden;
 
-  bool is_visible() const;
+  [[nodiscard]] bool is_visible() const;
 };
 
 /// @brief 代表当前屏幕的 viewport，功能受限
@@ -249,34 +249,6 @@ viewport default_viewport;
 /// @brief 存储所有 Drawable 的 map
 /// Drawables 是有序的，索引是 z_index
 struct drawables {
-#if 0
-  /// @brief 作为内存池的 vector
-  /// 默认对每个 drawables 分配 1M 资源。
-  std::vector<char> vector;
-
-  /// @brief 封装 array_buffer 为上游资源池
-  /// 所有的 drawables 共享此资源池。
-  inline static std::pmr::monotonic_buffer_resource buffer_resource{
-      array_buffer.data(), array_buffer.size()};
-
-  /// @brief 线程不安全的资源池，其上游是 buffer_resource
-  /// 所有的 drawables 共享此资源池。
-  inline static std::pmr::unsynchronized_pool_resource pool_resource{
-      std::pmr::pool_options(16, 256), &buffer_resource};
-
-  /// @brief 存储 drawable 的 map
-  /// 所有的 drawable 按照 z_index 有序排列。
-  std::pmr::map<z_index, drawable> m_data;
-
-  /// @brief 构造函数，初始化资源池和 map
-  explicit drawables()
-      : vector(1024 * 1024),
-        buffer_resource(std::make_unique<std::pmr::monotonic_buffer_resource>(
-            vector.data(), vector.size())),
-        pool_resource(std::make_unique<std::pmr::unsynchronized_pool_resource>(
-            std::pmr::pool_options(256, 256), buffer_resource.get())),
-        m_data(pool_resource.get()) {}
-#endif
 #if 1
   /* 调整后的 pmr 方案，所有的 drawables 共用资源池 */
   inline static std::array<char, 1024 * 1024 * 8> array_buffer;
@@ -287,8 +259,7 @@ struct drawables {
 
   std::pmr::map<z_index, drawable> m_data;
   explicit drawables() : m_data(&pool_resource) {}
-#endif
-#if 0
+#else
   /// @brief 存储 drawable 的 map，不使用 pmr 的方案
   std::map<z_index, drawable> m_data;
 #endif
@@ -324,7 +295,7 @@ struct drawables {
 /// 1. rect 的长或宽为 0
 /// 2. 由于闪烁效果导致的短暂消失
 /// 3. Viewport 在 Screen 外
-bool viewport::is_visible() const {
+[[nodiscard]] bool viewport::is_visible() const {
   if (rect.width <= 0 || rect.height <= 0) return false;
   if (flash_hidden) return false;
 
@@ -343,7 +314,7 @@ bool viewport::is_visible() const {
 /// 1. 窗口没有设置 windowskin
 /// 2. 窗口的长或宽为 0
 /// 3. 窗口在 Viewport 或 Screen 外
-bool window::is_visible() const {
+[[nodiscard]] bool window::is_visible() const {
   if (windowskin == 0) return false;
   if (width == 0 || height == 0) return false;
 

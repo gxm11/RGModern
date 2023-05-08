@@ -63,7 +63,7 @@ struct detail {
   /// @param object 关联 ruby 对象的 VALUE
   /// @return 转换后 T 类型的数据
   template <typename T>
-  static T get(VALUE object) {
+  [[nodiscard]] static T get(VALUE object) {
     return from_ruby<T>(object);
   }
 };
@@ -177,7 +177,7 @@ struct detail_ext : detail {
 
   /// @brief 复制了基类 detail 的 get 函数
   template <typename T>
-  static T get(VALUE object) {
+  [[nodiscard]] static T get(VALUE object) {
     return from_ruby<T>(object);
   }
 
@@ -186,7 +186,7 @@ struct detail_ext : detail {
   /// @param object 目标 ruby 对象的 VALUE
   /// @return VALUE 对象的实例变量对应的 VALUE
   template <word w>
-  static VALUE get(VALUE value_) {
+  [[nodiscard]] static VALUE get(VALUE value_) {
     Check_Type(value_, T_OBJECT);
 
     return rb_ivar_get(value_, id_table[static_cast<size_t>(w)]);
@@ -199,7 +199,7 @@ struct detail_ext : detail {
   /// @return T 返回实例变量相应类型的值或 object_id（若目标类型为 const
   /// uint64_t）
   template <word w, typename T>
-  static T get(VALUE value_) {
+  [[nodiscard]] static T get(VALUE value_) {
     return from_ruby<T>(get<w>(value_));
   }
 };

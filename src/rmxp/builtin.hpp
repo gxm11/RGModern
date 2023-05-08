@@ -45,7 +45,7 @@ struct id2z {
   /// @brief 查找是否储存了某个 id，返回 z 值
   /// @param id 待查找的 drawable 的 id
   /// @return 存在则返回 z 值，不存在则返回 nullopt
-  std::optional<int> find_z(uint64_t id) {
+  [[nodiscard]] std::optional<int> find_z(uint64_t id) {
     auto it = m_data.find(id);
     /* 多数情况下这个 id 是存在的 */
     if (it != m_data.end()) [[likely]] {
@@ -141,7 +141,7 @@ struct tone {
 
   /// @brief 返回 tone 中蕴含的加法叠加的颜色
   /// @return 返回用于加法叠加的 cen::color，或者 nullopt
-  std::optional<cen::color> color_add() const {
+  [[nodiscard]] std::optional<cen::color> color_add() const {
     if (red <= 0 && green <= 0 && blue <= 0) return std::nullopt;
 
     return cen::color(std::max<int16_t>(0, red), std::max<int16_t>(0, green),
@@ -150,7 +150,7 @@ struct tone {
 
   /// @brief 返回 tone 中蕴含的减法叠加的颜色
   /// @return 返回用于减法叠加的 cen::color，或者 nullopt
-  std::optional<cen::color> color_sub() const {
+  [[nodiscard]] std::optional<cen::color> color_sub() const {
     if (red >= 0 && green >= 0 && blue >= 0) return std::nullopt;
 
     return cen::color(std::max<int16_t>(0, -red), std::max<int16_t>(0, -green),

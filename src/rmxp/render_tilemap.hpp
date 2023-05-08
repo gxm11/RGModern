@@ -124,7 +124,7 @@ struct render_tilemap_helper {
   /// @param tileset tilemap 使用的图片素材
   /// @return render 函数，在 iterate_tiles 中调用
   [[nodiscard]] auto make_render_proc(cen::renderer& renderer,
-                                      const cen::texture& tileset)
+                                      const cen::texture& tileset) const
       -> std::function<void(int, int, int, int)> {
     /* render 的 4 个参数的含义详见 iterate_tiles */
     auto render = [&](int x, int y, int x_index, int y_index) {

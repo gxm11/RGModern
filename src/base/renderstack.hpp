@@ -223,7 +223,7 @@ struct renderstack {
   }
 
   /// @brief 返回对栈顶的 texture 的引用
-  cen::texture& current() { return stack.back(); }
+  [[nodiscard]] cen::texture& current() { return stack.back(); }
 
   /// @brief 清空 stack 和 缓存的 textures
   void clear() {

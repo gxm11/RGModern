@@ -47,7 +47,7 @@ struct kernel {
   /// @param t 任务对象，此参数必须是右值引用类型，将所有权交给队列
   /// @return 返回 *this
   template <typename T>
-  auto& operator<<(T&& t) {
+  kernel& operator<<(T&& t) {
     m_queue.enqueue(std::forward<T>(t));
     return *this;
   }

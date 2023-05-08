@@ -38,7 +38,7 @@ struct render<sprite> {
   /// @param dst_rect 目标矩形，目标图需要绘制的区域
   /// up 层通常是 bitmap 本身，但也可能是一个新层，用于处理若干绘制效果。
   void blend(cen::renderer& renderer, cen::texture& up, cen::texture& down,
-             const cen::irect& src_rect, const cen::frect& dst_rect) {
+             const cen::irect& src_rect, const cen::frect& dst_rect) const {
     /* 设置透明度 */
     up.set_alpha_mod(s->opacity);
 

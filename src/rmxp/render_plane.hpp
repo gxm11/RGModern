@@ -36,7 +36,7 @@ struct render<plane> {
   /// @param src_rect 源矩形，从源图选取要绘制的内容
   /// up 层的内容是用 plane 的原始素材进行了少量的平铺拼合成 src_rect 的大小。
   void blend(cen::renderer& renderer, cen::texture& up, cen::texture& down,
-             const cen::irect& src_rect) {
+             const cen::irect& src_rect) const {
     /* 获取 viewport，如果不存在则使用 default_viewport */
     const viewport* v = p->p_viewport ? p->p_viewport : &default_viewport;
 
