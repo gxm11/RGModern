@@ -75,14 +75,29 @@ File.open(RGM::Config::Config_Path, 'r') do |f|
     end
 
     if flag == :Keymap
-      if line =~ /^(K_\w+)=(\w+)$/
-        Input.bind Regexp.last_match(1).to_sym, Regexp.last_match(2).to_sym
-      elsif line =~ /^(K_\w+)=$/
-        Input.bind Regexp.last_match(1).to_sym, nil
-      elsif line =~ /^(B_\w+)=(\w+)$/
-        Input.controller_bind Regexp.last_match(1).to_sym, Regexp.last_match(2).to_sym
-      elsif line =~ /^(B_\w+)=$/
-        Input.controller_bind Regexp.last_match(1).to_sym, nil
+      # 绑定键盘按键
+      if line =~ /^K_\w+=/
+        # 注意这里必须先判断 \d+，再判断 \w+。
+        if line =~ /^(K_\w+)=(\d+)$/
+          Input.bind Regexp.last_match(1).to_sym, Regexp.last_match(2).to_i
+        elsif line =~ /^(K_\w+)=(\w+)$/
+          Input.bind Regexp.last_match(1).to_sym, Regexp.last_match(2).to_sym
+        elsif line =~ /^(K_\w+)=$/
+          Input.bind Regexp.last_match(1).to_sym, nil
+        end
+        next
+      end
+      # 绑定控制器按键
+      if line =~ /^B_\w+=/
+        # 注意这里必须先判断 \d+，再判断 \w+。
+        if line =~ /^(B_\w+)=(\d+)$/
+          Input.controller_bind Regexp.last_match(1).to_sym, Regexp.last_match(2).to_i
+        elsif line =~ /^(B_\w+)=(\w+)$/
+          Input.controller_bind Regexp.last_match(1).to_sym, Regexp.last_match(2).to_sym
+        elsif line =~ /^(B_\w+)=$/
+          Input.controller_bind Regexp.last_match(1).to_sym, nil
+        end
+        next
       end
       next
     end

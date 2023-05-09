@@ -143,20 +143,20 @@ module Input
     0
   end
 
-  def bind(sdl_key_name, key_name)
+  def bind(sdl_key_name, key)
     # 将某个真实的键值（SDL Key）绑定到虚拟键上（即 Input 中定义的常量）
     sdl_key = RGM::SDL.const_get(sdl_key_name)
 
     # 1. 相同的 sdl_key 可以绑定到多个虚拟键上
     # 2. 如果 key = nil，则取消该 sdl_key 的全部绑定。
-    if key_name.nil?
+    if key.nil?
       RGM::Base.input_bind(sdl_key, nil)
       return
     end
 
     # 虚拟按键的状态由 std:array 管理，故其编号不能超过数组的大小。
     # 默认为 256，最大编号的虚拟按键是 Input::DEBUG = 255
-    key = const_get(key_name)
+    key = const_get(key) if key.is_a?(Symbol)
     key += 256 if key < 0
     raise "Key code #{key} must be 0 - #{RGM::Max_Keycode}" if key && (key < 0 || key > RGM::Max_Keycode)
 
@@ -173,20 +173,20 @@ module Input
     [0, nil]
   end
 
-  def controller_bind(button_name, key_name, joy_index = 0)
+  def controller_bind(button_name, key, joy_index = 0)
     # 将某个真实的键值（SDL Key）绑定到虚拟键上（即 Input 中定义的常量）
     button = RGM::SDL.const_get(button_name)
 
     # 1. 相同的 button 可以绑定到多个虚拟键上
     # 2. 如果 key = nil，则取消该 button 的全部绑定。
-    if key_name.nil?
+    if key.nil?
       RGM::Base.controller_bind(button, nil, joy_index)
       return
     end
 
     # 虚拟按键的状态由 std:array 管理，故其编号不能超过数组的大小。
     # 默认为 256，最大编号的虚拟按键是 Input::DEBUG = 255
-    key = const_get(key_name)
+    key = const_get(key) if key.is_a?(Symbol)
     key += 256 if key < 0
     raise "Key code #{key} must be 0 - #{RGM::Max_Keycode}" if key && (key < 0 || key > RGM::Max_Keycode)
 
