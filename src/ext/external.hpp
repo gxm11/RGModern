@@ -101,7 +101,7 @@ struct zip_data_external {
     // Load an image from an SDL data source into a GPU texture.
     SDL_Texture* ptr = IMG_LoadTexture_RW(renderer.get(), src, 1);
     if (!ptr) return std::nullopt;
-    
+
     return cen::texture(ptr);
   }
 
@@ -109,7 +109,8 @@ struct zip_data_external {
   /// @param path 外部资源包中的图像文件路径
   /// @param renderer SDL 的渲染器
   /// @return 成功则返回新创建的 cen::surface，失败则返回 std::nullopt。
-  [[nodiscard]] std::optional<cen::surface> load_surface(std::string_view path) const {
+  [[nodiscard]] std::optional<cen::surface> load_surface(
+      std::string_view path) const {
     if (!archive) return std::nullopt;
 
     auto buf = load_string(path);
