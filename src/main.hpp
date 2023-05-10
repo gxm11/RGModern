@@ -47,12 +47,12 @@ using worker_render_sync =
 using worker_audio_sync =
     core::worker<core::flag_ex<2>, core::kernel_passive, tasks_audio>;
 /// @brief 进行异步计算的 worker
-using worker_table_sync =
+using worker_aside_sync =
     core::worker<core::flag_ex<3>, core::kernel_passive, tasks_aside>;
 
 /// @brief 最终引擎由多个 worker 组合而来
 using engine_sync_t = core::scheduler<worker_ruby_sync, worker_render_sync,
-                                      worker_audio_sync, worker_table_sync>;
+                                      worker_audio_sync, worker_aside_sync>;
 /* scheduler_cast 的特化处理 */
 RGMENGINE(engine_sync_t);
 
@@ -63,11 +63,11 @@ using worker_render_async =
     core::worker<core::flag_as<1>, core::kernel_passive, tasks_render>;
 using worker_audio_async =
     core::worker<core::flag_as<2>, core::kernel_passive, tasks_audio>;
-using worker_table_async =
+using worker_aside_async =
     core::worker<core::flag_as<3>, core::kernel_passive, tasks_aside>;
 
 using engine_async_t = core::scheduler<worker_ruby_async, worker_render_async,
-                                       worker_audio_async, worker_table_async>;
+                                       worker_audio_async, worker_aside_async>;
 
 RGMENGINE(engine_async_t);
 
@@ -78,11 +78,11 @@ using worker_render_fiber =
     core::worker<core::flag_co<1>, core::kernel_passive, tasks_render>;
 using worker_audio_fiber =
     core::worker<core::flag_co<2>, core::kernel_passive, tasks_audio>;
-using worker_table_fiber =
+using worker_aside_fiber =
     core::worker<core::flag_co<3>, core::kernel_passive, tasks_aside>;
 
 using engine_fiber_t = core::scheduler<worker_ruby_fiber, worker_render_fiber,
-                                       worker_audio_fiber, worker_table_fiber>;
+                                       worker_audio_fiber, worker_aside_fiber>;
 
 RGMENGINE(engine_fiber_t);
 }  // namespace rgm
