@@ -33,9 +33,9 @@ using tasks_render =
 using tasks_audio =
     core::traits::expand_tuples_t<base::tasks_audio, rmxp::tasks_audio,
                                   ext::tasks_audio>;
-using tasks_table =
-    core::traits::expand_tuples_t<base::tasks_table, rmxp::tasks_table,
-                                  ext::tasks_table>;
+using tasks_aside =
+    core::traits::expand_tuples_t<base::tasks_aside, rmxp::tasks_aside,
+                                  ext::tasks_aside>;
 
 /// @brief 运行逻辑流程的 worker
 using worker_ruby_sync =
@@ -48,7 +48,7 @@ using worker_audio_sync =
     core::worker<core::flag_ex<2>, core::kernel_passive, tasks_audio>;
 /// @brief 进行异步计算的 worker
 using worker_table_sync =
-    core::worker<core::flag_ex<3>, core::kernel_passive, tasks_table>;
+    core::worker<core::flag_ex<3>, core::kernel_passive, tasks_aside>;
 
 /// @brief 最终引擎由多个 worker 组合而来
 using engine_sync_t = core::scheduler<worker_ruby_sync, worker_render_sync,
@@ -64,7 +64,7 @@ using worker_render_async =
 using worker_audio_async =
     core::worker<core::flag_as<2>, core::kernel_passive, tasks_audio>;
 using worker_table_async =
-    core::worker<core::flag_as<3>, core::kernel_passive, tasks_table>;
+    core::worker<core::flag_as<3>, core::kernel_passive, tasks_aside>;
 
 using engine_async_t = core::scheduler<worker_ruby_async, worker_render_async,
                                        worker_audio_async, worker_table_async>;
@@ -79,7 +79,7 @@ using worker_render_fiber =
 using worker_audio_fiber =
     core::worker<core::flag_co<2>, core::kernel_passive, tasks_audio>;
 using worker_table_fiber =
-    core::worker<core::flag_co<3>, core::kernel_passive, tasks_table>;
+    core::worker<core::flag_co<3>, core::kernel_passive, tasks_aside>;
 
 using engine_fiber_t = core::scheduler<worker_ruby_fiber, worker_render_fiber,
                                        worker_audio_fiber, worker_table_fiber>;

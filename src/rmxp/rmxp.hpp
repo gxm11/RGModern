@@ -75,6 +75,6 @@ using tasks_render = std::tuple<
 /// @brief 执行音乐播放的 task，使用 SDL2 Mixer 播放音乐和音效
 using tasks_audio = std::tuple<>;
 
-/// @brief 执行 Table 操作的 task，这个 worker 用于一些耗时的计算
-using tasks_table = std::tuple<>;
+/// @brief 执行旁路操作的 task，这个 worker 用于一些耗时的计算
+using tasks_aside = std::tuple<>;
 }  // namespace rgm::rmxp

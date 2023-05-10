@@ -85,37 +85,43 @@ struct zip_data_external {
     return buf;
   }
 
-  /// @brief 直接读取外部资源包中的图像文件为 SDL_Texture*
+  /// @brief 直接读取外部资源包中的图像文件为 cen::texture
   /// @param path 外部资源包中的图像文件路径
   /// @param renderer SDL 的渲染器
-  /// @return 成功则返回新创建的 SDL_Texture*，失败则返回 nullptr。
-  [[nodiscard]] SDL_Texture* load_texture(std::string_view path,
-                                          cen::renderer& renderer) const {
-    if (!archive) return nullptr;
+  /// @return 成功则返回新创建的 cen::texture，失败则返回 std::nullopt。
+  [[nodiscard]] std::optional<cen::texture> load_texture(
+      std::string_view path, cen::renderer& renderer) const {
+    if (!archive) return std::nullopt;
 
     auto buf = load_string(path);
-    if (!buf) return nullptr;
+    if (!buf) return std::nullopt;
 
     SDL_RWops* src = SDL_RWFromConstMem(buf->data(), buf->size());
 
     // Load an image from an SDL data source into a GPU texture.
-    return IMG_LoadTexture_RW(renderer.get(), src, 1);
+    SDL_Texture* ptr = IMG_LoadTexture_RW(renderer.get(), src, 1);
+    if (!ptr) return std::nullopt;
+    
+    return cen::texture(ptr);
   }
 
-  /// @brief 直接读取外部资源包中的图像文件为 SDL_Surface*
+  /// @brief 直接读取外部资源包中的图像文件为 cen::surface
   /// @param path 外部资源包中的图像文件路径
   /// @param renderer SDL 的渲染器
-  /// @return 成功则返回新创建的 SDL_Surface*，失败则返回 nullptr。
-  [[nodiscard]] SDL_Surface* load_surface(std::string_view path) const {
-    if (!archive) return nullptr;
+  /// @return 成功则返回新创建的 cen::surface，失败则返回 std::nullopt。
+  [[nodiscard]] std::optional<cen::surface> load_surface(std::string_view path) const {
+    if (!archive) return std::nullopt;
 
     auto buf = load_string(path);
-    if (!buf) return nullptr;
+    if (!buf) return std::nullopt;
 
     SDL_RWops* src = SDL_RWFromConstMem(buf->data(), buf->size());
 
     // Load an image from an SDL data source into a software surface.
-    return IMG_Load_RW(src, 1);
+    SDL_Surface* ptr = IMG_Load_RW(src, 1);
+    if (!ptr) return std::nullopt;
+
+    return cen::surface(ptr);
   }
 };
 

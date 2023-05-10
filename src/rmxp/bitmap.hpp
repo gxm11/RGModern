@@ -127,12 +127,17 @@ struct bitmap_create<3> {
     base::renderstack& stack = RGMDATA(base::renderstack);
     ext::zip_data_external& z = RGMDATA(ext::zip_data_external);
 
-    SDL_Texture* ptr = z.load_texture(path, renderer);
+    auto opt = z.load_texture(path, renderer);
     /*
      * 使用 SDL_Texture* 作为构造参数，将转移所有权给此 cen::texture 对象
      * 局域变量 texture 将在此函数结束后自动析构。
      */
-    cen::texture texture{ptr};
+    if (!opt) {
+      throw std::invalid_argument(
+          "Failed to load SDL_Texture from external resource!");
+    }
+
+    cen::texture& texture = opt.value();
 
     /* 使用 base::renderstack::make_empty_texture 创建空白的 texture */
     cen::texture bitmap =
@@ -868,8 +873,7 @@ struct init_bitmap {
         bool font_bold = detail::get<word::bold, bool>(font_);
         bool font_italic = detail::get<word::italic, bool>(font_);
         bool font_underlined = detail::get<word::underlined, bool>(font_);
-        bool font_strikethrough =
-            detail::get<word::strikethrough, bool>(font_);
+        bool font_strikethrough = detail::get<word::strikethrough, bool>(font_);
         bool font_solid = detail::get<word::solid, bool>(font_);
 
         worker >> bitmap_draw_text{r,
