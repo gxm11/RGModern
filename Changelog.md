@@ -11,13 +11,21 @@
 - 对 Finder 中缓存的路径字符串执行 freeze。
 - 给 src/shader 下的 C++ 代码添加了注释。
 - 给部分 C++ 函数添加了`[[nodiscard]]`、`noexcept` 和 `const` 的标记。
-- rgm::ext::zip_data_external 类中的 load_texture 和 load_surface 现在返回 std::optional，而不是裸指针。若返回了 std::nullopt，后续流程中会抛出异常。
+- rgm::ext::zip_data_external 类中的 load_texture 和 load_surface 返回 std::optional，而不是裸指针。若返回了 std::nullopt，后续流程中会抛出异常。
+- 第 4 个 worker 的标签从 table 改名为 aside。
+- rgm::shader 中各类的静态变量全部 inline 处理。
 ### 新增
 - config.ini 的 `[System]` 栏目中添加了 ScreenScaleMode 词条，此值可以设置为 0~3，分别对应不同的画面缩放模式：0：最近邻，1：线性，2：最佳，3：不缩放且居中。
 - Input 的 bind 的第二个参数可以使用整数，之前必须是常量名对应的 Symbol。
 - config.ini 的 `[Keymap]` 可以使用数字代替虚拟按键的常量名。比如：`K_DOWN=2`。这样便于绑定自定义虚拟按键，因为在读取这部分内容时，很可能自定义虚拟按键的常量尚未定义，如果使用常量名则会报错。
-- 新增了 src/scripts/rgm_defines.rb 文件，可以查看 RGM 模块中定义的方法和常量。仅用于提示开发者 RGM 模块中的内容，不能在脚本中执行。此外，此文件是扫描 C++ 代码自动生成的，故 sprite_create 等方法未列出。
+- 新增了 src/script/rgm_defines.rb 文件，可以查看 RGM 模块中定义的方法和常量。仅用于提示开发者 RGM 模块中的内容，不能在脚本中执行。此外，此文件是扫描 C++ 代码自动生成的，故 sprite_create 等方法未列出。
 - CMakeList 添加了 MSVC 中预编译头的设置。
+- 新增了 src/script/kernel.rb 文件，此文件中定义了所有的全局函数。
+### 删除
+- 移除了 src/script 中的 main-xp.rb 和 test.rb 文件。
+- 移除了 src/script 下的 debug.rb 文件，代码移动到新增的 kernel.rb 文件中。
+- 移除了 src/rmxp/drawable.hpp 中复杂的 pmr 方案。此方案并未实装，目前使用的是简单的 pmr 方案。
+- 移除了 rgm::init_shader 的定义，使用 rgm::shader::init_shader。
 
 ## [1.0.0] - 2023-05-04
 正式版发布。
