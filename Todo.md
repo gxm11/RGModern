@@ -164,3 +164,4 @@ return data[index];
   1. 等待渲染线程
   2. 清空 finder 的缓存
   3. reload 资源
+- [ ] RGMDefine 作为未定义时的空函数使用。全部改成`def xxx; end unless defined? xxx`，直接引用。此时也不再需要定义empty的load_embeded_file了。

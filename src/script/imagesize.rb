@@ -57,17 +57,18 @@ module Imagesize
     return TYPE_TIFF, 0 if f[0...4] == Header_TIFF_0
     return TYPE_TIFF, 1 if f[0...4] == Header_TIFF_1
 
-    if f[0...4] == 'RIFF' && f[8...12] == 'WEBP'
-      case f[12...16]
-      when 'VP8 '
-        return TYPE_WEBP, 0
-      when 'VP8L'
-        return TYPE_WEBP, 1
-      when 'VP8X'
-        return TYPE_WEBP, 2
-      end
+    return unless f[0...4] == 'RIFF' && f[8...12] == 'WEBP'
+
+    case f[12...16]
+    when 'VP8 '
+      [TYPE_WEBP, 0]
+    when 'VP8L'
+      [TYPE_WEBP, 1]
+    when 'VP8X'
+      [TYPE_WEBP, 2]
+    else
+      [TYPE_UNKNOWN, 0]
     end
-    [TYPE_UNKNOWN, 0]
   end
 
   def image_size(f, type, type2 = 0)
