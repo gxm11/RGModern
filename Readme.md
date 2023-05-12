@@ -76,7 +76,7 @@ RGModern 不支持原版的加密方案。众所周知，原版加密方案等�
 ## 设计
 如 `src/main.hpp` 所示，引擎本身是一个由多个 worker 组合而成的 scheduler，每个 worker 管理各自的数据并执行不同的任务，scheduler 负责 worker 之间的任务转发和运行调度。
 
-具体运作原理请查看 `src` 内的 c++ 源码。RGModern 的代码使用 gcc12 在 `-Wall -Wextra -Werror` 的选项下编译通过，代码质量有保障，附带详细的 Doxygen 风格的注释，可放心查看。
+具体运作原理请查看 `src` 内的 c++ 源码。RGModern 的代码使用 gcc13 在 `-Wall -Wextra -Werror` 的选项下编译通过，代码质量有保障，附带详细的 Doxygen 风格的注释，可放心查看。
 
 ## 依赖
 本工程主要使用了以下第三方库：
