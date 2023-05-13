@@ -142,7 +142,7 @@ struct controller_buttonmap {
      * 此元素显然是 {button, i}，i 对应绑定的值最小的那个虚拟按键值
      * 若 button 未有任何绑定，则返回 end()
      */
-    auto it = m_data.lower_bound({button, 0});
+    auto it = m_data.lower_bound(std::pair{button, 0});
 
     while (it != m_data.end()) {
       /* 当控制器按键不再是 button 时，结束循环 */
@@ -163,7 +163,7 @@ struct controller_buttonmap {
      * 此元素显然是 {button, i}，i 对应绑定的值最小的那个虚拟按键值
      * 若 button 未有任何绑定，则返回 end()
      */
-    auto begin = m_data.lower_bound({button, 0});
+    auto begin = m_data.lower_bound(std::pair{button, 0});
 
     if (begin == m_data.end()) return;
 
@@ -171,7 +171,7 @@ struct controller_buttonmap {
      * 查询不小于 {button + 1, 0} 的那个元素
      * 此元素显然是 {button_next, ?}，其中 button_next > button。
      */
-    auto end = m_data.lower_bound({button + 1, 0});
+    auto end = m_data.lower_bound(std::pair{button + 1, 0});
 
     /* STL 中算法遵循前闭后开原则，begin 会被移除而 end 不会被移除 */
     m_data.erase(begin, end);
@@ -180,7 +180,7 @@ struct controller_buttonmap {
   /// @brief 添加一组映射关系
   /// @param button 控制器按键
   /// @param key RGSS 虚拟按键
-  void insert(int button, int key) { m_data.insert({button, key}); }
+  void insert(int button, int key) { m_data.insert(std::pair{button, key}); }
 };
 
 /// @brief 控制器按键按下的事件

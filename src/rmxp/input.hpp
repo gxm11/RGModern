@@ -43,7 +43,7 @@ struct keymap {
      * 此元素显然是 {sdl_key, i}，i 对应绑定的值最小的那个虚拟按键值
      * 若 sdl_key 未有任何绑定，则返回 end()
      */
-    auto it = m_data.lower_bound({sdl_key, 0});
+    auto it = m_data.lower_bound(std::pair{sdl_key, 0});
 
     while (it != m_data.end()) {
       /* 当键盘按键不再是 sdl_key 时，结束循环 */
@@ -64,7 +64,7 @@ struct keymap {
      * 此元素显然是 {sdl_key, i}，i 对应绑定的值最小的那个虚拟按键值
      * 若 sdl_key 未有任何绑定，则返回 end()
      */
-    auto begin = m_data.lower_bound({sdl_key, 0});
+    auto begin = m_data.lower_bound(std::pair{sdl_key, 0});
 
     if (begin == m_data.end()) return;
 
@@ -72,7 +72,7 @@ struct keymap {
      * 查询不小于 {sdl_key + 1, 0} 的那个元素
      * 此元素显然是 {sdl_key_next, ?}，其中 sdl_key_next > sdl_key。
      */
-    auto end = m_data.lower_bound({sdl_key + 1, 0});
+    auto end = m_data.lower_bound(std::pair{sdl_key + 1, 0});
 
     /* STL 中算法遵循前闭后开原则，begin 会被移除而 end 不会被移除 */
     m_data.erase(begin, end);
@@ -81,7 +81,7 @@ struct keymap {
   /// @brief 添加一组映射关系
   /// @param sdl_key 键盘按键
   /// @param key RGSS 虚拟按键
-  void insert(int32_t sdl_key, int key) { m_data.insert({sdl_key, key}); }
+  void insert(int32_t sdl_key, int key) { m_data.insert(std::pair{sdl_key, key}); }
 };
 
 /// @brief keystate 存储了虚拟按键按下或抬起的状态。
