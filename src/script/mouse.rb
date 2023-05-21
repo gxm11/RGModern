@@ -30,6 +30,11 @@ module RGM
       module_function
 
       def position
+        x, y = raw_position
+        Ext::Window.cast_to_screen(x, y)
+      end
+
+      def raw_position
         [Ext.mouse_x, Ext.mouse_y]
       end
 
@@ -63,7 +68,7 @@ module RGM
         Ext.mouse_wheel > 0
       end
 
-      @@interval = 30
+      @@interval = Graphics.frame_rate / 3
     end
   end
 end

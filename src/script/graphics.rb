@@ -65,12 +65,7 @@ module Graphics
 
       # 超过 1s，或者frame_rate帧过后，主动更新 title
       if delta_count > frame_rate || delta_time > 1.0
-        fps = delta_count / delta_time
-        if fps < 0 || fps > 2 * @@frame_rate
-          RGM::Base.set_title(format('%s - Sampling...', @@title))
-        else
-          RGM::Base.set_title(format('%s - %.1f FPS', @@title, fps))
-        end
+        RGM::Ext::Window.set_fps(delta_count / delta_time)
         @@fps_last_frame_count += delta_count
         @@fps_last_time += delta_time
       end
@@ -80,12 +75,12 @@ module Graphics
 
     if @@show_fps
       @@show_fps = false
-      RGM::Base.set_title(@@title)
+      RGM::Ext::Window.set_fps(nil)
     else
       @@show_fps = true
       @@fps_last_frame_count = @@frame_count
       @@fps_last_time = Time.now.to_f
-      RGM::Base.set_title(format('%s - Sampling...', @@title))
+      RGM::Ext::Window.set_fps(-1)
     end
   end
 
@@ -151,10 +146,7 @@ module Graphics
   end
 
   def resize_window(width, height, scale_mode = 0)
-    # scale_mode 设置成 0,1,2 对应不同的缩放模式：nearest/linear/best
-    # 设置成其它的值将不会缩放，而是居中显示
-
-    RGM::Base.resize_window(width.to_i, height.to_i, scale_mode.to_i)
+    RGM::Ext::Window.resize(width, height, scale_mode)
 
     # resize window 后，现存的 bitmap 可能会损坏，需要重新读取 Cache
     # 所以 resize_window 需尽可能在程序开始时
@@ -168,13 +160,13 @@ module Graphics
   end
 
   def resize_screen(width, height)
-    @@screen_width = width.to_i
-    @@screen_height = height.to_i
-    RGM::Base.resize_screen(@@screen_width, @@screen_height)
+    @@width = width.to_i
+    @@height = height.to_i
+    RGM::Base.resize_screen(@@width, @@height)
   end
 
   def snap_to_bitmap
-    bitmap = Bitmap.new(@@screen_width, @@screen_height)
+    bitmap = Bitmap.new(@@width, @@height)
     bitmap.capture_screen
     bitmap
   end
@@ -197,20 +189,15 @@ module Graphics
   end
 
   def width
-    @@screen_width
+    @@width
   end
 
   def height
-    @@screen_height
-  end
-
-  def set_title(title)
-    @@title = title
-    RGM::Base.set_title(title)
+    @@height
   end
 
   def set_fullscreen(mode)
-    RGM::Base.set_fullscreen(mode.to_i)
+    RGM::Ext::Window.set_fullscreen(mode)
   end
 
   def enable_low_fps(ratio)
@@ -219,6 +206,7 @@ module Graphics
     @@low_fps_mode = true
     @@low_fps_ratio = ratio
   end
+
   # The screen's refresh rate count. Set this property to 0 at game start and
   # the game play time (in seconds) can be calculated by dividing this value by
   # the frame_rate property value.
@@ -228,14 +216,13 @@ module Graphics
   @@frame_rate = 60
 
   # 画面和窗口的大小
-  @@screen_width = 640
-  @@screen_height = 480
+  @@width = 640
+  @@height = 480
 
   @@freeze_bitmap = nil
   @@current_bitmap = nil
   @@flag_synchronize = false
 
-  @@title = RGM::Config::Game_Title
   @@show_fps = (RGM::Config::Build_Mode < 2)
   @@fps_last_frame_count = 0
   @@fps_last_time = Time.now.to_f

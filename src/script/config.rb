@@ -43,7 +43,7 @@ File.open(RGM::Config::Config_Path, 'r') do |f|
     if flag == :Game
       if line =~ /^Title=(.+)$/
         title = Regexp.last_match(1)
-        Graphics.set_title(title)
+        RGM::Ext::Window.set_title(title)
       end
       if line =~ /^RTP\d+=(.+)$/
         rtp = Regexp.last_match(1)
@@ -63,8 +63,8 @@ File.open(RGM::Config::Config_Path, 'r') do |f|
       Graphics.set_fullscreen(Regexp.last_match(1).to_i) if line =~ /^FullScreen=(\d+)/
       Graphics.enable_low_fps(Regexp.last_match(1).to_i) if line =~ /^LowFPSRatio=(\d+)/
       if line =~ /^ScreenScaleMode=(\d+)/
-        Graphics.resize_window(RGM::Config::Window_Width, RGM::Config::Window_Height,
-                               Regexp.last_match(1).to_i)
+        RGM::Ext::Window.resize(RGM::Config::Window_Width, RGM::Config::Window_Height,
+                                Regexp.last_match(1).to_i)
       end
       if line == 'MessageBox=ON'
         def p(*args)
