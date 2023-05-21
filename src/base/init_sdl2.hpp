@@ -73,7 +73,8 @@ struct cen_library {
   /// @brief 管理所有窗口事件回调的类，不在这里注册类型就不能定义事件回调
   using event_dispatcher_t = cen::event_dispatcher<
       cen::quit_event, cen::window_event, cen::keyboard_event,
-      cen::mouse_button_event, cen::text_editing_event, cen::text_input_event,
+      cen::mouse_button_event, cen::mouse_motion_event, cen::mouse_wheel_event,
+      cen::text_editing_event, cen::text_input_event,
       cen::controller_axis_event, cen::controller_button_event>;
 
   /// @brief 管理事件回调的分配器
@@ -167,8 +168,6 @@ struct init_sdl2 {
                   info.max_texture_height);
   }
 
-  static void after(auto& worker) {
-    RGMDATA(cen_library).window.hide();
-  }
+  static void after(auto& worker) { RGMDATA(cen_library).window.hide(); }
 };
 }  // namespace rgm::base

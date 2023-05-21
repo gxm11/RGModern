@@ -62,15 +62,21 @@ module Input
 
   def update
     RGM::Ext.textinput_edit_clear
+    RGM::Ext.mouse_update
     # Updates input data. As a rule, this method is called once per frame.
     RGM::Base.input_update
     # Enable debug mode
     debug(binding) if $DEBUG && press?(DEBUG)
+    # ---------------
+    # test
+    $n ||= 0
+    p "#{$n += 1}" if RGM::Ext::Mouse.double_click?(RGM::Ext::Mouse::LEFT)
   end
 
   def reset
     # reset input states
     RGM::Base.input_reset
+    RGM::Ext.mouse_reset
   end
 
   def press?(key)
