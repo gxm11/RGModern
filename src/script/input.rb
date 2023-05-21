@@ -67,10 +67,6 @@ module Input
     RGM::Base.input_update
     # Enable debug mode
     debug(binding) if $DEBUG && press?(DEBUG)
-    # ---------------
-    # test
-    $n ||= 0
-    p "#{$n += 1}" if RGM::Ext::Mouse.double_click?(RGM::Ext::Mouse::LEFT)
   end
 
   def reset

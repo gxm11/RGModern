@@ -84,9 +84,9 @@ struct keymap {
   void insert(int32_t sdl_key, int key) { m_data.insert(std::pair{sdl_key, key}); }
 };
 
-/// @brief keystate 存储了虚拟按键按下或抬起的状态。
+/// @brief keystate 存储了虚拟按键按下或抬起的状态
 struct keystate {
-  /// @brief 最多支持的虚拟按键数量，设置为 256 应该足够。
+  /// @brief 最多支持的虚拟按键数量，设置为 256 应该足够
   static constexpr size_t max = 256;
 
   /// @brief 存储按键状态的数组，索引代表相应的按键，值代表按键的状态。
