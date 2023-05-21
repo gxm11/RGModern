@@ -30,7 +30,7 @@ namespace rgm::ext {
 /// @brief 执行 ruby 脚本的 task，运行游戏的主要逻辑（即 RGSS 脚本）
 using tasks_ruby =
     std::tuple<init_textinput, init_external, init_ping, init_mouse, text_input,
-               text_edit, mouse_motion, mouse_press, mouse_release,
+               text_edit, mouse_motion, mouse_press, mouse_release, mouse_wheel,
                ruby_callback, regist_external_data<0>>;
 
 /// @brief 执行渲染流程的 task，使用 SDL2 创建窗口，绘制画面并处理事件

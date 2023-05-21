@@ -55,6 +55,14 @@ module RGM
         @@interval = interval
       end
 
+      def wheel_down?
+        Ext.mouse_wheel < 0
+      end
+
+      def wheel_up?
+        Ext.mouse_wheel > 0
+      end
+
       @@interval = 30
     end
   end

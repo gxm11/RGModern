@@ -38,10 +38,18 @@ struct mousestate {
   /// @brief 记录最后一次汇报鼠标事件时的 Y 坐标值
   int y;
 
+  /// @brief 鼠标滚轮的 X 坐标值
+  int wheel_x;
+
+  /// @brief 鼠标滚轮的 Y 坐标值
+  int wheel_y;
+
   /// @brief 更新按键当前帧状态，默认延续上一帧的状态。
   /// S0 -> S00，S1 -> S11
   /// 在此之后才会执行 key_press 和 key_release 的事件继续更新。
   void update() {
+    wheel_x = 0;
+    wheel_y = 0;
     for (size_t i = 0; i < max; ++i) {
       const uint64_t value = m_data[i];
 
@@ -170,8 +178,23 @@ struct mouse_release {
   }
 };
 
-/// @brief 鼠标相关的初始化类
-/// @todo 完善鼠标的功能
+/// @brief 鼠标滚轮的事件
+struct mouse_wheel {
+  /// @brief 鼠标滚轮在 X 方向上滚动的距离
+  int x;
+
+  /// @brief 鼠标滚轮在 X 方向上滚动的距离
+  int y;
+
+  void run(auto& worker) {
+    mousestate& ms = RGMDATA(mousestate);
+
+    ms.wheel_x = x;
+    ms.wheel_y = y;
+  }
+};
+
+/// @brief 鼠标事件相关的初始化类
 struct init_mouse_event {
   static void before(auto& worker) {
     base::cen_library::event_dispatcher_t& d =
@@ -202,9 +225,20 @@ struct init_mouse_event {
         [&worker](const cen::mouse_motion_event& e) {
           worker >> mouse_motion{e.x(), e.y()};
         });
+
+    /* 绑定鼠标滚轮事件 */
+    d.bind<cen::mouse_wheel_event>().to(
+        [&worker](const cen::mouse_wheel_event& e) {
+          int x = static_cast<int>(e.x());
+          int y = static_cast<int>(e.y());
+          cen::log_debug("[Input] mouse wheel [%d, %d]", x, y);
+
+          worker >> mouse_wheel{x, y};
+        });
   }
 };
 
+/// @brief 鼠标相关操作的初始化类
 struct init_mouse {
   using data = std::tuple<mousestate>;
 
@@ -256,6 +290,9 @@ struct init_mouse {
 
       /* ruby method: Ext#mouse_y -> mousestate::y */
       static VALUE position_y(VALUE) { return INT2FIX(RGMDATA(mousestate).y); }
+
+      /* ruby method: Ext#mouse_wheel -> mousestate::wheel_y */
+      static VALUE wheel(VALUE) { return INT2FIX(RGMDATA(mousestate).wheel_y); }
     };
 
     VALUE rb_mRGM = rb_define_module("RGM");
@@ -269,6 +306,7 @@ struct init_mouse {
     rb_define_module_function(rb_mRGM_Ext, "mouse_reset", wrapper::reset, 0);
     rb_define_module_function(rb_mRGM_Ext, "mouse_x", wrapper::position_x, 0);
     rb_define_module_function(rb_mRGM_Ext, "mouse_y", wrapper::position_y, 0);
+    rb_define_module_function(rb_mRGM_Ext, "mouse_wheel", wrapper::wheel, 0);
   }
 };
 }  // namespace rgm::ext

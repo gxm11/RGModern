@@ -66,6 +66,5 @@ using tasks_audio =
                sound_get_state, sound_get_channel>;
 
 /// @brief 执行旁路操作的 task，这个 worker 用于一些耗时的计算
-/// @todo 完善 table 类的处理
 using tasks_aside = std::tuple<>;
 }  // namespace rgm::base

@@ -97,6 +97,14 @@ module RGM
     def external_check(path); end
     def external_load(path); end
     def external_regist(path, password); end
+    def mouse_double_click(button, interval); end
+    def mouse_press(button); end
+    def mouse_reset(); end
+    def mouse_trigger(button); end
+    def mouse_update(); end
+    def mouse_wheel(); end
+    def mouse_x(); end
+    def mouse_y(); end
     def textinput_edit_clear(); end
     def textinput_edit_pos(); end
     def textinput_edit_text(); end
