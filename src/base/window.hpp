@@ -62,12 +62,52 @@ struct set_fullscreen {
   }
 };
 
+/// @brief 获取窗口大小，在 resize_window 和 set_fullscreen 中用到
+struct get_display_bounds {
+  /// @brief 存储宽度的变量的指针
+  int* p_width;
+
+  /// @brief 存储高度的变量的指针
+  int* p_height;
+
+  void run(auto&) {
+    auto opt = cen::display_bounds();
+    if (opt) {
+      *p_width = opt->width();
+      *p_height = opt->height();
+    }
+  }
+};
+
 /// @brief window 相关类型的初始化类
 struct init_window {
-  static void before(auto& worker) {
+  static void before(auto& this_worker) {
+    /* 静态的 worker 变量供函数的内部类 wrapper 使用 */
+    static decltype(auto) worker = this_worker;
+
+    /* wrapper 类，创建静态方法供 ruby 的模块绑定 */
+    struct wrapper {
+      static VALUE display_bounds(VALUE) {
+        int width = 0;
+        int height = 0;
+
+        worker >> get_display_bounds{&width, &height};
+        RGMWAIT(2);
+
+        /* 一般情况下这两个数都不会太大，以防万一还是夹一下 */
+        width = std::clamp(width, 0, 65535);
+        height = std::clamp(height, 0, 65535);
+
+        /* 将高和宽打包到一起传过去 */
+        return INT2FIX(height * 65536 + width);
+      }
+    };
+
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
 
+    rb_define_module_function(rb_mRGM_Base, "display_bounds",
+                              wrapper::display_bounds, 0);
     RGMBIND(rb_mRGM_Base, "set_title", base::set_title, 1);
     RGMBIND(rb_mRGM_Base, "set_fullscreen", base::set_fullscreen, 1);
   }

@@ -90,6 +90,7 @@ module RGM
     def viewport_dispose(id); end
     def viewport_refresh_value(data_ptr, type); end
     def viewport_set_z(viewport, z); end
+    def window_size(); end
   end
 
   module Ext

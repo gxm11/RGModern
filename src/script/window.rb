@@ -44,6 +44,8 @@ module RGM
       def set_fullscreen(mode)
         @@fullscreen = mode.to_i
         RGM::Base.set_fullscreen(@@fullscreen)
+
+        refresh_size
       end
 
       def resize(width, height, scale_mode = 0)
@@ -54,9 +56,30 @@ module RGM
         @@scale_mode = scale_mode
 
         RGM::Base.resize_window(width.to_i, height.to_i, scale_mode.to_i)
+
+        refresh_size
+      end
+
+      def refresh_size
+        value = RGM::Base.display_bounds
+        raise 'Failed to get display bounds' if value == 0
+
+        @@width = value & 0xffff
+        @@height = value >> 16
       end
 
       def cast_to_screen(x, y)
+        screen_width = Graphics.width
+        screen_height = Graphics.height
+
+        if @@scale_mode >= 0 && @@scale_mode <= 2
+          x = x * screen_width / @@width
+          y = y * screen_height / @@height
+        else
+          x += (screen_width - @@width) / 2
+          y += (screen_height - @@height) / 2
+        end
+
         [x, y]
       end
 

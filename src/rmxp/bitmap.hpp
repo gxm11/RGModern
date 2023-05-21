@@ -840,11 +840,12 @@ struct init_bitmap {
         font_manager<true>& fonts = RGMDATA(font_manager<true>);
         cen::font& font = fonts.get(id, size);
 
-        int width, height;
+        int width = 0;
+        int height = 0;
         if (TTF_SizeUTF8(font.get(), text, &width, &height) == 0) {
           /* 一般情况下这两个数都不会太大，以防万一还是夹一下 */
-          height = std::clamp(height, 0, 65535);
           width = std::clamp(width, 0, 65535);
+          height = std::clamp(height, 0, 65535);
 
           /* 将高和宽打包到一起传过去 */
           return INT2FIX(height * 65536 + width);
