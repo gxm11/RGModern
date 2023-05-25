@@ -61,8 +61,14 @@ module RGM
       end
 
       def refresh_size
+        return if @@fullscreen == 0
+
         value = RGM::Base.display_bounds
-        raise 'Failed to get display bounds' if value == 0
+
+        if value == 0
+          puts 'Failed to get display bounds.'
+          return
+        end
 
         @@width = value & 0xffff
         @@height = value >> 16

@@ -18,6 +18,11 @@
 #    misrepresented as being the original software.
 # 3. This notice may not be removed or altered from any source distribution.
 
+# wait for other threads
+RGM::Config::Max_Workers.times do |i|
+  RGM::Base.synchronize(i) if i != 0
+end
+
 unless File.exist?(RGM::Config::Config_Path)
   File.open(RGM::Config::Config_Path, 'wb') do |f|
     f << load_file('config.ini')

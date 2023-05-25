@@ -20,11 +20,6 @@
 # entry of RGSS
 
 def rgss_main
-  # wait for other threads
-  RGM::Config::Max_Workers.times do |i|
-    RGM::Base.synchronize(i) if i != 0
-  end
-
   # clear screen
   Graphics.update
 
