@@ -92,7 +92,7 @@ struct init_window {
         int height = 0;
 
         worker >> get_display_bounds{&width, &height};
-        RGMWAIT(2);
+        RGMWAIT(1);
 
         /* 一般情况下这两个数都不会太大，以防万一还是夹一下 */
         width = std::clamp(width, 0, 65535);
