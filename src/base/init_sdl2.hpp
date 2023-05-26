@@ -25,6 +25,8 @@
 #include "core/core.hpp"
 #include "sound_pitch.hpp"
 
+INCBIN(controller_mapping, "./ext/gamecontrollerdb.txt");
+
 namespace rgm::base {
 /// @brief 辅助设定 SDL Hint 的类，在 cen_library 中使用
 struct sdl_hint {
@@ -118,6 +120,11 @@ struct cen_library {
     /* 设置 SDL_MIXER 的频率调制器 */
     sound_pitch::setup();
 
+    /* 设置 Game Conntroller 的 Mapping */
+    SDL_RWops* ops = SDL_RWFromConstMem(rgm_controller_mapping_data,
+                                        rgm_controller_mapping_size);
+    SDL_GameControllerAddMappingsFromRW(ops, 1);
+
     /*
      * 处理当前堆积的窗口事件
      * 实际上此时没有任何窗口事件的回调函数被定义，所以什么也不会发生
@@ -167,8 +174,6 @@ struct init_sdl2 {
                   info.max_texture_height);
   }
 
-  static void after(auto& worker) {
-    RGMDATA(cen_library).window.hide();
-  }
+  static void after(auto& worker) { RGMDATA(cen_library).window.hide(); }
 };
 }  // namespace rgm::base
