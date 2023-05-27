@@ -28,8 +28,8 @@ class Viewport
   # 在 C++ 层的构造也有区别，因为绑定到此 Viewport 的 Drawable 要
   # 用容器管理，该容器在 C++ 层为 viewport 类的成员变量 m_data。
   # Viewport 类没有实例变量 @viewport ，从而有独特的 API。
-  attr_reader :visible, :z, :ox, :oy, :rect
-  attr_accessor :color, :tone
+  attr_reader :visible, :z, :ox, :oy
+  attr_accessor :color, :tone, :rect
 
   def self.create_finalizer(id)
     proc { RGM::Base.viewport_dispose(id) }
@@ -121,15 +121,15 @@ class Viewport
 
   def update
     # 更新 flash 的状态
-    if @flash_count > 0
-      @flash_color.alpha -= @flash_color.alpha / (1 + @flash_count) if @flash_type == 0
-      @flash_count -= 1
-      if @flash_count == 0
-        @flash_type = 0
-        @flash_color.set(0, 0, 0, 0)
-        @flash_hidden = false
-        RGM::Base.viewport_refresh_value(@data_ptr, RGM::Word::Attribute_flash_hidden) unless @disposed
-      end
-    end
+    return unless @flash_count > 0
+
+    @flash_color.alpha -= @flash_color.alpha / (1 + @flash_count) if @flash_type == 0
+    @flash_count -= 1
+    return unless @flash_count == 0
+
+    @flash_type = 0
+    @flash_color.set(0, 0, 0, 0)
+    @flash_hidden = false
+    RGM::Base.viewport_refresh_value(@data_ptr, RGM::Word::Attribute_flash_hidden) unless @disposed
   end
 end
