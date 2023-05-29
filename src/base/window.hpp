@@ -79,6 +79,19 @@ struct get_display_bounds {
   }
 };
 
+/// @brief 获取窗口的 HWND 值
+struct get_hwnd {
+  /// @brief 存储 HWND 变量的指针
+  uint64_t* p_handle;
+
+  void run(auto& worker) {
+#ifdef __WIN32
+    SDL_SysWMinfo& info = RGMDATA(cen_library).window_info;
+    *p_handle = reinterpret_cast<uint64_t>(info.info.win.window);
+#endif
+  }
+};
+
 /// @brief window 相关类型的初始化类
 struct init_window {
   static void before(auto& this_worker) {
@@ -101,13 +114,24 @@ struct init_window {
         /* 将高和宽打包到一起传过去 */
         return INT2FIX(height * 65536 + width);
       }
+
+      static VALUE window_handle(VALUE) {
+        uint64_t hwnd = 0;
+
+        worker >> get_hwnd{&hwnd};
+        RGMWAIT(1);
+
+        return ULL2NUM(hwnd);
+      }
     };
 
     VALUE rb_mRGM = rb_define_module("RGM");
     VALUE rb_mRGM_Base = rb_define_module_under(rb_mRGM, "Base");
 
-    rb_define_module_function(rb_mRGM_Base, "display_bounds",
+    rb_define_module_function(rb_mRGM_Base, "get_display_bounds",
                               wrapper::display_bounds, 0);
+    rb_define_module_function(rb_mRGM_Base, "get_hwnd", wrapper::window_handle,
+                              0);
     RGMBIND(rb_mRGM_Base, "set_title", base::set_title, 1);
     RGMBIND(rb_mRGM_Base, "set_fullscreen", base::set_fullscreen, 1);
   }

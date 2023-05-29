@@ -63,7 +63,7 @@ module RGM
       def refresh_size
         return if @@fullscreen == 0
 
-        value = RGM::Base.display_bounds
+        value = RGM::Base.get_display_bounds
 
         if value == 0
           puts 'Failed to get display bounds.'
@@ -89,11 +89,18 @@ module RGM
         [x, y]
       end
 
+      def window_handle
+        # 注意，只在 windows 下有 HWND
+        @@window_handle ||= RGM::Base.get_hwnd
+        @@window_handle
+      end
+
       @@title = RGM::Config::Game_Title
       @@width = 640
       @@height = 480
       @@scale_mode = 0
       @@fullscreen = 0
+      @@window_handle = nil
     end
   end
 end

@@ -53,7 +53,7 @@ using tasks_ruby =
 using tasks_render =
     std::tuple<init_sdl2, init_renderstack, init_textures, poll_event,
                clear_screen, present_window, resize_window, resize_screen,
-               set_title, set_fullscreen, get_display_bounds>;
+               set_title, set_fullscreen, get_display_bounds, get_hwnd>;
 
 /// @brief 执行音乐播放的 task，使用 SDL2 Mixer 播放音乐和音效
 using tasks_audio =
