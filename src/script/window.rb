@@ -89,7 +89,7 @@ module RGM
         [x, y]
       end
 
-      def window_handle
+      def get_hwnd
         # 注意，只在 windows 下有 HWND
         @@window_handle ||= RGM::Base.get_hwnd
         @@window_handle
