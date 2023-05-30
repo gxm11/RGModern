@@ -2,7 +2,38 @@
 > 更新日志规范参照：https://www.bestyii.com/topic/75
 
 ## [1.0.3] - 2023-05-30
+### 修复
+- 在Bitmap#font_size函数的C++实现中，将两个未初始化的变量初始化为0。
+- 在controller_buttonmap和key_map的各个函数中，显式指定作为函数参数的元素类型为std::pair类型。
+- 添加了Viewport#rect=方法。
 
+### 优化
+- config.rb中的修改窗口标题、全屏和修改窗口分辨率改为调用RGM::Ext::Window的模块方法。
+- Graphics中的update_fps方法改为调用RGM::Ext::Window的模块方法。
+- 在读取config之前先等待所有的worker，原来是在rgss_main的开头，即读取scripts.rxdata之前。
+
+### 新增
+- 新增了mouse.rb，实现了RGM::Ext::Mouse类，以提供鼠标功能。提供以下方法：
+  - `position` 返回鼠标当前的位置，对全屏模式或者分辨率扩张的场合，此位置会自动映射到正确的坐标。
+  - `raw_position` 返回鼠标的当前的位置，未经过坐标映射。
+  - `press?` 检查鼠标某个按键是否被按下，目前支持LEFT/MIDDLE/RIGHT/X1/X2共5个按键。
+  - `trigger?` 检查鼠标某个按键是否刚刚被按下。
+  - `double_click?` 检查鼠标的某个按键是否被双击，默认是帧数的1/3，也就是1/3秒内按下被识别为双击。
+  - `double_click_interval=` 设置双击的判定间隔，单位是帧数，范围只能在1~63帧之间。
+  - `wheel_down`? 检查鼠标滚轮是否在向下滚动。
+  - `wheel_up?` 检查鼠标滚轮是否在向上滚动。
+- 新增了window.rb，实现了RGM::Ext::Window类，用于管理窗口，包括修改分辨率、全屏和获取HWND等。部分原来在Graphics模块中功能被移动到此类中。提供以下方法：
+  - `set_title` 设置窗口标题，原属于Graphics模块中的功能。
+  - `set_fps` 设置 FPS 的值。设置为nil不显示FPS，设置为-1则显示 Sampling...
+  - `set_fullscreen` 设置全屏模式，原属于Graphics模块中的功能。
+  - `resize` 重设窗口大小。
+  - `refresh_size` 在全屏模式下，获取窗口真实的大小。
+  - `cast_to_screen` 在全屏模式下，将鼠标在窗口中的坐标映射到屏幕中的坐标。
+  - `get_hwnd` 获取窗口的 HWND，此值只在Windows操作系统有效，其他操作系统始终返回0。
+
+### 删除
+- 移除Graphics的@@screen_width和@@screen_height，改为使用@@width和@@height。
+- 移除Graphics#set_title和Graphics#set_fullscreen方法。相关功能在RGM::Ext::Window中实现。
 
 ## [1.0.2] - 2023-05-27
 ### 新增

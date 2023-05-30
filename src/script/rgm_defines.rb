@@ -28,6 +28,8 @@ module RGM
     def embeded_load(); end
     def embeded_load(path); end
     def font_create(path); end
+    def get_display_bounds(); end
+    def get_hwnd(); end
     def graphics_transition(freeze_id, current_id, rate, transition_id, vague); end
     def graphics_update(); end
     def input_bind(sdl_key, input_key); end
@@ -90,7 +92,6 @@ module RGM
     def viewport_dispose(id); end
     def viewport_refresh_value(data_ptr, type); end
     def viewport_set_z(viewport, z); end
-    def window_size(); end
   end
 
   module Ext
