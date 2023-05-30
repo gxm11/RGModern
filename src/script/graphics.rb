@@ -196,10 +196,6 @@ module Graphics
     @@height
   end
 
-  def set_fullscreen(mode)
-    RGM::Ext::Window.set_fullscreen(mode)
-  end
-
   def enable_low_fps(ratio)
     return if ratio == 1
 
