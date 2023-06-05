@@ -78,7 +78,7 @@ module Finder
     Load_Path[key].each do |directory|
       Suffix[key].each do |extname|
         path = File.expand_path(filename + extname, directory)
-        next unless File.exist?(path)
+        next unless File.exist?(path) && !File.directory?(path)
 
         Cache[filename] = path.freeze
         return Cache[filename]
