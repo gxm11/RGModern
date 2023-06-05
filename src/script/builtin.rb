@@ -109,12 +109,12 @@ class Tone
   # ---------------------------------------------------------------------------
   # Creates a Tone object. If gray is omitted, it is assumed at 0.
   # ---------------------------------------------------------------------------
-  def initialize(red, green, blue, gray)
+  def initialize(red, green, blue, gray = 0)
     set(red, green, blue, gray)
   end
 
   # Sets all components at once.
-  def set(red, green, blue, gray)
+  def set(red, green, blue, gray = 0)
     self.red = red
     self.green = green
     self.blue = blue
