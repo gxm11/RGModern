@@ -100,6 +100,11 @@ module Graphics
     #            File extensions may be omitted.
     # [vague] sets the ambiguity of the borderline between the graphic's starting and ending points.
     #         The larger the value, the greater the ambiguity. When omitted, this value is set to 40.
+    if duration <= 0
+      @@freeze_bitmap.dispose
+      @@freeze_bitmap = nil
+    end
+
     @@freeze_bitmap ||= snap_to_bitmap
     RGM::Base.graphics_update
     @@current_bitmap = snap_to_bitmap
