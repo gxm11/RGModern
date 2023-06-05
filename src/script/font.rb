@@ -30,7 +30,7 @@ class Font
   @@default_solid = false
 
   class << self
-    def self.exist?(name)
+    def exist?(name)
       !!Finder.find(name, :font)
     end
 
