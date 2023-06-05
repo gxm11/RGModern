@@ -13,16 +13,16 @@
 - 在读取config之前先等待所有的worker，原来是在rgss_main的开头，即读取scripts.rxdata之前。
 
 ### 新增
-- 新增了mouse.rb，实现了RGM::Ext::Mouse类，以提供鼠标功能。提供以下方法：
+- 新增了mouse.rb，实现了RGM::Ext::Mouse模块，以提供鼠标功能。提供以下方法：
   - `position` 返回鼠标当前的位置，对全屏模式或者分辨率扩张的场合，此位置会自动映射到正确的坐标。
   - `raw_position` 返回鼠标的当前的位置，未经过坐标映射。
   - `press?` 检查鼠标某个按键是否被按下，目前支持LEFT/MIDDLE/RIGHT/X1/X2共5个按键。
   - `trigger?` 检查鼠标某个按键是否刚刚被按下。
   - `double_click?` 检查鼠标的某个按键是否被双击，默认是帧数的1/3，也就是1/3秒内按下被识别为双击。
   - `double_click_interval=` 设置双击的判定间隔，单位是帧数，范围只能在1~63帧之间。
-  - `wheel_down`? 检查鼠标滚轮是否在向下滚动。
+  - `wheel_down?` 检查鼠标滚轮是否在向下滚动。
   - `wheel_up?` 检查鼠标滚轮是否在向上滚动。
-- 新增了window.rb，实现了RGM::Ext::Window类，用于管理窗口，包括修改分辨率、全屏和获取HWND等。部分原来在Graphics模块中功能被移动到此类中。提供以下方法：
+- 新增了window.rb，实现了RGM::Ext::Window模块，用于管理窗口，包括修改分辨率、全屏和获取HWND等。部分原来在Graphics模块中功能被移动到此类中。提供以下方法：
   - `set_title` 设置窗口标题，原属于Graphics模块中的功能。
   - `set_fps` 设置 FPS 的值。设置为nil不显示FPS，设置为-1则显示 Sampling...
   - `set_fullscreen` 设置全屏模式，原属于Graphics模块中的功能。
