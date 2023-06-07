@@ -1,6 +1,9 @@
 # 更新日志
 > 更新日志规范参照：https://www.bestyii.com/topic/75
 
+## [1.0.4] - 2023-06-07
+
+
 ## [1.0.3] - 2023-05-30
 ### 修复
 - 在Bitmap#font_size函数的C++实现中，将两个未初始化的变量初始化为0。
@@ -72,3 +75,4 @@
 [1.0.1]: https://github.com/gxm11/rgmodern/compare/v1.0.0...v1.0.1
 [1.0.2]: https://github.com/gxm11/rgmodern/compare/v1.0.1...v1.0.2
 [1.0.3]: https://github.com/gxm11/rgmodern/compare/v1.0.2...v1.0.3
+[1.0.4]: https://github.com/gxm11/rgmodern/compare/v1.0.3...v1.0.4
