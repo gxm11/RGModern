@@ -2,7 +2,19 @@
 > 更新日志规范参照：https://www.bestyii.com/topic/75
 
 ## [1.0.4] - 2023-06-07
+### 修复
+- Tone#new和Tone#set现在可以省略第4个参数gray，默认使用0。
+- Finder#find不会返回文件夹的路径。
+- 修复了Font#exist?未生效的BUG。
 
+### 优化
+- 允许Graphics#transition使用小于或等于0的duration。
+- 现在可以在中文工程路径下读取中文文件名的素材。
+- 现在可以读取加密包中的中文素材，不过加密包必须使用`7z a -tzip Graphics2.zip Graphics -scsUTF-8 -p123`指令制作，否则文件名不会以UTF-8的格式保存。
+- 范例里的箱子事件现在会读取加密包中的中文文件名素材“加菲猫.jpg”。
+
+### 新增
+- Graphics.zip已更新。如果使用RGM小助手，请删掉misc.7z然后更新RGModern。
 
 ## [1.0.3] - 2023-05-30
 ### 修复
