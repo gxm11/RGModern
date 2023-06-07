@@ -88,6 +88,9 @@ endif
 misc.7z :
 	7z a $@ $(miscs)
 
+Graphics.zip :
+	cd Project1 && 7z a -tzip ../Graphics.zip Graphics -scsUTF-8 -p123
+
 doc : manual.md
 	# curl https://api.csswg.org/bikeshed/ -F file=@manual.md -F force=1 > manual.html
 	ruby ./ext/rgm_defines_gen.rb > ./src/script/rgm_defines.rb

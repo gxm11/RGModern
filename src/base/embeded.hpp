@@ -56,10 +56,10 @@ struct zip_data_embeded {
     std::string buf;
 
     zip_stat_t sb;
-    int ret = zip_stat(archive, path.data(), ZIP_FL_ENC_STRICT, &sb);
+    int ret = zip_stat(archive, path.data(), ZIP_FL_ENC_UTF_8, &sb);
     if (ret != 0) return std::nullopt;
 
-    zip_file_t* file = zip_fopen(archive, path.data(), ZIP_FL_ENC_STRICT);
+    zip_file_t* file = zip_fopen(archive, path.data(), ZIP_FL_ENC_UTF_8);
     if (!file) return std::nullopt;
 
     buf.resize(sb.size);

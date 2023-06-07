@@ -60,7 +60,7 @@ struct zip_data_external {
   /// @return 如果该文件存在，则 true，否则 false
   [[nodiscard]] bool check(std::string_view path) const {
     zip_stat_t sb;
-    int ret = zip_stat(archive, path.data(), ZIP_FL_ENC_STRICT, &sb);
+    int ret = zip_stat(archive, path.data(), ZIP_FL_ENC_UTF_8, &sb);
     return ret == 0;
   }
 
@@ -72,10 +72,10 @@ struct zip_data_external {
     std::string buf;
 
     zip_stat_t sb;
-    int ret = zip_stat(archive, path.data(), ZIP_FL_ENC_STRICT, &sb);
+    int ret = zip_stat(archive, path.data(), ZIP_FL_ENC_UTF_8, &sb);
     if (ret != 0) return std::nullopt;
 
-    zip_file_t* file = zip_fopen(archive, path.data(), ZIP_FL_ENC_STRICT);
+    zip_file_t* file = zip_fopen(archive, path.data(), ZIP_FL_ENC_UTF_8);
     if (!file) return std::nullopt;
 
     buf.resize(sb.size);
