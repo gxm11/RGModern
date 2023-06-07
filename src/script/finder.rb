@@ -32,7 +32,7 @@ module Finder
   }
 
   Load_Path.each_value do |paths|
-    paths.push(Dir.getwd)
+    paths << Dir.getwd
   end
 
   if RGM::Config::Build_Mode <= 1
@@ -41,6 +41,10 @@ module Finder
 
       Load_Path[type] += ['./resource/', './Project1/']
     end
+  end
+
+  Load_Path.each_value do |paths|
+    paths.each { |path| path.force_encoding('utf-8') }
   end
 
   Suffix = {

@@ -33,7 +33,7 @@ File.open(RGM::Config::Config_Path, 'r') do |f|
   flag = nil
   f.each_line do |line|
     line = line.strip
-    line.force_encoding('UTF-8')
+    line.force_encoding('utf-8')
 
     # flags
     if line.start_with?('[')
