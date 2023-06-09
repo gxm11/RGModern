@@ -165,3 +165,7 @@ return data[index];
   2. 清空 finder 的缓存
   3. reload 资源
 - [ ] RGMDefine 作为未定义时的空函数使用。全部改成`def xxx; end unless defined? xxx`，直接引用。此时也不再需要定义empty的load_embeded_file了。
+
+# 20230608-todo
+- [ ] 提供tktk_bitmap.dll的全部功能，并给出兼容脚本。
+- [ ] 绑定Mix_SetPanning，使得音乐可以调整左右声道，参考：https://wiki.libsdl.org/SDL2_mixer/Mix_SetPanning

@@ -3,8 +3,8 @@
 
 ## [1.0.4] - 2023-06-07
 ### 修复
-- Tone#new和Tone#set现在可以省略第4个参数gray，默认使用0。
-- Finder#find不会返回文件夹的路径。
+- Tone#new和Tone#set现在可以省略第4个参数gray，默认值是0。
+- Finder#find现在会检查路径是否为文件夹，并且不会返回对应于文件夹的路径。
 - 修复了Font#exist?未生效的BUG。
 
 ### 优化
