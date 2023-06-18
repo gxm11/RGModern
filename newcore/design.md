@@ -71,3 +71,41 @@ int rb_get_state() {
 ```
 1. get_state任务结束后`future<int>`析构，引用计数通过检验，s.get()就能拿到int了。否则会yield。
 2. 这里可以看出，在同一个group中的被动worker的任务并不需要立即执行。这里将任务放入被动worker的queue里，因为s.get()第一次会yield，然后调度器就会调度此被动worker，清空队列后s自然有值了。当然，这里的future的引用计数是否是原子的，需要判断get_state是否会发送到相同的group，可以编译时判断。比如使用`future<int, get_state>`，或者create_future等方式。
+
+## 继续设计
+1. 全局的data都有一个顺序。可以用`__CONNTER__`宏来定义，或者编译期获取所有group，所有worker的data，放到tuple里排个序。
+2. send是全局函数，用来发送一个任务。
+   - 或者让任务类拥有defer()函数，会自行找到合适的worker进入队列。可能不合适，因为任务要被move走。
+3. 由于send现在是全局函数，task除了调用自己需要的data之外，不再有别的依赖。get_state这样写就行：
+```c++
+struct get_state : task<get_state> {
+    int* p_state;
+
+    void run(const T0& data_0) {
+        *p_state = data_0.x;
+    }
+};
+
+int rb_get_state() {
+    future<int> s{0};
+    send<get_state>(s.data());
+    return s.get();
+}
+```
+上面的设计就完成了task和data的脱耦。task只需要定义run函数，函数的参数是什么类型，调度器就会主动将对应的data作为入参。
+- 获取data时可能会阻塞或者yield，然而此时任务逻辑还没跑，数据本身是不会被修改的，卡在这里是安全的。
+- run函数的参数类型必须遵循全局唯一的顺序，以避免死锁。编译期检查。
+- 如果是share_data，数据必然是创建worker时当作成员变量传进来的。所以在获取data时，优先从成员变量中找，然后从worker的数据里找。
+- task要传出share_data时，也要获取此data的，然后封装一下传走。通常都是run函数的参数是一个const引用：
+```c++
+struct async_calc : task<async_calc> {
+    void run(const Table& t) {
+        send<calc>(share(t));
+    }
+};
+
+struct calc : task<calc> {
+    void run(share<const Table> table) {}
+};
+```
+由于都是const引用，可以安全同时访问。但是如果有可变引用，async_calc执行结束前，calc是不可能开始执行的。这一点可能要注意，尽可能把要改变数据的期间缩短。
