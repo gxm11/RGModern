@@ -68,8 +68,8 @@ module Audio
         @@state = Flag_BGM_Playing
       when Flag_BGM_Playing
         if music == BGM_Queue.first
-          RGM::Base.music_set_volume(music.volume)
-          RGM::Base.music_set_position(music.position) if music.position != -1
+          RGM::Base.music_set_volume(music.volume.to_i)
+          RGM::Base.music_set_position(music.position.to_f) if music.position != -1
         else
           RGM::Base.music_fade_out(Default_Fade_Time)
           BGM_Queue << music
@@ -103,7 +103,7 @@ module Audio
       case @@state
       when Flag_BGM_Playing
         if time > 0
-          RGM::Base.music_fade_out(time)
+          RGM::Base.music_fade_out(time.to_i)
         else
           RGM::Base.music_halt
         end
@@ -121,7 +121,7 @@ module Audio
         ME_Queue.clear
       when Flag_ME_Playing
         if time > 0
-          RGM::Base.music_fade_out(time)
+          RGM::Base.music_fade_out(time.to_i)
         else
           RGM::Base.music_halt
         end

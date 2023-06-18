@@ -80,7 +80,7 @@ module RGM
 
     # duration 单位是 ms
     def fade_in(iteration, duration)
-      RGM::Base.music_fade_in(@id, iteration, duration)
+      RGM::Base.music_fade_in(@id, iteration, duration.to_i)
     end
 
     # position 单位是 s

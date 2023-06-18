@@ -61,8 +61,8 @@ module RGM
 
     def play(iteration)
       RGM::Base.sound_play(@id, iteration)
-      RGM::Base.sound_set_volume(@id, @volume)
-      RGM::Base.sound_set_pitch(@id, @pitch, (iteration == -1))
+      RGM::Base.sound_set_volume(@id, @volume.to_i)
+      RGM::Base.sound_set_pitch(@id, @pitch.to_i, (iteration == -1))
     end
 
     def stop
@@ -70,12 +70,12 @@ module RGM
     end
 
     def fade_in(duration)
-      RGM::Base.sound_fade_in(@id, duration)
+      RGM::Base.sound_fade_in(@id, duration.to_i)
     end
 
     def fade_out(duration)
       if duration > 0
-        RGM::Base.sound_fade_out(@id, duration)
+        RGM::Base.sound_fade_out(@id, duration.to_i)
       else
         RGM::Base.sound_stop(@id)
       end
