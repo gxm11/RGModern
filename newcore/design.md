@@ -109,3 +109,143 @@ struct calc : task<calc> {
 };
 ```
 由于都是const引用，可以安全同时访问。但是如果有可变引用，async_calc执行结束前，calc是不可能开始执行的。这一点可能要注意，尽可能把要改变数据的期间缩短。
+
+## 20230622设计
+首先是data，每个worker都有自己的data，类型如下：
+```c++
+using data = std::tuple<
+    owner<T1>,
+    share<T2>,
+    local<T3>
+>;
+```
+其中owner，share和local代表了data的拥有者类型：
+1. owner表示此数据可能会共享给其他的worker，但是创建和析构都归当前worker管理；
+2. share表示此数据来自其他的worker，当前worker只能读数据，而不能写数据；
+3. local表示此数据只在worker内使用，使用时无需加锁。
+
+local的定义：
+```c++
+template<typename T>
+struct local {
+    std::unique_ptr<T> data;
+
+    T& get() {return *data; };
+    const T& getc() { return *data; };
+};
+```
+
+owner的定义：
+```c++
+template<typename T>
+struct owner_data {
+    T* data;
+    owner<T>* owner;
+
+    ~owner_data() {
+        if (!owner) return;
+
+        owner->atomic_rc = 0;
+        owner->rc = 0;
+    }
+};
+
+template<typename T>
+struct const_data {
+    const T* data;
+    owner<T>* owner;
+
+    ~const_data() {
+        if (!owner) return;
+
+        owner->rc -= 1;
+        if (owner->rc == 0) {
+            owner->atomic_rc.fetch_and_add(-1);
+        }
+    }
+};
+
+template<typename T>
+struct share_data {
+    const T* data;
+    owner<T>* owner;
+
+    ~share_data() {
+        if (!owner) return;
+
+        owner->atomic_rc.fetch_and_add(-1);
+    }
+};
+
+template<typename T>
+struct owner {
+    std::unique_ptr<T> data;
+    int rc = 0;
+    std::atomic<int> atomic_rc = 0;
+
+    owner_data<T> get() {
+        if (rc != 0) return {nullptr, nullptr};
+
+        bool ret = atomic_rc.compare_exchange_weak(0, -1);
+
+        if (!ret) return {nullptr, nullptr};
+
+        rc = -1;
+        return {data.get(), this};
+    }
+
+    const_data<T> getc() {
+        if (rc < 0) return {nullptr, nullptr};
+
+        if (rc > 0) {
+            ++rc;
+            return {data.get(), this};
+        }
+
+        int rc = atomic_rc.load();
+        bool ret = atomic_rc.compare_exchange_weak(rc, rc + 1);
+
+        if (!ret) return {nullptr, nullptr};
+
+        rc = 1;
+        return {data.get(), this};
+    }
+
+    share_data<T> gets() {
+        int rc = atomic_rc.load();
+        if (rc == -1) return {nullptr, nullptr};
+
+        bool ret = atomic_rc.compare_exchange_weak(rc, rc + 1);
+
+        if (!ret) return {nullptr, nullptr};
+
+        return {data.get(), this};
+    }
+};
+```
+owner的函数会返回对应的数据类型，这些数据不可复制，不可移动，在析构后还原引用计数。
+
+share的定义：
+```c++
+template<typename T>
+struct share {
+    owner<T>* owner;
+};
+```
+share中只记录了owner。拿数据必须调用owner的gets()方法。
+
+可以看出，对于owner属性的data，每次调用都必须操作原子变量，这将导致一定的性能损失。
+
+对于多个data的获取可能会导致死锁的问题，这里只要每次get时一次性拿到全部的数据，否则就失败并释放资源，不执行忙等就不存在死锁的概念。
+```c++
+t1 = get<T1>();
+if (!t1) return;
+t2 = get<T2>();
+if (!t2) return;
+t3 = get<T3>();
+if (!t3) return;
+
+run(t1, t2, t3);
+```
+
+如此即为数据的解决方案。接下来分析同group的worker调度。
