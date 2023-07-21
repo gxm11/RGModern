@@ -27,6 +27,14 @@ if(NOT EXISTS ${SRC_DIR})
         SYMBOLIC
     )
 endif()
+set(EXT_DIR "ext")
+if(NOT EXISTS ${EXT_DIR})
+    file(CREATE_LINK
+        "${CMAKE_CURRENT_SOURCE_DIR}/${EXT_DIR}"
+        "${CMAKE_CURRENT_BINARY_DIR}/${EXT_DIR}"
+        SYMBOLIC
+    )
+endif()
 # RGM
 add_executable(Game)
 aux_source_directory(${SRC_DIR} SRC_LIST)
@@ -104,6 +112,7 @@ find_package(OpenGL REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(LibZip REQUIRED)
 find_package(libffi REQUIRED)
+find_package(GMP REQUIRED)
 set(CENTURION_INCLUDE_DIRS "./third_party/centurion/src")
 set(CONCURRENTQUEUE_INCLUDE_DIRS "./third_party/concurrentqueue")
 set(INCBIN_INCLUDE_DIRS "./third_party/incbin")
@@ -141,6 +150,7 @@ target_link_libraries(Game
     ZLIB::ZLIB
     ${LIBZIP_LIBRARY}
     libffi::libffi
+    ${GMP_LIBRARIES}
     "$<$<BOOL:${MINGW}>:mingw32>"
 )
 
@@ -156,7 +166,7 @@ if(WIN32)
     endif()
     target_link_libraries(Game
         "d3d9;d3d11"
-        "dinput8;dwrite;gdi32"
+        "dinput8;dwrite"
         "shell32;ws2_32;iphlpapi;imagehlp;shlwapi;bcrypt"
         "setupapi;advapi32;uuid;version;oleaut32;ole32;imm32;winmm;user32;rpcrt4;usp10"
     )
