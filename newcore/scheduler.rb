@@ -2,57 +2,58 @@
 # 工作方式：
 # 1.
 class Scheduler
-  attr_reader :state
+  @@total_id = 0
+
+  attr_reader :id, :state
 
   def initialize
+    @@total_id += 1
+    @id = @@total_id
     @workers = []
-    @state = :idle
+    @state = :ready
     @atomic_task_queue = []
     @atomic_task_queue_empty_count = 0
     @scores = {}
 
-    puts "scheduler initialize, state = #{@state}"
+    puts "scheduler <#{@id}> initialized"
   end
 
-  def add_worker(worker_class)
-    return if @state == :stopping
-    return if @state == :stopped
-    w = worker_class.new
+  def add_worker(worker_class, *args)
+    return if @state == :exit
+    return if @state == :dead
+    w = worker_class.new(self, *args)
     @workers << w
-    @scores[w.object_id] = 0
+    @scores[w] = 0
 
-    puts "scheduler add a worker of <#{worker_class}>"
+    puts "scheduler <#{@id}> add a #{worker_class} <#{w.id}>"
   end
 
   def add_task(task)
     @atomic_task_queue << task.clone
 
-    puts "scheduler receive the task: #{task}"
+    puts "scheduler <#{@id}> receive the task: #{task}"
   end
 
   def run
-    @state = :running
-    puts "scheduler running, state = #{@state}"
+    @state = :active
+    puts "scheduler <#{@id}> starts running"
 
-    while @state != :stopped
+    while @state != :dead
       update()
-      next_w = next_worker()
-      next if !next_w
-      @scores[next_w.object_id] += 100
-      next_w.resume()
     end
   end
 
   def stop
-    return if @state != :running
-    @state = :stopping
+    return if @state != :active
+    @state = :exit
 
-    puts "scheduler will stop soon, state = #{@state}"
+    puts "scheduler <#{@id}> will stop soon"
   end
 
   def update
     update_queue()
     update_workers()
+    update_next_worker()
   end
 
   def update_queue
@@ -67,7 +68,8 @@ class Scheduler
 
     @atomic_task_queue.each { |t|
       @workers.each { |w|
-        w.add_task(t.clone) if w.can_accept_task?(t.class)
+        @scores[w] += 1
+        w.add_task(t)
       }
     }
     @atomic_task_queue.clear()
@@ -75,31 +77,37 @@ class Scheduler
 
   def update_workers
     # 1. worker stopped 的场合，从 workers 中移除
-    @workers.delete_if { |w| w.state == :stopped }
+    @workers.delete_if { |w| w.state == :dead }
 
-    @workers.select {|w| w.state == :idle}.each(&:resume)
+    @workers.select { |w| w.state == :ready }.each(&:resume)
 
-    if @state ==:running
-      active_workers = @workers.select { |w| w.state == :running || w.state == :stopping }
-    min_score = active_workers.collect { |w| @scores[w.object_id] }.min
-    active_workers.each { |w| @scores[w.object_id] -= min_score }
+    if @state == :active
+      active_workers = @workers.select { |w| w.state == :active || w.state == :exit }
+      min_score = active_workers.collect { |w| @scores[w] }.min
+      active_workers.each { |w| @scores[w] -= min_score }
     end
 
-    if @state == :stopping
+    if @state == :exit
+      "scheduler <#{@id}> is cleaning up"
       # 2. stoping 状态下，将所有的 worker stop
       @workers.each { |w| w.stop() }
 
       # 3. 没有 worker 时，scheduler 结束
       if @workers.empty?
-        @state = :stopped
+        @state = :dead
 
-        puts "engine stopped, state = #{@state}"
+        puts "scheduler <#{@id}> finishes"
       end
     end
   end
 
-  def next_worker
-    active_workers = @workers.select { |w| w.state == :running || w.state == :stopping }
-    return active_workers.min { |w| @scores[w.object_id] }
+  def update_next_worker
+    active_workers = @workers.select { |w| w.state == :active || w.state == :exit }
+    next_w = active_workers.min_by { |w| @scores[w] }
+
+    if next_w
+      @scores[next_w] += 100
+      next_w.resume()
+    end
   end
 end

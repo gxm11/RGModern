@@ -11,58 +11,57 @@ class Engine
 
   def initialize
     @schedulers = []
-    @state = :idle
+    @state = :ready
 
-    puts "engine initialize, state = #{@state}"
+    puts "engine initialized"
   end
 
   def run
-    @state = :running
-    puts "engine running, state = #{@state}"
+    @state = :active
+    puts "engine starts running"
 
-    while @state == :running
+    while @state == :active
       sleep 0.1
       @schedulers.each { |scheduler|
         case scheduler.state
-        when :idle
+        when :ready
           # scheduler 运行在独立的 thread 里
           Thread.start { scheduler.run() }
-        when :stopped
+        when :dead
           @schedulers.delete(scheduler)
         end
       }
     end
 
-    @state = :stopping
-    puts "engine stopping, state = #{@state}"
+    @state = :exit
+    puts "engine is cleaning up"
 
     while !@schedulers.empty?
       sleep 0.1
       @schedulers.each { |scheduler|
         case scheduler.state
-        when :running
+        when :active
           scheduler.stop()
-        when :stopped
+        when :dead
           @schedulers.delete(scheduler)
         end
       }
     end
 
-    @state = :stopped
-    puts "engine stopped, state = #{@state}"
+    @state = :dead
+    puts "engine finishes"
   end
 
   def stop
-    return if @state != :runing
-    return if @state != :stopped
+    return if @state != :active
 
-    @state = :stopping
-    puts "engine will stop soon, state = #{@state}"
+    @state = :exit
+    puts "engine will stop soon"
   end
 
   def add_scheduler(scheduler)
-    return if @state == :stopping
-    return if @state == :stopped
+    return if @state == :exit
+    return if @state == :dead
 
     puts "engine add the scheduler: #{scheduler}"
     @schedulers << scheduler

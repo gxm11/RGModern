@@ -7,3 +7,5 @@
 3.data的处理
 
 如此先不管task和data，只要能运行就行。
+
+worker部分完成，接下来做task和data
