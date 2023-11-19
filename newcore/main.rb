@@ -1,43 +1,23 @@
-class Active_Worker
-  Tasks = %i[a b c]
+require_relative "engine"
+require_relative "scheduler"
+require_relative "worker_fiber"
+require_relative "task_base"
 
-  def run
-    i = 0
-    loop do
-      puts i
-      i += 1
-      Fiber.yield
-      break if i == 10
-    end
+$engine = Engine.new
+
+$scheduler = Scheduler.new
+
+$scheduler.add_worker(Worker_Fiber)
+
+$engine.add_scheduler($scheduler)
+
+$engine.broadcast_task(Task_Base.new)
+
+Thread.start {
+  loop do
+    sleep 1
+    $engine.broadcast_task(Task_Base.new)
   end
-end
+}
 
-class Inactive_Worker
-  Tasks = %i[d e f]
-end
-
-class Group
-  Workers = [Active_Worker.new, Inactive_Worker.new]
-  Queue = []
-
-  def initialize
-    @fs = Workers.collect { |w| w.methods.include?(:run) ? Fiber.new { w.run } : nil }
-    @fs.compact!
-    @done = false
-  end
-
-  def run
-    loop do
-      @fs.each do |f|
-        f.resume
-      rescue FiberError
-        @done = true
-        break
-      end
-      break if @done
-    end
-  end
-end
-
-g = Group.new
-g.run
+$engine.run
