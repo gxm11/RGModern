@@ -79,29 +79,29 @@ class Scheduler
     # 1. worker stopped 的场合，从 workers 中移除
     @workers.delete_if { |w| w.state == :dead }
 
+    # 2. ready 状态的 worker，直接启动
     @workers.select { |w| w.state == :ready }.each(&:resume)
 
+    # 3. active 的 worker，去掉 score 的 bias
     if @state == :active
       active_workers = @workers.select { |w| w.state == :active || w.state == :exit }
       min_score = active_workers.collect { |w| @scores[w] }.min
       active_workers.each { |w| @scores[w] -= min_score }
     end
 
+    # 4. 退出时等待所有的 worker 退出
     if @state == :exit
       "scheduler <#{@id}> is cleaning up"
-      # 2. stoping 状态下，将所有的 worker stop
       @workers.each { |w| w.stop() }
-
-      # 3. 没有 worker 时，scheduler 结束
       if @workers.empty?
         @state = :dead
-
         puts "scheduler <#{@id}> finishes"
       end
     end
   end
 
   def update_next_worker
+    # 选取 score 最低的 worker 恢复运行
     active_workers = @workers.select { |w| w.state == :active || w.state == :exit }
     next_w = active_workers.min_by { |w| @scores[w] }
 

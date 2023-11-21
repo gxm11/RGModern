@@ -6,7 +6,7 @@ class Task_Base
     @id = @@total_id
   end
 
-  def run()
+  def run(data)
     sleep rand(10) / 100
     puts "task <#{@id}> done."
   end

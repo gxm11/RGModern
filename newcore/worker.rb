@@ -37,12 +37,31 @@ class Worker
     true
   end
 
-  def run_task
+  def pop_task
     task = @task_queue.first
-    if task
-      task.run()
-      @task_queue.shift()
+    return false if task.nil?
+
+    data = lock_data(task.class)
+    return false if data.nil?
+
+    task.run(data)
+    unlock_data(task.class)
+    @task_queue.shift()
+
+    return true
+  end
+
+  def lock_data(task_class)
+    if rand < 0.95
+      puts " - worker <#{@id}> lock data failed!"
+      return nil
+    else
+      puts " - worker <#{@id}> locked data."
+      return []
     end
+  end
+
+  def unlock_data(task_class)
   end
 
   def run_before
@@ -55,27 +74,33 @@ class Worker
     @task_queue.clear()
   end
 
+  # 标准的 run 函数，处理完任务后，调用 suspend() 交出控制权
   def run
     loop do
-      while !@task_queue.empty?
-        run_task()
-      end
+      run_once()
+
       suspend()
       break if @state != :active
     end
   end
 
+  # run once 只在 passive 的 worker 中被用到，
+  # 此类 worker 没有挂起的功能，只是被 scheduler 反复调用 run_once
+  # 每次只会跑特定数量的任务（100）就交回执行权。
   def run_once
-    while !@task_queue.empty?
-      run_task()
+    100.times do
+      ret = pop_task()
+
+      # 任务失败后，不再继续执行
+      break if !ret
     end
   end
 
   def suspend
-    if @type == T_Fiber
+    case @type
+    when T_Fiber
       Fiber.yield()
-    end
-    if @type == T_Nested
+    when T_Nested
       @state = :pause if @state == :active
       @scheduler.update()
       @state = :active if @state == :pause
@@ -87,29 +112,32 @@ class Worker
     when :ready
       @state = :active
       puts "worker <#{@id}> starts running"
-      if @type == T_Fiber
+      case @type
+      when T_Fiber
         @fiber = Fiber.new {
           self.run_before()
           self.run()
           self.run_after()
         }
         @fiber.resume()
-      else
+      when T_Nested, T_Passive
         run_before()
       end
     when :active
-      if @type == T_Fiber
+      case @type
+      when T_Fiber
         @fiber.resume()
-      elsif @type == T_Nested
+      when T_Nested
         run()
-      else
+      when T_Passive
         run_once()
       end
     when :exit
       puts "worker <#{@id}> is cleaning up"
-      if @type == T_Fiber
+      case @type
+      when T_Fiber
         @fiber.resume()
-      else
+      when T_Nested, T_Passive
         run_after()
       end
       @state = :dead
